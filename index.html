@@ -23,7 +23,7 @@
     <meta name="twitter:image" content="https://bobs-app.vercel.app/og.png" />
     <title>Bob's App | Project Index</title>
     <link rel="stylesheet" href="/styles.css" />
-    <script src="/app.js" defer></script>
+    <script type="module" src="/app.js"></script>
   </head>
   <body>
     <a class="skip-link" href="#content">Skip to the work</a>
@@ -226,44 +226,7 @@
           <p class="index-instruction">Select a row to load its project viewer.</p>
         </header>
 
-        <ol class="project-list">
-          <li data-project-item="voyager">
-            <button class="project-row is-selected" type="button" data-project="voyager" aria-pressed="true">
-              <span class="row-number">01</span><strong>Voyager</strong><span class="row-outcome">Rugged navigation before hardware lock</span><span class="row-type">Field file + demo</span><span class="row-arrow" aria-hidden="true">↗</span>
-            </button>
-            <div class="mobile-project-preview" data-mobile-preview hidden></div>
-          </li>
-          <li data-project-item="buildbooks">
-            <button class="project-row" type="button" data-project="buildbooks" aria-pressed="false">
-              <span class="row-number">02</span><strong>Buildbooks</strong><span class="row-outcome">Made 8,892 products visually navigable</span><span class="row-type">Live system</span><span class="row-arrow" aria-hidden="true">↗</span>
-            </button>
-            <div class="mobile-project-preview" data-mobile-preview hidden></div>
-          </li>
-          <li data-project-item="fitapp">
-            <button class="project-row" type="button" data-project="fitapp" aria-pressed="false">
-              <span class="row-number">03</span><strong>FitApp</strong><span class="row-outcome">Turned fitment cleanup into a repeatable flow</span><span class="row-type">Live system</span><span class="row-arrow" aria-hidden="true">↗</span>
-            </button>
-            <div class="mobile-project-preview" data-mobile-preview hidden></div>
-          </li>
-          <li data-project-item="gauge-evolution">
-            <button class="project-row" type="button" data-project="gauge-evolution" aria-pressed="false">
-              <span class="row-number">04</span><strong>Gauge evolution</strong><span class="row-outcome">Twenty years of product development</span><span class="row-type">Field file</span><span class="row-arrow" aria-hidden="true">↗</span>
-            </button>
-            <div class="mobile-project-preview" data-mobile-preview hidden></div>
-          </li>
-          <li data-project-item="voyager-pro4">
-            <button class="project-row" type="button" data-project="voyager-pro4" aria-pressed="false">
-              <span class="row-number">05</span><strong>Voyager Pro4</strong><span class="row-outcome">One product across every launch surface</span><span class="row-type">Field file</span><span class="row-arrow" aria-hidden="true">↗</span>
-            </button>
-            <div class="mobile-project-preview" data-mobile-preview hidden></div>
-          </li>
-          <li data-project-item="product-surface">
-            <button class="project-row" type="button" data-project="product-surface" aria-pressed="false">
-              <span class="row-number">06</span><strong>Product surface</strong><span class="row-outcome">The systems surrounding the product</span><span class="row-type">Collection</span><span class="row-arrow" aria-hidden="true">↗</span>
-            </button>
-            <div class="mobile-project-preview" data-mobile-preview hidden></div>
-          </li>
-        </ol>
+        <ol class="project-list" data-project-list aria-label="Projects"></ol>
       </section>
 
       <section class="about" id="about" aria-labelledby="about-title">

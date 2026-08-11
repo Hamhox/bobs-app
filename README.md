@@ -12,8 +12,9 @@ npx serve .
 
 ## Structure
 
-- `index.html` contains the portfolio shell and project index.
-- `app.js` contains the initial project data and selection behavior.
+- `index.html` contains the portfolio shell and project viewer.
+- `projects.js` is the single data source for all six project entries.
+- `app.js` renders the project index and manages selection behavior.
 - `project.html` and `demo.html` provide working destinations while full field files and applications are integrated.
 - `styles.css` contains the shared visual and responsive system.
 
