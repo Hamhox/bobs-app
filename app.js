@@ -1,6 +1,16 @@
 import { projects, projectsById } from "./projects.js";
 
+const consoleElement = document.querySelector(".project-console");
 const projectList = document.querySelector("[data-project-list]");
+const viewerHeading = document.querySelector("#active-title");
+const announcer = document.querySelector("#project-announcer");
+const primaryAction = document.querySelector("[data-primary-action]");
+const secondaryAction = document.querySelector("[data-secondary-action]");
+const phoneViewport = window.matchMedia("(max-width: 819px)");
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+let activeProjectId = null;
+let updateTimer;
 
 function createProjectRow(project) {
   const item = document.createElement("li");
@@ -11,10 +21,17 @@ function createProjectRow(project) {
   button.type = "button";
   button.dataset.project = project.id;
   button.setAttribute("aria-pressed", "false");
+  button.setAttribute(
+    "aria-label",
+    `${project.number}, ${project.title}. ${project.indexSummary}. ${project.classification}.`,
+  );
 
   const number = document.createElement("span");
   number.className = "row-number";
-  number.textContent = project.number.slice(-2);
+  number.textContent = project.number;
+
+  const copy = document.createElement("span");
+  copy.className = "row-copy";
 
   const title = document.createElement("strong");
   title.textContent = project.title;
@@ -22,37 +39,27 @@ function createProjectRow(project) {
   const outcome = document.createElement("span");
   outcome.className = "row-outcome";
   outcome.textContent = project.indexSummary;
+  copy.append(title, outcome);
 
   const type = document.createElement("span");
   type.className = "row-type";
   type.textContent = project.classification;
 
-  const arrow = document.createElement("span");
-  arrow.className = "row-arrow";
-  arrow.setAttribute("aria-hidden", "true");
-  arrow.textContent = "↗";
+  const marker = document.createElement("span");
+  marker.className = "row-marker";
+  marker.setAttribute("aria-hidden", "true");
+  marker.textContent = "+";
 
-  button.append(number, title, outcome, type, arrow);
-
-  const mobilePreview = document.createElement("div");
-  mobilePreview.className = "mobile-project-preview";
-  mobilePreview.dataset.mobilePreview = "";
-  mobilePreview.hidden = true;
-
-  item.append(button, mobilePreview);
+  button.append(number, copy, type, marker);
+  item.append(button);
   return item;
 }
 
 projectList.replaceChildren(...projects.map(createProjectRow));
 
-const viewer = document.querySelector(".project-viewer");
 const rowButtons = [...document.querySelectorAll("[data-project]")];
-const mobilePreviews = [...document.querySelectorAll("[data-mobile-preview]")];
-const primaryAction = document.querySelector("[data-primary-action]");
-const secondaryAction = document.querySelector("[data-secondary-action]");
-const announcer = document.querySelector("#project-announcer");
 
-function setList(selector, items) {
+function replaceList(selector, items) {
   const list = document.querySelector(selector);
   list.replaceChildren(
     ...items.map((item) => {
@@ -61,6 +68,18 @@ function setList(selector, items) {
       return listItem;
     }),
   );
+}
+
+function replaceEvidence(entries) {
+  const evidence = document.querySelector("[data-project-evidence]");
+  const rows = entries.flatMap(([label, value]) => {
+    const term = document.createElement("dt");
+    term.textContent = label;
+    const description = document.createElement("dd");
+    description.textContent = value;
+    return [term, description];
+  });
+  evidence.replaceChildren(...rows);
 }
 
 function setAction(element, action) {
@@ -72,52 +91,47 @@ function setAction(element, action) {
 
   element.hidden = false;
   element.href = action.href;
-  element.firstChild.textContent = `${action.label} `;
+  element.querySelector("[data-action-label]").textContent = action.label;
 }
 
-function populateMobilePreview(id, project) {
-  mobilePreviews.forEach((preview) => {
-    const isCurrent = preview.closest("li").dataset.projectItem === id;
-    preview.hidden = !isCurrent;
-    preview.replaceChildren();
-
-    if (!isCurrent) return;
-
-    const thesis = document.createElement("p");
-    thesis.textContent = project.viewerSummary;
-
-    const action = document.createElement("a");
-    action.href = project.primaryAction.href;
-    action.textContent = `${project.primaryAction.label} ↗`;
-
-    preview.append(thesis, action);
-  });
+function animateUpdate() {
+  window.clearTimeout(updateTimer);
+  consoleElement.classList.remove("is-updating");
+  void consoleElement.offsetWidth;
+  consoleElement.classList.add("is-updating");
+  updateTimer = window.setTimeout(
+    () => consoleElement.classList.remove("is-updating"),
+    260,
+  );
 }
 
-function selectProject(id, announce = false) {
-  const project = projectsById.get(id);
-  if (!project) return;
+function renderProject(project, { announce = false } = {}) {
+  activeProjectId = project.id;
 
-  document.querySelector("[data-project-number]").textContent =
-    project.number.slice(-2);
+  document.querySelector("[data-project-number]").textContent = project.number;
+  document.querySelector("[data-note-number]").textContent = project.number;
   document.querySelector("[data-index-label]").textContent = project.number;
-  document.querySelector("[data-project-type]").textContent =
-    project.classification;
-  document.querySelector("[data-project-outcome]").textContent =
-    project.indexSummary;
+  document.querySelector("[data-footer-number]").textContent = project.number;
+  document.querySelector("[data-project-eyebrow]").textContent = project.eyebrow;
+  document.querySelector("[data-project-type]").textContent = project.classification;
+  document.querySelector("[data-project-outcome]").textContent = project.indexSummary;
   document.querySelector("[data-project-title]").textContent = project.title;
-  document.querySelector("[data-project-thesis]").textContent =
-    project.viewerSummary;
+  document.querySelector("[data-project-thesis]").textContent = project.viewerSummary;
   document.querySelector("[data-visual-caption]").textContent = project.caption;
-  document.querySelector(".project-visual figcaption span:last-child").textContent =
-    `Selected work ${project.number.slice(-2)}`;
+  document.querySelector("[data-visual-status]").textContent = project.visualStatus;
+  document.querySelector("[data-selected-work]").textContent =
+    `Selected work ${project.number}`;
+  document.querySelector("[data-field-note]").textContent = project.fieldNote;
 
-  setList("[data-project-facts]", project.facts);
-  setList("[data-project-tags]", project.tags);
+  replaceList("[data-project-facts]", project.facts);
+  replaceList("[data-project-tags]", project.tags);
+  replaceList("[data-project-artifacts]", project.artifacts);
+  replaceEvidence(project.evidence);
   setAction(primaryAction, project.primaryAction);
   setAction(secondaryAction, project.secondaryAction);
 
-  viewer.style.setProperty("--project-accent", project.accent);
+  consoleElement.style.setProperty("--project-accent", project.accent);
+  consoleElement.dataset.projectSignal = project.signal;
   document.querySelector("[data-project-visual]").dataset.projectVisual =
     project.visual;
 
@@ -128,27 +142,83 @@ function selectProject(id, announce = false) {
   });
 
   rowButtons.forEach((button) => {
-    const isCurrent = button.dataset.project === id;
+    const isCurrent = button.dataset.project === project.id;
     button.classList.toggle("is-selected", isCurrent);
     button.setAttribute("aria-pressed", String(isCurrent));
+    if (isCurrent) button.setAttribute("aria-current", "true");
+    else button.removeAttribute("aria-current");
   });
 
-  populateMobilePreview(id, project);
-  history.replaceState(null, "", `#${id}`);
   document.title = `${project.title} | Bob's App`;
+  animateUpdate();
 
   if (announce) announcer.textContent = `${project.title} selected.`;
 }
 
-rowButtons.forEach((button) => {
-  const id = button.dataset.project;
-  button.addEventListener("click", () => selectProject(id, true));
-  button.addEventListener("focus", () => selectProject(id));
+function projectFromLocation() {
+  const requestedId = decodeURIComponent(window.location.hash.slice(1));
+  return projectsById.get(requestedId) || projects[0];
+}
 
-  if (window.matchMedia("(hover: hover)").matches) {
-    button.addEventListener("pointerenter", () => selectProject(id));
+function updateLocation(project, mode) {
+  const nextHash = `#${project.id}`;
+  if (window.location.hash === nextHash) return;
+
+  const method = mode === "replace" ? "replaceState" : "pushState";
+  history[method]({ projectId: project.id }, "", nextHash);
+}
+
+function focusViewerOnPhone() {
+  if (!phoneViewport.matches) return;
+
+  window.requestAnimationFrame(() => {
+    viewerHeading.focus({ preventScroll: true });
+    document.querySelector("[data-project-visual]").scrollIntoView({
+      behavior: reducedMotion.matches ? "auto" : "smooth",
+      block: "start",
+    });
+  });
+}
+
+function selectProject(
+  id,
+  { historyMode = "push", announce = true, returnToViewer = false } = {},
+) {
+  const project = projectsById.get(id) || projects[0];
+
+  if (project.id !== activeProjectId) {
+    renderProject(project, { announce });
   }
+
+  updateLocation(project, historyMode);
+  if (returnToViewer) focusViewerOnPhone();
+}
+
+rowButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    selectProject(button.dataset.project, {
+      historyMode: "push",
+      announce: true,
+      returnToViewer: true,
+    });
+  });
+
+  button.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    button.click();
+  });
 });
 
-const requestedProject = window.location.hash.slice(1);
-selectProject(projectsById.has(requestedProject) ? requestedProject : projects[0].id);
+function syncFromHistory() {
+  const project = projectFromLocation();
+  if (project.id === activeProjectId) return;
+  renderProject(project, { announce: true });
+}
+
+window.addEventListener("popstate", syncFromHistory);
+window.addEventListener("hashchange", syncFromHistory);
+
+const initialProject = projectFromLocation();
+renderProject(initialProject);
+updateLocation(initialProject, "replace");
