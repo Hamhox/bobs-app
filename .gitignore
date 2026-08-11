@@ -3,7 +3,12 @@
 *
 !/.gitignore
 !/index.html
+!/project.html
+!/demo.html
 !/styles.css
+!/app.js
+!/destination.js
+!/og.png
 !/vercel.json
 !/README.md
 !/apps/
