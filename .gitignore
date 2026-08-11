@@ -13,3 +13,5 @@
 !/public/
 !/public/**
 
+.vercel
+.env*
