@@ -1,0 +1,15 @@
+# This workspace also contains private source material. Only publish the site shell
+# and the directories reserved for future apps and case studies.
+*
+!/.gitignore
+!/index.html
+!/styles.css
+!/vercel.json
+!/README.md
+!/apps/
+!/apps/**
+!/case-studies/
+!/case-studies/**
+!/public/
+!/public/**
+
