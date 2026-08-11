@@ -3,7 +3,7 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/projects/:slug", "destination": "/project.html?project=:slug" },
-    { "source": "/apps/:slug", "destination": "/demo.html?project=:slug" }
+    { "source": "/projects/:slug", "destination": "/project?project=:slug" },
+    { "source": "/apps/:slug", "destination": "/demo?project=:slug" }
   ]
 }
