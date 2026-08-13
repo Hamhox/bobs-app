@@ -33,11 +33,7 @@ body {
   min-height: 100vh;
   margin: 0;
   overflow-x: hidden;
-  background:
-    linear-gradient(rgb(255 255 255 / 0.018) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(255 255 255 / 0.018) 1px, transparent 1px),
-    var(--brand-dark);
-  background-size: 4rem 4rem;
+  background: var(--brand-dark);
 }
 
 body::before {
@@ -1436,11 +1432,7 @@ footer a {
 
 .directory-body,
 .artifacts-body {
-  background:
-    linear-gradient(rgb(255 255 255 / 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(255 255 255 / 0.025) 1px, transparent 1px),
-    var(--brand-dark);
-  background-size: 2rem 2rem;
+  background: var(--brand-dark);
 }
 
 .directory-main,
