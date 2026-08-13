@@ -1171,6 +1171,267 @@ footer a {
   }
 }
 
+/* Compact homepage directory */
+
+.directory-body {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100svh;
+}
+
+.directory-body .directory-main {
+  display: grid;
+  grid-template-areas: "directory intro";
+  grid-template-columns: minmax(21rem, 0.82fr) minmax(28rem, 1.18fr);
+  gap: clamp(3rem, 6vw, 6rem);
+  align-items: center;
+  width: min(100% - 3rem, 90rem);
+  min-height: 0;
+  margin-inline: auto;
+  padding-block: clamp(1.75rem, 4vh, 3rem);
+}
+
+.directory-body .directory-intro {
+  grid-area: intro;
+  display: block;
+  min-height: 0;
+  padding: 0;
+}
+
+.directory-body .directory-intro h1 {
+  max-width: 10ch;
+  margin: 1rem 0 0;
+  font-size: clamp(4rem, 5.4vw, 5.75rem);
+  line-height: 0.88;
+  letter-spacing: -0.055em;
+  text-transform: uppercase;
+}
+
+.directory-body .directory-intro-copy {
+  max-width: 43rem;
+  margin-top: clamp(1.25rem, 2.5vh, 2rem);
+  padding: clamp(1.15rem, 2.5vh, 1.75rem) 0 0;
+  border-top: 1px solid var(--brand-signal);
+}
+
+.directory-body .directory-intro-copy p {
+  margin: 0;
+  color: #c8cbd0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.02rem, 1.3vw, 1.18rem);
+  line-height: 1.48;
+}
+
+.directory-body .directory-intro-copy p + p {
+  margin-top: 1rem;
+  color: var(--brand-muted);
+  font-size: clamp(0.88rem, 1.05vw, 1rem);
+}
+
+.directory-body .site-directory {
+  grid-area: directory;
+  align-self: center;
+  padding: 0;
+}
+
+.directory-body .directory-heading {
+  display: block;
+  padding: 0;
+  border: 0;
+}
+
+.directory-body .directory-heading h2 {
+  max-width: none;
+  margin: 0.55rem 0 1.35rem;
+  font-size: clamp(2rem, 3vw, 2.75rem);
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+}
+
+.directory-body .directory-list {
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--brand-border);
+  list-style: none;
+}
+
+.directory-body .directory-list li {
+  margin: 0;
+  border-bottom: 1px solid var(--brand-border);
+}
+
+.directory-body .directory-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2.75rem minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  min-height: 4.15rem;
+  padding: 0.65rem 0.35rem;
+  overflow: visible;
+  text-decoration: none;
+  transition: padding 140ms ease, background-color 140ms ease;
+}
+
+.directory-body .directory-row::before,
+.directory-body .directory-row::after {
+  display: none;
+}
+
+.directory-body .directory-row:hover,
+.directory-body .directory-row:focus-visible {
+  padding-inline: 0.75rem 0.15rem;
+  background: rgb(255 255 255 / 0.035);
+}
+
+.directory-body .directory-number,
+.directory-body .directory-action {
+  align-self: center;
+  padding: 0;
+  color: var(--brand-muted);
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 0.62rem;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.directory-body .directory-row--primary .directory-number {
+  color: var(--brand-signal);
+}
+
+.directory-body .directory-row strong {
+  font-size: clamp(1.4rem, 2.15vw, 2rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.025em;
+  text-transform: uppercase;
+}
+
+.directory-body .directory-action {
+  justify-self: end;
+  color: var(--brand-signal);
+  font-size: 0.9rem;
+}
+
+.directory-body .directory-footer {
+  width: min(100% - 3rem, 90rem);
+  margin-inline: auto;
+  padding-block: 1rem 1.25rem;
+}
+
+@media (min-width: 901px) and (max-height: 720px) {
+  .directory-body .directory-main {
+    padding-block: 1.25rem;
+  }
+
+  .directory-body .directory-heading h2 {
+    margin-block: 0.4rem 1rem;
+    font-size: 2.1rem;
+  }
+
+  .directory-body .directory-row {
+    min-height: 3.6rem;
+  }
+
+  .directory-body .directory-row strong {
+    font-size: clamp(1.35rem, 1.8vw, 1.7rem);
+  }
+
+  .directory-body .directory-intro h1 {
+    margin-top: 0.7rem;
+    font-size: clamp(3.5rem, 4.7vw, 4.75rem);
+  }
+
+  .directory-body .directory-intro-copy {
+    margin-top: 1rem;
+    padding-top: 1rem;
+  }
+
+  .directory-body .directory-intro-copy p {
+    font-size: 0.98rem;
+    line-height: 1.4;
+  }
+
+  .directory-body .directory-intro-copy p + p {
+    margin-top: 0.75rem;
+    font-size: 0.84rem;
+  }
+
+  .directory-body .directory-footer {
+    padding-block: 0.8rem 1rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .directory-body .directory-main {
+    grid-template-areas:
+      "intro"
+      "directory";
+    grid-template-columns: 1fr;
+    gap: 4rem;
+    padding-block: 4.5rem 6rem;
+  }
+
+  .directory-body .directory-intro {
+    max-width: 42rem;
+  }
+
+  .directory-body .site-directory {
+    width: 100%;
+  }
+
+  .directory-body .directory-row {
+    grid-template-columns: 3rem minmax(0, 1fr) auto;
+  }
+}
+
+@media (max-width: 560px) {
+  .directory-body .directory-main,
+  .directory-body .directory-footer {
+    width: min(100% - 2rem, 90rem);
+  }
+
+  .directory-body .directory-main {
+    gap: 3.5rem;
+    padding-block: 3.5rem 5rem;
+  }
+
+  .directory-body .directory-intro h1 {
+    font-size: clamp(3rem, 14vw, 4.25rem);
+  }
+
+  .directory-body .directory-intro-copy p {
+    font-size: 1.02rem;
+  }
+
+  .directory-body .directory-heading h2 {
+    font-size: 1.9rem;
+  }
+
+  .directory-body .directory-row {
+    grid-template-columns: 2.5rem minmax(0, 1fr) auto;
+    min-height: 4rem;
+    gap: 0.75rem;
+    padding: 0.6rem 0.15rem;
+  }
+
+  .directory-body .directory-row:hover,
+  .directory-body .directory-row:focus-visible {
+    padding-inline: 0.45rem 0;
+  }
+
+  .directory-body .directory-row strong {
+    font-size: clamp(1.35rem, 7vw, 1.8rem);
+  }
+
+  .directory-body .directory-action {
+    display: block;
+  }
+}
+
 /* Site directory */
 
 .directory-body,
