@@ -1,0 +1,239 @@
+/* Story-led homepage */
+
+.directory-body .directory-masthead {
+  grid-template-columns: 1fr auto;
+}
+
+.directory-body .directory-masthead .wordmark {
+  width: clamp(9.75rem, 13vw, 11.5rem);
+}
+
+.directory-body .directory-main {
+  grid-template-columns: minmax(27rem, 0.92fr) minmax(31rem, 1.08fr);
+  gap: clamp(4rem, 6vw, 6.5rem);
+  width: min(100% - 5rem, 96rem);
+  padding-block: clamp(2rem, 4.8vh, 3.25rem);
+}
+
+.directory-body .directory-heading {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  margin-bottom: 1.55rem;
+}
+
+.directory-body .directory-heading::after {
+  height: 1px;
+  background: var(--brand-border);
+  content: "";
+  flex: 1;
+}
+
+.directory-body .directory-heading h2 {
+  flex: none;
+  margin: 0;
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: clamp(1.15rem, 1.65vw, 1.55rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.12em;
+}
+
+.directory-body .directory-list {
+  border-top: 0;
+}
+
+.directory-body .directory-row {
+  grid-template-columns: 3.8rem minmax(0, 1fr) 2rem;
+  gap: 1.35rem;
+  min-height: 6.7rem;
+  padding: 1.15rem 0.5rem 1.15rem 1.15rem;
+  border-left: 2px solid transparent;
+  transition: background 160ms ease, border-color 160ms ease, padding 160ms ease;
+}
+
+.directory-body .directory-row--primary {
+  border-left-color: var(--brand-signal);
+  background: linear-gradient(90deg, rgb(242 90 56 / 0.12), rgb(242 90 56 / 0.025) 78%, transparent);
+}
+
+.directory-body .directory-row:hover,
+.directory-body .directory-row:focus-visible {
+  padding: 1.15rem 0.25rem 1.15rem 1.4rem;
+  border-left-color: var(--brand-signal);
+  background: linear-gradient(90deg, rgb(242 90 56 / 0.12), rgb(242 90 56 / 0.025) 78%, transparent);
+}
+
+.directory-body .directory-number {
+  display: flex;
+  align-self: stretch;
+  align-items: center;
+  padding-right: 1.2rem;
+  border-right: 1px solid var(--brand-border);
+  font-size: 0.72rem;
+}
+
+.directory-body .directory-entry {
+  gap: 0.55rem;
+  align-self: center;
+}
+
+.directory-body .directory-row .directory-entry strong {
+  font-size: clamp(1rem, 1.35vw, 1.28rem);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: 0.08em;
+}
+
+.directory-body .directory-entry > span:last-child {
+  max-width: 33rem;
+  color: #c9ccd1;
+  font-size: clamp(0.78rem, 0.95vw, 0.93rem);
+  line-height: 1.4;
+}
+
+.directory-body .directory-action {
+  align-self: center;
+  font-size: 1.35rem;
+  font-weight: 400;
+}
+
+.directory-body .directory-intro .section-label::before {
+  display: none;
+}
+
+.directory-body .directory-intro h1 {
+  max-width: 8ch;
+  margin-top: 1.45rem;
+  font-size: clamp(4.3rem, 6.1vw, 6.15rem);
+  line-height: 0.84;
+}
+
+.directory-body .directory-intro-copy {
+  max-width: 41rem;
+  margin-top: 1.8rem;
+  padding-top: 1.55rem;
+}
+
+.directory-body .directory-intro-copy p,
+.directory-body .directory-intro-copy p + p {
+  color: #d7d5d0;
+  font-size: clamp(1rem, 1.3vw, 1.2rem);
+  line-height: 1.42;
+}
+
+.directory-body .directory-intro-copy p + p {
+  margin-top: 1.15rem;
+}
+
+.directory-body .directory-footer {
+  width: min(100% - 5rem, 96rem);
+  padding-block: 1rem 1.25rem;
+}
+
+.directory-body .directory-footer nav {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.directory-body .directory-footer a:hover,
+.directory-body .directory-footer a:focus-visible {
+  color: var(--brand-text);
+}
+
+@media (min-width: 901px) and (max-height: 760px) {
+  .directory-body .directory-main {
+    padding-block: 1.5rem;
+  }
+
+  .directory-body .directory-heading {
+    margin-bottom: 1rem;
+  }
+
+  .directory-body .directory-row {
+    min-height: 5.8rem;
+  }
+
+  .directory-body .directory-intro h1 {
+    margin-top: 1rem;
+    font-size: clamp(3.9rem, 5.4vw, 5.3rem);
+  }
+
+  .directory-body .directory-intro-copy {
+    margin-top: 1.2rem;
+    padding-top: 1.1rem;
+  }
+
+  .directory-body .directory-intro-copy p,
+  .directory-body .directory-intro-copy p + p {
+    font-size: clamp(0.9rem, 1.12vw, 1.04rem);
+    line-height: 1.38;
+  }
+
+  .directory-body .directory-intro-copy p + p {
+    margin-top: 0.8rem;
+  }
+
+  .directory-body .directory-footer {
+    padding-block: 0.8rem 1rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .directory-body .directory-main {
+    grid-template-columns: 1fr;
+    width: min(100% - 3rem, 46rem);
+  }
+
+  .directory-body .directory-intro h1 {
+    font-size: clamp(4rem, 12vw, 6rem);
+  }
+
+  .directory-body .directory-footer {
+    width: min(100% - 3rem, 46rem);
+  }
+}
+
+@media (max-width: 560px) {
+  .directory-body .directory-masthead .wordmark {
+    width: 9rem;
+  }
+
+  .directory-body .directory-main,
+  .directory-body .directory-footer {
+    width: min(100% - 2rem, 46rem);
+  }
+
+  .directory-body .directory-main {
+    gap: 3.5rem;
+    padding-block: 3.5rem 5rem;
+  }
+
+  .directory-body .directory-intro h1 {
+    font-size: clamp(3.45rem, 17vw, 4.8rem);
+  }
+
+  .directory-body .directory-row {
+    grid-template-columns: 2.9rem minmax(0, 1fr) 1.25rem;
+    gap: 0.8rem;
+    min-height: 6.9rem;
+    padding-inline: 0.75rem 0.15rem;
+  }
+
+  .directory-body .directory-row:hover,
+  .directory-body .directory-row:focus-visible {
+    padding-inline: 0.9rem 0;
+  }
+
+  .directory-body .directory-number {
+    padding-right: 0.75rem;
+  }
+
+  .directory-body .directory-entry > span:last-child {
+    font-size: 0.76rem;
+  }
+
+  .directory-body .directory-footer {
+    align-items: flex-start;
+  }
+}

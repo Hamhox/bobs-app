@@ -6,13 +6,13 @@
     <meta name="theme-color" content="#0a0e17" />
     <meta
       name="description"
-      content="Bob's App is the public home for a guided portfolio, working applications, product stories, and the artifacts around them."
+      content="Bob's App tells the stories behind the products, interfaces, tools, and launch work Bob built, with working apps you can open."
     />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Bob's App | Directory" />
     <meta
       property="og:description"
-      content="A guided portfolio, working applications, product stories, and the artifacts around them."
+      content="The stories behind Bob's products, interfaces, tools, and launch work, with working apps you can open."
     />
     <meta property="og:url" content="https://bobs-app.vercel.app/" />
     <meta property="og:image" content="https://bobs-app.vercel.app/og-directory.png" />
@@ -27,15 +27,15 @@
     <title>Bob's App | Directory</title>
     <link rel="icon" href="/bobs-app-symbol-logo.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/homepage.css" />
   </head>
   <body class="directory-body">
     <a class="skip-link" href="#content">Skip to the directory</a>
 
     <header class="masthead directory-masthead">
       <a class="wordmark" href="/" aria-label="Bob's App, home">
-        <img src="/bobs-app-tagline-logo.svg" alt="" width="450" height="100" />
+        <img src="/bobs-app-logo.svg" alt="" width="572" height="100" />
       </a>
-      <p class="index-position">Directory <span>001&ndash;006</span></p>
       <nav aria-label="Primary navigation">
         <a href="/portfolio">Portfolio</a>
         <a href="#about">About</a>
@@ -44,71 +44,68 @@
 
     <main class="directory-main" id="content">
       <section class="directory-intro" id="about" aria-labelledby="directory-title">
-        <p class="section-label">Who is Bob, and what is this?</p>
-        <h1 id="directory-title">I make the missing thing.</h1>
+        <p class="section-label">What about Bob?</p>
+        <h1 id="directory-title">Stories that work.</h1>
         <div class="directory-intro-copy">
           <p>
-            Bob spent most of his career inside one product company, where the
-            gaps between design, engineering, product data, content, and
-            operations kept becoming his job. When the team needed a prototype,
-            an internal tool, a product interface, a launch system, or a clearer
-            way to understand a product, he built the missing thing.
+            Bob's App is where Bob tells the stories behind the things he made,
+            and lets you open some of them.
           </p>
           <p>
-            Bob's App is the public home for that work: a guided portfolio,
-            working applications, and a growing collection of the artifacts
-            around them. Start with the portfolio for the complete story, or
-            open a project directly.
+            Most of Bob's career happened inside one product company, where the
+            work kept crossing design, documentation, engineering, operations,
+            and go-to-market. He built prototypes, internal tools, product
+            interfaces, technical manuals, and launch work.
+          </p>
+          <p>
+            Start with Bob's Gauge Story if you want the quickest introduction.
           </p>
         </div>
       </section>
 
       <section class="site-directory" aria-labelledby="site-directory-title">
         <header class="directory-heading">
-          <p class="section-label">Directory / 001&ndash;006</p>
-          <h2 id="site-directory-title">Projects + systems</h2>
+          <h2 id="site-directory-title">Open a story:</h2>
         </header>
 
         <ol class="directory-list">
           <li>
-            <a class="directory-row directory-row--primary" href="/portfolio">
+            <a class="directory-row directory-row--primary" href="/projects/gauge-evolution">
               <span class="directory-number">001</span>
-              <strong>Portfolio</strong>
+              <span class="directory-entry">
+                <strong>Bob's Gauge Story</strong>
+                <span>Start here. The fastest way to get to know Bob.</span>
+              </span>
+              <span class="directory-action" aria-hidden="true">&rarr;</span>
+            </a>
+          </li>
+          <li>
+            <a class="directory-row" href="/apps/gauge-evolution">
+              <span class="directory-number">002</span>
+              <span class="directory-entry">
+                <strong>Interactive Gauges App</strong>
+                <span>Hands-on gauge interactions.</span>
+              </span>
               <span class="directory-action" aria-hidden="true">&rarr;</span>
             </a>
           </li>
           <li>
             <a class="directory-row" href="/apps/buildbooks">
-              <span class="directory-number">002</span>
-              <strong>Buildbooks</strong>
-              <span class="directory-action" aria-hidden="true">&rarr;</span>
-            </a>
-          </li>
-          <li>
-            <a class="directory-row" href="/apps/fitapp">
               <span class="directory-number">003</span>
-              <strong>FitApp</strong>
-              <span class="directory-action" aria-hidden="true">&rarr;</span>
-            </a>
-          </li>
-          <li>
-            <a class="directory-row" href="/projects/gauge-evolution">
-              <span class="directory-number">004</span>
-              <strong>Gauge evolution</strong>
-              <span class="directory-action" aria-hidden="true">&rarr;</span>
-            </a>
-          </li>
-          <li>
-            <a class="directory-row" href="/projects/product-surface">
-              <span class="directory-number">005</span>
-              <strong>Product surface</strong>
+              <span class="directory-entry">
+                <strong>Buildbooks</strong>
+                <span>Internal tools that matter.</span>
+              </span>
               <span class="directory-action" aria-hidden="true">&rarr;</span>
             </a>
           </li>
           <li>
             <a class="directory-row" href="/artifacts">
-              <span class="directory-number">006</span>
-              <strong>Bob's Artifacts</strong>
+              <span class="directory-number">004</span>
+              <span class="directory-entry">
+                <strong>Bob's Artifacts</strong>
+                <span>Smaller experiments, utilities, and project remnants.</span>
+              </span>
               <span class="directory-action" aria-hidden="true">&rarr;</span>
             </a>
           </li>
@@ -117,8 +114,13 @@
     </main>
 
     <footer class="directory-footer">
-      <span>Bob's App / Public working directory</span>
-      <span>Products + interfaces + tools + data</span>
+      <nav aria-label="Site sections">
+        <a href="/portfolio">Portfolio</a>
+        <span aria-hidden="true">&bull;</span>
+        <a href="/apps/gauge-evolution">Apps</a>
+        <span aria-hidden="true">&bull;</span>
+        <a href="/artifacts">Artifacts</a>
+      </nav>
       <span>Updated August 2026</span>
     </footer>
   </body>
