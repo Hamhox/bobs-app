@@ -118,25 +118,21 @@ footer,
 }
 
 .wordmark {
-  display: inline-flex;
-  align-items: center;
+  display: block;
   justify-self: start;
-  gap: 0.7rem;
-  font-size: 0.74rem;
-  font-weight: 700;
-  letter-spacing: 0.11em;
+  width: clamp(8.5rem, 11vw, 10.5rem);
+  line-height: 0;
   text-decoration: none;
 }
 
-.wordmark-mark {
-  display: grid;
-  width: 1.75rem;
-  height: 1.75rem;
-  place-items: center;
-  border: 1px solid var(--brand-signal);
-  background: var(--brand-signal);
-  color: #130a08;
-  font-size: 0.72rem;
+.wordmark img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.wordmark:hover img {
+  opacity: 0.82;
 }
 
 .index-position {
