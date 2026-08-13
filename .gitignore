@@ -3,6 +3,8 @@
 *
 !/.gitignore
 !/index.html
+!/portfolio.html
+!/artifacts.html
 !/project.html
 !/demo.html
 !/styles.css
@@ -10,6 +12,7 @@
 !/projects.js
 !/destination.js
 !/og.png
+!/og-directory.png
 !/vercel.json
 !/README.md
 !/apps/
