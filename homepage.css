@@ -333,6 +333,30 @@
   max-width: 37rem;
 }
 
+.directory-body .first-story-cta {
+  display: inline-flex;
+  min-height: 2.8rem;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1.4rem;
+  padding: 0.75rem 1.1rem;
+  border: 1px solid #fff;
+  background: #147a52;
+  color: #fff;
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.055em;
+  line-height: 1;
+  text-decoration: none;
+  transition: background-color 150ms ease;
+}
+
+.directory-body .first-story-cta:hover,
+.directory-body .first-story-cta:focus-visible {
+  background: #199663;
+}
+
 .directory-body .directory-footer {
   position: relative;
   z-index: 1;
