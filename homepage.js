@@ -5,14 +5,15 @@
   if (!directory || !atmosphere) return;
 
   const rows = [...directory.querySelectorAll(".directory-row[data-story]")];
-  const layers = [...atmosphere.querySelectorAll(".story-atmosphere__layer[data-story]")];
+  const images = [...atmosphere.querySelectorAll(".story-atmosphere__image[data-story]")];
   const stories = new Set(rows.map((row) => row.dataset.story));
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const recommendedStory = "gauge-story";
 
   const state = {
-    recommendedStory: "gauge-story",
+    recommendedStory,
     hoveredStory: null,
-    displayedStory: "gauge-story",
+    displayedStory: recommendedStory,
   };
 
   let pointerStory = null;
@@ -27,14 +28,13 @@
     directory.dataset.hoveredStory = state.hoveredStory || "";
     directory.dataset.displayedStory = state.displayedStory;
     directory.classList.toggle("is-engaged", state.hoveredStory !== null);
-    atmosphere.classList.toggle("is-idle", state.hoveredStory === null);
 
     rows.forEach((row) => {
       row.classList.toggle("is-active", row.dataset.story === state.hoveredStory);
     });
 
-    layers.forEach((layer) => {
-      layer.classList.toggle("is-displayed", layer.dataset.story === state.displayedStory);
+    images.forEach((image) => {
+      image.classList.toggle("is-displayed", image.dataset.story === state.displayedStory);
     });
   }
 

@@ -240,135 +240,32 @@
 .story-atmosphere {
   position: absolute;
   z-index: 0;
-  inset: -4rem 0 -3rem -2.5rem;
-  overflow: hidden;
+  inset: 0;
+  overflow: clip;
   pointer-events: none;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 16%, #000 86%, transparent);
-  mask-image: linear-gradient(90deg, transparent, #000 16%, #000 86%, transparent);
+  isolation: isolate;
 }
 
-.story-atmosphere__layer {
+.story-atmosphere__image {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  mix-blend-mode: screen;
   opacity: 0;
-  transform: scale(0.985);
-  transition: opacity 380ms ease, transform 560ms ease;
+  transform: scale(1.015);
+  transition: opacity 520ms ease, transform 800ms ease;
 }
 
-.story-atmosphere__layer.is-displayed {
-  opacity: 0.42;
+.story-atmosphere__image.is-displayed {
+  opacity: 0.16;
   transform: scale(1);
 }
 
-.story-atmosphere.is-idle .story-atmosphere__layer.is-displayed {
-  opacity: 0.24;
-}
-
-.story-atmosphere.is-settling .story-atmosphere__layer {
-  transition-duration: 650ms;
-}
-
-.story-atmosphere__layer::before,
-.story-atmosphere__layer::after {
-  position: absolute;
-  content: "";
-}
-
-.story-atmosphere__layer--gauge-story {
-  background: radial-gradient(
-    circle at 78% 28%,
-    hsl(263deg 92% 48% / 42%) 0%,
-    hsl(257deg 74% 25% / 18%) 26%,
-    transparent 56%
-  );
-}
-
-.story-atmosphere__layer--gauge-story::before {
-  top: -8rem;
-  right: -8rem;
-  width: 32rem;
-  height: 32rem;
-  border-radius: 50%;
-  background: repeating-conic-gradient(from 215deg, rgb(255 90 54 / 0.22) 0 1deg, transparent 1deg 9deg);
-  -webkit-mask: radial-gradient(circle, transparent 0 54%, #000 54.5% 57%, transparent 57.5% 68%, #000 68.5% 69%, transparent 69.5%);
-  mask: radial-gradient(circle, transparent 0 54%, #000 54.5% 57%, transparent 57.5% 68%, #000 68.5% 69%, transparent 69.5%);
-}
-
-.story-atmosphere__layer--gauge-story::after {
-  top: 14.5rem;
-  right: 5rem;
-  width: 23rem;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgb(255 90 54 / 0.28));
-  box-shadow: 0 -4rem 0 rgb(169 170 188 / 0.08);
-  transform: rotate(-22deg);
-  transform-origin: right;
-}
-
-.story-atmosphere__layer--interactive::before {
-  top: -5rem;
-  right: -10rem;
-  width: 35rem;
-  height: 35rem;
-  border-radius: 50%;
-  background: repeating-conic-gradient(from 225deg, rgb(169 170 188 / 0.2) 0 1deg, transparent 1deg 7deg);
-  -webkit-mask: radial-gradient(circle, transparent 0 36%, #000 36.5% 37%, transparent 37.5% 51%, #000 51.5% 52.25%, transparent 52.75% 66%, #000 66.5% 67%, transparent 67.5%);
-  mask: radial-gradient(circle, transparent 0 36%, #000 36.5% 37%, transparent 37.5% 51%, #000 51.5% 52.25%, transparent 52.75% 66%, #000 66.5% 67%, transparent 67.5%);
-}
-
-.story-atmosphere__layer--interactive::after {
-  top: 6rem;
-  right: 2rem;
-  color: rgb(169 170 188 / 0.2);
-  content: "240   180   120   060";
-  font-family: "IBM Plex Mono", Consolas, monospace;
-  font-size: 0.65rem;
-  letter-spacing: 0.55em;
-  transform: rotate(-12deg);
-}
-
-.story-atmosphere__layer--buildbooks::before {
-  inset: 4rem -2rem 3rem 5rem;
-  background:
-    radial-gradient(circle at 12% 22%, rgb(169 170 188 / 0.34) 0 2px, transparent 3px),
-    radial-gradient(circle at 48% 12%, rgb(169 170 188 / 0.28) 0 2px, transparent 3px),
-    radial-gradient(circle at 72% 46%, rgb(169 170 188 / 0.32) 0 2px, transparent 3px),
-    radial-gradient(circle at 35% 78%, rgb(169 170 188 / 0.24) 0 2px, transparent 3px),
-    radial-gradient(circle at 88% 82%, rgb(169 170 188 / 0.3) 0 2px, transparent 3px),
-    linear-gradient(25deg, transparent 39%, rgb(169 170 188 / 0.09) 39.2% 39.45%, transparent 39.65%),
-    linear-gradient(145deg, transparent 54%, rgb(169 170 188 / 0.09) 54.2% 54.45%, transparent 54.65%),
-    linear-gradient(75deg, transparent 57%, rgb(169 170 188 / 0.07) 57.2% 57.45%, transparent 57.65%);
-}
-
-.story-atmosphere__layer--buildbooks::after {
-  right: 1rem;
-  bottom: 5rem;
-  color: rgb(169 170 188 / 0.18);
-  content: "BOM / 01     REL / 04     FIT / 07";
-  font-family: "IBM Plex Mono", Consolas, monospace;
-  font-size: 0.62rem;
-  letter-spacing: 0.18em;
-}
-
-.story-atmosphere__layer--artifacts::before {
-  inset: 3rem -2rem 2rem 6rem;
-  background:
-    linear-gradient(rgb(169 170 188 / 0.09) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(169 170 188 / 0.09) 1px, transparent 1px);
-  background-size: 8rem 5.5rem;
-  transform: rotate(-4deg);
-}
-
-.story-atmosphere__layer--artifacts::after {
-  right: 0;
-  bottom: 4rem;
-  max-width: 25rem;
-  color: rgb(169 170 188 / 0.18);
-  content: "FIELD NOTE 12  /  PROTOTYPE  /  LABEL  /  REMNANT";
-  font-family: "IBM Plex Mono", Consolas, monospace;
-  font-size: 0.6rem;
-  letter-spacing: 0.18em;
-  line-height: 2;
+.story-atmosphere.is-settling .story-atmosphere__image {
+  transition-duration: 650ms, 800ms;
 }
 
 .directory-body .directory-intro h1 {
@@ -532,8 +429,9 @@
   .directory-body .directory-number,
   .directory-body .directory-number::before,
   .directory-body .directory-action,
-  .story-atmosphere__layer {
+  .story-atmosphere__image {
     animation: none;
     transition: none;
+    transform: none;
   }
 }
