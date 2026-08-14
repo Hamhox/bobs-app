@@ -203,6 +203,64 @@ label[for] {
   padding: clamp(22px, 4vw, 42px);
 }
 
+.database-download {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 22px;
+  padding: 18px 20px;
+  border: 1px solid #b8c4d8;
+  border-left: 4px solid var(--blue);
+  background: #edf2fb;
+}
+
+.database-download__copy strong,
+.database-download__copy span {
+  display: block;
+}
+
+.database-download__copy strong {
+  margin-bottom: 5px;
+  color: #20273a;
+  font-size: 0.95rem;
+}
+
+.database-download__copy span {
+  color: #5c6476;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.download-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 42px;
+  padding: 10px 15px;
+  border: 1px solid #183f9e;
+  border-radius: 4px;
+  background: var(--blue);
+  color: var(--white);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 160ms ease, transform 160ms ease;
+  white-space: nowrap;
+}
+
+.download-button:hover,
+.download-button:focus-visible {
+  background: #183f9e;
+  transform: translateY(-1px);
+}
+
+.download-button span {
+  font-size: 1rem;
+  line-height: 1;
+}
+
 .file-stack {
   display: grid;
   gap: 12px;
@@ -519,6 +577,15 @@ label[for] {
 
   .file-row {
     grid-template-columns: 1fr auto;
+  }
+
+  .database-download {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .download-button {
+    width: 100%;
   }
 
   .file-name {

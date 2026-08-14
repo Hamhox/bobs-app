@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Upload Database · Buildbooks</title>
   <link rel="icon" type="image/png" sizes="32x32" href="/apps/buildbooks/assets/favicon-32x32.png">
-  <link rel="stylesheet" href="/apps/buildbooks/assets/tool-demo.css?v=1">
+  <link rel="stylesheet" href="/apps/buildbooks/assets/tool-demo.css?v=2">
   <script src="/apps/buildbooks/tools/buildbooks-db/upload-demo.js?v=1" defer></script>
 </head>
 <body>
@@ -36,6 +36,16 @@
         <span>Three files required</span>
       </div>
       <div class="tool-panel__body">
+        <div class="database-download">
+          <div class="database-download__copy">
+            <strong>Inspect the current QAR dataset</strong>
+            <span>Download the BOM, inventory, and item metadata as three plain-text TSV files.</span>
+          </div>
+          <a class="download-button" href="/apps/buildbooks/downloads/buildbooks-qar-database.zip" download>
+            Download database ZIP <span aria-hidden="true">↓</span>
+          </a>
+        </div>
+
         <div class="file-stack">
           <div class="file-row" data-file-field>
             <div class="file-row__label">
