@@ -3,10 +3,10 @@
 .directory-body {
   background:
     radial-gradient(
-      circle at 87% 7%,
-      hsl(263deg 92% 48% / 18%) 0%,
-      hsl(257deg 74% 25% / 10%) 28%,
-      transparent 52%
+      circle at 78% 28%,
+      hsl(263deg 92% 48% / 6%) 0%,
+      hsl(257deg 74% 25% / 3%) 22%,
+      transparent 42%
     ),
     #080b12;
 }
@@ -28,6 +28,15 @@
   width: clamp(9.75rem, 13vw, 11.5rem);
 }
 
+.directory-body .directory-masthead nav a {
+  color: #aaa6ba;
+}
+
+.directory-body .directory-masthead nav a:hover,
+.directory-body .directory-masthead nav a:focus-visible {
+  color: #f2eee6;
+}
+
 .directory-body .directory-main {
   grid-template-columns: minmax(27rem, 0.92fr) minmax(31rem, 1.08fr);
   gap: clamp(4rem, 6vw, 6.5rem);
@@ -39,8 +48,8 @@
   align-self: center;
   margin: 0.5rem 0.625rem;
   padding: 2.5rem;
-  border: 1px solid #29283d;
-  background: #11111e;
+  border: 1px solid rgb(116 99 151 / 0.28);
+  background: rgb(17 16 30 / 0.92);
   box-shadow: 0 1.25rem 2.75rem rgb(0 0 0 / 0.32);
 }
 
@@ -101,14 +110,14 @@
 
 .directory-body .directory-row--primary {
   border-left-color: #ff5a36;
-  background: rgb(115 45 45 / 0.16);
+  background: rgb(79 33 39 / 0.26);
 }
 
 .directory-body .directory-row:hover,
 .directory-body .directory-row:focus-visible {
   padding: 1.15rem 0.5rem 1.15rem 1.15rem;
   border-left-color: #ff5a36;
-  background: rgb(115 45 45 / 0.13);
+  background: rgb(79 33 39 / 0.22);
 }
 
 .directory-body .directory-list:has(.directory-row:hover) .directory-row--primary:not(:hover),
@@ -215,6 +224,12 @@
 }
 
 .story-atmosphere__layer--gauge-story {
+  background: radial-gradient(
+    circle at 78% 28%,
+    hsl(263deg 92% 48% / 42%) 0%,
+    hsl(257deg 74% 25% / 18%) 26%,
+    transparent 56%
+  );
   opacity: 0.24;
 }
 
