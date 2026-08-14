@@ -16,7 +16,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300..800&family=Rubik:wght@300..900&display=swap" rel="stylesheet">
 	<!-- Load app files -->
 	<link rel="stylesheet" href="assets/bb.css?v=0.0.170"> 
-					<script src="assets/bb.js?v=0.0.674"></script>
+	<script src="assets/bb.js?v=0.0.675"></script>
 					
       <script src="assets/jsbarcode.all.min.js?v=0.0.03"></script>
       <script src="assets/print.min.js?v=0.0.03"></script>
@@ -26,9 +26,8 @@
 
 
 	<div id="topbar">
-		<div id="newSiteLink">
+		<div id="topbarActions">
 			<span id="shareLink" href='' data-clipboard-text="test">Copy Link</span> 
-			| <a href='index.html' alt="Select new site">Sites >></a>
 			| <button id="toolsMenuButton" type="button" aria-expanded="false" aria-controls="toolsMenu" title="Admin tools"><img src="assets/menu-icon.svg" alt="Admin tools"></button>
 			<div id="toolsMenu" aria-label="Admin tools">
 				<a href="tools/buildbooks-images/index.php">Restore Images</a>
@@ -36,7 +35,7 @@
 				<label class="toolsMenuToggle" for="adminModeCheckbox"><input id="adminModeCheckbox" type="checkbox"> Admin Mode</label>
 			</div>
 		</div>
-		<div id="armor-tech-logo"><a href="bb.html"><img id="armor-tech-logo-svg" src="assets/buildbooks-anchor-logo.svg" alt="Buildbooks"></a></div>
+		<div id="armor-tech-logo"><a href="bb.html?item=QAR-0001&amp;tab=1"><img id="armor-tech-logo-svg" src="assets/buildbooks-anchor-logo.svg" alt="Buildbooks"></a></div>
 	</div>
 
 	<span id="browserError" class="error" style="display:none;">
@@ -143,16 +142,6 @@
 						<span id="criticalNotesSaveStatus"></span>
 					</div>
 				</div>
-				<div id="labelNoteContainer">
-					<a id="crnLabelLink" class="labelNote" href="bb.html?site=crn" target="_blank">print from the #CRN page >></a>
-					<p class="labelNote">To print barcode labels for retail packaging, <br>
-					head to the #CRN page to print approved labels.
-					</p>
-					<p class="subLabelNote">#BGW labels do not support UPC or retail approved item names.<br>
-						I understand, show me the <a onclick="bb.dry.showPrintLabelContainer()">#BGW labels</a> anyway >></p>
-				</div>
-				
-				
 				<div id="labelCriticalContainer">
 					<p class="labelNote">CRITICAL NOTE:</p>
 					<p id="labelCriticalNote" class="subLabelNote">THIS LABEL NOT APPROVED FOR PACKAGING.</p>

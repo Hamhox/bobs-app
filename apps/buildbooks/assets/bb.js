@@ -16,16 +16,10 @@
 	window.addEventListener('DOMContentLoaded', function() {
 		console.log("bb DOMContentLoaded!");
 		
-		bb.urlQuerySite = bb.dry.getUrlQueryStr('site') || 'crn';
-		bb.urlQueryItem = bb.dry.getUrlQueryStr('item');
+		bb.urlQueryItem = bb.dry.getUrlQueryStr('item') || 'QAR-0001';
 		bb.urlQuerySearch = bb.dry.getUrlQueryStr('search');
-		bb.urlQueryTab = bb.dry.getUrlQueryStr('tab');
-		
-		if (bb.urlQueryTab == undefined) {
-			bb.ele.buttonTab = document.getElementById('button_tab1');
-		} else {
-			bb.ele.buttonTab = document.getElementById('button_tab' + bb.urlQueryTab);
-		}
+		bb.urlQueryTab = bb.dry.getUrlQueryStr('tab') || '1';
+		bb.ele.buttonTab = document.getElementById('button_tab' + bb.urlQueryTab);
 		
 		//
 		// register selected sku members
@@ -102,7 +96,6 @@
 			//bb.ele.barcodeContainer = document.getElementById('barcodeContainer');
 			bb.ele.labelCriticalContainer = document.getElementById('labelCriticalContainer');
 			bb.ele.labelCriticalNote = document.getElementById('labelCriticalNote');
-			bb.ele.labelNoteContainer = document.getElementById('labelNoteContainer');
 			bb.ele.printContainer = document.getElementById('printContainer');
 			bb.ele.batteryWarning = document.getElementById('batteryWarning');
 			bb.ele.coinLabel = document.getElementById('coinLabelContainer');
@@ -161,9 +154,8 @@
 		bb.dry.clickHistory = [];
 		
 		//
-		// request ajax files
-		// also change page elements based on chosen site
-		bb.dry.doSiteSpecificActs();
+		// Configure the single Buildbooks dataset before requesting its files.
+		bb.dry.configureDataSources();
 		
 		//console.log(bb.ajax.path1);
 		console.log('Requesting Buildbooks Ajax Files...')
@@ -1172,24 +1164,17 @@ bb.ajax.finished = function () {
 //
 // HTML ELEMENT ALTERATION FUNCTIONS
 //
-	bb.dry.doSiteSpecificActs = function () {
+	bb.dry.configureDataSources = function () {
 		bb.ele.pageLogo.innerHTML = 'Buildbooks';
-		bb.ele.labelNoteContainer.style.display = 'none';
 		bb.ajax.path1 = 'database/buildbooks-bom.tsv';
 		bb.ajax.path2 = 'database/buildbooks-inventory.tsv';
 		bb.ajax.path3 = 'database/Buildbooks_CRITICAL_NOTES.csv';
 	}
 	
 	//
-	// update the url for the cross-site link for the barcode label.. iff its bgw, direct to the crn site
+	// Update the share URL to match the current Buildbooks state.
 	bb.dry.updateLinks = function () {
-		var newLink = document.URL.substr(0,document.URL.lastIndexOf('/')) + '/bb.html?site=' + bb.urlQuerySite + '&item=' + bb.sku.value + '&search=' + bb.ele.searchInput.value + '&tab=' + document.querySelector(".tablinks.active").id.slice(-1);
-		
-		var crnNewLink = document.URL.substr(0,document.URL.lastIndexOf('/')) + '/bb.html?site=crn&item=' + bb.sku.value + '&search=' + bb.ele.searchInput.value + '&tab=3';
-		
-		bb.ele.crnLabelLink = document.getElementById("crnLabelLink"); 
-		bb.ele.crnLabelLink.href = crnNewLink;
-		bb.ele.crnLabelLink.innerHTML = 'Print label: ' + bb.sku.value + ' >>';
+		var newLink = window.location.origin + '/apps/buildbooks/bb?item=' + encodeURIComponent(bb.sku.value) + '&search=' + encodeURIComponent(bb.ele.searchInput.value) + '&tab=' + document.querySelector(".tablinks.active").id.slice(-1);
 		//
 		// update the sharelink button url to the current state of the app
 		document.getElementById('shareLink').setAttribute('data-clipboard-text', newLink);

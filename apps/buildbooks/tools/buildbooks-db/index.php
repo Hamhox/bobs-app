@@ -408,7 +408,7 @@ function getCurrentLiveData($files, $databaseDir) {
 		#armor-tech-logo a {
 			display: inline-block;
 		}
-		#newSiteLink {
+		#topbarActions {
 			position: absolute;
 			top: 10px;
 			right: 10px;
@@ -418,7 +418,7 @@ function getCurrentLiveData($files, $databaseDir) {
 			border-radius: 3px;
 			color: rgb(205 137 182 / 50%);
 		}
-		#newSiteLink a {
+		#topbarActions a {
 			color: hsl(220 10% 78% / 1);
 			text-decoration: none;
 			background-color: rgba(0,0,0,0);
@@ -683,13 +683,11 @@ function getCurrentLiveData($files, $databaseDir) {
 </head>
 <body>
 	<div id="topbar">
-		<div id="armor-tech-logo"><a href="../../bb.html"><img id="armor-tech-logo-svg" src="../../assets/buildbooks-anchor-logo.svg" alt="Buildbooks"></a></div>
-		<div id="newSiteLink">
-			<a href="../../index.html" alt="Select new site">Sites >></a>
-			|
+		<div id="armor-tech-logo"><a href="../../bb.html?item=QAR-0001&amp;tab=1"><img id="armor-tech-logo-svg" src="../../assets/buildbooks-anchor-logo.svg" alt="Buildbooks"></a></div>
+		<div id="topbarActions">
 			<button id="toolsMenuButton" type="button" aria-expanded="false" aria-controls="toolsMenu" title="Admin tools"><img src="../../assets/menu-icon.svg" alt="Admin tools"></button>
 			<div id="toolsMenu" aria-label="Admin tools">
-				<a href="../../bb.html">Buildbooks</a>
+				<a href="../../bb.html?item=QAR-0001&amp;tab=1">Buildbooks</a>
 				<a href="../buildbooks-images/index.php">Restore Images</a>
 			</div>
 		</div>
@@ -701,7 +699,7 @@ function getCurrentLiveData($files, $databaseDir) {
 				<p>All uploaded files passed validation and replaced the live Buildbooks data.</p>
 				<p class="publishedLine">Published: <?php echo h($result['publishedAt']); ?></p>
 				<div class="actionRow">
-					<a class="actionButton" href="../../bb.html?site=crn">Open Buildbooks</a>
+					<a class="actionButton" href="../../bb.html?item=QAR-0001&amp;tab=1">Open Buildbooks</a>
 					<a class="actionButton secondary" href="index.php">Upload another set</a>
 				</div>
 			</section>

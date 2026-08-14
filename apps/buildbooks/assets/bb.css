@@ -295,7 +295,7 @@ body {
 	}
 
 	
-	#newSiteLink {
+	#topbarActions {
     position: absolute;
     top: 10px;
     right: 10px;
@@ -305,7 +305,7 @@ body {
     border-radius: 3px;
 	color: rgb(205 137 182 / 50%);
 	}
-	#newSiteLink a, #newSiteLink span {
+	#topbarActions a, #topbarActions span {
 		color: hsl(220 10% 78% / 1);
 		text-decoration: none;
 		text-transform: inherit;
@@ -351,14 +351,14 @@ body {
 	#toolsMenu.open {
 		display: block;
 	}
-	#newSiteLink #toolsMenu a {
+	#topbarActions #toolsMenu a {
 		display: block;
 		padding: 8px 12px;
 		color: hsl(220 12% 88% / 1);
 		font-size: 12px;
 	}
-	#newSiteLink #toolsMenu a:hover,
-	#newSiteLink #toolsMenu a:focus {
+	#topbarActions #toolsMenu a:hover,
+	#topbarActions #toolsMenu a:focus {
 		background: rgba(255, 20, 147, .18);
 		color: #fff;
 	}
@@ -645,11 +645,6 @@ img#armor-tech-logo-svg {
 	
 	
 	
-#labelNoteContainer {
-    border: 1px solid red;
-    padding: 25px 0px 30px 40px;
-    margin: 20px;
-}	
 #labelCriticalContainer {
     border: 1px solid red;
     padding: 25px 0px 30px 40px;
@@ -1157,16 +1152,6 @@ button.accordion.accordion-h1 {
   to { opacity: 1; }
 }
 
-#siteDetailsContent {
-  font-family: 'Rubik', sans-serif;
-  padding: 10px;
-}
-
-#siteDetailsContent img {
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  margin-top: 10px;
-}
 /*  ai image carousel */
 #headerThumbnailViewer {
   display: flex;

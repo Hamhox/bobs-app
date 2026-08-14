@@ -70,7 +70,7 @@ export const projects = [
     },
     secondaryAction: {
       label: "Open live system",
-      href: "/apps/buildbooks",
+      href: "/apps/buildbooks/bb?item=QAR-0001&tab=1",
     },
     visual: "buildbooks",
     visualStatus: "System online",
