@@ -1,6 +1,5 @@
 (() => {
   const directory = document.querySelector(".story-directory");
-  const atmosphereImage = document.querySelector(".story-atmosphere__image");
 
   if (!directory) return;
 
@@ -58,22 +57,6 @@
       state.hoveredStory = null;
       render();
     }, 320);
-  }
-
-  async function revealAtmosphere() {
-    if (!atmosphereImage) return;
-
-    try {
-      await atmosphereImage.decode();
-    } catch {
-      // The entrance can still run if decoding is unsupported or interrupted.
-    }
-
-    window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(() => {
-        atmosphereImage.classList.add("is-visible");
-      });
-    });
   }
 
   function runBootSequence() {
@@ -145,6 +128,5 @@
   });
 
   render();
-  revealAtmosphere();
   runBootSequence();
 })();
