@@ -44,6 +44,12 @@
 
     <main class="directory-main" id="content">
       <section class="directory-intro" id="about" aria-labelledby="directory-title">
+        <div class="story-atmosphere" aria-hidden="true">
+          <span class="story-atmosphere__layer story-atmosphere__layer--gauge-story"></span>
+          <span class="story-atmosphere__layer story-atmosphere__layer--interactive"></span>
+          <span class="story-atmosphere__layer story-atmosphere__layer--buildbooks"></span>
+          <span class="story-atmosphere__layer story-atmosphere__layer--artifacts"></span>
+        </div>
         <p class="section-label">What about Bob?</p>
         <h1 id="directory-title">Stories that work.</h1>
         <div class="directory-intro-copy">
@@ -70,7 +76,7 @@
 
         <ol class="directory-list">
           <li>
-            <a class="directory-row directory-row--primary" href="/projects/gauge-evolution">
+            <a class="directory-row directory-row--primary" data-story="gauge-story" href="/projects/gauge-evolution">
               <span class="directory-number">001</span>
               <span class="directory-entry">
                 <strong>Bob's Gauge Story</strong>
@@ -80,7 +86,7 @@
             </a>
           </li>
           <li>
-            <a class="directory-row" href="/apps/gauge-evolution">
+            <a class="directory-row" data-story="interactive" href="/apps/gauge-evolution">
               <span class="directory-number">002</span>
               <span class="directory-entry">
                 <strong>Interactive Gauges App</strong>
@@ -90,7 +96,7 @@
             </a>
           </li>
           <li>
-            <a class="directory-row" href="/apps/buildbooks">
+            <a class="directory-row" data-story="buildbooks" href="/apps/buildbooks">
               <span class="directory-number">003</span>
               <span class="directory-entry">
                 <strong>Buildbooks</strong>
@@ -100,7 +106,7 @@
             </a>
           </li>
           <li>
-            <a class="directory-row" href="/artifacts">
+            <a class="directory-row" data-story="artifacts" href="/artifacts">
               <span class="directory-number">004</span>
               <span class="directory-entry">
                 <strong>Bob's Artifacts</strong>
