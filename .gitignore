@@ -24,8 +24,8 @@
 !/apps/**
 !/case-studies/
 !/case-studies/**
-!/public/
-!/public/**
+!/atmospheres/
+!/atmospheres/**
 
 .vercel
 .env*
