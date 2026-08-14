@@ -628,6 +628,7 @@ function h($value) {
 		<div id="topbarActions">
 			<button id="toolsMenuButton" type="button" aria-expanded="false" aria-controls="toolsMenu" title="Admin tools"><img src="../../assets/menu-icon.svg" alt="Admin tools"></button>
 			<div id="toolsMenu" aria-label="Admin tools">
+				<a href="/">Return to Bob's App</a>
 				<a href="../../bb.html?item=QAR-0001&amp;tab=1">Buildbooks</a>
 				<a href="../buildbooks-db/index.php">Upload Database</a>
 			</div>
