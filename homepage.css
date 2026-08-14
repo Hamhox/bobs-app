@@ -1,7 +1,27 @@
 /* Story-led homepage */
 
+.directory-body {
+  background:
+    radial-gradient(
+      circle at 87% 7%,
+      hsl(263deg 92% 48% / 18%) 0%,
+      hsl(257deg 74% 25% / 10%) 28%,
+      transparent 52%
+    ),
+    #080b12;
+}
+
+.directory-body::before {
+  background: none;
+}
+
 .directory-body .directory-masthead {
+  position: relative;
   grid-template-columns: 1fr auto;
+  border-bottom-color: rgb(128 112 171 / 0.24);
+  background: rgb(8 11 18 / 0.5);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
 }
 
 .directory-body .directory-masthead .wordmark {
