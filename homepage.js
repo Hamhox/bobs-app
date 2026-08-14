@@ -1,11 +1,10 @@
 (() => {
   const directory = document.querySelector(".story-directory");
-  const atmosphere = document.querySelector(".story-atmosphere");
+  const atmosphereImage = document.querySelector(".story-atmosphere__image");
 
-  if (!directory || !atmosphere) return;
+  if (!directory) return;
 
   const rows = [...directory.querySelectorAll(".directory-row[data-story]")];
-  const images = [...atmosphere.querySelectorAll(".story-atmosphere__image[data-story]")];
   const stories = new Set(rows.map((row) => row.dataset.story));
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const recommendedStory = "gauge-story";
@@ -13,39 +12,26 @@
   const state = {
     recommendedStory,
     hoveredStory: null,
-    displayedStory: recommendedStory,
   };
 
   let pointerStory = null;
   let focusStory = null;
   let rowReleaseTimer = 0;
-  let previewReturnTimer = 0;
-  let settlingTimer = 0;
   let bootTimers = [];
 
   function render() {
     directory.dataset.recommendedStory = state.recommendedStory;
     directory.dataset.hoveredStory = state.hoveredStory || "";
-    directory.dataset.displayedStory = state.displayedStory;
     directory.classList.toggle("is-engaged", state.hoveredStory !== null);
 
     rows.forEach((row) => {
       row.classList.toggle("is-active", row.dataset.story === state.hoveredStory);
     });
-
-    images.forEach((image) => {
-      image.classList.toggle("is-displayed", image.dataset.story === state.displayedStory);
-    });
   }
 
-  function clearSettleTimers() {
+  function clearRowReleaseTimer() {
     window.clearTimeout(rowReleaseTimer);
-    window.clearTimeout(previewReturnTimer);
-    window.clearTimeout(settlingTimer);
     rowReleaseTimer = 0;
-    previewReturnTimer = 0;
-    settlingTimer = 0;
-    atmosphere.classList.remove("is-settling");
   }
 
   function clearBootSequence() {
@@ -58,32 +44,36 @@
   function showStory(story) {
     if (!stories.has(story)) return;
 
-    clearSettleTimers();
+    clearRowReleaseTimer();
     clearBootSequence();
     state.hoveredStory = story;
-    state.displayedStory = story;
     render();
   }
 
   function settleToRecommendation() {
-    clearSettleTimers();
+    clearRowReleaseTimer();
 
     rowReleaseTimer = window.setTimeout(() => {
       if (pointerStory || focusStory) return;
       state.hoveredStory = null;
       render();
     }, 320);
+  }
 
-    previewReturnTimer = window.setTimeout(() => {
-      if (pointerStory || focusStory) return;
-      atmosphere.classList.add("is-settling");
-      state.displayedStory = state.recommendedStory;
-      render();
+  async function revealAtmosphere() {
+    if (!atmosphereImage) return;
 
-      settlingTimer = window.setTimeout(() => {
-        atmosphere.classList.remove("is-settling");
-      }, 680);
-    }, 600);
+    try {
+      await atmosphereImage.decode();
+    } catch {
+      // The entrance can still run if decoding is unsupported or interrupted.
+    }
+
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        atmosphereImage.classList.add("is-visible");
+      });
+    });
   }
 
   function runBootSequence() {
@@ -125,7 +115,7 @@
   });
 
   directory.addEventListener("pointerenter", () => {
-    if (state.hoveredStory) clearSettleTimers();
+    if (state.hoveredStory) clearRowReleaseTimer();
   });
 
   directory.addEventListener("pointerleave", () => {
@@ -155,5 +145,6 @@
   });
 
   render();
+  revealAtmosphere();
   runBootSequence();
 })();
