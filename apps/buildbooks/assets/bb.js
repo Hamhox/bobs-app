@@ -10,6 +10,8 @@
 		bb.sku = {}; // this is the active/loaded/selected sku... whenever you need info about the active sku, get it here
 		bb.imageAdminBusy = false;
 		bb.imageUploadStatusTimer = null;
+		bb.localSkuImages = Object.create(null);
+		bb.hiddenImagePaths = Object.create(null);
 
 	//
 	// kicks off as soon as possible when everything is loaded
@@ -39,7 +41,6 @@
 		bb.ele.shareLink		= document.getElementById('shareLink');
 		bb.ele.toolsMenuButton	= document.getElementById('toolsMenuButton');
 		bb.ele.toolsMenu		= document.getElementById('toolsMenu');
-		bb.ele.adminModeCheckbox = document.getElementById('adminModeCheckbox');
 		bb.ele.sidebar			= document.getElementById('sidebar');
 		bb.ele.browserError		= document.getElementById('browserError');
 		bb.ele.main 			= document.getElementById('main');
@@ -206,12 +207,6 @@
 			}, false);
 		}
 
-		if (bb.ele.adminModeCheckbox) {
-			bb.ele.adminModeCheckbox.addEventListener("change", function() {
-				bb.dry.syncAdminMode();
-			}, false);
-		}
-		
 		//
 		// AI wire up the accordion
 		// 
@@ -301,19 +296,6 @@ bb.dry.showQuickFeedback = function(message) {
   setTimeout(() => feedback.style.opacity = '0', 1500);
   setTimeout(() => feedback.remove(), 2000);
 }	
-
-bb.dry.isAdminMode = function() {
-	return bb.ele.adminModeCheckbox && bb.ele.adminModeCheckbox.checked;
-}
-
-bb.dry.syncAdminMode = function() {
-	if (!bb.ele.adminModeCheckbox || !bb.ele.body) { return; }
-
-	bb.ele.body.classList.toggle("adminMode", bb.ele.adminModeCheckbox.checked);
-	if (!bb.ele.adminModeCheckbox.checked) {
-		bb.dry.closeDeleteImageModal();
-	}
-}
 
 bb.dry.setImageVersion = function(version) {
 	version = version ? String(version).trim() : "";
@@ -475,7 +457,6 @@ for (var i = 0; i < bb.ajax.assemblies.length; i++) {
 		bb.dry.makeLabelPreview();
 		bb.dry.populateCriticalNotesAdmin();
 		bb.dry.applyCriticalNotesForSku();
-		bb.dry.syncAdminMode();
 
 
 	}
@@ -597,53 +578,30 @@ bb.dry.saveCriticalNotes = function() {
 
 	bb.dry.syncCriticalNotesCoin();
 
-	var formData = new FormData();
-	formData.append('sku', bb.sku.value);
-	formData.append('battery_icon', bb.ele.criticalNotesBatteryCheckbox.checked ? '1' : '0');
-	formData.append('coin_label', bb.ele.criticalNotesCoinCheckbox.checked ? '1' : '0');
-	formData.append('fcc_label', bb.ele.criticalNotesFccCheckbox.checked ? '1' : '0');
-	formData.append('critical_note', bb.ele.criticalNotesText.value);
-
 	bb.ele.criticalNotesSaveButton.disabled = true;
-	bb.ele.criticalNotesSaveStatus.textContent = "Saving...";
+	bb.ele.criticalNotesSaveStatus.textContent = "Applying locally...";
 
-	fetch('tools/buildbooks-db/critical-notes-admin.php', {
-		method: 'POST',
-		body: formData
-	})
-	.then(function(response) {
-		return response.text().then(function(text) {
-			try {
-				return JSON.parse(text);
-			} catch (error) {
-				if (text.indexOf('<?php') >= 0) {
-					return { ok: false, message: 'PHP endpoint did not run. Open Buildbooks through cPanel or the Docker PHP server.' };
-				}
-				return { ok: false, message: 'Label rules save failed.' };
-			}
-		});
-	})
-	.then(function(response) {
-		if (response.ok) {
-			bb.dry.updateCriticalNoteMemory(response.sku, response.row || null);
-			bb.dry.populateCriticalNotesAdmin();
-			bb.dry.applyCriticalNotesForSku();
-			bb.ele.criticalNotesSaveStatus.textContent = response.message || "Saved.";
-			bb.dry.showQuickFeedback(response.message || "Label rules saved.");
-		} else {
-			bb.ele.criticalNotesSaveStatus.textContent = response.message || "Label rules save failed.";
-		}
+	var noteText = bb.ele.criticalNotesText.value.trim();
+	var row = {
+		LocalSKU: bb.sku.value,
+		BatteryWarning: bb.ele.criticalNotesCoinCheckbox.checked ? "COIN" : (bb.ele.criticalNotesBatteryCheckbox.checked ? "BATTERY" : ""),
+		FCC: bb.ele.criticalNotesFccCheckbox.checked ? "FCC" : "",
+		CriticalNote: noteText.replace(/\r?\n/g, "<br>")
+	};
+
+	setTimeout(function() {
+		bb.dry.updateCriticalNoteMemory(bb.sku.value, row);
+		bb.dry.applyCriticalNotesForSku();
+		bb.ele.criticalNotesSaveStatus.textContent = "Applied for this browser session.";
 		bb.ele.criticalNotesSaveButton.disabled = !bb.sku.value;
-	})
-	.catch(function() {
-		bb.ele.criticalNotesSaveStatus.textContent = "Label rules save failed.";
-		bb.ele.criticalNotesSaveButton.disabled = !bb.sku.value;
-	});
+		bb.dry.showQuickFeedback("Label configuration applied locally.");
+	}, 450);
 }
 
 
 bb.dry.loadSkuImages = function(targetSKU) {
     const sku = encodeURIComponent(targetSKU.trim()).toLowerCase();
+	const skuKey = targetSKU.trim().toUpperCase();
     const loadingSKU = sku;
     bb.currentLoadingSKU = sku;
 
@@ -671,69 +629,68 @@ bb.dry.loadSkuImages = function(targetSKU) {
         return bb.dry.versionedImageUrl(path);
     }
 
+    function addThumbnail(src, imageMeta, done) {
+		const thumbImg = document.createElement('img');
+		thumbImg.className = 'thumb';
+		thumbImg.src = src;
+
+		const thumbWrapper = document.createElement('a');
+		thumbWrapper.classList.add('thumb-wrapper');
+
+		thumbWrapper.onclick = function(e) {
+			e.preventDefault();
+			mainImg.src = thumbImg.src;
+			bb.sku.currentImage = imageMeta;
+			bb.dry.updateImageAdminButtons();
+
+			document.querySelectorAll('.thumb-wrapper').forEach(function(thumb) { thumb.classList.remove('active'); });
+			thumbWrapper.classList.add('active');
+			mainImgLink.href = thumbImg.src;
+			mainImgLink.style.pointerEvents = 'auto';
+			mainImgLink.style.cursor = 'pointer';
+		};
+
+		thumbImg.onload = function() {
+			if (bb.currentLoadingSKU !== loadingSKU) { return; }
+			thumbWrapper.appendChild(thumbImg);
+			thumbContainer.appendChild(thumbWrapper);
+			if (!mainImageSet) {
+				mainImageSet = true;
+				thumbWrapper.click();
+			}
+			if (typeof done === 'function') { done(true); }
+		};
+
+		thumbImg.onerror = function() {
+			if (typeof done === 'function') { done(false); }
+		};
+	}
+
     function loadSequential(group, index = 0, done = function(){}) {
         const imgPathNoCache = index === 0
             ? `${group.basePath}.jpg`
             : `${group.basePath}_${index}.jpg`;
+		if (bb.hiddenImagePaths[imgPathNoCache]) {
+			loadSequential(group, index + 1, done);
+			return;
+		}
         const imgPath = withCacheBust(imgPathNoCache);
         const fileName = imgPathNoCache.split('/').pop();
 
-        const thumbImg = document.createElement('img');
-        thumbImg.className = 'thumb';
-        thumbImg.src = imgPath;
-
-        const thumbWrapper = document.createElement('a');
-        thumbWrapper.classList.add('thumb-wrapper');
-
-		thumbWrapper.onclick = function(e) {
-		  e.preventDefault();
-		  mainImg.src = thumbImg.src;
-		  bb.sku.currentImage = {
+		addThumbnail(imgPath, {
 			source: group.source,
 			sku: targetSKU,
 			skuKey: sku,
 			index: index,
 			filename: fileName,
 			path: imgPathNoCache
-		  };
-		  bb.dry.updateImageAdminButtons();
-
-		  document.querySelectorAll('.thumb-wrapper').forEach(t => t.classList.remove('active'));
-		  thumbWrapper.classList.add('active');
-
-		  const mainImgLink = document.getElementById('mainHeaderImgLink');
-		  mainImgLink.href = thumbImg.src;
-
-		  if (thumbImg.src.includes('noimage.svg')) {
-			mainImgLink.removeAttribute('href');
-			mainImgLink.style.pointerEvents = 'none';
-			mainImgLink.style.cursor = 'default';
-		  } else {
-			mainImgLink.href = thumbImg.src;
-			mainImgLink.style.pointerEvents = 'auto';
-			mainImgLink.style.cursor = 'pointer';
-		  }
-		};
-
-
-        thumbImg.onload = function() {
-            if (bb.currentLoadingSKU !== loadingSKU) return;
-
-            thumbWrapper.appendChild(thumbImg);
-            thumbContainer.appendChild(thumbWrapper);
-
-            if (!mainImageSet) {
-                mainImageSet = true;
-                thumbWrapper.click();
-            }
-
-            loadSequential(group, index + 1, done);
-        };
-
-        thumbImg.onerror = function() {
-            // Stop here silently on first missing file
-            done();
-        };
+		}, function(loaded) {
+			if (loaded) {
+				loadSequential(group, index + 1, done);
+			} else {
+				done();
+			}
+		});
     }
 
     function loadGroup(groupIndex) {
@@ -743,7 +700,20 @@ bb.dry.loadSkuImages = function(targetSKU) {
         });
     }
 
-    loadGroup(0);
+	const localImage = bb.localSkuImages[skuKey];
+	if (localImage) {
+		addThumbnail(localImage.url, {
+			source: 'local',
+			sku: targetSKU,
+			skuKey: sku,
+			index: 0,
+			filename: localImage.name,
+			path: localImage.url,
+			isLocal: true
+		}, function() { loadGroup(0); });
+	} else {
+		loadGroup(0);
+	}
 
 	mainImg.onerror = function() {
 	  mainImg.src = bb.dry.imgBroken;
@@ -822,27 +792,27 @@ bb.dry.handleImageUpload = function() {
 	}
 
 	const file = bb.ele.imageUploadInput.files[0];
-	const formData = new FormData();
-	formData.append('action', 'upload');
-	formData.append('sku', bb.sku.value);
-	formData.append('image', file);
+	if (!file.type || file.type.indexOf('image/') !== 0) {
+		bb.dry.setImageUploadStatus("Choose an image file.", false);
+		bb.dry.hideImageUploadStatusSoon();
+		return;
+	}
 
-	bb.dry.setImageUploadStatus("Uploading and processing image...", true);
+	const targetSku = bb.sku.value.trim().toUpperCase();
+	bb.dry.setImageUploadStatus("Adding image locally...", true);
 
-	bb.dry.postImageAdmin(formData, function(response) {
-		if (response.ok) {
-			if (response.imageVersion) {
-				bb.dry.setImageVersion(response.imageVersion);
-			}
-			bb.dry.setImageUploadStatus(response.message || "Image uploaded.", false);
-			bb.dry.showQuickFeedback(response.message || "Image uploaded.");
+	setTimeout(function() {
+		if (bb.localSkuImages[targetSku] && bb.localSkuImages[targetSku].url) {
+			URL.revokeObjectURL(bb.localSkuImages[targetSku].url);
+		}
+		bb.localSkuImages[targetSku] = { url: URL.createObjectURL(file), name: file.name };
+		bb.dry.setImageUploadStatus("Image added for this browser session.", false);
+		bb.dry.showQuickFeedback("Local image added. Nothing was uploaded.");
+		if (bb.sku.value.trim().toUpperCase() === targetSku) {
 			bb.dry.refreshSkuImages();
-		} else {
-			bb.dry.setImageUploadStatus(response.message || "Image upload failed.", false);
-			bb.dry.showQuickFeedback(response.message || "Image upload failed.");
 		}
 		bb.dry.hideImageUploadStatusSoon();
-	});
+	}, 500);
 }
 
 bb.dry.openDeleteImageModal = function() {
@@ -852,7 +822,7 @@ bb.dry.openDeleteImageModal = function() {
 	}
 
 	if (bb.ele.imageDeleteModalText) {
-		bb.ele.imageDeleteModalText.textContent = "Delete " + bb.sku.currentImage.filename + " from SKU " + bb.sku.value + "? You can restore it from Restore Images.";
+		bb.ele.imageDeleteModalText.textContent = "Remove " + bb.sku.currentImage.filename + " from SKU " + bb.sku.value + "? This demo change resets when the page reloads.";
 	}
 	if (bb.ele.imageDeleteConfirmButton) {
 		bb.ele.imageDeleteConfirmButton.disabled = false;
@@ -873,41 +843,25 @@ bb.dry.deleteSkuImage = function() {
 		return;
 	}
 
-	const formData = new FormData();
-	formData.append('action', 'delete');
-	formData.append('source', bb.sku.currentImage.source);
-	formData.append('sku', bb.sku.currentImage.sku);
-	formData.append('index', bb.sku.currentImage.index);
-	formData.append('filename', bb.sku.currentImage.filename);
+	const currentImage = bb.sku.currentImage;
+	const targetSku = bb.sku.value.trim().toUpperCase();
+	bb.dry.setImageUploadStatus("Removing image locally...", true);
+	bb.dry.closeDeleteImageModal();
 
-	bb.dry.postImageAdmin(formData, function(response) {
-		if (response.ok) {
-			if (response.imageVersion) {
-				bb.dry.setImageVersion(response.imageVersion);
-			}
-			bb.dry.closeDeleteImageModal();
-			bb.dry.showQuickFeedback(response.message || "Image deleted from Buildbooks.");
-			bb.dry.refreshSkuImages();
+	setTimeout(function() {
+		if (currentImage.isLocal && bb.localSkuImages[targetSku]) {
+			URL.revokeObjectURL(bb.localSkuImages[targetSku].url);
+			delete bb.localSkuImages[targetSku];
 		} else {
-			bb.dry.showQuickFeedback(response.message || "Image delete failed.");
+			bb.hiddenImagePaths[currentImage.path] = true;
 		}
-	});
-}
-
-bb.dry.postImageAdmin = function(formData, callback) {
-	fetch('tools/buildbooks-db/image-admin.php', {
-		method: 'POST',
-		body: formData
-	})
-	.then(function(response) {
-		return response.json().catch(function() {
-			return { ok: false, message: 'Image admin request failed.' };
-		});
-	})
-	.then(callback)
-	.catch(function() {
-		callback({ ok: false, message: 'Image admin request failed.' });
-	});
+		bb.dry.setImageUploadStatus("Image removed for this browser session.", false);
+		bb.dry.showQuickFeedback("Image removed locally.");
+		if (bb.sku.value.trim().toUpperCase() === targetSku) {
+			bb.dry.refreshSkuImages();
+		}
+		bb.dry.hideImageUploadStatusSoon();
+	}, 400);
 }
 
 	//
@@ -981,11 +935,7 @@ bb.dry.postImageAdmin = function(formData, callback) {
 			if (evn.target.src === undefined) {
 				bb.ele.searchInput.value = '';
 				evn.stopPropagation();
-				if (bb.dry.isAdminMode()) {
-					bb.ele.tab3.button.click();
-				} else {
-					bb.ele.tab1.button.click(); // click on the default tab (Assembly)
-				}
+				bb.ele.tab1.button.click(); // click on the default tab (Assembly)
 				var clickedSku = cardContent.getElementsByClassName("cardSku")[0].innerHTML;
 				bb.ele.skuSelectBox.value = clickedSku.toUpperCase();
 				bb.ele.skuSelectBox.dispatchEvent(new Event('change'));

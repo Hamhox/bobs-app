@@ -15,8 +15,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300..900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300..800&family=Rubik:wght@300..900&display=swap" rel="stylesheet">
 	<!-- Load app files -->
-	<link rel="stylesheet" href="assets/bb.css?v=0.0.170"> 
-	<script src="assets/bb.js?v=0.0.675"></script>
+	<link rel="stylesheet" href="assets/bb.css?v=0.0.171">
+	<script src="assets/bb.js?v=0.0.676"></script>
 					
       <script src="assets/jsbarcode.all.min.js?v=0.0.03"></script>
       <script src="assets/print.min.js?v=0.0.03"></script>
@@ -28,12 +28,11 @@
 	<div id="topbar">
 		<div id="topbarActions">
 			<span id="shareLink" href='' data-clipboard-text="test">Copy Link</span> 
-			| <button id="toolsMenuButton" type="button" aria-expanded="false" aria-controls="toolsMenu" title="Admin tools"><img src="assets/menu-icon.svg" alt="Admin tools"></button>
-			<div id="toolsMenu" aria-label="Admin tools">
+			| <button id="toolsMenuButton" type="button" aria-expanded="false" aria-controls="toolsMenu" title="Buildbooks menu"><img src="assets/menu-icon.svg" alt="Buildbooks menu"></button>
+			<div id="toolsMenu" aria-label="Buildbooks menu">
 				<a href="/">Return to Bob's App</a>
-				<a href="tools/buildbooks-images/index.php">Restore Images</a>
-				<a href="tools/buildbooks-db/index.php">Upload Database</a>
-				<label class="toolsMenuToggle" for="adminModeCheckbox"><input id="adminModeCheckbox" type="checkbox"> Admin Mode</label>
+				<a href="tools/buildbooks-images/index.html">Restore Images</a>
+				<a href="tools/buildbooks-db/index.html">Upload Database</a>
 			</div>
 		</div>
 		<div id="armor-tech-logo"><a href="bb.html?item=QAR-0001&amp;tab=1"><img id="armor-tech-logo-svg" src="assets/buildbooks-anchor-logo.svg" alt="Buildbooks"></a></div>
@@ -78,7 +77,7 @@
 			      <button id="buttonUploadImage" class="imageToolButton" type="button" title="Upload new image" aria-label="Upload new image"><img src="assets/upload_icon.svg" alt=""></button>
 			      <button id="buttonDeleteImage" class="imageToolButton" type="button" title="Delete selected image" aria-label="Delete selected image" disabled><img src="assets/delete_icon.svg" alt=""></button>
 			    </div>
-			    <input id="inputUploadImage" type="file" accept="image/jpeg,image/png,.jpg,.jpeg,.png" style="display:none;">
+			    <input id="inputUploadImage" type="file" accept="image/*" style="display:none;">
 			  </div>
 			  <div id="imageUploadStatus" role="status" aria-live="polite"></div>
 
@@ -125,7 +124,7 @@
 			
 			<div id="tab3" class="tabcontent">
 				<div id="criticalNotesAdminPanel">
-					<div class="criticalNotesAdminHeader">Label rules for <span id="criticalNotesAdminSku">selected SKU</span></div>
+					<div class="criticalNotesAdminHeader">Label configuration for <span id="criticalNotesAdminSku">selected SKU</span></div>
 					<div class="criticalNotesAdminChecks">
 						<label><input id="criticalNotesBatteryCheckbox" type="checkbox"> Battery icon</label>
 						<label><input id="criticalNotesCoinCheckbox" type="checkbox"> Coin warning label</label>
@@ -139,7 +138,7 @@
 					<label class="criticalNotesTextLabel" for="criticalNotesText">Critical note</label>
 					<textarea id="criticalNotesText" rows="3"></textarea>
 					<div class="criticalNotesActions">
-						<button id="buttonSaveCriticalNotes" type="button">Save label rules</button>
+						<button id="buttonSaveCriticalNotes" type="button">Apply configuration</button>
 						<span id="criticalNotesSaveStatus"></span>
 					</div>
 				</div>
@@ -397,11 +396,11 @@
 	
 	<div id="imageDeleteModal" class="imageModal" style="display:none;">
 		<div class="imageModalBox">
-			<h2>Delete Image?</h2>
-			<p id="imageDeleteModalText">This image will be removed from Buildbooks.</p>
+			<h2>Remove Image?</h2>
+			<p id="imageDeleteModalText">This demo change will last for this browser session.</p>
 			<div class="imageModalActions">
 				<button id="buttonCancelDeleteImage" type="button">Cancel</button>
-				<button id="buttonConfirmDeleteImage" type="button">Delete Image</button>
+				<button id="buttonConfirmDeleteImage" type="button">Remove Image</button>
 			</div>
 		</div>
 	</div>

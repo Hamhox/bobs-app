@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Restore Images · Buildbooks</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="../../assets/favicon-32x32.png">
+  <link rel="stylesheet" href="../../assets/tool-demo.css?v=1">
+  <script src="restore-demo.js?v=1" defer></script>
+</head>
+<body>
+  <header class="tool-topbar">
+    <a class="tool-topbar__brand" href="../../bb.html?item=QAR-0001&amp;tab=1" aria-label="Return to Buildbooks">
+      <img src="../../assets/buildbooks-anchor-logo.svg" alt="Buildbooks">
+    </a>
+    <nav class="tool-topbar__nav" aria-label="Buildbooks utility navigation">
+      <a href="../../bb.html?item=QAR-0001&amp;tab=1">Buildbooks</a>
+      <a href="../buildbooks-db/index.html">Upload database</a>
+      <a href="/">Return to Bob's App</a>
+    </nav>
+  </header>
+
+  <main class="tool-page">
+    <div class="tool-heading">
+      <div>
+        <p class="tool-eyebrow">Image recovery</p>
+        <h1>Restore images</h1>
+        <p class="tool-lede">Review recently removed product images and return selected files to the Buildbooks image library.</p>
+      </div>
+      <span class="demo-chip">Portfolio simulation</span>
+    </div>
+
+    <section class="tool-panel" aria-labelledby="restorePanelTitle">
+      <div class="tool-panel__header">
+        <h2 id="restorePanelTitle">Recently deleted</h2>
+        <span>4 images</span>
+      </div>
+      <div class="tool-panel__body">
+        <div class="restore-toolbar">
+          <div id="restoreStatus" class="restore-status" role="status" aria-live="polite">Choose an image to restore.</div>
+          <button id="restoreAll" class="secondary-button" type="button">Restore all</button>
+        </div>
+
+        <div class="restore-grid">
+          <article class="restore-card" data-restore-card data-image-name="QAR-0003 hero image">
+            <div class="restore-card__image"><img src="../../images/custom/qar-0003.jpg" alt="QAR-0003 product"></div>
+            <div class="restore-card__body">
+              <h3 class="restore-card__name">QAR-0003</h3>
+              <p class="restore-card__meta">qar-0003.jpg · deleted 8 minutes ago</p>
+              <button class="restore-card__button" type="button">Restore image</button>
+            </div>
+          </article>
+
+          <article class="restore-card" data-restore-card data-image-name="ASM-0031 assembly image">
+            <div class="restore-card__image"><img src="../../images/custom/asm-0031.jpg" alt="ASM-0031 product"></div>
+            <div class="restore-card__body">
+              <h3 class="restore-card__name">ASM-0031</h3>
+              <p class="restore-card__meta">asm-0031.jpg · deleted 22 minutes ago</p>
+              <button class="restore-card__button" type="button">Restore image</button>
+            </div>
+          </article>
+
+          <article class="restore-card" data-restore-card data-image-name="PRT-0005 product image">
+            <div class="restore-card__image"><img src="../../images/custom/prt-0005.jpg" alt="PRT-0005 product"></div>
+            <div class="restore-card__body">
+              <h3 class="restore-card__name">PRT-0005</h3>
+              <p class="restore-card__meta">prt-0005.jpg · deleted yesterday</p>
+              <button class="restore-card__button" type="button">Restore image</button>
+            </div>
+          </article>
+
+          <article class="restore-card" data-restore-card data-image-name="PKG-0009 packaging image">
+            <div class="restore-card__image"><img src="../../images/custom/pkg-0009.jpg" alt="PKG-0009 packaging"></div>
+            <div class="restore-card__body">
+              <h3 class="restore-card__name">PKG-0009</h3>
+              <p class="restore-card__meta">pkg-0009.jpg · deleted 2 days ago</p>
+              <button class="restore-card__button" type="button">Restore image</button>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
