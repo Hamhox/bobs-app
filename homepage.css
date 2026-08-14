@@ -105,45 +105,69 @@
   min-height: 6.7rem;
   padding: 1.15rem 0.5rem 1.15rem 1.15rem;
   border-left: 2px solid transparent;
-  transition: background-color 180ms ease, border-color 180ms ease;
+  transition: background-color 300ms ease, border-color 300ms ease;
 }
 
-.directory-body .directory-row--primary {
-  border-left-color: #ff5a36;
-  background: rgb(79 33 39 / 0.26);
-}
-
-.directory-body .directory-row:hover,
-.directory-body .directory-row:focus-visible {
+.directory-body .directory-row.is-active {
   padding: 1.15rem 0.5rem 1.15rem 1.15rem;
   border-left-color: #ff5a36;
   background: rgb(79 33 39 / 0.22);
-}
-
-.directory-body .directory-list:has(.directory-row:hover) .directory-row--primary:not(:hover),
-.directory-body .directory-list:has(.directory-row:focus-visible) .directory-row--primary:not(:focus-visible) {
-  border-left-color: transparent;
-  background: transparent;
+  transition-duration: 120ms;
 }
 
 .directory-body .directory-number {
   display: flex;
+  gap: 0.55rem;
   align-self: stretch;
   align-items: center;
   padding-right: 1.2rem;
   border-right: 0;
   font-size: 0.72rem;
+  transition: color 250ms ease;
 }
 
-.directory-body .directory-row--primary .directory-number,
-.directory-body .directory-row:hover .directory-number,
-.directory-body .directory-row:focus-visible .directory-number {
+.directory-body .directory-number::before {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: #242332;
+  box-shadow: inset 0 0 0 1px rgb(170 166 186 / 0.16);
+  content: "";
+  flex: 0 0 auto;
+  transition: background-color 250ms ease, box-shadow 250ms ease;
+}
+
+.directory-body .directory-row--recommended .directory-number {
   color: #ff5a36;
 }
 
-.directory-body .directory-list:has(.directory-row:hover) .directory-row--primary:not(:hover) .directory-number,
-.directory-body .directory-list:has(.directory-row:focus-visible) .directory-row--primary:not(:focus-visible) .directory-number {
+.directory-body .story-directory.is-engaged .directory-row--recommended:not(.is-active) .directory-number,
+.directory-body .story-directory.is-boot-sequence .directory-row--recommended:not(.is-booting) .directory-number {
   color: var(--brand-muted);
+}
+
+.directory-body .story-directory:not(.is-engaged):not(.is-boot-sequence) .directory-row--recommended .directory-number::before,
+.directory-body .directory-row.is-active .directory-number::before,
+.directory-body .directory-row.is-booting .directory-number::before {
+  background: #ff6a44;
+  box-shadow:
+    0 0 0 0.22rem rgb(255 90 54 / 0.08),
+    0 0 0.9rem rgb(255 90 54 / 0.48);
+}
+
+.directory-body .story-directory:not(.is-engaged):not(.is-boot-sequence) .directory-row--recommended .directory-number::before {
+  animation: story-beacon 8s ease-out 2s infinite;
+}
+
+.directory-body .directory-row.is-active .directory-number,
+.directory-body .directory-row.is-booting .directory-number {
+  color: #ff5a36;
+  transition-duration: 100ms;
+}
+
+.directory-body .directory-row.is-active .directory-number::before,
+.directory-body .directory-row.is-booting .directory-number::before {
+  transition-duration: 100ms;
 }
 
 .directory-body .directory-entry {
@@ -171,18 +195,32 @@
   color: #747689;
   font-size: 1.35rem;
   font-weight: 400;
-  transition: color 180ms ease;
+  transition: color 250ms ease;
 }
 
-.directory-body .directory-row--primary .directory-action,
-.directory-body .directory-row:hover .directory-action,
-.directory-body .directory-row:focus-visible .directory-action {
+.directory-body .directory-row.is-active .directory-action {
   color: #ff5a36;
+  transition-duration: 100ms;
 }
 
-.directory-body .directory-list:has(.directory-row:hover) .directory-row--primary:not(:hover) .directory-action,
-.directory-body .directory-list:has(.directory-row:focus-visible) .directory-row--primary:not(:focus-visible) .directory-action {
-  color: #747689;
+@keyframes story-beacon {
+  0%, 5%, 100% {
+    box-shadow:
+      0 0 0 0.22rem rgb(255 90 54 / 0.08),
+      0 0 0.9rem rgb(255 90 54 / 0.42);
+  }
+
+  1.5%, 3.75% {
+    box-shadow:
+      0 0 0 0.3rem rgb(255 90 54 / 0.11),
+      0 0 1.1rem rgb(255 90 54 / 0.72);
+  }
+
+  2.6% {
+    box-shadow:
+      0 0 0 0.22rem rgb(255 90 54 / 0.08),
+      0 0 0.85rem rgb(255 90 54 / 0.38);
+  }
 }
 
 .directory-body .directory-intro .section-label::before {
@@ -214,7 +252,20 @@
   inset: 0;
   opacity: 0;
   transform: scale(0.985);
-  transition: opacity 360ms ease, transform 560ms ease;
+  transition: opacity 380ms ease, transform 560ms ease;
+}
+
+.story-atmosphere__layer.is-displayed {
+  opacity: 0.42;
+  transform: scale(1);
+}
+
+.story-atmosphere.is-idle .story-atmosphere__layer.is-displayed {
+  opacity: 0.24;
+}
+
+.story-atmosphere.is-settling .story-atmosphere__layer {
+  transition-duration: 650ms;
 }
 
 .story-atmosphere__layer::before,
@@ -230,7 +281,6 @@
     hsl(257deg 74% 25% / 18%) 26%,
     transparent 56%
   );
-  opacity: 0.24;
 }
 
 .story-atmosphere__layer--gauge-story::before {
@@ -319,23 +369,6 @@
   font-size: 0.6rem;
   letter-spacing: 0.18em;
   line-height: 2;
-}
-
-.directory-body:has(.directory-row:hover) .story-atmosphere__layer--gauge-story,
-.directory-body:has(.directory-row:focus-visible) .story-atmosphere__layer--gauge-story {
-  opacity: 0;
-}
-
-.directory-body:has(.directory-row[data-story="gauge-story"]:hover) .story-atmosphere__layer--gauge-story,
-.directory-body:has(.directory-row[data-story="gauge-story"]:focus-visible) .story-atmosphere__layer--gauge-story,
-.directory-body:has(.directory-row[data-story="interactive"]:hover) .story-atmosphere__layer--interactive,
-.directory-body:has(.directory-row[data-story="interactive"]:focus-visible) .story-atmosphere__layer--interactive,
-.directory-body:has(.directory-row[data-story="buildbooks"]:hover) .story-atmosphere__layer--buildbooks,
-.directory-body:has(.directory-row[data-story="buildbooks"]:focus-visible) .story-atmosphere__layer--buildbooks,
-.directory-body:has(.directory-row[data-story="artifacts"]:hover) .story-atmosphere__layer--artifacts,
-.directory-body:has(.directory-row[data-story="artifacts"]:focus-visible) .story-atmosphere__layer--artifacts {
-  opacity: 0.42;
-  transform: scale(1);
 }
 
 .directory-body .directory-intro h1 {
@@ -476,13 +509,13 @@
     left: 3.65rem;
   }
 
-  .directory-body .directory-row:hover,
-  .directory-body .directory-row:focus-visible {
+  .directory-body .directory-row.is-active {
     padding-inline: 0.75rem 0.15rem;
   }
 
   .directory-body .directory-number {
-    padding-right: 0.75rem;
+    gap: 0.4rem;
+    padding-right: 0.45rem;
   }
 
   .directory-body .directory-entry > span:last-child {
@@ -495,7 +528,12 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .directory-body .directory-row,
+  .directory-body .directory-number,
+  .directory-body .directory-number::before,
+  .directory-body .directory-action,
   .story-atmosphere__layer {
+    animation: none;
     transition: none;
   }
 }

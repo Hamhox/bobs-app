@@ -28,6 +28,7 @@
     <link rel="icon" href="/bobs-app-symbol-logo.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="/styles.css" />
     <link rel="stylesheet" href="/homepage.css" />
+    <script src="/homepage.js" defer></script>
   </head>
   <body class="directory-body">
     <a class="skip-link" href="#content">Skip to the directory</a>
@@ -44,11 +45,11 @@
 
     <main class="directory-main" id="content">
       <section class="directory-intro" id="about" aria-labelledby="directory-title">
-        <div class="story-atmosphere" aria-hidden="true">
-          <span class="story-atmosphere__layer story-atmosphere__layer--gauge-story"></span>
-          <span class="story-atmosphere__layer story-atmosphere__layer--interactive"></span>
-          <span class="story-atmosphere__layer story-atmosphere__layer--buildbooks"></span>
-          <span class="story-atmosphere__layer story-atmosphere__layer--artifacts"></span>
+        <div class="story-atmosphere is-idle" aria-hidden="true">
+          <span class="story-atmosphere__layer story-atmosphere__layer--gauge-story is-displayed" data-story="gauge-story"></span>
+          <span class="story-atmosphere__layer story-atmosphere__layer--interactive" data-story="interactive"></span>
+          <span class="story-atmosphere__layer story-atmosphere__layer--buildbooks" data-story="buildbooks"></span>
+          <span class="story-atmosphere__layer story-atmosphere__layer--artifacts" data-story="artifacts"></span>
         </div>
         <p class="section-label">What about Bob?</p>
         <h1 id="directory-title">Stories that work.</h1>
@@ -70,14 +71,14 @@
         </div>
       </section>
 
-      <section class="site-directory" aria-labelledby="site-directory-title">
+      <section class="site-directory story-directory" aria-labelledby="site-directory-title">
         <header class="directory-heading">
           <h2 id="site-directory-title">Open a story:</h2>
         </header>
 
         <ol class="directory-list">
           <li>
-            <a class="directory-row directory-row--primary" data-story="gauge-story" href="/projects/gauge-evolution">
+            <a class="directory-row directory-row--recommended" data-story="gauge-story" href="/projects/gauge-evolution">
               <span class="directory-number">001</span>
               <span class="directory-entry">
                 <strong>Bob's Gauge Story</strong>
