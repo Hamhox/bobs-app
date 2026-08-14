@@ -1,14 +1,23 @@
 /* Story-led homepage */
 
 .directory-body {
+  position: relative;
+  isolation: isolate;
   background:
     radial-gradient(
-      circle at 78% 28%,
-      hsl(263deg 92% 48% / 6%) 0%,
-      hsl(257deg 74% 25% / 3%) 22%,
-      transparent 42%
+      ellipse 78% 68% at 88% 7%,
+      rgb(112 43 188 / 42%) 0%,
+      rgb(72 32 126 / 27%) 34%,
+      rgb(27 20 63 / 12%) 53%,
+      transparent 72%
     ),
-    #080b12;
+    linear-gradient(
+      180deg,
+      #1b1832 0%,
+      #121326 42%,
+      #0a0e18 78%,
+      #080b12 100%
+    );
 }
 
 .directory-body::before {
@@ -19,9 +28,9 @@
   position: relative;
   grid-template-columns: 1fr auto;
   border-bottom-color: rgb(128 112 171 / 0.24);
-  background: rgb(8 11 18 / 0.5);
-  -webkit-backdrop-filter: blur(16px);
-  backdrop-filter: blur(16px);
+  background: rgb(8 11 18 / 0.48);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
 }
 
 .directory-body .directory-masthead .wordmark {
@@ -38,6 +47,8 @@
 }
 
 .directory-body .directory-main {
+  position: relative;
+  z-index: 1;
   grid-template-columns: minmax(27rem, 0.92fr) minmax(31rem, 1.08fr);
   gap: clamp(4rem, 6vw, 6.5rem);
   width: min(100% - 5rem, 96rem);
@@ -48,9 +59,11 @@
   align-self: center;
   margin: 0.5rem 0.625rem;
   padding: 2.5rem;
-  border: 1px solid rgb(116 99 151 / 0.28);
-  background: rgb(17 16 30 / 0.92);
-  box-shadow: 0 1.25rem 2.75rem rgb(0 0 0 / 0.32);
+  border: 1px solid rgb(124 105 161 / 0.3);
+  background: rgb(19 17 35 / 0.86);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.02),
+    0 1.125rem 3.75rem rgb(0 0 0 / 0.14);
 }
 
 .directory-body .directory-heading {
@@ -111,7 +124,7 @@
 .directory-body .directory-row.is-active {
   padding: 1.15rem 0.5rem 1.15rem 1.15rem;
   border-left-color: #ff5a36;
-  background: rgb(79 33 39 / 0.22);
+  background: rgb(74 31 52 / 0.31);
   transition-duration: 120ms;
 }
 
@@ -229,12 +242,6 @@
 
 .directory-body .directory-intro {
   position: relative;
-  isolation: isolate;
-}
-
-.directory-body .directory-intro > :not(.story-atmosphere) {
-  position: relative;
-  z-index: 1;
 }
 
 .story-atmosphere {
@@ -248,36 +255,36 @@
 
 .story-atmosphere__image {
   position: absolute;
-  inset: -4rem -3rem -4rem 12%;
-  width: auto;
-  height: calc(100% + 8rem);
-  object-fit: contain;
-  object-position: right center;
+  top: 46%;
+  right: -7vw;
+  width: min(61vw, 68.75rem);
+  height: auto;
   opacity: 0;
-  filter: saturate(0.8);
-  transform: translateX(0.75rem);
+  filter: none;
+  mix-blend-mode: normal;
+  transform: translateY(-50%) translateX(1.125rem) scale(1.015);
   -webkit-mask-image: linear-gradient(
     90deg,
     transparent 0%,
-    transparent 22%,
-    rgb(0 0 0 / 0.3) 45%,
-    #000 72%,
-    #000 100%
+    rgb(0 0 0 / 0.12) 26%,
+    rgb(0 0 0 / 0.58) 48%,
+    #000 70%
   );
   mask-image: linear-gradient(
     90deg,
     transparent 0%,
-    transparent 22%,
-    rgb(0 0 0 / 0.3) 45%,
-    #000 72%,
-    #000 100%
+    rgb(0 0 0 / 0.12) 26%,
+    rgb(0 0 0 / 0.58) 48%,
+    #000 70%
   );
-  transition: opacity 500ms ease, transform 700ms ease;
+  transition:
+    opacity 500ms ease,
+    transform 750ms cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
 .story-atmosphere__image.is-displayed {
-  opacity: 0.12;
-  transform: translateX(0);
+  opacity: 0.32;
+  transform: translateY(-50%) translateX(0) scale(1);
 }
 
 .story-atmosphere.is-settling .story-atmosphere__image {
@@ -292,9 +299,26 @@
 }
 
 .directory-body .directory-intro-copy {
+  position: relative;
+  z-index: 2;
+  isolation: isolate;
   max-width: 37rem;
   margin-top: 1.8rem;
   padding-top: 1.55rem;
+}
+
+.directory-body .directory-intro-copy::before {
+  position: absolute;
+  z-index: -1;
+  inset: -1rem -2rem -1.25rem -1.5rem;
+  background: radial-gradient(
+    ellipse at 35% 45%,
+    rgb(8 11 18 / 0.58) 0%,
+    rgb(8 11 18 / 0.25) 54%,
+    transparent 80%
+  );
+  content: "";
+  pointer-events: none;
 }
 
 .directory-body .directory-intro-copy p,
@@ -309,6 +333,8 @@
 }
 
 .directory-body .directory-footer {
+  position: relative;
+  z-index: 1;
   width: min(100% - 5rem, 96rem);
   padding-block: 1rem 1.25rem;
 }
@@ -380,6 +406,10 @@
   }
 
   .story-atmosphere {
+    display: none;
+  }
+
+  .directory-body .directory-intro-copy::before {
     display: none;
   }
 }
