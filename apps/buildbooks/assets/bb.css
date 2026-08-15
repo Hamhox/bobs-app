@@ -649,13 +649,39 @@ img#armor-tech-logo-svg {
 	
 	
 #criticalNotesAdminPanel {
-	display: block;
-	margin: 24px 20px 20px 20px;
-	padding: 14px 16px;
-	border: 1px solid rgba(0,0,0,.18);
+	box-sizing: border-box;
+	width: calc(100% - 40px);
+	max-width: 560px;
+	margin: 12px 20px 16px;
+	padding: 0;
+	border: 1px solid rgba(0,0,0,.14);
 	border-radius: 4px;
-	background: #f7f7f7;
-	box-shadow: 0 1px 2px rgba(0,0,0,.08);
+	background: #fafafa;
+	box-shadow: none;
+}
+
+#criticalNotesAdminPanel > summary {
+	min-height: 18px;
+	padding: 11px 14px;
+	color: rgba(0,0,0,.62);
+	cursor: pointer;
+	font-size: 13px;
+	font-weight: 700;
+}
+
+#criticalNotesAdminPanel > summary:hover,
+#criticalNotesAdminPanel > summary:focus-visible {
+	color: #1a57d2;
+}
+
+#criticalNotesAdminPanel > summary:focus-visible {
+	outline: 2px solid #1a57d2;
+	outline-offset: 2px;
+}
+
+.criticalNotesAdminContent {
+	padding: 4px 16px 14px;
+	border-top: 1px solid rgba(0,0,0,.10);
 }
 
 .criticalNotesAdminHeader {
@@ -666,6 +692,21 @@ img#armor-tech-logo-svg {
 
 #criticalNotesAdminSku {
 	color: #1a57d2;
+}
+
+.labelPrintPrompt {
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: inherit;
+	cursor: pointer;
+	font: inherit;
+}
+
+.labelPrintPrompt:hover,
+.labelPrintPrompt:focus-visible {
+	color: #1a57d2;
+	text-decoration: underline;
 }
 
 .criticalNotesAdminChecks {
@@ -757,6 +798,10 @@ img#armor-tech-logo-svg {
 	}
 	
 	@media print {
+		@page {
+			size: 1.5in 3in;
+			margin: 0;
+		}
 		
 		#printarea {
 			position: fixed;
@@ -991,6 +1036,11 @@ img#armor-tech-logo-svg {
 }
 
 @media (max-width: 600px) {
+	#criticalNotesAdminPanel {
+		width: min(calc(100% - 16px), calc(100vw - 56px));
+		margin: 10px 8px 14px;
+	}
+
 	.criticalNotesAdminFields {
 		grid-template-columns: 1fr;
 	}

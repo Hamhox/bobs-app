@@ -17,7 +17,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300..900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300..800&family=Rubik:wght@300..900&display=swap" rel="stylesheet">
 	<!-- Load app files -->
-	<link rel="stylesheet" href="assets/bb.css?v=0.0.184">
+	<link rel="stylesheet" href="assets/bb.css?v=0.0.186">
 	<script src="assets/bb.js?v=0.0.684"></script>
 					
       <script src="assets/jsbarcode.all.min.js?v=0.0.03"></script>
@@ -134,9 +134,42 @@
 				<div id="printContainer" class="printer_container" style="width:500px">
 					<div id="printer_main">
 						<div id="print_form">
-						
-						
-							<p>Click on label to print >></p>
+							<details id="criticalNotesAdminPanel">
+								<summary>Click to adjust regulatory settings &gt;&gt;</summary>
+								<div class="criticalNotesAdminContent">
+									<div class="criticalNotesAdminHeader">Label configuration for <span id="criticalNotesAdminSku">selected SKU</span></div>
+									<div class="criticalNotesAdminFields">
+										<label for="criticalNotesCountryOfOrigin">Country of origin
+											<input id="criticalNotesCountryOfOrigin" type="text" autocomplete="off">
+										</label>
+										<label for="criticalNotesHazardProfile">Hazard profile
+											<select id="criticalNotesHazardProfile">
+												<option value="">None</option>
+												<option value="AMMUNITION">Ammunition</option>
+												<option value="COMBUSTIBLE">Combustible</option>
+												<option value="CONTROLLED_MEDICAL">Controlled medical</option>
+												<option value="EXPLOSIVE">Explosive</option>
+												<option value="FLAMMABLE">Flammable</option>
+												<option value="ORDNANCE">Ordnance</option>
+												<option value="SHARP_EDGE">Sharp edge</option>
+												<option value="TOXIC">Toxic</option>
+											</select>
+										</label>
+									</div>
+									<div class="criticalNotesAdminChecks">
+										<label><input id="criticalNotesFragileCheckbox" type="checkbox"> Fragile</label>
+										<label><input id="criticalNotesStoreDryCheckbox" type="checkbox"> Store dry</label>
+										<label><input id="criticalNotesKeepAwayFromFlameCheckbox" type="checkbox"> Keep away from flame</label>
+										<label><input id="criticalNotesToxicCheckbox" type="checkbox"> Toxic</label>
+									</div>
+									<div class="criticalNotesActions">
+										<button id="buttonResetCriticalNotes" type="button" hidden>Reset</button>
+										<span id="criticalNotesSaveStatus" aria-live="polite"></span>
+									</div>
+								</div>
+							</details>
+
+							<p><button class="labelPrintPrompt" type="button" onclick="bb.dry.sendPrint('pLabel')">Click on label to print &gt;&gt;</button></p>
 							
 							<div id="pLabelContainer" class="barcodeContainer">
 								<div class="productlabel" onclick="bb.dry.sendPrint('pLabel')"> <!-- packaging labels preview -->
@@ -270,38 +303,6 @@
 										<svg class="handlingLabelIcon handlingLabelIconHazard" aria-hidden="true" viewBox="0 0 32 32"><path d="M16 3 29 27H3L16 3Z M16 10v9 M16 23v1"/></svg>
 										<div class="handlingLabelCopy"><strong id="hazardProfileLabelTitle">HAZARD PROFILE</strong><span id="hazardProfileLabelBody">FOLLOW REQUIRED HANDLING PROCEDURES</span><small class="labelSku">SELECT A SKU</small></div>
 									</div>
-								</div>
-							</div>
-
-							<div id="criticalNotesAdminPanel">
-								<div class="criticalNotesAdminHeader">Label configuration for <span id="criticalNotesAdminSku">selected SKU</span></div>
-								<div class="criticalNotesAdminFields">
-									<label for="criticalNotesCountryOfOrigin">Country of origin
-										<input id="criticalNotesCountryOfOrigin" type="text" autocomplete="off">
-									</label>
-									<label for="criticalNotesHazardProfile">Hazard profile
-										<select id="criticalNotesHazardProfile">
-											<option value="">None</option>
-											<option value="AMMUNITION">Ammunition</option>
-											<option value="COMBUSTIBLE">Combustible</option>
-											<option value="CONTROLLED_MEDICAL">Controlled medical</option>
-											<option value="EXPLOSIVE">Explosive</option>
-											<option value="FLAMMABLE">Flammable</option>
-											<option value="ORDNANCE">Ordnance</option>
-											<option value="SHARP_EDGE">Sharp edge</option>
-											<option value="TOXIC">Toxic</option>
-										</select>
-									</label>
-								</div>
-								<div class="criticalNotesAdminChecks">
-									<label><input id="criticalNotesFragileCheckbox" type="checkbox"> Fragile</label>
-									<label><input id="criticalNotesStoreDryCheckbox" type="checkbox"> Store dry</label>
-									<label><input id="criticalNotesKeepAwayFromFlameCheckbox" type="checkbox"> Keep away from flame</label>
-									<label><input id="criticalNotesToxicCheckbox" type="checkbox"> Toxic</label>
-								</div>
-								<div class="criticalNotesActions">
-									<button id="buttonResetCriticalNotes" type="button" hidden>Reset</button>
-									<span id="criticalNotesSaveStatus" aria-live="polite"></span>
 								</div>
 							</div>
 
