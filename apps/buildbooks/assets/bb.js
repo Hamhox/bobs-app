@@ -62,8 +62,15 @@
 		bb.ele.notesimg 		= document.getElementById('notesTopImg');
 		bb.ele.imageUploadButton = document.getElementById('buttonUploadImage');
 		bb.ele.imageDeleteButton = document.getElementById('buttonDeleteImage');
+		bb.ele.imageZoomButton = document.getElementById('buttonZoomImage');
+		bb.ele.imageToolsToggle = document.getElementById('buttonImageTools');
+		bb.ele.imageToolActions = document.getElementById('imageToolActions');
 		bb.ele.imageUploadInput = document.getElementById('inputUploadImage');
 		bb.ele.imageUploadStatus = document.getElementById('imageUploadStatus');
+		bb.ele.mainHeaderImg = document.getElementById('mainHeaderImg');
+		bb.ele.imageZoomModal = document.getElementById('imageZoomModal');
+		bb.ele.imageZoomPreview = document.getElementById('imageZoomPreview');
+		bb.ele.imageZoomCloseButton = document.getElementById('buttonCloseImageZoom');
 		bb.ele.imageDeleteModal = document.getElementById('imageDeleteModal');
 		bb.ele.imageDeleteModalText = document.getElementById('imageDeleteModalText');
 		bb.ele.imageDeleteConfirmButton = document.getElementById('buttonConfirmDeleteImage');
@@ -246,14 +253,41 @@
 		  });
 		});
 
+		if (bb.ele.imageToolsToggle && bb.ele.imageToolActions) {
+			bb.ele.imageToolsToggle.addEventListener('click', function(evn) {
+				evn.stopPropagation();
+				bb.dry.setImageToolsOpen(bb.ele.imageToolActions.hidden);
+			}, false);
+			bb.ele.imageToolActions.addEventListener('click', function(evn) {
+				evn.stopPropagation();
+			}, false);
+			document.addEventListener('click', bb.dry.closeImageTools, false);
+		}
 		if (bb.ele.imageUploadButton) {
-			bb.ele.imageUploadButton.addEventListener('click', bb.dry.uploadSkuImage, false);
+			bb.ele.imageUploadButton.addEventListener('click', function() {
+				bb.dry.closeImageTools();
+				bb.dry.uploadSkuImage();
+			}, false);
 		}
 		if (bb.ele.imageUploadInput) {
 			bb.ele.imageUploadInput.addEventListener('change', bb.dry.handleImageUpload, false);
 		}
 		if (bb.ele.imageDeleteButton) {
-			bb.ele.imageDeleteButton.addEventListener('click', bb.dry.openDeleteImageModal, false);
+			bb.ele.imageDeleteButton.addEventListener('click', function() {
+				bb.dry.closeImageTools();
+				bb.dry.openDeleteImageModal();
+			}, false);
+		}
+		if (bb.ele.imageZoomButton) {
+			bb.ele.imageZoomButton.addEventListener('click', bb.dry.openImageZoom, false);
+		}
+		if (bb.ele.imageZoomCloseButton) {
+			bb.ele.imageZoomCloseButton.addEventListener('click', bb.dry.closeImageZoom, false);
+		}
+		if (bb.ele.imageZoomModal) {
+			bb.ele.imageZoomModal.addEventListener('click', function(evn) {
+				if (evn.target === bb.ele.imageZoomModal) { bb.dry.closeImageZoom(); }
+			}, false);
 		}
 		if (bb.ele.imageDeleteCancelButton) {
 			bb.ele.imageDeleteCancelButton.addEventListener('click', bb.dry.closeDeleteImageModal, false);
@@ -267,6 +301,11 @@
 		if (bb.ele.criticalNotesSaveButton) {
 			bb.ele.criticalNotesSaveButton.addEventListener('click', bb.dry.saveCriticalNotes, false);
 		}
+		document.addEventListener('keydown', function(evn) {
+			if (evn.key !== 'Escape') { return; }
+			bb.dry.closeImageTools();
+			bb.dry.closeImageZoom();
+		}, false);
 	})
 
 	//
@@ -743,6 +782,42 @@ bb.dry.updateImageAdminButtons = function() {
 	if (bb.ele.imageDeleteButton) {
 		bb.ele.imageDeleteButton.disabled = bb.imageAdminBusy || !(bb.sku.currentImage && bb.sku.currentImage.path);
 	}
+	if (bb.ele.imageZoomButton) {
+		bb.ele.imageZoomButton.disabled = !(bb.sku.currentImage && bb.sku.currentImage.path);
+	}
+}
+
+bb.dry.setImageToolsOpen = function(isOpen) {
+	if (!bb.ele.imageToolsToggle || !bb.ele.imageToolActions) { return; }
+	bb.ele.imageToolActions.hidden = !isOpen;
+	bb.ele.imageToolsToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+	bb.ele.imageToolsToggle.setAttribute('aria-label', isOpen ? 'Hide image controls' : 'Show image controls');
+}
+
+bb.dry.closeImageTools = function() {
+	bb.dry.setImageToolsOpen(false);
+}
+
+bb.dry.openImageZoom = function() {
+	if (!bb.ele.imageZoomModal || !bb.ele.imageZoomPreview || !bb.ele.mainHeaderImg || bb.ele.imageZoomButton.disabled) { return; }
+	bb.imageZoomPreviousFocus = bb.ele.imageToolsToggle;
+	bb.ele.imageZoomPreview.src = bb.ele.mainHeaderImg.currentSrc || bb.ele.mainHeaderImg.src;
+	bb.ele.imageZoomPreview.alt = 'Enlarged image for ' + bb.sku.value;
+	bb.ele.imageZoomModal.hidden = false;
+	bb.ele.body.classList.add('imageZoomOpen');
+	bb.dry.closeImageTools();
+	if (bb.ele.imageZoomCloseButton) { bb.ele.imageZoomCloseButton.focus(); }
+}
+
+bb.dry.closeImageZoom = function() {
+	if (!bb.ele.imageZoomModal || bb.ele.imageZoomModal.hidden) { return; }
+	bb.ele.imageZoomModal.hidden = true;
+	bb.ele.body.classList.remove('imageZoomOpen');
+	bb.ele.imageZoomPreview.removeAttribute('src');
+	if (bb.imageZoomPreviousFocus && typeof bb.imageZoomPreviousFocus.focus === 'function') {
+		bb.imageZoomPreviousFocus.focus();
+	}
+	bb.imageZoomPreviousFocus = null;
 }
 
 bb.dry.setImageUploadStatus = function(message, busy) {
@@ -957,6 +1032,7 @@ bb.dry.deleteSkuImage = function() {
 	// users type or use a hand scanner to enter SKUs into the search box
 	// when they hit enter, it tries to select the SKU in the multiselect box
 	document.addEventListener('keydown', function(event) {
+		if (bb.ele.imageZoomModal && !bb.ele.imageZoomModal.hidden) { return; }
 		if (bb.ele.criticalNotesText == document.activeElement) { return; }
 
 		const arrowKeys = ['ArrowUp', 'ArrowDown']
