@@ -799,7 +799,7 @@ img#armor-tech-logo-svg {
 	
 	@media print {
 		@page {
-			size: 1.5in 3in;
+			size: 3in 1.5in;
 			margin: 0;
 		}
 		
