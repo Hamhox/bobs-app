@@ -373,11 +373,33 @@ img#armor-tech-logo-svg {
     height: 38px;
 }
 	
-	#pageLogo {
-		font-size: .8em;
-		text-decoration: none;
-		display: inline-block;
-		user-select: none;
+	.sidebarBlock--main-ship {
+		padding-block: 2px 4px;
+	}
+	#mainShipButton {
+		width: 100%;
+		padding: 10px 12px;
+		border: 1px solid #193b73;
+		border-radius: 3px;
+		background: #10264d;
+		color: #fff;
+		font-family: Rubik, Arial, sans-serif;
+		font-size: 13px;
+		font-weight: 650;
+		letter-spacing: .01em;
+		text-align: left;
+		cursor: pointer;
+	}
+	#mainShipButton::after {
+		content: "\2192";
+		float: right;
+		color: #e56aa6;
+	}
+	#mainShipButton:hover,
+	#mainShipButton:focus-visible {
+		border-color: #275da9;
+		background: #173568;
+		outline: none;
 	}
 	#pageLogo2 {
 	color: white;
@@ -537,6 +559,10 @@ img#armor-tech-logo-svg {
 	.card:hover{
 		background: #f3f6f8;
 	}
+	.card:focus-visible {
+		outline: 2px solid #1a57d2;
+		outline-offset: 2px;
+	}
 	.cardImg {
 		width: 175px;
 		object-fit: cover;
@@ -552,13 +578,10 @@ img#armor-tech-logo-svg {
 		-o-transition : border 200ms ease-out;
 		transition : border 200ms ease-out;
 	}
-	.cardImg:hover {
-		border: 2px solid #1a57d2;
-	}
 	.cardContent {
 		margin: 10px 10px 10px 10px;
 	}
-	.card .cardContent:hover {
+	.card {
 		cursor: pointer;
 		text-decoration: none;
 	}

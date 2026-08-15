@@ -37,7 +37,7 @@
 		bb.ele.body 			= document.getElementsByTagName("body")[0];
 		bb.ele.topbar 			= document.getElementById("topbar");
 		
-		bb.ele.pageLogo			= document.getElementById('pageLogo');
+		bb.ele.mainShipButton	= document.getElementById('mainShipButton');
 		bb.ele.shareLink		= document.getElementById('shareLink');
 		bb.ele.toolsMenuButton	= document.getElementById('toolsMenuButton');
 		bb.ele.toolsMenu		= document.getElementById('toolsMenu');
@@ -182,6 +182,15 @@
 		bb.ele.shareLink.addEventListener("click", function(evn) {
 			bb.dry.updateLinks();
 		}, true);
+
+		if (bb.ele.mainShipButton) {
+			bb.ele.mainShipButton.addEventListener("click", function() {
+				bb.ele.skuSelectBox.value = "QAR-0001";
+				bb.ele.tab1.button.click();
+				window.history.pushState({}, "", "/apps/buildbooks/bb?item=QAR-0001&tab=1");
+				bb.ele.skuSelectBox.dispatchEvent(new Event("change"));
+			}, false);
+		}
 
 		if (bb.ele.toolsMenuButton && bb.ele.toolsMenu) {
 			bb.ele.toolsMenuButton.addEventListener("click", function(evn) {
@@ -883,13 +892,14 @@ bb.dry.deleteSkuImage = function() {
 		var newBlock = document.createElement("div"); 
 			newBlock.classList.add('card');
 			newBlock.id = 'block'+ bb.dry.listBlockId;
-			var newImgAnchor = document.createElement("a"); 
-				newImgAnchor.target = "_blank";
-			newBlock.append(newImgAnchor)
+			newBlock.setAttribute('role', 'button');
+			newBlock.setAttribute('tabindex', '0');
+			newBlock.setAttribute('aria-label', 'Open SKU ' + targetSKU);
 			var newImg = document.createElement("img"); 
 				newImg.classList.add('cardImg');
 				newImg.src = bb.dry.imgBroken;
-			newImgAnchor.append(newImg)
+				newImg.alt = itemNameStr;
+			newBlock.append(newImg)
 			var newContainerDiv = document.createElement("div"); 
 				newContainerDiv.classList.add('cardContent');
 				var newSkuDiv = document.createElement("div");
@@ -913,34 +923,22 @@ bb.dry.deleteSkuImage = function() {
 		var cardContent = document.getElementById('block' + bb.dry.listBlockId);
 		var imgEle = cardContent.getElementsByClassName("cardImg")[0];
 
-		// This line clearly defines your missing variable
-		var cardContentContent = cardContent.getElementsByClassName("cardContent")[0];
-		
 		bb.dry.updateCardImageSrc(imgEle, targetSKU);
-	
-		if(targetSKU.trim().toLowerCase().startsWith('010-elv')) {
-			var imgFullPath = "./assets/pdf.jpg"; // use the pdf icon image to indicate this is an instruction sheet to download
-			newImgAnchor.href="https://cdn1.polaris.com/globalassets/trail-tech/2020/home/pdf/" + targetSKU.trim().toLowerCase() + ".pdf";
-		} else {
-			// Correctly set the anchor href dynamically based on actual image loaded
-			newImgAnchor.href = imgEle.src;
-		}
-		bb.dry.updateImageSrc(imgEle, targetSKU); // update the card's image	
 		
 		//
-		// if a sku is clicked on in one of the tabs listboxes, then search for it
-		cardContentContent.addEventListener("click", function(evn) {
+		// Treat the entire card, including its image, as one SKU action.
+		function openCardSku(evn) {
+			if (evn.type === 'keydown' && evn.key !== 'Enter' && evn.key !== ' ') { return; }
+			if (evn.type === 'keydown') { evn.preventDefault(); }
 			bb.dry.populateSelectBox({'optArr':bb.ajax.inventorySkus}); // reset select box to house all skus again
-			// if src is defined, an image was clicked on, so let it propagate ... else load the sku that was clicked on
-			if (evn.target.src === undefined) {
-				bb.ele.searchInput.value = '';
-				evn.stopPropagation();
-				bb.ele.tab1.button.click(); // click on the default tab (Assembly)
-				var clickedSku = cardContent.getElementsByClassName("cardSku")[0].innerHTML;
-				bb.ele.skuSelectBox.value = clickedSku.toUpperCase();
-				bb.ele.skuSelectBox.dispatchEvent(new Event('change'));
-			}
-		}, true);
+			bb.ele.searchInput.value = '';
+			bb.ele.tab1.button.click(); // click on the default tab (Assembly)
+			var clickedSku = cardContent.getElementsByClassName("cardSku")[0].innerHTML;
+			bb.ele.skuSelectBox.value = clickedSku.toUpperCase();
+			bb.ele.skuSelectBox.dispatchEvent(new Event('change'));
+		}
+		newBlock.addEventListener("click", openCardSku, false);
+		newBlock.addEventListener("keydown", openCardSku, false);
 	}
 		
 		
@@ -1045,9 +1043,6 @@ bb.ajax.finished = function () {
     bb.ele.skuSelectBox.dispatchEvent(new Event('change'));
   }
 
-	bb.ele.pageLogo.innerHTML = 'Buildbooks';
-	
-
 };
 
 	
@@ -1115,7 +1110,6 @@ bb.ajax.finished = function () {
 // HTML ELEMENT ALTERATION FUNCTIONS
 //
 	bb.dry.configureDataSources = function () {
-		bb.ele.pageLogo.innerHTML = 'Buildbooks';
 		bb.ajax.path1 = 'database/buildbooks-bom.tsv';
 		bb.ajax.path2 = 'database/buildbooks-inventory.tsv';
 		bb.ajax.path3 = 'database/Buildbooks_CRITICAL_NOTES.csv';
