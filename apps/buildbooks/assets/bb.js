@@ -76,9 +76,11 @@
 		bb.ele.imageDeleteConfirmButton = document.getElementById('buttonConfirmDeleteImage');
 		bb.ele.imageDeleteCancelButton = document.getElementById('buttonCancelDeleteImage');
 		bb.ele.criticalNotesAdminSku = document.getElementById('criticalNotesAdminSku');
-		bb.ele.criticalNotesBatteryCheckbox = document.getElementById('criticalNotesBatteryCheckbox');
-		bb.ele.criticalNotesCoinCheckbox = document.getElementById('criticalNotesCoinCheckbox');
-		bb.ele.criticalNotesFccCheckbox = document.getElementById('criticalNotesFccCheckbox');
+		bb.ele.criticalNotesCountryOfOrigin = document.getElementById('criticalNotesCountryOfOrigin');
+		bb.ele.criticalNotesFragileCheckbox = document.getElementById('criticalNotesFragileCheckbox');
+		bb.ele.criticalNotesStoreDryCheckbox = document.getElementById('criticalNotesStoreDryCheckbox');
+		bb.ele.criticalNotesKeepAwayFromFlameCheckbox = document.getElementById('criticalNotesKeepAwayFromFlameCheckbox');
+		bb.ele.criticalNotesHazardProfile = document.getElementById('criticalNotesHazardProfile');
 		bb.ele.criticalNotesText = document.getElementById('criticalNotesText');
 		bb.ele.criticalNotesSaveButton = document.getElementById('buttonSaveCriticalNotes');
 		bb.ele.criticalNotesSaveStatus = document.getElementById('criticalNotesSaveStatus');
@@ -105,9 +107,16 @@
 			bb.ele.labelCriticalContainer = document.getElementById('labelCriticalContainer');
 			bb.ele.labelCriticalNote = document.getElementById('labelCriticalNote');
 			bb.ele.printContainer = document.getElementById('printContainer');
-			bb.ele.batteryWarning = document.getElementById('batteryWarning');
-			bb.ele.coinLabel = document.getElementById('coinLabelContainer');
-			bb.ele.fccLabel = document.getElementById('fccLabelContainer');
+			bb.ele.labelFragileIcon = document.getElementById('labelFragileIcon');
+			bb.ele.labelStoreDryIcon = document.getElementById('labelStoreDryIcon');
+			bb.ele.labelKeepAwayFromFlameIcon = document.getElementById('labelKeepAwayFromFlameIcon');
+			bb.ele.labelHazardProfileIcon = document.getElementById('labelHazardProfileIcon');
+			bb.ele.fragileLabel = document.getElementById('fragileLabelContainer');
+			bb.ele.storeDryLabel = document.getElementById('storeDryLabelContainer');
+			bb.ele.keepAwayFromFlameLabel = document.getElementById('keepAwayFromFlameLabelContainer');
+			bb.ele.hazardProfileLabel = document.getElementById('hazardProfileLabelContainer');
+			bb.ele.hazardProfileLabelTitle = document.getElementById('hazardProfileLabelTitle');
+			bb.ele.hazardProfileLabelBody = document.getElementById('hazardProfileLabelBody');
 			
 	//	bb.ele.tab4 			= document.getElementById('tab4');
 	//		bb.ele.tab4.button 	= document.getElementById('button_tab4');
@@ -295,9 +304,6 @@
 		if (bb.ele.imageDeleteConfirmButton) {
 			bb.ele.imageDeleteConfirmButton.addEventListener('click', bb.dry.deleteSkuImage, false);
 		}
-		if (bb.ele.criticalNotesCoinCheckbox) {
-			bb.ele.criticalNotesCoinCheckbox.addEventListener('change', bb.dry.syncCriticalNotesCoin, false);
-		}
 		if (bb.ele.criticalNotesSaveButton) {
 			bb.ele.criticalNotesSaveButton.addEventListener('click', bb.dry.saveCriticalNotes, false);
 		}
@@ -312,15 +318,15 @@
 	// user clicked on a label, intending to print it
 	// First determine which label was clicked on, then update it to the printable area div, then print
 bb.dry.sendPrint = function (userClicked) {
-	var printDivs;
-
-	if (userClicked === "coinWarningLabel") {
-	  printDivs = document.querySelector('#coinWarningLabelPrintDivs');
-	} else if (userClicked === "fccLabel") {
-	  printDivs = document.querySelector('#fccLabelPrintDivs');
-	} else {
-	  printDivs = document.querySelector('#plabelPrintDivs');
-	}
+	var printTargets = {
+		pLabel: '#plabelPrintDivs',
+		fragileLabel: '#fragileLabelPrintDivs',
+		storeDryLabel: '#storeDryLabelPrintDivs',
+		keepAwayFromFlameLabel: '#keepAwayFromFlameLabelPrintDivs',
+		hazardProfileLabel: '#hazardProfileLabelPrintDivs'
+	};
+	var printDivs = document.querySelector(printTargets[userClicked] || printTargets.pLabel);
+	if (!printDivs) { return; }
 
 	var printarea = document.querySelector('#printarea');
 	printarea.innerHTML = '';
@@ -445,6 +451,10 @@ bb.dry.versionedImageUrl = function(path) {
 				
 			}
 		}
+		var criticalNoteRow = bb.dry.getCriticalNoteRow(sku.value);
+		if (criticalNoteRow && criticalNoteRow.CountryOfOrigin) {
+			bb.sku.coo = String(criticalNoteRow.CountryOfOrigin).trim();
+		}
 		//
 		// update the displayed values with the fresh sku information
 		bb.dry.updateEle(bb.ele.tab1.header, 	'List of parts used to assemble: '+ sku.value);
@@ -528,35 +538,39 @@ bb.dry.criticalNoteHtmlToText = function(noteHtml) {
 bb.dry.populateCriticalNotesAdmin = function() {
 	if (!bb.ele.criticalNotesAdminSku) { return; }
 
-	var row = bb.dry.getCriticalNoteRow(bb.sku.value);
-	var batteryWarning = row && row.BatteryWarning ? row.BatteryWarning : "";
-	var coinChecked = batteryWarning == "COIN";
+	var row = bb.dry.getCriticalNoteRow(bb.sku.value) || {};
 
 	bb.ele.criticalNotesAdminSku.textContent = bb.sku.value || "selected SKU";
-	bb.ele.criticalNotesBatteryCheckbox.checked = batteryWarning == "BATTERY" || coinChecked;
-	bb.ele.criticalNotesCoinCheckbox.checked = coinChecked;
-	bb.ele.criticalNotesFccCheckbox.checked = row && row.FCC == "FCC";
-	bb.ele.criticalNotesText.value = row && row.CriticalNote ? bb.dry.criticalNoteHtmlToText(row.CriticalNote) : "";
+	bb.ele.criticalNotesCountryOfOrigin.value = row.CountryOfOrigin || "";
+	bb.ele.criticalNotesFragileCheckbox.checked = row.Fragile == "1";
+	bb.ele.criticalNotesStoreDryCheckbox.checked = row.StoreDry == "1";
+	bb.ele.criticalNotesKeepAwayFromFlameCheckbox.checked = row.KeepAwayFromFlame == "1";
+	bb.ele.criticalNotesHazardProfile.value = row.HazardProfile || "";
+	bb.ele.criticalNotesText.value = row.CriticalNote ? bb.dry.criticalNoteHtmlToText(row.CriticalNote) : "";
 	bb.ele.criticalNotesSaveStatus.textContent = "";
 	bb.ele.criticalNotesSaveButton.disabled = !bb.sku.value;
-	bb.dry.syncCriticalNotesCoin();
 }
 
-bb.dry.syncCriticalNotesCoin = function() {
-	if (!bb.ele.criticalNotesBatteryCheckbox || !bb.ele.criticalNotesCoinCheckbox) { return; }
-	if (bb.ele.criticalNotesCoinCheckbox.checked) {
-		bb.ele.criticalNotesBatteryCheckbox.checked = true;
-		bb.ele.criticalNotesBatteryCheckbox.disabled = true;
-	} else {
-		bb.ele.criticalNotesBatteryCheckbox.disabled = false;
-	}
+bb.dry.getHazardLabel = function(hazardProfile) {
+	var labels = {
+		AMMUNITION: ['AMMUNITION STORES', 'KEEP DRY · SEGREGATE FROM IGNITION SOURCES · VERIFY COUNT'],
+		COMBUSTIBLE: ['COMBUSTIBLE STORES', 'KEEP COOL · VENTILATE · SEPARATE FROM IGNITION SOURCES'],
+		CONTROLLED_MEDICAL: ['CONTROLLED MEDICAL STORES', 'KEEP SEALED · RESTRICT ACCESS'],
+		EXPLOSIVE: ['EXPLOSIVE STORES', 'ISOLATE FROM FLAME, SPARKS, IMPACT AND UNAUTHORIZED HANDLING'],
+		FLAMMABLE: ['FLAMMABLE STORES', 'KEEP SEALED · KEEP AWAY FROM FLAME AND SPARKS'],
+		ORDNANCE: ['HEAVY ORDNANCE', 'SECURE AGAINST MOVEMENT · INSPECT BEFORE ISSUE'],
+		SHARP_EDGE: ['SHARP EDGE OR POINT', 'KEEP SHEATHED OR SECURED · INSPECT BEFORE ISSUE'],
+		TOXIC: ['TOXIC MATERIAL', 'DO NOT INGEST OR INHALE · KEEP SEALED · RESTRICT ACCESS']
+	};
+	return labels[hazardProfile] || ['HAZARD PROFILE', 'FOLLOW THE CRITICAL HANDLING NOTE'];
 }
 
 bb.dry.applyCriticalNotesForSku = function() {
 	var needsCriticalNote = false;
-	var needsBatteryWarning = false;
-	var needsCoinLabel = false;
-	var needsFccLabel = false;
+	var needsFragileLabel = false;
+	var needsStoreDryLabel = false;
+	var needsKeepAwayFromFlameLabel = false;
+	var hazardProfile = "";
 	var row = bb.dry.getCriticalNoteRow(bb.sku.value);
 
 	if (row) {
@@ -566,16 +580,10 @@ bb.dry.applyCriticalNotesForSku = function() {
 		} else {
 			bb.ele.labelCriticalNote.innerHTML = "No critical note specified.";
 		}
-		if (row.BatteryWarning == "BATTERY") {
-			needsBatteryWarning = true;
-		}
-		if (row.BatteryWarning == "COIN") {
-			needsBatteryWarning = true;
-			needsCoinLabel = true;
-		}
-		if (row.FCC == "FCC") {
-			needsFccLabel = true;
-		}
+		needsFragileLabel = row.Fragile == "1";
+		needsStoreDryLabel = row.StoreDry == "1";
+		needsKeepAwayFromFlameLabel = row.KeepAwayFromFlame == "1";
+		hazardProfile = row.HazardProfile ? String(row.HazardProfile).trim().toUpperCase() : "";
 	} else {
 		bb.ele.labelCriticalNote.innerHTML = "No critical note specified.";
 	}
@@ -587,21 +595,19 @@ bb.dry.applyCriticalNotesForSku = function() {
 		bb.ele.labelCriticalContainer.style.display = "none";
 		bb.ele.printContainer.style.display = "block";
 	}
-	if (needsBatteryWarning == true) {
-		bb.ele.batteryWarning.style.display = "block";
-	} else {
-		bb.ele.batteryWarning.style.display = "none";
-	}
-	if (needsCoinLabel == true) {
-		bb.ele.coinLabel.style.display = "inline-block";
-	} else {
-		bb.ele.coinLabel.style.display = "none";
-	}
-	if (needsFccLabel == true) {
-		bb.ele.fccLabel.style.display = "inline-block";
-	} else {
-		bb.ele.fccLabel.style.display = "none";
-	}
+	bb.ele.labelFragileIcon.style.display = needsFragileLabel ? "block" : "none";
+	bb.ele.labelStoreDryIcon.style.display = needsStoreDryLabel ? "block" : "none";
+	bb.ele.labelKeepAwayFromFlameIcon.style.display = needsKeepAwayFromFlameLabel ? "block" : "none";
+	bb.ele.labelHazardProfileIcon.style.display = hazardProfile ? "block" : "none";
+	bb.ele.fragileLabel.style.display = needsFragileLabel ? "inline-block" : "none";
+	bb.ele.storeDryLabel.style.display = needsStoreDryLabel ? "inline-block" : "none";
+	bb.ele.keepAwayFromFlameLabel.style.display = needsKeepAwayFromFlameLabel ? "inline-block" : "none";
+	bb.ele.hazardProfileLabel.style.display = hazardProfile ? "inline-block" : "none";
+
+	var hazardLabel = bb.dry.getHazardLabel(hazardProfile);
+	bb.ele.hazardProfileLabelTitle.textContent = hazardLabel[0];
+	bb.ele.hazardProfileLabelBody.textContent = hazardLabel[1];
+	bb.ele.labelHazardProfileIcon.setAttribute('aria-label', hazardProfile ? hazardLabel[0] : 'Hazard profile');
 }
 
 bb.dry.updateCriticalNoteMemory = function(sku, row) {
@@ -624,24 +630,32 @@ bb.dry.saveCriticalNotes = function() {
 		return;
 	}
 
-	bb.dry.syncCriticalNotesCoin();
-
 	bb.ele.criticalNotesSaveButton.disabled = true;
 	bb.ele.criticalNotesSaveStatus.textContent = "Applying locally...";
 
+	var editedSku = bb.sku.value;
 	var noteText = bb.ele.criticalNotesText.value.trim();
 	var row = {
-		LocalSKU: bb.sku.value,
-		BatteryWarning: bb.ele.criticalNotesCoinCheckbox.checked ? "COIN" : (bb.ele.criticalNotesBatteryCheckbox.checked ? "BATTERY" : ""),
-		FCC: bb.ele.criticalNotesFccCheckbox.checked ? "FCC" : "",
+		LocalSKU: editedSku,
+		CountryOfOrigin: bb.ele.criticalNotesCountryOfOrigin.value.trim(),
+		Fragile: bb.ele.criticalNotesFragileCheckbox.checked ? "1" : "0",
+		StoreDry: bb.ele.criticalNotesStoreDryCheckbox.checked ? "1" : "0",
+		KeepAwayFromFlame: bb.ele.criticalNotesKeepAwayFromFlameCheckbox.checked ? "1" : "0",
+		HazardProfile: bb.ele.criticalNotesHazardProfile.value,
 		CriticalNote: noteText.replace(/\r?\n/g, "<br>")
 	};
 
 	setTimeout(function() {
-		bb.dry.updateCriticalNoteMemory(bb.sku.value, row);
-		bb.dry.applyCriticalNotesForSku();
-		bb.ele.criticalNotesSaveStatus.textContent = "Applied for this browser session.";
-		bb.ele.criticalNotesSaveButton.disabled = !bb.sku.value;
+		bb.dry.updateCriticalNoteMemory(editedSku, row);
+
+		if (bb.sku.value === editedSku) {
+			bb.sku.coo = row.CountryOfOrigin;
+			bb.dry.makeLabelPreview();
+			bb.dry.applyCriticalNotesForSku();
+			bb.ele.criticalNotesSaveStatus.textContent = "Applied for this browser session.";
+			bb.ele.criticalNotesSaveButton.disabled = false;
+		}
+
 		bb.dry.showQuickFeedback("Label configuration applied locally.");
 	}, 450);
 }
@@ -1188,7 +1202,7 @@ bb.ajax.finished = function () {
 	bb.dry.configureDataSources = function () {
 		bb.ajax.path1 = 'database/buildbooks-bom.tsv';
 		bb.ajax.path2 = 'database/buildbooks-inventory.tsv';
-		bb.ajax.path3 = 'database/Buildbooks_CRITICAL_NOTES.csv';
+		bb.ajax.path3 = 'database/Buildbooks_CRITICAL_NOTES.tsv';
 	}
 	
 	//
