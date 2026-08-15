@@ -80,8 +80,8 @@
 		bb.ele.criticalNotesFragileCheckbox = document.getElementById('criticalNotesFragileCheckbox');
 		bb.ele.criticalNotesStoreDryCheckbox = document.getElementById('criticalNotesStoreDryCheckbox');
 		bb.ele.criticalNotesKeepAwayFromFlameCheckbox = document.getElementById('criticalNotesKeepAwayFromFlameCheckbox');
+		bb.ele.criticalNotesToxicCheckbox = document.getElementById('criticalNotesToxicCheckbox');
 		bb.ele.criticalNotesHazardProfile = document.getElementById('criticalNotesHazardProfile');
-		bb.ele.criticalNotesText = document.getElementById('criticalNotesText');
 		bb.ele.criticalNotesSaveButton = document.getElementById('buttonSaveCriticalNotes');
 		bb.ele.criticalNotesSaveStatus = document.getElementById('criticalNotesSaveStatus');
 		
@@ -104,16 +104,16 @@
 			bb.ele.printQty = document.getElementById('inputPrintQty');
 			bb.ele.printButton = document.getElementById('printButton');
 			//bb.ele.barcodeContainer = document.getElementById('barcodeContainer');
-			bb.ele.labelCriticalContainer = document.getElementById('labelCriticalContainer');
-			bb.ele.labelCriticalNote = document.getElementById('labelCriticalNote');
 			bb.ele.printContainer = document.getElementById('printContainer');
 			bb.ele.labelFragileIcon = document.getElementById('labelFragileIcon');
 			bb.ele.labelStoreDryIcon = document.getElementById('labelStoreDryIcon');
 			bb.ele.labelKeepAwayFromFlameIcon = document.getElementById('labelKeepAwayFromFlameIcon');
+			bb.ele.labelToxicIcon = document.getElementById('labelToxicIcon');
 			bb.ele.labelHazardProfileIcon = document.getElementById('labelHazardProfileIcon');
 			bb.ele.fragileLabel = document.getElementById('fragileLabelContainer');
 			bb.ele.storeDryLabel = document.getElementById('storeDryLabelContainer');
 			bb.ele.keepAwayFromFlameLabel = document.getElementById('keepAwayFromFlameLabelContainer');
+			bb.ele.toxicLabel = document.getElementById('toxicLabelContainer');
 			bb.ele.hazardProfileLabel = document.getElementById('hazardProfileLabelContainer');
 			bb.ele.hazardProfileLabelTitle = document.getElementById('hazardProfileLabelTitle');
 			bb.ele.hazardProfileLabelBody = document.getElementById('hazardProfileLabelBody');
@@ -307,6 +307,9 @@
 		if (bb.ele.criticalNotesSaveButton) {
 			bb.ele.criticalNotesSaveButton.addEventListener('click', bb.dry.saveCriticalNotes, false);
 		}
+		if (bb.ele.criticalNotesHazardProfile) {
+			bb.ele.criticalNotesHazardProfile.addEventListener('change', bb.dry.applyHazardProfilePreset, false);
+		}
 		document.addEventListener('keydown', function(evn) {
 			if (evn.key !== 'Escape') { return; }
 			bb.dry.closeImageTools();
@@ -323,6 +326,7 @@ bb.dry.sendPrint = function (userClicked) {
 		fragileLabel: '#fragileLabelPrintDivs',
 		storeDryLabel: '#storeDryLabelPrintDivs',
 		keepAwayFromFlameLabel: '#keepAwayFromFlameLabelPrintDivs',
+		toxicLabel: '#toxicLabelPrintDivs',
 		hazardProfileLabel: '#hazardProfileLabelPrintDivs'
 	};
 	var printDivs = document.querySelector(printTargets[userClicked] || printTargets.pLabel);
@@ -530,11 +534,6 @@ bb.dry.getCriticalNoteRow = function(sku) {
 	return null;
 }
 
-bb.dry.criticalNoteHtmlToText = function(noteHtml) {
-	if (!noteHtml) { return ""; }
-	return noteHtml.replace(/<br\s*\/?>/gi, "\n");
-}
-
 bb.dry.populateCriticalNotesAdmin = function() {
 	if (!bb.ele.criticalNotesAdminSku) { return; }
 
@@ -545,8 +544,8 @@ bb.dry.populateCriticalNotesAdmin = function() {
 	bb.ele.criticalNotesFragileCheckbox.checked = row.Fragile == "1";
 	bb.ele.criticalNotesStoreDryCheckbox.checked = row.StoreDry == "1";
 	bb.ele.criticalNotesKeepAwayFromFlameCheckbox.checked = row.KeepAwayFromFlame == "1";
+	bb.ele.criticalNotesToxicCheckbox.checked = row.Toxic == "1";
 	bb.ele.criticalNotesHazardProfile.value = row.HazardProfile || "";
-	bb.ele.criticalNotesText.value = row.CriticalNote ? bb.dry.criticalNoteHtmlToText(row.CriticalNote) : "";
 	bb.ele.criticalNotesSaveStatus.textContent = "";
 	bb.ele.criticalNotesSaveButton.disabled = !bb.sku.value;
 }
@@ -562,47 +561,66 @@ bb.dry.getHazardLabel = function(hazardProfile) {
 		SHARP_EDGE: ['SHARP EDGE OR POINT', 'KEEP SHEATHED OR SECURED · INSPECT BEFORE ISSUE'],
 		TOXIC: ['TOXIC MATERIAL', 'DO NOT INGEST OR INHALE · KEEP SEALED · RESTRICT ACCESS']
 	};
-	return labels[hazardProfile] || ['HAZARD PROFILE', 'FOLLOW THE CRITICAL HANDLING NOTE'];
+	return labels[hazardProfile] || ['HAZARD PROFILE', 'FOLLOW REQUIRED HANDLING PROCEDURES'];
+}
+
+bb.dry.applyHazardProfilePreset = function() {
+	var profile = bb.ele.criticalNotesHazardProfile.value;
+	var presets = {
+		AMMUNITION: ['storeDry', 'keepAwayFromFlame'],
+		COMBUSTIBLE: ['keepAwayFromFlame'],
+		CONTROLLED_MEDICAL: ['fragile', 'storeDry', 'toxic'],
+		EXPLOSIVE: ['keepAwayFromFlame'],
+		FLAMMABLE: ['keepAwayFromFlame'],
+		ORDNANCE: [],
+		SHARP_EDGE: [],
+		TOXIC: ['fragile', 'storeDry', 'toxic']
+	};
+	var fields = {
+		fragile: bb.ele.criticalNotesFragileCheckbox,
+		storeDry: bb.ele.criticalNotesStoreDryCheckbox,
+		keepAwayFromFlame: bb.ele.criticalNotesKeepAwayFromFlameCheckbox,
+		toxic: bb.ele.criticalNotesToxicCheckbox
+	};
+	var rules = presets[profile] || [];
+
+	for (var i = 0; i < rules.length; i++) {
+		fields[rules[i]].checked = true;
+	}
+
+	bb.ele.criticalNotesSaveStatus.textContent = rules.length
+		? "Profile defaults added; adjust the handling rules if needed."
+		: "Profile changed; existing handling rules were kept.";
 }
 
 bb.dry.applyCriticalNotesForSku = function() {
-	var needsCriticalNote = false;
 	var needsFragileLabel = false;
 	var needsStoreDryLabel = false;
 	var needsKeepAwayFromFlameLabel = false;
+	var needsToxicLabel = false;
 	var hazardProfile = "";
 	var row = bb.dry.getCriticalNoteRow(bb.sku.value);
 
 	if (row) {
-		if (typeof row.CriticalNote !== 'undefined' && row.CriticalNote !== "") {
-			needsCriticalNote = true;
-			bb.ele.labelCriticalNote.innerHTML = row.CriticalNote;
-		} else {
-			bb.ele.labelCriticalNote.innerHTML = "No critical note specified.";
-		}
 		needsFragileLabel = row.Fragile == "1";
 		needsStoreDryLabel = row.StoreDry == "1";
 		needsKeepAwayFromFlameLabel = row.KeepAwayFromFlame == "1";
+		needsToxicLabel = row.Toxic == "1";
 		hazardProfile = row.HazardProfile ? String(row.HazardProfile).trim().toUpperCase() : "";
-	} else {
-		bb.ele.labelCriticalNote.innerHTML = "No critical note specified.";
 	}
+	var showsHazardProfileLabel = hazardProfile && !(hazardProfile === "TOXIC" && needsToxicLabel);
 
-	if (needsCriticalNote == true) {
-		bb.ele.labelCriticalContainer.style.display = "block";
-		bb.ele.printContainer.style.display = "none";
-	} else {
-		bb.ele.labelCriticalContainer.style.display = "none";
-		bb.ele.printContainer.style.display = "block";
-	}
+	bb.ele.printContainer.style.display = "block";
 	bb.ele.labelFragileIcon.style.display = needsFragileLabel ? "block" : "none";
 	bb.ele.labelStoreDryIcon.style.display = needsStoreDryLabel ? "block" : "none";
 	bb.ele.labelKeepAwayFromFlameIcon.style.display = needsKeepAwayFromFlameLabel ? "block" : "none";
-	bb.ele.labelHazardProfileIcon.style.display = hazardProfile ? "block" : "none";
+	bb.ele.labelToxicIcon.style.display = needsToxicLabel ? "block" : "none";
+	bb.ele.labelHazardProfileIcon.style.display = showsHazardProfileLabel ? "block" : "none";
 	bb.ele.fragileLabel.style.display = needsFragileLabel ? "inline-block" : "none";
 	bb.ele.storeDryLabel.style.display = needsStoreDryLabel ? "inline-block" : "none";
 	bb.ele.keepAwayFromFlameLabel.style.display = needsKeepAwayFromFlameLabel ? "inline-block" : "none";
-	bb.ele.hazardProfileLabel.style.display = hazardProfile ? "inline-block" : "none";
+	bb.ele.toxicLabel.style.display = needsToxicLabel ? "inline-block" : "none";
+	bb.ele.hazardProfileLabel.style.display = showsHazardProfileLabel ? "inline-block" : "none";
 
 	var hazardLabel = bb.dry.getHazardLabel(hazardProfile);
 	bb.ele.hazardProfileLabelTitle.textContent = hazardLabel[0];
@@ -634,15 +652,14 @@ bb.dry.saveCriticalNotes = function() {
 	bb.ele.criticalNotesSaveStatus.textContent = "Applying locally...";
 
 	var editedSku = bb.sku.value;
-	var noteText = bb.ele.criticalNotesText.value.trim();
 	var row = {
 		LocalSKU: editedSku,
 		CountryOfOrigin: bb.ele.criticalNotesCountryOfOrigin.value.trim(),
 		Fragile: bb.ele.criticalNotesFragileCheckbox.checked ? "1" : "0",
 		StoreDry: bb.ele.criticalNotesStoreDryCheckbox.checked ? "1" : "0",
 		KeepAwayFromFlame: bb.ele.criticalNotesKeepAwayFromFlameCheckbox.checked ? "1" : "0",
-		HazardProfile: bb.ele.criticalNotesHazardProfile.value,
-		CriticalNote: noteText.replace(/\r?\n/g, "<br>")
+		Toxic: bb.ele.criticalNotesToxicCheckbox.checked ? "1" : "0",
+		HazardProfile: bb.ele.criticalNotesHazardProfile.value
 	};
 
 	setTimeout(function() {
@@ -1047,8 +1064,6 @@ bb.dry.deleteSkuImage = function() {
 	// when they hit enter, it tries to select the SKU in the multiselect box
 	document.addEventListener('keydown', function(event) {
 		if (bb.ele.imageZoomModal && !bb.ele.imageZoomModal.hidden) { return; }
-		if (bb.ele.criticalNotesText == document.activeElement) { return; }
-
 		const arrowKeys = ['ArrowUp', 'ArrowDown']
 		if (arrowKeys.indexOf(event.key) >= 0) {
 			if (bb.ele.skuSelectBox !== document.activeElement) {
@@ -1392,19 +1407,6 @@ bb.dry.updateImageSrc = function (imgEle, sku) {
 		return 0; //It is not IE
 	}
 	
-	
-//
-// HIDDEN TAB
-//
-
-	bb.dry.showPrintLabelContainer = function () {
-	  if (bb.ele.printContainer.style.display === "none") {
-		bb.ele.printContainer.style.display = "block";
-	  } else {
-		bb.ele.printContainer.style.display = "none";
-	  }
-	} 
-
 	
 //
 // UPDATE BARCODE LABEL 

@@ -15,8 +15,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300..900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300..800&family=Rubik:wght@300..900&display=swap" rel="stylesheet">
 	<!-- Load app files -->
-	<link rel="stylesheet" href="assets/bb.css?v=0.0.178">
-	<script src="assets/bb.js?v=0.0.680"></script>
+	<link rel="stylesheet" href="assets/bb.css?v=0.0.181">
+	<script src="assets/bb.js?v=0.0.682"></script>
 					
       <script src="assets/jsbarcode.all.min.js?v=0.0.03"></script>
       <script src="assets/print.min.js?v=0.0.03"></script>
@@ -153,22 +153,17 @@
 						<label><input id="criticalNotesFragileCheckbox" type="checkbox"> Fragile</label>
 						<label><input id="criticalNotesStoreDryCheckbox" type="checkbox"> Store dry</label>
 						<label><input id="criticalNotesKeepAwayFromFlameCheckbox" type="checkbox"> Keep away from flame</label>
+						<label><input id="criticalNotesToxicCheckbox" type="checkbox"> Toxic</label>
 					</div>
 					<div class="criticalNotesAdminHelp">
+						<div>Changing the hazard profile adds its default handling rules without clearing item-specific selections.</div>
 						<div>Enabled handling rules add a symbol to the main package label and a matching printable handling label.</div>
 						<div>Changes are a local demonstration and last only for this browser session.</div>
 					</div>
-					<label class="criticalNotesTextLabel" for="criticalNotesText">Critical note</label>
-					<textarea id="criticalNotesText" rows="3"></textarea>
 					<div class="criticalNotesActions">
 						<button id="buttonSaveCriticalNotes" type="button">Apply configuration</button>
-						<span id="criticalNotesSaveStatus"></span>
+						<span id="criticalNotesSaveStatus" aria-live="polite"></span>
 					</div>
-				</div>
-				<div id="labelCriticalContainer">
-					<p class="labelNote">CRITICAL NOTE:</p>
-					<p id="labelCriticalNote" class="subLabelNote">THIS LABEL NOT APPROVED FOR PACKAGING.</p>
-					<p><a onclick="bb.dry.showPrintLabelContainer()">Acknowledge and Print Label >></a></p>
 				</div>
 				
 				
@@ -255,6 +250,9 @@
 											<svg id="labelKeepAwayFromFlameIcon" class="labelRegulatoryIcon" role="img" aria-label="Keep away from flame" viewBox="0 0 32 32">
 												<circle cx="16" cy="16" r="13"/><path d="M16 25c-5 0-8-3-8-8 0-4 3-6 6-10 0 4 3 5 3 8 1-2 2-4 2-6 4 4 5 7 5 10 0 4-3 6-8 6Z M6 6l20 20"/>
 											</svg>
+											<svg id="labelToxicIcon" class="labelRegulatoryIcon" role="img" aria-label="Toxic" viewBox="0 0 32 32">
+												<path d="M8 13a8 8 0 1 1 16 0c0 4-2 6-4 7v4h-8v-4c-2-1-4-3-4-7Z M13 12h.01 M19 12h.01 M14 17h4 M7 27l18-8 M7 19l18 8"/>
+											</svg>
 											<svg id="labelHazardProfileIcon" class="labelRegulatoryIcon" role="img" aria-label="Hazard profile" viewBox="0 0 32 32">
 												<path d="M16 3 29 27H3L16 3Z M16 10v9 M16 23v1"/>
 											</svg>
@@ -293,11 +291,20 @@
 								</div>
 							</div>
 
+							<div id="toxicLabelContainer" class="barcodeContainer regulatoryLabelContainer">
+								<div class="productlabel handlingLabel" onclick="bb.dry.sendPrint('toxicLabel')">
+									<div id="toxicLabelPrintDivs" class="plabelWrapper handlingLabelWrapper">
+										<svg class="handlingLabelIcon" aria-hidden="true" viewBox="0 0 32 32"><path d="M8 13a8 8 0 1 1 16 0c0 4-2 6-4 7v4h-8v-4c-2-1-4-3-4-7Z M13 12h.01 M19 12h.01 M14 17h4 M7 27l18-8 M7 19l18 8"/></svg>
+										<div class="handlingLabelCopy"><strong>TOXIC MATERIAL</strong><span>DO NOT INGEST OR INHALE · KEEP SEALED · RESTRICT ACCESS</span><small class="labelSku">SELECT A SKU</small></div>
+									</div>
+								</div>
+							</div>
+
 							<div id="hazardProfileLabelContainer" class="barcodeContainer regulatoryLabelContainer">
 								<div class="productlabel handlingLabel" onclick="bb.dry.sendPrint('hazardProfileLabel')">
 									<div id="hazardProfileLabelPrintDivs" class="plabelWrapper handlingLabelWrapper">
 										<svg class="handlingLabelIcon handlingLabelIconHazard" aria-hidden="true" viewBox="0 0 32 32"><path d="M16 3 29 27H3L16 3Z M16 10v9 M16 23v1"/></svg>
-										<div class="handlingLabelCopy"><strong id="hazardProfileLabelTitle">HAZARD PROFILE</strong><span id="hazardProfileLabelBody">FOLLOW THE CRITICAL HANDLING NOTE</span><small class="labelSku">SELECT A SKU</small></div>
+										<div class="handlingLabelCopy"><strong id="hazardProfileLabelTitle">HAZARD PROFILE</strong><span id="hazardProfileLabelBody">FOLLOW REQUIRED HANDLING PROCEDURES</span><small class="labelSku">SELECT A SKU</small></div>
 									</div>
 								</div>
 							</div>

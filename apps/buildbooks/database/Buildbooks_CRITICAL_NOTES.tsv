@@ -1,429 +1,429 @@
-LocalSKU	CountryOfOrigin	Fragile	StoreDry	KeepAwayFromFlame	HazardProfile	CriticalNote
-QAR-0001	France	0	0	0		Public demonstration BOM. Historical evidence, archaeological finds, period comparables, and explicitly fictional reconstruction controls are separated in metadata.
-QAR-0002	Mixed Origin	0	0	0		
-QAR-0003	Mixed Origin	0	0	1		Keep away from flame, sparks, and hot surfaces.
-QAR-0004	Mixed Origin	0	1	0		
-QAR-0005	Mixed Origin	0	0	0		
-QAR-0006	Mixed Origin	0	0	0		
-QAR-0007	Mixed Origin	1	1	0		Fragile. Protect from impact and crushing; secure in padded storage.
-QAR-0008	Mixed Origin	0	0	0		
-QAR-0009	Mixed Origin	0	1	0		
-QAR-0010	Mixed Origin	1	1	0		Fragile. Protect from impact and crushing; secure in padded storage.
-QAR-0011	Mixed Origin	0	0	0		
-QAR-0012	Mixed Origin	0	1	0		
-QAR-0013	Mixed Origin	0	1	0		
-QAR-0014	Mixed Origin	0	1	0		
-QAR-0015	Mixed Origin	0	1	0		
-QAR-0016	United States	0	1	0		
-QAR-0017	Mixed Origin	0	0	0		
-OFT-0001	Mixed Origin	0	0	0		
-QAR-0018	France	0	0	0		
-OFT-0002	Mixed Origin	0	0	0		
-OFT-0003	Mixed Origin	0	0	0		
-QAR-0019	France	0	0	0		
-QAR-0020	France	0	0	0		
-QAR-0021	France	0	0	0		
-QAR-0022	France	0	0	0		
-KIT-0001	Mixed Origin	0	0	0		
-PRT-0001	North American Colonies	0	0	0		
-PRT-0002	France	0	0	0		
-PRT-0003	France	0	0	0		
-PRT-0004	France	0	1	0		
-ASM-0001	France	0	0	0		
-ASM-0002	France	0	0	0		
-ASM-0003	France	0	0	0		
-ASM-0004	France	0	0	0		
-KIT-0002	Mixed Origin	0	0	0		
-PRT-0005	France	0	0	0		
-ASM-0005	France	0	0	0		
-PRT-0006	France	0	0	0		
-PRT-0007	France	0	0	0		
-PRT-0008	France	0	0	0		
-PRT-0009	France	0	0	0		
-QAR-0023	France	0	0	0		
-QAR-0024	France	0	0	0		
-PRT-0010	France	0	0	0		
-PRT-0011	France	0	0	0		
-PRT-0012	Baltic Region	0	1	0		
-ASM-0006	France	0	0	0		
-PRT-0013	France	0	0	0		
-PRT-0014	France	0	0	0		
-KIT-0003	Mixed Origin	0	1	0		
-ASM-0007	Baltic Region	0	1	0		
-MAT-0001	Local Supply	0	0	0		
-PRT-0015	France	0	0	0		
-PRT-0016	Netherlands	0	1	0		
-OFT-0004	Mixed Origin	0	0	0		Reconstructed mixed battery; historical accounts refer to as many as 40 cannon aboard QAR.
-OFT-0005	Mixed Origin	0	0	0		
-OFT-0006	Mixed Origin	0	0	0		
-OFT-0007	Mixed Origin	0	1	1	EXPLOSIVE	Explosive stores. Keep dry and isolated from flame, sparks, impact, and unauthorized handling.
-OFT-0008	Mixed Origin	0	0	0		
-KIT-0004	Mixed Origin	0	0	0		
-KIT-0005	Mixed Origin	0	0	0	ORDNANCE	Heavy ordnance. Secure against movement and inspect barrel, carriage, and attachment points before issue.
-KIT-0006	Mixed Origin	0	0	0	ORDNANCE	Heavy ordnance. Secure against movement and inspect barrel, carriage, and attachment points before issue.
-KIT-0007	Mixed Origin	0	0	0	ORDNANCE	Heavy ordnance. Secure against movement and inspect barrel, carriage, and attachment points before issue.
-PRT-0017	Great Britain	0	0	0		
-PRT-0018	Great Britain	0	0	0		
-PRT-0019	Great Britain	0	0	0		
-ASM-0008	Great Britain	0	0	0		
-ASM-0009	Great Britain	0	0	0		
-ASM-0010	Great Britain	0	0	0		
-KIT-0008	Mixed Origin	0	0	0		
-KIT-0009	Mixed Origin	0	0	0		
-KIT-0010	Mixed Origin	0	1	0		
-KIT-0011	Mixed Origin	0	1	0		
-KIT-0012	Mixed Origin	0	1	1	AMMUNITION	Ammunition stores. Keep dry, segregate from ignition sources, and verify count before issue.
-KIT-0013	Mixed Origin	0	1	1	AMMUNITION	Ammunition stores. Keep dry, segregate from ignition sources, and verify count before issue.
-KIT-0014	Mixed Origin	0	1	1	AMMUNITION	Ammunition stores. Keep dry, segregate from ignition sources, and verify count before issue.
-LBL-0001	United States	0	1	0		Fictional reconstruction-yard safety label; not represented as an eighteenth-century artifact.
-LBL-0002	United States	0	1	0		
-LBL-0003	United States	0	1	0		
-PRT-0020	Great Britain	0	0	0		
-PRT-0021	Great Britain	0	0	0		
-PRT-0022	Great Britain	0	0	0		
-PRT-0023	Great Britain	0	0	0		
-PRT-0024	Great Britain	0	0	0		
-PRT-0025	Great Britain	0	0	0		
-PRT-0026	Great Britain	0	0	0		
-PRT-0027	Great Britain	0	0	0		
-PRT-0028	Great Britain	0	0	0		
-PRT-0029	Great Britain	0	0	0		
-ASM-0011	Great Britain	0	0	0		
-PRT-0030	Great Britain	0	0	0		
-PRT-0031	Great Britain	0	0	0		
-PRT-0032	Great Britain	0	0	0		
-PRT-0033	Great Britain	0	0	0		
-PRT-0034	Great Britain	0	1	0		
-PRT-0035	Great Britain	0	1	1		Keep away from flame, sparks, and hot surfaces.
-PRT-0036	Great Britain	0	0	0		
-KIT-0015	Mixed Origin	0	0	0		
-PRT-0037	Great Britain	0	0	0		
-PRT-0038	Great Britain	0	0	0		
-PRT-0039	Great Britain	0	0	0		
-PRT-0040	Great Britain	0	0	0		
-ASM-0012	Great Britain	0	0	0		
-PRT-0041	Great Britain	0	0	0		
-PRT-0042	Great Britain	0	0	0		
-PRT-0043	Baltic Region	0	1	0		
-PRT-0044	Baltic Region	0	1	0		
-ASM-0013	Baltic Region	0	1	0		
-PRT-0045	Great Britain	0	0	0		
-PRT-0046	Great Britain	0	0	0		
-PRT-0047	Baltic Region	0	1	0		
-PRT-0048	Great Britain	0	0	0		
-PRT-0049	Great Britain	0	0	0		
-PRT-0050	Great Britain	0	0	0		
-PRT-0051	Great Britain	0	0	0		
-PRT-0052	Great Britain	0	0	0		
-ASM-0014	Great Britain	0	0	0		
-MAT-0002	Great Britain	0	0	0		
-MAT-0003	Great Britain	0	0	0		
-ASM-0015	Great Britain	0	0	0		
-ASM-0016	Great Britain	0	0	0		
-PKG-0001	Great Britain	0	0	0		
-ASM-0017	Great Britain	0	1	1	EXPLOSIVE	Explosive stores. Keep dry and isolated from flame, sparks, impact, and unauthorized handling.
-PKG-0002	North American Colonies	0	1	0		
-MAT-0004	Great Britain	0	1	1	EXPLOSIVE	Explosive stores. Keep dry and isolated from flame, sparks, impact, and unauthorized handling.
-LBL-0004	United States	0	1	0		
-KIT-0016	Mixed Origin	0	1	1		Keep away from flame, sparks, and hot surfaces.
-ASM-0018	Great Britain	1	0	0		Protect glazing from impact and verify the enclosure before issue.
-PKG-0003	Great Britain	0	1	0		
-PRT-0053	Great Britain	1	1	0		Precision measuring equipment. Keep complete and protect from impact.
-KIT-0017	Mixed Origin	1	1	0		Precision measuring equipment. Keep complete and protect from impact.
-PRT-0054	Great Britain	0	1	0		
-PRT-0055	Great Britain	0	1	0		
-MAT-0005	Netherlands	0	1	1	EXPLOSIVE	Explosive stores. Keep dry and isolated from flame, sparks, impact, and unauthorized handling.
-MAT-0006	Netherlands	0	1	1	EXPLOSIVE	Explosive stores. Keep dry and isolated from flame, sparks, impact, and unauthorized handling.
-KIT-0018	Mixed Origin	0	1	0		
-KIT-0019	Mixed Origin	0	1	0		
-PRT-0056	Great Britain	0	0	0	SHARP_EDGE	Sharp edge or point. Keep sheathed or secured and inspect before issue.
-PRT-0057	Great Britain	0	0	0	SHARP_EDGE	Sharp edge or point. Keep sheathed or secured and inspect before issue.
-PRT-0058	Great Britain	0	0	0	SHARP_EDGE	Sharp edge or point. Keep sheathed or secured and inspect before issue.
-ASM-0019	Great Britain	0	0	1	EXPLOSIVE	About two dozen hand grenades were recovered from the wreck site. Explosive stores. Keep dry and isolated from flame, sparks, impact, and unauthorized handling.
-PRT-0059	Great Britain	0	1	0		
-PRT-0060	Great Britain	0	1	0		
-MAT-0007	Great Britain	0	1	0		
-MAT-0008	Great Britain	0	0	0		
-MAT-0009	Great Britain	0	0	0		
-PKG-0004	Great Britain	0	1	0		
-PRT-0061	Great Britain	0	0	0		
-PRT-0062	Great Britain	0	0	0		
-QAR-0025	Mixed Origin	0	0	0		
-OFT-0009	Mixed Origin	0	1	0		
-OFT-0010	Mixed Origin	0	1	0		
-QAR-0026	Mixed Origin	0	1	0		
-OFT-0011	Mixed Origin	0	1	0		
-QAR-0027	France	0	0	0		
-QAR-0028	France	0	0	0		
-QAR-0029	France	0	0	0		
-QAR-0030	France	0	0	0		
-QAR-0031	France	0	0	0		
-QAR-0032	Netherlands	0	1	0		
-QAR-0033	France	0	0	0		
-QAR-0034	France	0	0	0		
-QAR-0035	Netherlands	0	1	0		
-QAR-0036	France	0	0	0		
-QAR-0037	France	0	0	0		
-QAR-0038	Netherlands	0	1	0		
-ASM-0020	Baltic Region	0	1	0		
-ASM-0021	Baltic Region	0	1	0		
-ASM-0022	Baltic Region	0	1	0		
-PRT-0063	Baltic Region	0	1	0		
-PRT-0064	Baltic Region	0	1	0		
-PRT-0065	Baltic Region	0	1	0		
-PRT-0066	Baltic Region	0	1	0		
-PRT-0067	Baltic Region	0	1	0		
-PRT-0068	Great Britain	0	0	0		
-PRT-0069	Great Britain	0	0	0		
-PRT-0070	Baltic Region	0	1	0		
-PRT-0071	Great Britain	0	0	0		
-PRT-0072	Baltic Region	0	1	0		
-PRT-0073	Baltic Region	0	1	0		
-PRT-0074	Baltic Region	0	1	0		
-PRT-0075	Baltic Region	0	1	0		
-PRT-0076	Baltic Region	0	1	0		
-PRT-0077	Baltic Region	0	1	0		
-PRT-0078	Baltic Region	0	1	0		
-PRT-0079	Baltic Region	0	1	0		
-PRT-0080	Baltic Region	0	1	0		
-QAR-0039	Netherlands	0	1	0		
-QAR-0040	Netherlands	0	1	0		
-QAR-0041	Netherlands	0	1	0		
-QAR-0042	Netherlands	0	1	0		
-QAR-0043	Netherlands	0	1	0		
-QAR-0044	Netherlands	0	1	0		
-QAR-0045	Netherlands	0	1	0		
-QAR-0046	Netherlands	0	1	0		
-QAR-0047	Netherlands	0	1	0		
-QAR-0048	Netherlands	0	1	0		
-QAR-0049	Netherlands	0	1	0		
-QAR-0050	Netherlands	0	1	0		
-QAR-0051	Netherlands	0	1	0		
-QAR-0052	Netherlands	0	1	0		
-PRT-0081	Great Britain	0	0	0		
-PRT-0082	Great Britain	0	0	0		
-PRT-0083	Great Britain	0	0	0		
-PRT-0084	Great Britain	0	0	0		
-PRT-0085	Great Britain	0	0	0		
-PRT-0086	Great Britain	0	0	0		
-PRT-0087	Baltic Region	0	1	0		
-KIT-0020	Mixed Origin	0	0	0		
-KIT-0021	Mixed Origin	0	0	0		
-KIT-0022	Mixed Origin	0	0	0		
-KIT-0023	Mixed Origin	0	0	0		
-OFT-0012	Mixed Origin	0	0	0		
-PRT-0088	Great Britain	0	0	0		
-PRT-0089	Great Britain	0	0	0		
-PRT-0090	Great Britain	0	0	0		
-PRT-0091	Great Britain	0	0	0		
-PRT-0092	Baltic Region	0	1	0		
-PRT-0093	Baltic Region	0	1	0		
-PRT-0094	Baltic Region	0	1	0		
-PRT-0095	Baltic Region	0	1	0		
-ASM-0023	Netherlands	0	1	0		
-PRT-0096	Baltic Region	0	1	0		
-PRT-0097	Baltic Region	0	1	0		
-PRT-0098	Baltic Region	0	1	0		
-LBL-0005	United States	0	1	0		
-OFT-0013	Mixed Origin	0	0	0		
-OFT-0014	Mixed Origin	0	0	0		
-OFT-0015	Mixed Origin	0	0	0		
-ASM-0024	Great Britain	0	0	0		
-ASM-0025	Great Britain	0	0	0		
-ASM-0026	Great Britain	0	0	0		
-PRT-0099	Great Britain	0	0	0		
-PRT-0100	Great Britain	0	0	0		
-ASM-0027	Great Britain	0	0	0		
-ASM-0028	Great Britain	0	0	0		
-ASM-0029	Netherlands	0	1	0		
-ASM-0030	Great Britain	0	0	0		
-PRT-0101	Baltic Region	0	1	0		
-PRT-0102	Great Britain	0	0	0		
-PKG-0005	Local Supply	0	0	0		
-KIT-0024	Mixed Origin	0	1	0		
-KIT-0025	Mixed Origin	1	1	0		Precision instrument. Keep padded, dry, and protected from impact.
-KIT-0026	Mixed Origin	1	1	0		Fragile. Protect from impact and crushing; secure in padded storage.
-OFT-0016	Mixed Origin	1	1	0		Protect glazing from impact and verify the enclosure before issue.
-ASM-0031	Great Britain	1	0	0		Precision instrument. Keep padded, dry, and protected from impact.
-PRT-0103	Great Britain	1	0	0		Precision instrument. Keep padded, dry, and protected from impact.
-ASM-0032	Great Britain	1	0	0		Precision instrument. Keep padded, dry, and protected from impact.
-PRT-0104	Great Britain	1	0	0		Precision instrument. Keep padded, dry, and protected from impact.
-PRT-0105	Great Britain	1	0	0		Precision instrument. Keep padded, dry, and protected from impact.
-PRT-0106	Great Britain	1	0	0		Precision instrument. Keep padded, dry, and protected from impact.
-PRT-0107	Great Britain	1	0	0		Precision instrument. Keep padded, dry, and protected from impact.
-ASM-0033	Great Britain	0	0	0		
-ASM-0034	Great Britain	0	0	0		
-PRT-0108	Great Britain	1	0	0		Precision instrument. Keep padded, dry, and protected from impact.
-PKG-0006	Great Britain	0	1	0		
-DOC-0001	Great Britain	0	1	0		Keep charts dry and protected from abrasion, creasing, and loose storage.
-PRT-0109	Great Britain	0	0	0		
-PRT-0110	Baltic Region	0	1	0		
-PRT-0111	Great Britain	1	0	0		Precision instrument. Keep padded, dry, and protected from impact.
-KIT-0027	Mixed Origin	0	1	0		
-QAR-0053	United States	0	1	0		The popular horned-skeleton flag attribution is not securely documented for Blackbeard; this is a clearly marked reconstruction prop.
-ASM-0035	Great Britain	1	0	0		Protect glazing from impact and verify the enclosure before issue.
-ASM-0036	Great Britain	0	0	0		
-KIT-0028	Mixed Origin	0	1	0		
-KIT-0029	Mixed Origin	0	1	0		
-KIT-0030	Mixed Origin	0	1	0		
-OFT-0017	Mixed Origin	0	0	0		
-PRT-0112	Great Britain	0	0	0	SHARP_EDGE	Sharp edge or point. Keep sheathed or secured and inspect before issue.
-PRT-0113	Great Britain	0	0	0	SHARP_EDGE	Sharp edge or point. Keep sheathed or secured and inspect before issue.
-PRT-0114	Great Britain	0	0	0	SHARP_EDGE	Sharp edge or point. Keep sheathed or secured and inspect before issue.
-PRT-0115	Great Britain	0	0	0	SHARP_EDGE	Sharp edge or point. Keep sheathed or secured and inspect before issue.
-KIT-0031	Mixed Origin	0	0	0	SHARP_EDGE	Sharp edge or point. Keep sheathed or secured and inspect before issue.
-KIT-0032	Mixed Origin	0	0	0	SHARP_EDGE	Sharp edge or point. Keep sheathed or secured and inspect before issue.
-PRT-0116	Great Britain	0	0	0		
-PRT-0117	Great Britain	0	0	0		
-PRT-0118	Great Britain	0	0	0		
-ASM-0037	Great Britain	0	0	0		
-ASM-0038	Great Britain	0	0	0		
-PRT-0119	Great Britain	0	0	0	SHARP_EDGE	Sharp edge or point. Keep sheathed or secured and inspect before issue.
-MAT-0010	Great Britain	0	1	1		Keep away from flame, sparks, and hot surfaces.
-MAT-0011	North American Colonies	0	0	1	COMBUSTIBLE	Combustible stores. Keep cool, ventilated, and separated from ignition sources.
-PRT-0120	North American Colonies	0	0	0		
-PRT-0121	Netherlands	0	1	0		
-PRT-0122	North American Colonies	0	0	0		
-PRT-0123	North American Colonies	0	0	0		
-KIT-0033	Mixed Origin	0	1	0		
-KIT-0034	Mixed Origin	0	1	0		
-OFT-0018	Mixed Origin	0	1	0		
-OFT-0019	Mixed Origin	0	1	0		
-PRT-0124	Netherlands	0	1	0	SHARP_EDGE	Sharp edge or point. Keep sheathed or secured and inspect before issue.
-PRT-0125	Netherlands	0	1	0		
-MAT-0012	Netherlands	0	1	0		
-PRT-0126	Netherlands	0	1	0		
-PRT-0127	Baltic Region	0	1	0	SHARP_EDGE	Sharp edge or point. Keep sheathed or secured and inspect before issue.
-PRT-0128	Netherlands	0	1	0		
-MAT-0013	Netherlands	0	1	0		
-MAT-0014	Netherlands	0	1	0		
-MAT-0015	Baltic Region	0	1	0		
-MAT-0016	Baltic Region	0	1	0		
-MAT-0017	Baltic Region	0	1	0		
-MAT-0018	Baltic Region	0	1	0		
-MAT-0019	Sweden	0	1	1	COMBUSTIBLE	Combustible stores. Keep cool, ventilated, and separated from ignition sources.
-KIT-0035	Mixed Origin	1	1	0		Precision instrument. Keep padded, dry, and protected from impact.
-KIT-0036	Mixed Origin	1	1	0		Fragile. Protect from impact and crushing; secure in padded storage.
-KIT-0037	Mixed Origin	0	1	0		
-OFT-0020	Mixed Origin	0	1	0		
-ASM-0039	Great Britain	1	0	0		Fragile. Protect from impact and crushing; secure in padded storage.
-PRT-0129	Great Britain	1	0	0	SHARP_EDGE	Sharp edge or point. Keep sheathed or secured and inspect before issue.
-PRT-0130	Great Britain	0	0	0	SHARP_EDGE	Sharp edge or point. Keep sheathed or secured and inspect before issue.
-KIT-0038	Mixed Origin	0	0	0	SHARP_EDGE	Sharp edge or point. Keep sheathed or secured and inspect before issue.
-PRT-0131	Great Britain	0	0	0	SHARP_EDGE	Sharp edge or point. Keep sheathed or secured and inspect before issue.
-KIT-0039	Mixed Origin	0	0	0	SHARP_EDGE	Sharp edge or point. Keep sheathed or secured and inspect before issue.
-PRT-0132	Great Britain	0	1	0		
-MAT-0020	Great Britain	0	1	0		
-MAT-0021	Great Britain	0	1	0		
-PRT-0133	Netherlands	0	1	0		
-PKG-0007	Great Britain	1	1	0		Glass or ceramic container. Protect from impact; keep upright and securely stoppered.
-PKG-0008	Great Britain	1	0	0		Glass or ceramic container. Protect from impact; keep upright and securely stoppered.
-MAT-0022	Great Britain	1	1	0	CONTROLLED_MEDICAL	Controlled medical stores. Keep sealed, dry, and under the surgeon’s control.
-MAT-0023	Peru	1	1	0		Glass or ceramic container. Protect from impact; keep upright and securely stoppered.
-MAT-0024	Great Britain	1	1	0	TOXIC	Controlled medical material. Toxic if swallowed or inhaled; keep sealed and restrict access.
-MAT-0025	Great Britain	1	0	0		Glass or ceramic container. Protect from impact; keep upright and securely stoppered.
-ASM-0040	Netherlands	0	1	0		
-PRT-0134	Great Britain	0	1	0		
-LBL-0006	United States	0	1	0		
-ASM-0041	Great Britain	0	0	0		
-OFT-0021	Mixed Origin	0	0	0		
-KIT-0040	Mixed Origin	0	0	0		
-KIT-0041	Mixed Origin	0	0	0		
-OFT-0022	Mixed Origin	0	0	0		
-PRT-0135	Great Britain	0	0	0		
-PRT-0136	Great Britain	0	0	0		
-PRT-0137	Great Britain	0	0	0		
-PRT-0138	Great Britain	0	0	0		
-PRT-0139	Great Britain	0	0	0		
-PRT-0140	Great Britain	0	0	0	SHARP_EDGE	Sharp edge or point. Keep sheathed or secured and inspect before issue.
-PRT-0141	Great Britain	0	0	0	SHARP_EDGE	Sharp edge or point. Keep sheathed or secured and inspect before issue.
-PRT-0142	Great Britain	0	0	0		
-PRT-0143	Great Britain	0	0	0		
-PRT-0144	Great Britain	0	0	0		
-PRT-0145	Great Britain	0	0	0		
-PRT-0146	Great Britain	0	0	0	SHARP_EDGE	Sharp edge or point. Keep sheathed or secured and inspect before issue.
-PRT-0147	Great Britain	0	0	0		
-PRT-0148	Great Britain	1	0	0		Glass or ceramic container. Protect from impact; keep upright and securely stoppered.
-PRT-0149	Local Supply	0	0	0		
-PRT-0150	Great Britain	0	0	0		
-PKG-0009	North American Colonies	0	0	0		
-PKG-0010	North American Colonies	0	1	0		
-PKG-0011	North American Colonies	0	0	0		
-PKG-0012	Netherlands	0	1	0		
-PKG-0013	Great Britain	0	1	0		
-PKG-0014	Great Britain	0	0	0		
-MAT-0026	Local Supply	0	0	0		
-MAT-0027	West Indies	0	0	1	FLAMMABLE	Flammable stores. Keep sealed and away from flame, sparks, and hot surfaces.
-MAT-0028	Great Britain	0	0	0		
-MAT-0029	Great Britain	0	1	0		
-MAT-0030	Great Britain	0	1	0		
-MAT-0031	Great Britain	0	1	0		
-MAT-0032	Great Britain	0	1	0		
-MAT-0033	Great Britain	0	1	0		
-MAT-0034	Great Britain	0	1	0		
-MAT-0035	Great Britain	0	1	0		
-MAT-0036	Great Britain	0	1	0		
-MAT-0037	France	0	0	0		
-MAT-0038	Mediterranean	0	0	1		Keep away from flame, sparks, and hot surfaces.
-LBL-0007	United States	0	0	0		
-LBL-0008	United States	0	1	0		
-LBL-0009	United States	0	1	0		
-LBL-0010	United States	0	1	0		
-ASM-0042	Local Supply	0	0	0		
-ASM-0043	West Indies	0	0	1	FLAMMABLE	Flammable stores. Keep sealed and away from flame, sparks, and hot surfaces.
-ASM-0044	Great Britain	0	0	0		
-ASM-0045	Great Britain	0	1	0		
-ASM-0046	Great Britain	0	1	0		
-ASM-0047	Great Britain	0	1	0		
-ASM-0048	Great Britain	0	1	0		
-ASM-0049	Great Britain	0	1	0		
-ASM-0050	Great Britain	0	1	0		
-ASM-0051	Great Britain	0	1	0		
-ASM-0052	Great Britain	0	1	0		
-ASM-0053	France	0	1	0		
-ASM-0054	Mediterranean	0	0	1		Keep away from flame, sparks, and hot surfaces.
-KIT-0042	Mixed Origin	0	1	0		
-OFT-0023	Mixed Origin	0	1	0		
-ASM-0055	Netherlands	0	1	0		
-PRT-0151	Great Britain	0	1	0		
-PKG-0015	Netherlands	0	1	0		
-PRT-0152	Great Britain	0	0	0		
-PRT-0153	Netherlands	0	1	0	SHARP_EDGE	Sharp edge or point. Keep sheathed or secured and inspect before issue.
-KIT-0043	Mixed Origin	0	1	0		
-KIT-0044	Mixed Origin	0	1	0		
-LBL-0011	United States	0	1	0		
-QAR-0054	Mixed Origin	0	0	0		
-KIT-0045	Mixed Origin	0	1	0		Keep records dry; secure ink, quills, and sealing wax before movement.
-ASM-0056	Great Britain	0	0	0		
-ASM-0057	Great Britain	0	0	0		
-ASM-0058	Great Britain	0	0	0		
-ASM-0059	Great Britain	0	1	0		
-ASM-0060	Great Britain	0	0	0		
-PKG-0016	Great Britain	1	0	0		Fragile. Protect from impact and crushing; secure in padded storage.
-MAT-0039	Great Britain	0	1	0		
-DOC-0002	United States	0	1	0		Fictional reconstruction record that playfully mirrors the Buildbooks use case.
-DOC-0003	Great Britain	0	1	0		
-MAT-0040	Great Britain	0	1	1		Keep away from flame, sparks, and hot surfaces.
-KIT-0046	Mixed Origin	0	0	0		
-ASM-0061	Great Britain	1	0	0		Precision measuring equipment. Keep complete and protect from impact.
-OFT-0024	Mixed Origin	0	0	0		
-OFT-0025	Mixed Origin	0	0	0		
-OFT-0026	Mixed Origin	0	1	0		
-PRT-0154	Great Britain	0	1	0		
-ASM-0062	Great Britain	0	0	0		
-PRT-0155	Great Britain	0	0	0	SHARP_EDGE	Sharp edge or point. Keep sheathed or secured and inspect before issue.
-PRT-0156	Great Britain	0	1	0		
-KIT-0047	Mixed Origin	0	0	0		
-ASM-0063	Netherlands	0	1	0		
-KIT-0048	Mixed Origin	0	1	0		
-PKG-0017	Local Supply	0	0	0		
-LBL-0012	United States	0	1	0		
-LBL-0013	United States	0	1	0		
-LBL-0014	United States	0	1	0		
-LBL-0015	United States	0	1	0		
-LBL-0016	United States	0	1	0		
-LBL-0017	United States	0	1	0		
-LBL-0018	United States	0	1	0		
-LBL-0019	United States	0	1	0		
-MAT-0041	United States	0	1	0		
-MAT-0042	United States	0	1	0		
+LocalSKU	CountryOfOrigin	Fragile	StoreDry	KeepAwayFromFlame	Toxic	HazardProfile
+QAR-0001	France	0	0	0	0	
+QAR-0002	Mixed Origin	0	0	0	0	
+QAR-0003	Mixed Origin	0	0	1	0	
+QAR-0004	Mixed Origin	0	1	0	0	
+QAR-0005	Mixed Origin	0	0	0	0	
+QAR-0006	Mixed Origin	0	0	0	0	
+QAR-0007	Mixed Origin	1	1	0	0	
+QAR-0008	Mixed Origin	0	0	0	0	
+QAR-0009	Mixed Origin	0	1	0	0	
+QAR-0010	Mixed Origin	1	1	0	0	
+QAR-0011	Mixed Origin	0	0	0	0	
+QAR-0012	Mixed Origin	0	1	0	0	
+QAR-0013	Mixed Origin	0	1	0	0	
+QAR-0014	Mixed Origin	0	1	0	0	
+QAR-0015	Mixed Origin	0	1	0	0	
+QAR-0016	United States	0	1	0	0	
+QAR-0017	Mixed Origin	0	0	0	0	
+OFT-0001	Mixed Origin	0	0	0	0	
+QAR-0018	France	0	0	0	0	
+OFT-0002	Mixed Origin	0	0	0	0	
+OFT-0003	Mixed Origin	0	0	0	0	
+QAR-0019	France	0	0	0	0	
+QAR-0020	France	0	0	0	0	
+QAR-0021	France	0	0	0	0	
+QAR-0022	France	0	0	0	0	
+KIT-0001	Mixed Origin	0	0	0	0	
+PRT-0001	North American Colonies	0	0	0	0	
+PRT-0002	France	0	0	0	0	
+PRT-0003	France	0	0	0	0	
+PRT-0004	France	0	1	0	0	
+ASM-0001	France	0	0	0	0	
+ASM-0002	France	0	0	0	0	
+ASM-0003	France	0	0	0	0	
+ASM-0004	France	0	0	0	0	
+KIT-0002	Mixed Origin	0	0	0	0	
+PRT-0005	France	0	0	0	0	
+ASM-0005	France	0	0	0	0	
+PRT-0006	France	0	0	0	0	
+PRT-0007	France	0	0	0	0	
+PRT-0008	France	0	0	0	0	
+PRT-0009	France	0	0	0	0	
+QAR-0023	France	0	0	0	0	
+QAR-0024	France	0	0	0	0	
+PRT-0010	France	0	0	0	0	
+PRT-0011	France	0	0	0	0	
+PRT-0012	Baltic Region	0	1	0	0	
+ASM-0006	France	0	0	0	0	
+PRT-0013	France	0	0	0	0	
+PRT-0014	France	0	0	0	0	
+KIT-0003	Mixed Origin	0	1	0	0	
+ASM-0007	Baltic Region	0	1	0	0	
+MAT-0001	Local Supply	0	0	0	0	
+PRT-0015	France	0	0	0	0	
+PRT-0016	Netherlands	0	1	0	0	
+OFT-0004	Mixed Origin	0	0	0	0	
+OFT-0005	Mixed Origin	0	0	0	0	
+OFT-0006	Mixed Origin	0	0	0	0	
+OFT-0007	Mixed Origin	0	1	1	0	EXPLOSIVE
+OFT-0008	Mixed Origin	0	0	0	0	
+KIT-0004	Mixed Origin	0	0	0	0	
+KIT-0005	Mixed Origin	0	0	0	0	ORDNANCE
+KIT-0006	Mixed Origin	0	0	0	0	ORDNANCE
+KIT-0007	Mixed Origin	0	0	0	0	ORDNANCE
+PRT-0017	Great Britain	0	0	0	0	
+PRT-0018	Great Britain	0	0	0	0	
+PRT-0019	Great Britain	0	0	0	0	
+ASM-0008	Great Britain	0	0	0	0	
+ASM-0009	Great Britain	0	0	0	0	
+ASM-0010	Great Britain	0	0	0	0	
+KIT-0008	Mixed Origin	0	0	0	0	
+KIT-0009	Mixed Origin	0	0	0	0	
+KIT-0010	Mixed Origin	0	1	0	0	
+KIT-0011	Mixed Origin	0	1	0	0	
+KIT-0012	Mixed Origin	0	1	1	0	AMMUNITION
+KIT-0013	Mixed Origin	0	1	1	0	AMMUNITION
+KIT-0014	Mixed Origin	0	1	1	0	AMMUNITION
+LBL-0001	United States	0	1	0	0	
+LBL-0002	United States	0	1	0	0	
+LBL-0003	United States	0	1	0	0	
+PRT-0020	Great Britain	0	0	0	0	
+PRT-0021	Great Britain	0	0	0	0	
+PRT-0022	Great Britain	0	0	0	0	
+PRT-0023	Great Britain	0	0	0	0	
+PRT-0024	Great Britain	0	0	0	0	
+PRT-0025	Great Britain	0	0	0	0	
+PRT-0026	Great Britain	0	0	0	0	
+PRT-0027	Great Britain	0	0	0	0	
+PRT-0028	Great Britain	0	0	0	0	
+PRT-0029	Great Britain	0	0	0	0	
+ASM-0011	Great Britain	0	0	0	0	
+PRT-0030	Great Britain	0	0	0	0	
+PRT-0031	Great Britain	0	0	0	0	
+PRT-0032	Great Britain	0	0	0	0	
+PRT-0033	Great Britain	0	0	0	0	
+PRT-0034	Great Britain	0	1	0	0	
+PRT-0035	Great Britain	0	1	1	0	
+PRT-0036	Great Britain	0	0	0	0	
+KIT-0015	Mixed Origin	0	0	0	0	
+PRT-0037	Great Britain	0	0	0	0	
+PRT-0038	Great Britain	0	0	0	0	
+PRT-0039	Great Britain	0	0	0	0	
+PRT-0040	Great Britain	0	0	0	0	
+ASM-0012	Great Britain	0	0	0	0	
+PRT-0041	Great Britain	0	0	0	0	
+PRT-0042	Great Britain	0	0	0	0	
+PRT-0043	Baltic Region	0	1	0	0	
+PRT-0044	Baltic Region	0	1	0	0	
+ASM-0013	Baltic Region	0	1	0	0	
+PRT-0045	Great Britain	0	0	0	0	
+PRT-0046	Great Britain	0	0	0	0	
+PRT-0047	Baltic Region	0	1	0	0	
+PRT-0048	Great Britain	0	0	0	0	
+PRT-0049	Great Britain	0	0	0	0	
+PRT-0050	Great Britain	0	0	0	0	
+PRT-0051	Great Britain	0	0	0	0	
+PRT-0052	Great Britain	0	0	0	0	
+ASM-0014	Great Britain	0	0	0	0	
+MAT-0002	Great Britain	0	0	0	0	
+MAT-0003	Great Britain	0	0	0	0	
+ASM-0015	Great Britain	0	0	0	0	
+ASM-0016	Great Britain	0	0	0	0	
+PKG-0001	Great Britain	0	0	0	0	
+ASM-0017	Great Britain	0	1	1	0	EXPLOSIVE
+PKG-0002	North American Colonies	0	1	0	0	
+MAT-0004	Great Britain	0	1	1	0	EXPLOSIVE
+LBL-0004	United States	0	1	0	0	
+KIT-0016	Mixed Origin	0	1	1	0	
+ASM-0018	Great Britain	1	0	0	0	
+PKG-0003	Great Britain	0	1	0	0	
+PRT-0053	Great Britain	1	1	0	0	
+KIT-0017	Mixed Origin	1	1	0	0	
+PRT-0054	Great Britain	0	1	0	0	
+PRT-0055	Great Britain	0	1	0	0	
+MAT-0005	Netherlands	0	1	1	0	EXPLOSIVE
+MAT-0006	Netherlands	0	1	1	0	EXPLOSIVE
+KIT-0018	Mixed Origin	0	1	0	0	
+KIT-0019	Mixed Origin	0	1	0	0	
+PRT-0056	Great Britain	0	0	0	0	SHARP_EDGE
+PRT-0057	Great Britain	0	0	0	0	SHARP_EDGE
+PRT-0058	Great Britain	0	0	0	0	SHARP_EDGE
+ASM-0019	Great Britain	0	0	1	0	EXPLOSIVE
+PRT-0059	Great Britain	0	1	0	0	
+PRT-0060	Great Britain	0	1	0	0	
+MAT-0007	Great Britain	0	1	0	0	
+MAT-0008	Great Britain	0	0	0	0	
+MAT-0009	Great Britain	0	0	0	0	
+PKG-0004	Great Britain	0	1	0	0	
+PRT-0061	Great Britain	0	0	0	0	
+PRT-0062	Great Britain	0	0	0	0	
+QAR-0025	Mixed Origin	0	0	0	0	
+OFT-0009	Mixed Origin	0	1	0	0	
+OFT-0010	Mixed Origin	0	1	0	0	
+QAR-0026	Mixed Origin	0	1	0	0	
+OFT-0011	Mixed Origin	0	1	0	0	
+QAR-0027	France	0	0	0	0	
+QAR-0028	France	0	0	0	0	
+QAR-0029	France	0	0	0	0	
+QAR-0030	France	0	0	0	0	
+QAR-0031	France	0	0	0	0	
+QAR-0032	Netherlands	0	1	0	0	
+QAR-0033	France	0	0	0	0	
+QAR-0034	France	0	0	0	0	
+QAR-0035	Netherlands	0	1	0	0	
+QAR-0036	France	0	0	0	0	
+QAR-0037	France	0	0	0	0	
+QAR-0038	Netherlands	0	1	0	0	
+ASM-0020	Baltic Region	0	1	0	0	
+ASM-0021	Baltic Region	0	1	0	0	
+ASM-0022	Baltic Region	0	1	0	0	
+PRT-0063	Baltic Region	0	1	0	0	
+PRT-0064	Baltic Region	0	1	0	0	
+PRT-0065	Baltic Region	0	1	0	0	
+PRT-0066	Baltic Region	0	1	0	0	
+PRT-0067	Baltic Region	0	1	0	0	
+PRT-0068	Great Britain	0	0	0	0	
+PRT-0069	Great Britain	0	0	0	0	
+PRT-0070	Baltic Region	0	1	0	0	
+PRT-0071	Great Britain	0	0	0	0	
+PRT-0072	Baltic Region	0	1	0	0	
+PRT-0073	Baltic Region	0	1	0	0	
+PRT-0074	Baltic Region	0	1	0	0	
+PRT-0075	Baltic Region	0	1	0	0	
+PRT-0076	Baltic Region	0	1	0	0	
+PRT-0077	Baltic Region	0	1	0	0	
+PRT-0078	Baltic Region	0	1	0	0	
+PRT-0079	Baltic Region	0	1	0	0	
+PRT-0080	Baltic Region	0	1	0	0	
+QAR-0039	Netherlands	0	1	0	0	
+QAR-0040	Netherlands	0	1	0	0	
+QAR-0041	Netherlands	0	1	0	0	
+QAR-0042	Netherlands	0	1	0	0	
+QAR-0043	Netherlands	0	1	0	0	
+QAR-0044	Netherlands	0	1	0	0	
+QAR-0045	Netherlands	0	1	0	0	
+QAR-0046	Netherlands	0	1	0	0	
+QAR-0047	Netherlands	0	1	0	0	
+QAR-0048	Netherlands	0	1	0	0	
+QAR-0049	Netherlands	0	1	0	0	
+QAR-0050	Netherlands	0	1	0	0	
+QAR-0051	Netherlands	0	1	0	0	
+QAR-0052	Netherlands	0	1	0	0	
+PRT-0081	Great Britain	0	0	0	0	
+PRT-0082	Great Britain	0	0	0	0	
+PRT-0083	Great Britain	0	0	0	0	
+PRT-0084	Great Britain	0	0	0	0	
+PRT-0085	Great Britain	0	0	0	0	
+PRT-0086	Great Britain	0	0	0	0	
+PRT-0087	Baltic Region	0	1	0	0	
+KIT-0020	Mixed Origin	0	0	0	0	
+KIT-0021	Mixed Origin	0	0	0	0	
+KIT-0022	Mixed Origin	0	0	0	0	
+KIT-0023	Mixed Origin	0	0	0	0	
+OFT-0012	Mixed Origin	0	0	0	0	
+PRT-0088	Great Britain	0	0	0	0	
+PRT-0089	Great Britain	0	0	0	0	
+PRT-0090	Great Britain	0	0	0	0	
+PRT-0091	Great Britain	0	0	0	0	
+PRT-0092	Baltic Region	0	1	0	0	
+PRT-0093	Baltic Region	0	1	0	0	
+PRT-0094	Baltic Region	0	1	0	0	
+PRT-0095	Baltic Region	0	1	0	0	
+ASM-0023	Netherlands	0	1	0	0	
+PRT-0096	Baltic Region	0	1	0	0	
+PRT-0097	Baltic Region	0	1	0	0	
+PRT-0098	Baltic Region	0	1	0	0	
+LBL-0005	United States	0	1	0	0	
+OFT-0013	Mixed Origin	0	0	0	0	
+OFT-0014	Mixed Origin	0	0	0	0	
+OFT-0015	Mixed Origin	0	0	0	0	
+ASM-0024	Great Britain	0	0	0	0	
+ASM-0025	Great Britain	0	0	0	0	
+ASM-0026	Great Britain	0	0	0	0	
+PRT-0099	Great Britain	0	0	0	0	
+PRT-0100	Great Britain	0	0	0	0	
+ASM-0027	Great Britain	0	0	0	0	
+ASM-0028	Great Britain	0	0	0	0	
+ASM-0029	Netherlands	0	1	0	0	
+ASM-0030	Great Britain	0	0	0	0	
+PRT-0101	Baltic Region	0	1	0	0	
+PRT-0102	Great Britain	0	0	0	0	
+PKG-0005	Local Supply	0	0	0	0	
+KIT-0024	Mixed Origin	0	1	0	0	
+KIT-0025	Mixed Origin	1	1	0	0	
+KIT-0026	Mixed Origin	1	1	0	0	
+OFT-0016	Mixed Origin	1	1	0	0	
+ASM-0031	Great Britain	1	0	0	0	
+PRT-0103	Great Britain	1	0	0	0	
+ASM-0032	Great Britain	1	0	0	0	
+PRT-0104	Great Britain	1	0	0	0	
+PRT-0105	Great Britain	1	0	0	0	
+PRT-0106	Great Britain	1	0	0	0	
+PRT-0107	Great Britain	1	0	0	0	
+ASM-0033	Great Britain	0	0	0	0	
+ASM-0034	Great Britain	0	0	0	0	
+PRT-0108	Great Britain	1	0	0	0	
+PKG-0006	Great Britain	0	1	0	0	
+DOC-0001	Great Britain	0	1	0	0	
+PRT-0109	Great Britain	0	0	0	0	
+PRT-0110	Baltic Region	0	1	0	0	
+PRT-0111	Great Britain	1	0	0	0	
+KIT-0027	Mixed Origin	0	1	0	0	
+QAR-0053	United States	0	1	0	0	
+ASM-0035	Great Britain	1	0	0	0	
+ASM-0036	Great Britain	0	0	0	0	
+KIT-0028	Mixed Origin	0	1	0	0	
+KIT-0029	Mixed Origin	0	1	0	0	
+KIT-0030	Mixed Origin	0	1	0	0	
+OFT-0017	Mixed Origin	0	0	0	0	
+PRT-0112	Great Britain	0	0	0	0	SHARP_EDGE
+PRT-0113	Great Britain	0	0	0	0	SHARP_EDGE
+PRT-0114	Great Britain	0	0	0	0	SHARP_EDGE
+PRT-0115	Great Britain	0	0	0	0	SHARP_EDGE
+KIT-0031	Mixed Origin	0	0	0	0	SHARP_EDGE
+KIT-0032	Mixed Origin	0	0	0	0	SHARP_EDGE
+PRT-0116	Great Britain	0	0	0	0	
+PRT-0117	Great Britain	0	0	0	0	
+PRT-0118	Great Britain	0	0	0	0	
+ASM-0037	Great Britain	0	0	0	0	
+ASM-0038	Great Britain	0	0	0	0	
+PRT-0119	Great Britain	0	0	0	0	SHARP_EDGE
+MAT-0010	Great Britain	0	1	1	0	
+MAT-0011	North American Colonies	0	0	1	0	COMBUSTIBLE
+PRT-0120	North American Colonies	0	0	0	0	
+PRT-0121	Netherlands	0	1	0	0	
+PRT-0122	North American Colonies	0	0	0	0	
+PRT-0123	North American Colonies	0	0	0	0	
+KIT-0033	Mixed Origin	0	1	0	0	
+KIT-0034	Mixed Origin	0	1	0	0	
+OFT-0018	Mixed Origin	0	1	0	0	
+OFT-0019	Mixed Origin	0	1	0	0	
+PRT-0124	Netherlands	0	1	0	0	SHARP_EDGE
+PRT-0125	Netherlands	0	1	0	0	
+MAT-0012	Netherlands	0	1	0	0	
+PRT-0126	Netherlands	0	1	0	0	
+PRT-0127	Baltic Region	0	1	0	0	SHARP_EDGE
+PRT-0128	Netherlands	0	1	0	0	
+MAT-0013	Netherlands	0	1	0	0	
+MAT-0014	Netherlands	0	1	0	0	
+MAT-0015	Baltic Region	0	1	0	0	
+MAT-0016	Baltic Region	0	1	0	0	
+MAT-0017	Baltic Region	0	1	0	0	
+MAT-0018	Baltic Region	0	1	0	0	
+MAT-0019	Sweden	0	1	1	0	COMBUSTIBLE
+KIT-0035	Mixed Origin	1	1	0	0	
+KIT-0036	Mixed Origin	1	1	0	0	
+KIT-0037	Mixed Origin	0	1	0	0	
+OFT-0020	Mixed Origin	0	1	0	0	
+ASM-0039	Great Britain	1	0	0	0	
+PRT-0129	Great Britain	1	0	0	0	SHARP_EDGE
+PRT-0130	Great Britain	0	0	0	0	SHARP_EDGE
+KIT-0038	Mixed Origin	0	0	0	0	SHARP_EDGE
+PRT-0131	Great Britain	0	0	0	0	SHARP_EDGE
+KIT-0039	Mixed Origin	0	0	0	0	SHARP_EDGE
+PRT-0132	Great Britain	0	1	0	0	
+MAT-0020	Great Britain	0	1	0	0	
+MAT-0021	Great Britain	0	1	0	0	
+PRT-0133	Netherlands	0	1	0	0	
+PKG-0007	Great Britain	1	1	0	0	
+PKG-0008	Great Britain	1	0	0	0	
+MAT-0022	Great Britain	1	1	0	1	CONTROLLED_MEDICAL
+MAT-0023	Peru	1	1	0	0	
+MAT-0024	Great Britain	1	1	0	1	TOXIC
+MAT-0025	Great Britain	1	0	0	0	
+ASM-0040	Netherlands	0	1	0	0	
+PRT-0134	Great Britain	0	1	0	0	
+LBL-0006	United States	0	1	0	0	
+ASM-0041	Great Britain	0	0	0	0	
+OFT-0021	Mixed Origin	0	0	0	0	
+KIT-0040	Mixed Origin	0	0	0	0	
+KIT-0041	Mixed Origin	0	0	0	0	
+OFT-0022	Mixed Origin	0	0	0	0	
+PRT-0135	Great Britain	0	0	0	0	
+PRT-0136	Great Britain	0	0	0	0	
+PRT-0137	Great Britain	0	0	0	0	
+PRT-0138	Great Britain	0	0	0	0	
+PRT-0139	Great Britain	0	0	0	0	
+PRT-0140	Great Britain	0	0	0	0	SHARP_EDGE
+PRT-0141	Great Britain	0	0	0	0	SHARP_EDGE
+PRT-0142	Great Britain	0	0	0	0	
+PRT-0143	Great Britain	0	0	0	0	
+PRT-0144	Great Britain	0	0	0	0	
+PRT-0145	Great Britain	0	0	0	0	
+PRT-0146	Great Britain	0	0	0	0	SHARP_EDGE
+PRT-0147	Great Britain	0	0	0	0	
+PRT-0148	Great Britain	1	0	0	0	
+PRT-0149	Local Supply	0	0	0	0	
+PRT-0150	Great Britain	0	0	0	0	
+PKG-0009	North American Colonies	0	0	0	0	
+PKG-0010	North American Colonies	0	1	0	0	
+PKG-0011	North American Colonies	0	0	0	0	
+PKG-0012	Netherlands	0	1	0	0	
+PKG-0013	Great Britain	0	1	0	0	
+PKG-0014	Great Britain	0	0	0	0	
+MAT-0026	Local Supply	0	0	0	0	
+MAT-0027	West Indies	0	0	1	0	FLAMMABLE
+MAT-0028	Great Britain	0	0	0	0	
+MAT-0029	Great Britain	0	1	0	0	
+MAT-0030	Great Britain	0	1	0	0	
+MAT-0031	Great Britain	0	1	0	0	
+MAT-0032	Great Britain	0	1	0	0	
+MAT-0033	Great Britain	0	1	0	0	
+MAT-0034	Great Britain	0	1	0	0	
+MAT-0035	Great Britain	0	1	0	0	
+MAT-0036	Great Britain	0	1	0	0	
+MAT-0037	France	0	0	0	0	
+MAT-0038	Mediterranean	0	0	1	0	
+LBL-0007	United States	0	0	0	0	
+LBL-0008	United States	0	1	0	0	
+LBL-0009	United States	0	1	0	0	
+LBL-0010	United States	0	1	0	0	
+ASM-0042	Local Supply	0	0	0	0	
+ASM-0043	West Indies	0	0	1	0	FLAMMABLE
+ASM-0044	Great Britain	0	0	0	0	
+ASM-0045	Great Britain	0	1	0	0	
+ASM-0046	Great Britain	0	1	0	0	
+ASM-0047	Great Britain	0	1	0	0	
+ASM-0048	Great Britain	0	1	0	0	
+ASM-0049	Great Britain	0	1	0	0	
+ASM-0050	Great Britain	0	1	0	0	
+ASM-0051	Great Britain	0	1	0	0	
+ASM-0052	Great Britain	0	1	0	0	
+ASM-0053	France	0	1	0	0	
+ASM-0054	Mediterranean	0	0	1	0	
+KIT-0042	Mixed Origin	0	1	0	0	
+OFT-0023	Mixed Origin	0	1	0	0	
+ASM-0055	Netherlands	0	1	0	0	
+PRT-0151	Great Britain	0	1	0	0	
+PKG-0015	Netherlands	0	1	0	0	
+PRT-0152	Great Britain	0	0	0	0	
+PRT-0153	Netherlands	0	1	0	0	SHARP_EDGE
+KIT-0043	Mixed Origin	0	1	0	0	
+KIT-0044	Mixed Origin	0	1	0	0	
+LBL-0011	United States	0	1	0	0	
+QAR-0054	Mixed Origin	0	0	0	0	
+KIT-0045	Mixed Origin	0	1	0	0	
+ASM-0056	Great Britain	0	0	0	0	
+ASM-0057	Great Britain	0	0	0	0	
+ASM-0058	Great Britain	0	0	0	0	
+ASM-0059	Great Britain	0	1	0	0	
+ASM-0060	Great Britain	0	0	0	0	
+PKG-0016	Great Britain	1	0	0	0	
+MAT-0039	Great Britain	0	1	0	0	
+DOC-0002	United States	0	1	0	0	
+DOC-0003	Great Britain	0	1	0	0	
+MAT-0040	Great Britain	0	1	1	0	
+KIT-0046	Mixed Origin	0	0	0	0	
+ASM-0061	Great Britain	1	0	0	0	
+OFT-0024	Mixed Origin	0	0	0	0	
+OFT-0025	Mixed Origin	0	0	0	0	
+OFT-0026	Mixed Origin	0	1	0	0	
+PRT-0154	Great Britain	0	1	0	0	
+ASM-0062	Great Britain	0	0	0	0	
+PRT-0155	Great Britain	0	0	0	0	SHARP_EDGE
+PRT-0156	Great Britain	0	1	0	0	
+KIT-0047	Mixed Origin	0	0	0	0	
+ASM-0063	Netherlands	0	1	0	0	
+KIT-0048	Mixed Origin	0	1	0	0	
+PKG-0017	Local Supply	0	0	0	0	
+LBL-0012	United States	0	1	0	0	
+LBL-0013	United States	0	1	0	0	
+LBL-0014	United States	0	1	0	0	
+LBL-0015	United States	0	1	0	0	
+LBL-0016	United States	0	1	0	0	
+LBL-0017	United States	0	1	0	0	
+LBL-0018	United States	0	1	0	0	
+LBL-0019	United States	0	1	0	0	
+MAT-0041	United States	0	1	0	0	
+MAT-0042	United States	0	1	0	0	
