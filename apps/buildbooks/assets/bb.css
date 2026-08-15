@@ -648,138 +648,324 @@ img#armor-tech-logo-svg {
 	
 	
 	
-#criticalNotesAdminPanel {
-	box-sizing: border-box;
-	width: calc(100% - 40px);
-	max-width: 560px;
-	margin: 12px 20px 16px;
+.visuallyHidden {
+	position: absolute !important;
+	width: 1px;
+	height: 1px;
 	padding: 0;
-	border: 1px solid rgba(0,0,0,.14);
-	border-radius: 4px;
-	background: #fafafa;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+.itemRecordTitleRow {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	max-width: 780px;
+}
+
+.itemRecordEditButton {
+	flex: 0 0 auto;
+	width: 36px;
+	height: 36px;
+	margin-top: 8px;
+	padding: 8px;
+	border: 1px solid rgba(26,87,210,.24);
+	border-radius: 50%;
+	background: #fff;
+	color: rgba(16,55,126,.68);
+	cursor: pointer;
+}
+
+.itemRecordEditButton svg {
+	display: block;
+	width: 100%;
+	height: 100%;
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 1.8;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+.itemRecordEditButton:hover,
+.itemRecordEditButton:focus-visible {
+	border-color: #1a57d2;
+	color: #1a57d2;
+	outline: none;
+	box-shadow: 0 0 0 3px rgba(26,87,210,.12);
+}
+
+.itemRecordEditButton:disabled {
+	opacity: .35;
+	cursor: default;
 	box-shadow: none;
 }
 
-#criticalNotesAdminPanel > summary {
-	min-height: 18px;
-	padding: 11px 14px;
-	color: rgba(0,0,0,.62);
-	cursor: pointer;
-	font-size: 13px;
-	font-weight: 700;
-}
-
-#criticalNotesAdminPanel > summary:hover,
-#criticalNotesAdminPanel > summary:focus-visible {
-	color: #1a57d2;
-}
-
-#criticalNotesAdminPanel > summary:focus-visible {
-	outline: 2px solid #1a57d2;
-	outline-offset: 2px;
-}
-
-.criticalNotesAdminContent {
-	padding: 4px 16px 14px;
-	border-top: 1px solid rgba(0,0,0,.10);
-}
-
-.criticalNotesAdminHeader {
-	margin-bottom: 10px;
-	color: rgba(0,0,0,.82);
+.itemRecordDescription {
+	max-width: 780px;
+	margin: -2px 20px 12px 0;
+	font-size: 1.3em;
 	font-weight: 900;
+	line-height: 1.25;
 }
 
-#criticalNotesAdminSku {
-	color: #1a57d2;
+.itemRecordMeta {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(180px, max-content));
+	gap: 5px 28px;
+	margin: 0;
 }
 
-.labelPrintPrompt {
-	padding: 0;
-	border: 0;
-	background: transparent;
-	color: inherit;
-	cursor: pointer;
-	font: inherit;
+.itemRecordMeta > div {
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr);
+	gap: 8px;
 }
 
-.labelPrintPrompt:hover,
-.labelPrintPrompt:focus-visible {
-	color: #1a57d2;
-	text-decoration: underline;
+.itemRecordMeta > div[hidden] {
+	display: none;
 }
 
-.criticalNotesAdminChecks {
+.itemRecordMeta > div:last-child {
+	grid-column: 1 / -1;
+}
+
+.itemRecordMeta dt {
+	font-weight: 900;
+	font-style: italic;
+}
+
+.itemRecordMeta dd {
+	min-width: 0;
+	margin: 0;
+}
+
+#selectedHazard {
+	font-weight: 900;
+	letter-spacing: .035em;
+	text-transform: uppercase;
+}
+
+.itemHandlingBadges {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 14px;
-	margin-bottom: 10px;
+	gap: 6px;
+	margin-top: 12px;
 }
 
-.criticalNotesAdminFields {
+.itemHandlingBadges[hidden],
+.itemHandlingBadges span[hidden] {
+	display: none;
+}
+
+.itemHandlingBadges span {
+	padding: 4px 8px;
+	border: 1px solid rgba(26,87,210,.26);
+	border-radius: 999px;
+	background: rgba(26,87,210,.06);
+	color: #163e88;
+	font-size: 10px;
+	font-weight: 900;
+	letter-spacing: .055em;
+	text-transform: uppercase;
+}
+
+.itemRecordEditor[hidden],
+#itemRecordView[hidden] {
+	display: none;
+}
+
+.itemRecordEditor {
+	box-sizing: border-box;
+	max-width: 760px;
+	margin: 4px 20px 0 0;
+	padding: 16px;
+	border: 1px solid rgba(26,87,210,.22);
+	border-radius: 5px;
+	background: #f8faff;
+	box-shadow: 0 8px 24px rgba(13,33,76,.08);
+}
+
+.itemRecordEditorTitle {
+	margin: 0 0 14px;
+	color: #10377e;
+	font-size: 13px;
+	font-weight: 900;
+	letter-spacing: .06em;
+	text-transform: uppercase;
+}
+
+.itemRecordEditorTitle span {
+	color: rgba(0,0,0,.58);
+}
+
+.itemRecordEditorFields {
 	display: grid;
-	grid-template-columns: minmax(180px, 1fr) minmax(180px, 1fr);
+	grid-template-columns: repeat(2, minmax(180px, 1fr));
 	gap: 12px;
-	max-width: 560px;
-	margin-bottom: 12px;
 }
 
-.criticalNotesAdminFields label {
+.itemRecordEditorFields label,
+.itemRecordHandlingFields label {
+	font-size: 12px;
+	font-weight: 800;
+	color: rgba(0,0,0,.74);
+}
+
+.itemRecordEditorFields label {
 	display: grid;
 	gap: 5px;
-	font-size: 13px;
-	font-weight: 700;
-	color: rgba(0,0,0,.72);
 }
 
-.criticalNotesAdminFields input,
-.criticalNotesAdminFields select {
+.itemRecordFieldFull {
+	grid-column: 1 / -1;
+}
+
+.itemRecordEditorFields input,
+.itemRecordEditorFields select {
 	box-sizing: border-box;
 	width: 100%;
-	min-height: 34px;
-	padding: 6px 8px;
-	border: 1px solid #bbb;
+	min-height: 38px;
+	padding: 7px 9px;
+	border: 1px solid #aeb6c5;
 	border-radius: 3px;
 	background: #fff;
-	font-family: 'Miriam Libre';
+	font: 14px 'Miriam Libre';
 }
 
-.criticalNotesAdminChecks label {
-	font-size: 13px;
-	font-weight: 700;
-	color: rgba(0,0,0,.72);
+.itemRecordEditorFields input:focus,
+.itemRecordEditorFields select:focus {
+	border-color: #1a57d2;
+	outline: 2px solid rgba(26,87,210,.14);
 }
 
-.criticalNotesAdminChecks input {
+.itemRecordHandlingFields {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px 18px;
+	margin: 14px 0 0;
+	padding: 12px;
+	border: 1px solid rgba(0,0,0,.12);
+	border-radius: 3px;
+}
+
+.itemRecordHandlingFields legend {
+	padding: 0 5px;
+	font-size: 12px;
+	font-weight: 900;
+	color: rgba(0,0,0,.66);
+}
+
+.itemRecordHandlingFields input {
 	margin-right: 5px;
 }
 
-.criticalNotesActions {
-	display: flex;
-	align-items: center;
-	gap: 12px;
-	margin-top: 10px;
+.itemRecordEditorHint,
+.itemRecordSessionNote {
+	margin: 10px 0 0;
+	color: rgba(0,0,0,.58);
+	font-size: 11px;
+	line-height: 1.35;
 }
 
-#buttonResetCriticalNotes {
-	padding: 8px 12px;
+.itemRecordEditorActions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-top: 14px;
+}
+
+.itemRecordEditorActions button,
+.labelSetActions button {
+	box-sizing: border-box;
+	min-height: 36px;
+	padding: 7px 12px;
 	border: 1px solid #1a57d2;
 	border-radius: 4px;
 	background: #fff;
 	color: #1a57d2;
 	cursor: pointer;
-	font-family: 'Miriam Libre';
+	font: 800 12px 'Miriam Libre';
+}
+
+.itemRecordEditorActions .itemRecordSaveButton,
+.labelSetActions .labelPrintPrompt {
+	background: #1a57d2;
+	color: #fff;
+}
+
+.itemRecordEditorActions button:hover:not(:disabled),
+.itemRecordEditorActions button:focus-visible,
+.labelSetActions button:hover:not(:disabled),
+.labelSetActions button:focus-visible {
+	outline: 2px solid rgba(26,87,210,.20);
+	outline-offset: 2px;
+}
+
+.itemRecordEditorActions button:disabled,
+.labelSetActions button:disabled {
+	opacity: .42;
+	cursor: default;
+}
+
+.itemRecordStatus {
+	min-height: 16px;
+	margin: 8px 20px 0 0;
+	color: rgba(0,0,0,.56);
+	font-size: 11px;
 	font-weight: 700;
 }
 
-#buttonResetCriticalNotes[hidden] {
-	display: none;
+.labelSetHeader {
+	box-sizing: border-box;
+	width: calc(100% - 40px);
+	margin: 10px 20px 4px;
+	padding: 0 0 14px;
+	border-bottom: 1px solid rgba(0,0,0,.13);
 }
 
-#criticalNotesSaveStatus {
-	font-size: 12px;
+.labelSetTitleRow {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.labelSetTitleRow h2 {
+	margin: 0;
+	font-size: 19px;
+}
+
+#labelSetCount {
+	color: #1a57d2;
+	font-size: 11px;
+	font-weight: 900;
+	letter-spacing: .06em;
+	text-transform: uppercase;
+}
+
+#labelSetSummary {
+	margin: 6px 0 0;
+	font-size: 13px;
 	font-weight: 700;
-	color: rgba(0,0,0,.62);
+	line-height: 1.35;
+}
+
+.labelSetHelp {
+	margin: 4px 0 0;
+	color: rgba(0,0,0,.56);
+	font-size: 11px;
+}
+
+.labelSetActions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-top: 12px;
 }
 
 #printarea {
@@ -868,6 +1054,15 @@ img#armor-tech-logo-svg {
     border-radius: 12px;
     margin-bottom: 9px;
     box-shadow: 0px 0px 2px 1px rgba(58,58,58,.3);
+}
+
+.productlabel[data-print-target] {
+	cursor: pointer;
+}
+
+.productlabel[data-print-target]:focus-visible {
+	outline: 3px solid #1a57d2;
+	outline-offset: 4px;
 }
 .plabelWrapper {
     font-family: 'Miriam Libre';
@@ -1036,14 +1231,100 @@ img#armor-tech-logo-svg {
 	letter-spacing: .04em;
 }
 
-@media (max-width: 600px) {
-	#criticalNotesAdminPanel {
-		width: min(calc(100% - 16px), calc(100vw - 56px));
-		margin: 10px 8px 14px;
+@media (max-width: 1100px) {
+	.itemRecordMeta,
+	.itemRecordEditorFields {
+		grid-template-columns: 1fr;
 	}
 
-	.criticalNotesAdminFields {
+	.itemRecordFieldFull,
+	.itemRecordMeta > div:last-child {
+		grid-column: auto;
+	}
+}
+
+@media (max-width: 720px) {
+	#mainTopContent {
+		width: 100%;
+	}
+
+	#containerHeaderTitle {
+		font-size: 2.35em;
+		line-height: 1.05;
+	}
+
+	.itemRecordTitleRow {
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	.itemRecordEditButton {
+		width: 44px;
+		height: 44px;
+		margin: 0 8px 0 0;
+		padding: 11px;
+	}
+
+	.itemRecordDescription,
+	.itemRecordEditor,
+	.itemRecordStatus {
+		margin-right: 8px;
+	}
+
+	.itemRecordHandlingFields {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.itemRecordEditorActions {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.itemRecordEditorActions button {
+		width: 100%;
+	}
+
+	.itemRecordEditorActions .itemRecordSaveButton {
+		grid-column: 1 / -1;
+		grid-row: 1;
+	}
+
+	#printContainer {
+		box-sizing: border-box;
+		width: 100% !important;
+		min-width: 0;
+		overflow-x: auto;
+	}
+
+	.labelSetHeader {
+		width: auto;
+		margin: 10px 8px 4px;
+	}
+
+	.labelSetActions {
+		flex-direction: column;
+	}
+
+	.labelSetActions button {
+		width: 100%;
+	}
+}
+
+@media (max-width: 420px) {
+	.itemRecordHandlingFields,
+	.itemRecordEditorActions {
 		grid-template-columns: 1fr;
+	}
+
+	.itemRecordHandlingFields label {
+		display: flex;
+		align-items: center;
+		min-height: 36px;
+	}
+
+	.itemRecordEditorActions .itemRecordSaveButton {
+		grid-column: auto;
 	}
 }
 
@@ -1324,7 +1605,10 @@ button.accordion.accordion-h1 {
 }
 
 #mainTopContent {
-	min-width: 66%;
+	box-sizing: border-box;
+	flex: 1;
+	min-width: 0;
+	padding: 8px 24px 0 0;
 }
 
 
@@ -1334,7 +1618,7 @@ button.accordion.accordion-h1 {
 		}
 
 		#mainTopContent {
-			min-width: initial;
+			min-width: 0;
 		}
 	}
 

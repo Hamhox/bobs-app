@@ -59,6 +59,33 @@
 		bb.ele.vendor 			= document.getElementById('selectedVendor');
 		bb.ele.upc 				= document.getElementById('selectedUpc');
 		bb.ele.name 			= document.getElementById('selectedItemName');
+		bb.ele.itemRecordView = document.getElementById('itemRecordView');
+		bb.ele.itemRecordEditButton = document.getElementById('buttonEditItemRecord');
+		bb.ele.itemRecordEditor = document.getElementById('itemRecordEditor');
+		bb.ele.itemRecordEditorSku = document.getElementById('itemRecordEditorSku');
+		bb.ele.itemRecordDescriptionInput = document.getElementById('itemRecordDescriptionInput');
+		bb.ele.itemRecordVendorInput = document.getElementById('itemRecordVendorInput');
+		bb.ele.itemRecordCountryOfOrigin = document.getElementById('itemRecordCountryOfOrigin');
+		bb.ele.itemRecordHazardProfile = document.getElementById('itemRecordHazardProfile');
+		bb.ele.itemRecordFragileCheckbox = document.getElementById('itemRecordFragileCheckbox');
+		bb.ele.itemRecordStoreDryCheckbox = document.getElementById('itemRecordStoreDryCheckbox');
+		bb.ele.itemRecordKeepAwayFromFlameCheckbox = document.getElementById('itemRecordKeepAwayFromFlameCheckbox');
+		bb.ele.itemRecordToxicCheckbox = document.getElementById('itemRecordToxicCheckbox');
+		bb.ele.itemRecordSaveButton = document.getElementById('buttonSaveItemRecord');
+		bb.ele.itemRecordCancelButton = document.getElementById('buttonCancelItemRecord');
+		bb.ele.itemRecordResetButton = document.getElementById('buttonResetItemRecord');
+		bb.ele.itemRecordStatus = document.getElementById('itemRecordStatus');
+		bb.ele.selectedOrigin = document.getElementById('selectedOrigin');
+		bb.ele.selectedHazardRow = document.getElementById('selectedHazardRow');
+		bb.ele.selectedHazard = document.getElementById('selectedHazard');
+		bb.ele.itemHandlingBadges = document.getElementById('itemHandlingBadges');
+		bb.ele.itemBadgeFragile = document.getElementById('itemBadgeFragile');
+		bb.ele.itemBadgeStoreDry = document.getElementById('itemBadgeStoreDry');
+		bb.ele.itemBadgeKeepAwayFromFlame = document.getElementById('itemBadgeKeepAwayFromFlame');
+		bb.ele.itemBadgeToxic = document.getElementById('itemBadgeToxic');
+		bb.ele.labelSetCount = document.getElementById('labelSetCount');
+		bb.ele.labelSetSummary = document.getElementById('labelSetSummary');
+		bb.ele.editItemFromLabelsButton = document.getElementById('buttonEditItemFromLabels');
 		bb.ele.notesimg 		= document.getElementById('notesTopImg');
 		bb.ele.imageUploadButton = document.getElementById('buttonUploadImage');
 		bb.ele.imageDeleteButton = document.getElementById('buttonDeleteImage');
@@ -75,16 +102,6 @@
 		bb.ele.imageDeleteModalText = document.getElementById('imageDeleteModalText');
 		bb.ele.imageDeleteConfirmButton = document.getElementById('buttonConfirmDeleteImage');
 		bb.ele.imageDeleteCancelButton = document.getElementById('buttonCancelDeleteImage');
-		bb.ele.criticalNotesAdminSku = document.getElementById('criticalNotesAdminSku');
-		bb.ele.criticalNotesCountryOfOrigin = document.getElementById('criticalNotesCountryOfOrigin');
-		bb.ele.criticalNotesFragileCheckbox = document.getElementById('criticalNotesFragileCheckbox');
-		bb.ele.criticalNotesStoreDryCheckbox = document.getElementById('criticalNotesStoreDryCheckbox');
-		bb.ele.criticalNotesKeepAwayFromFlameCheckbox = document.getElementById('criticalNotesKeepAwayFromFlameCheckbox');
-		bb.ele.criticalNotesToxicCheckbox = document.getElementById('criticalNotesToxicCheckbox');
-		bb.ele.criticalNotesHazardProfile = document.getElementById('criticalNotesHazardProfile');
-		bb.ele.criticalNotesResetButton = document.getElementById('buttonResetCriticalNotes');
-		bb.ele.criticalNotesSaveStatus = document.getElementById('criticalNotesSaveStatus');
-		
 		bb.ele.tab1 			= document.getElementById('tab1');
 			bb.ele.tab1.button 	= document.getElementById('button_tab1');
 			bb.ele.tab1.header 	= bb.ele.tab1.getElementsByTagName("p")[0];
@@ -304,31 +321,57 @@
 		if (bb.ele.imageDeleteConfirmButton) {
 			bb.ele.imageDeleteConfirmButton.addEventListener('click', bb.dry.deleteSkuImage, false);
 		}
-		if (bb.ele.criticalNotesResetButton) {
-			bb.ele.criticalNotesResetButton.addEventListener('click', bb.dry.resetLabelConfiguration, false);
+		if (bb.ele.itemRecordEditButton) {
+			bb.ele.itemRecordEditButton.addEventListener('click', bb.dry.openItemRecordEditor, false);
 		}
-		if (bb.ele.criticalNotesHazardProfile) {
-			bb.ele.criticalNotesHazardProfile.addEventListener('change', function() {
-				bb.dry.applyHazardProfilePreset();
-				bb.dry.applyLabelConfiguration();
+		if (bb.ele.editItemFromLabelsButton) {
+			bb.ele.editItemFromLabelsButton.addEventListener('click', function() {
+				bb.dry.openItemRecordEditor();
+				bb.ele.mainTop.scrollIntoView({ block:'start' });
 			}, false);
 		}
-		var autoApplyLabelFields = [
-			{ ele: bb.ele.criticalNotesCountryOfOrigin, eventName: 'input' },
-			{ ele: bb.ele.criticalNotesFragileCheckbox, eventName: 'change' },
-			{ ele: bb.ele.criticalNotesStoreDryCheckbox, eventName: 'change' },
-			{ ele: bb.ele.criticalNotesKeepAwayFromFlameCheckbox, eventName: 'change' },
-			{ ele: bb.ele.criticalNotesToxicCheckbox, eventName: 'change' }
-		];
-		for (var labelField of autoApplyLabelFields) {
-			if (labelField.ele) {
-				labelField.ele.addEventListener(labelField.eventName, bb.dry.applyLabelConfiguration, false);
+		if (bb.ele.itemRecordEditor) {
+			bb.ele.itemRecordEditor.addEventListener('submit', function(evn) {
+				evn.preventDefault();
+				bb.dry.saveItemRecord();
+			}, false);
+			bb.ele.itemRecordEditor.addEventListener('input', bb.dry.updateItemRecordEditorButtons, false);
+			bb.ele.itemRecordEditor.addEventListener('change', bb.dry.updateItemRecordEditorButtons, false);
+		}
+		if (bb.ele.itemRecordCancelButton) {
+			bb.ele.itemRecordCancelButton.addEventListener('click', function() {
+				bb.dry.closeItemRecordEditor({ restoreDraft:true, returnFocus:true, status:'Changes discarded.' });
+			}, false);
+		}
+		if (bb.ele.itemRecordResetButton) {
+			bb.ele.itemRecordResetButton.addEventListener('click', bb.dry.resetItemRecordDraft, false);
+		}
+		if (bb.ele.itemRecordHazardProfile) {
+			bb.ele.itemRecordHazardProfile.addEventListener('change', function() {
+				bb.dry.applyHazardProfilePreset();
+				bb.dry.updateItemRecordEditorButtons();
+			}, false);
+		}
+		for (var printAction of document.querySelectorAll('[data-print-target]')) {
+			printAction.addEventListener('click', function() {
+				bb.dry.sendPrint(this.dataset.printTarget);
+			}, false);
+			if (printAction.tagName !== 'BUTTON') {
+				printAction.addEventListener('keydown', function(evn) {
+					if (evn.key !== 'Enter' && evn.key !== ' ') { return; }
+					evn.preventDefault();
+					evn.stopPropagation();
+					bb.dry.sendPrint(this.dataset.printTarget);
+				}, false);
 			}
 		}
 		document.addEventListener('keydown', function(evn) {
 			if (evn.key !== 'Escape') { return; }
 			bb.dry.closeImageTools();
 			bb.dry.closeImageZoom();
+			if (bb.ele.itemRecordEditor && !bb.ele.itemRecordEditor.hidden) {
+				bb.dry.closeItemRecordEditor({ restoreDraft:true, returnFocus:true, status:'Changes discarded.' });
+			}
 		}, false);
 	})
 
@@ -421,6 +464,7 @@ bb.dry.versionedImageUrl = function(path) {
 			console.log('SKU not found in list: ' + sku.value)
 			return false;
 		}
+		bb.dry.closeItemRecordEditor({ restoreDraft:false, returnFocus:false, status:'' });
 
 		if (!imageVersionReady) {
 			bb.pendingLoadSkuValue = sku.value;
@@ -532,7 +576,7 @@ for (var i = 0; i < bb.ajax.assemblies.length; i++) {
 		//
 		// update the labels on tab3
 		bb.dry.makeLabelPreview();
-		bb.dry.populateCriticalNotesAdmin();
+		bb.dry.populateItemRecordEditor();
 		bb.dry.applyCriticalNotesForSku();
 
 
@@ -559,20 +603,53 @@ bb.dry.getOriginalCriticalNoteRow = function(sku) {
 	return null;
 }
 
-bb.dry.getLabelConfigurationFromForm = function(sku) {
+bb.dry.getInventoryRow = function(sku, rows) {
+	rows = rows || bb.ajax.inventory;
+	if (!sku || !rows) { return null; }
+	for (var i = 0; i < rows.length; i++) {
+		if (rows[i].LocalSKU == sku) { return rows[i]; }
+	}
+	return null;
+}
+
+bb.dry.getOriginalInventoryRow = function(sku) {
+	return bb.dry.getInventoryRow(sku, bb.ajax.inventoryOriginal);
+}
+
+bb.dry.getItemRecord = function(sku, useOriginal) {
+	var inventoryRow = useOriginal ? bb.dry.getOriginalInventoryRow(sku) : bb.dry.getInventoryRow(sku);
+	var labelRow = useOriginal ? bb.dry.getOriginalCriticalNoteRow(sku) : bb.dry.getCriticalNoteRow(sku);
+	inventoryRow = inventoryRow || {};
+	labelRow = labelRow || {};
 	return {
-		LocalSKU: sku,
-		CountryOfOrigin: bb.ele.criticalNotesCountryOfOrigin.value.trim(),
-		Fragile: bb.ele.criticalNotesFragileCheckbox.checked ? "1" : "0",
-		StoreDry: bb.ele.criticalNotesStoreDryCheckbox.checked ? "1" : "0",
-		KeepAwayFromFlame: bb.ele.criticalNotesKeepAwayFromFlameCheckbox.checked ? "1" : "0",
-		Toxic: bb.ele.criticalNotesToxicCheckbox.checked ? "1" : "0",
-		HazardProfile: bb.ele.criticalNotesHazardProfile.value
+		LocalSKU: sku || "",
+		ItemName: String(inventoryRow.ItemName || ""),
+		Vendor: String(inventoryRow.Vendor || ""),
+		CountryOfOrigin: String(labelRow.CountryOfOrigin || ""),
+		Fragile: labelRow.Fragile == "1" ? "1" : "0",
+		StoreDry: labelRow.StoreDry == "1" ? "1" : "0",
+		KeepAwayFromFlame: labelRow.KeepAwayFromFlame == "1" ? "1" : "0",
+		Toxic: labelRow.Toxic == "1" ? "1" : "0",
+		HazardProfile: String(labelRow.HazardProfile || "").trim().toUpperCase()
 	};
 }
 
-bb.dry.labelConfigurationsMatch = function(left, right) {
-	var fields = ['LocalSKU', 'CountryOfOrigin', 'Fragile', 'StoreDry', 'KeepAwayFromFlame', 'Toxic', 'HazardProfile'];
+bb.dry.getItemRecordDraft = function(sku) {
+	return {
+		LocalSKU: sku,
+		ItemName: bb.ele.itemRecordDescriptionInput.value.trim(),
+		Vendor: bb.ele.itemRecordVendorInput.value.trim(),
+		CountryOfOrigin: bb.ele.itemRecordCountryOfOrigin.value.trim(),
+		Fragile: bb.ele.itemRecordFragileCheckbox.checked ? "1" : "0",
+		StoreDry: bb.ele.itemRecordStoreDryCheckbox.checked ? "1" : "0",
+		KeepAwayFromFlame: bb.ele.itemRecordKeepAwayFromFlameCheckbox.checked ? "1" : "0",
+		Toxic: bb.ele.itemRecordToxicCheckbox.checked ? "1" : "0",
+		HazardProfile: bb.ele.itemRecordHazardProfile.value
+	};
+}
+
+bb.dry.itemRecordsMatch = function(left, right) {
+	var fields = ['LocalSKU', 'ItemName', 'Vendor', 'CountryOfOrigin', 'Fragile', 'StoreDry', 'KeepAwayFromFlame', 'Toxic', 'HazardProfile'];
 	left = left || {};
 	right = right || {};
 	for (var i = 0; i < fields.length; i++) {
@@ -583,27 +660,35 @@ bb.dry.labelConfigurationsMatch = function(left, right) {
 	return true;
 }
 
-bb.dry.updateLabelConfigurationResetButton = function() {
-	if (!bb.ele.criticalNotesResetButton) { return; }
-	var current = bb.dry.getCriticalNoteRow(bb.sku.value);
-	var original = bb.dry.getOriginalCriticalNoteRow(bb.sku.value);
-	bb.ele.criticalNotesResetButton.hidden = !bb.sku.value || bb.dry.labelConfigurationsMatch(current, original);
+bb.dry.populateItemRecordDraft = function(record) {
+	record = record || bb.dry.getItemRecord(bb.sku.value, false);
+	bb.ele.itemRecordEditorSku.textContent = record.LocalSKU || "selected SKU";
+	bb.ele.itemRecordDescriptionInput.value = record.ItemName || "";
+	bb.ele.itemRecordVendorInput.value = record.Vendor || "";
+	bb.ele.itemRecordCountryOfOrigin.value = record.CountryOfOrigin || "";
+	bb.ele.itemRecordFragileCheckbox.checked = record.Fragile == "1";
+	bb.ele.itemRecordStoreDryCheckbox.checked = record.StoreDry == "1";
+	bb.ele.itemRecordKeepAwayFromFlameCheckbox.checked = record.KeepAwayFromFlame == "1";
+	bb.ele.itemRecordToxicCheckbox.checked = record.Toxic == "1";
+	bb.ele.itemRecordHazardProfile.value = record.HazardProfile || "";
+	bb.dry.updateItemRecordEditorButtons();
 }
 
-bb.dry.populateCriticalNotesAdmin = function() {
-	if (!bb.ele.criticalNotesAdminSku) { return; }
+bb.dry.populateItemRecordEditor = function() {
+	if (!bb.ele.itemRecordEditor || !bb.sku.value) { return; }
+	bb.dry.populateItemRecordDraft(bb.dry.getItemRecord(bb.sku.value, false));
+}
 
-	var row = bb.dry.getCriticalNoteRow(bb.sku.value) || {};
-
-	bb.ele.criticalNotesAdminSku.textContent = bb.sku.value || "selected SKU";
-	bb.ele.criticalNotesCountryOfOrigin.value = row.CountryOfOrigin || "";
-	bb.ele.criticalNotesFragileCheckbox.checked = row.Fragile == "1";
-	bb.ele.criticalNotesStoreDryCheckbox.checked = row.StoreDry == "1";
-	bb.ele.criticalNotesKeepAwayFromFlameCheckbox.checked = row.KeepAwayFromFlame == "1";
-	bb.ele.criticalNotesToxicCheckbox.checked = row.Toxic == "1";
-	bb.ele.criticalNotesHazardProfile.value = row.HazardProfile || "";
-	bb.ele.criticalNotesSaveStatus.textContent = "";
-	bb.dry.updateLabelConfigurationResetButton();
+bb.dry.updateItemRecordEditorButtons = function() {
+	if (!bb.ele.itemRecordEditor || !bb.sku.value) { return; }
+	var draft = bb.dry.getItemRecordDraft(bb.sku.value);
+	var current = bb.dry.getItemRecord(bb.sku.value, false);
+	var original = bb.dry.getItemRecord(bb.sku.value, true);
+	bb.ele.itemRecordDescriptionInput.setCustomValidity(draft.ItemName ? '' : 'Enter an item description.');
+	bb.ele.itemRecordVendorInput.setCustomValidity(draft.Vendor ? '' : 'Enter a vendor.');
+	bb.ele.itemRecordSaveButton.disabled = bb.dry.itemRecordsMatch(draft, current);
+	bb.ele.itemRecordResetButton.disabled = bb.dry.itemRecordsMatch(draft, original);
+	bb.ele.itemRecordStatus.textContent = '';
 }
 
 bb.dry.getHazardLabel = function(hazardProfile) {
@@ -621,7 +706,7 @@ bb.dry.getHazardLabel = function(hazardProfile) {
 }
 
 bb.dry.applyHazardProfilePreset = function() {
-	var profile = bb.ele.criticalNotesHazardProfile.value;
+	var profile = bb.ele.itemRecordHazardProfile.value;
 	var presets = {
 		AMMUNITION: ['storeDry', 'keepAwayFromFlame'],
 		COMBUSTIBLE: ['keepAwayFromFlame'],
@@ -633,10 +718,10 @@ bb.dry.applyHazardProfilePreset = function() {
 		TOXIC: ['fragile', 'storeDry', 'toxic']
 	};
 	var fields = {
-		fragile: bb.ele.criticalNotesFragileCheckbox,
-		storeDry: bb.ele.criticalNotesStoreDryCheckbox,
-		keepAwayFromFlame: bb.ele.criticalNotesKeepAwayFromFlameCheckbox,
-		toxic: bb.ele.criticalNotesToxicCheckbox
+		fragile: bb.ele.itemRecordFragileCheckbox,
+		storeDry: bb.ele.itemRecordStoreDryCheckbox,
+		keepAwayFromFlame: bb.ele.itemRecordKeepAwayFromFlameCheckbox,
+		toxic: bb.ele.itemRecordToxicCheckbox
 	};
 	var rules = presets[profile] || [];
 
@@ -650,39 +735,80 @@ bb.dry.applyHazardProfilePreset = function() {
 	}
 }
 
-bb.dry.applyCriticalNotesForSku = function() {
-	var needsFragileLabel = false;
-	var needsStoreDryLabel = false;
-	var needsKeepAwayFromFlameLabel = false;
-	var needsToxicLabel = false;
-	var hazardProfile = "";
-	var row = bb.dry.getCriticalNoteRow(bb.sku.value);
+bb.dry.formatItemRecordValue = function(value) {
+	var formatted = String(value || "").trim().toLowerCase().replace(/_/g, " ");
+	return formatted.replace(/\b\w/g, function(letter) { return letter.toUpperCase(); });
+}
 
-	if (row) {
-		needsFragileLabel = row.Fragile == "1";
-		needsStoreDryLabel = row.StoreDry == "1";
-		needsKeepAwayFromFlameLabel = row.KeepAwayFromFlame == "1";
-		needsToxicLabel = row.Toxic == "1";
-		hazardProfile = row.HazardProfile ? String(row.HazardProfile).trim().toUpperCase() : "";
+bb.dry.getLabelOutputState = function() {
+	var row = bb.dry.getCriticalNoteRow(bb.sku.value) || {};
+	var state = {
+		fragile: row.Fragile == "1",
+		storeDry: row.StoreDry == "1",
+		keepAwayFromFlame: row.KeepAwayFromFlame == "1",
+		toxic: row.Toxic == "1",
+		hazardProfile: row.HazardProfile ? String(row.HazardProfile).trim().toUpperCase() : ""
+	};
+	state.showsHazardProfileLabel = !!state.hazardProfile && !(state.hazardProfile === "TOXIC" && state.toxic);
+	state.labelNames = ['Package label'];
+	if (state.fragile) { state.labelNames.push('Fragile'); }
+	if (state.storeDry) { state.labelNames.push('Store dry'); }
+	if (state.keepAwayFromFlame) { state.labelNames.push('Keep away from flame'); }
+	if (state.toxic) { state.labelNames.push('Toxic material'); }
+	if (state.showsHazardProfileLabel) {
+		state.labelNames.push(bb.dry.formatItemRecordValue(bb.dry.getHazardLabel(state.hazardProfile)[0]));
 	}
-	var showsHazardProfileLabel = hazardProfile && !(hazardProfile === "TOXIC" && needsToxicLabel);
+	return state;
+}
+
+bb.dry.updateItemRecordDisplay = function(state) {
+	state = state || bb.dry.getLabelOutputState();
+	var origin = bb.sku.coo ? String(bb.sku.coo).trim() : "";
+	var hazard = bb.dry.formatItemRecordValue(state.hazardProfile);
+	bb.dry.updateEle(bb.ele.name, bb.sku.name);
+	bb.dry.updateEle(bb.ele.vendor, bb.sku.vendor);
+	bb.ele.selectedOrigin.textContent = origin || "~";
+	bb.ele.selectedHazard.textContent = hazard;
+	bb.ele.selectedHazardRow.hidden = !hazard;
+	bb.ele.itemBadgeFragile.hidden = !state.fragile;
+	bb.ele.itemBadgeStoreDry.hidden = !state.storeDry;
+	bb.ele.itemBadgeKeepAwayFromFlame.hidden = !state.keepAwayFromFlame;
+	bb.ele.itemBadgeToxic.hidden = !state.toxic;
+	bb.ele.itemHandlingBadges.hidden = !(state.fragile || state.storeDry || state.keepAwayFromFlame || state.toxic);
+	bb.ele.itemRecordEditButton.disabled = !bb.sku.value;
+	bb.ele.itemRecordEditButton.setAttribute('aria-label', bb.sku.value ? 'Edit item record for ' + bb.sku.value : 'Edit item record');
+	bb.ele.editItemFromLabelsButton.disabled = !bb.sku.value;
+}
+
+bb.dry.updateLabelSetSummary = function(state) {
+	state = state || bb.dry.getLabelOutputState();
+	var count = state.labelNames.length;
+	var countText = count + (count === 1 ? ' label' : ' labels');
+	bb.ele.labelSetCount.textContent = countText;
+	bb.ele.labelSetSummary.textContent = countText + ' for ' + (bb.sku.value || 'selected SKU') + ': ' + state.labelNames.join(', ') + '.';
+}
+
+bb.dry.applyCriticalNotesForSku = function() {
+	var state = bb.dry.getLabelOutputState();
 
 	bb.ele.printContainer.style.display = "block";
-	bb.ele.labelFragileIcon.style.display = needsFragileLabel ? "block" : "none";
-	bb.ele.labelStoreDryIcon.style.display = needsStoreDryLabel ? "block" : "none";
-	bb.ele.labelKeepAwayFromFlameIcon.style.display = needsKeepAwayFromFlameLabel ? "block" : "none";
-	bb.ele.labelToxicIcon.style.display = needsToxicLabel ? "block" : "none";
-	bb.ele.labelHazardProfileIcon.style.display = showsHazardProfileLabel ? "block" : "none";
-	bb.ele.fragileLabel.style.display = needsFragileLabel ? "inline-block" : "none";
-	bb.ele.storeDryLabel.style.display = needsStoreDryLabel ? "inline-block" : "none";
-	bb.ele.keepAwayFromFlameLabel.style.display = needsKeepAwayFromFlameLabel ? "inline-block" : "none";
-	bb.ele.toxicLabel.style.display = needsToxicLabel ? "inline-block" : "none";
-	bb.ele.hazardProfileLabel.style.display = showsHazardProfileLabel ? "inline-block" : "none";
+	bb.ele.labelFragileIcon.style.display = state.fragile ? "block" : "none";
+	bb.ele.labelStoreDryIcon.style.display = state.storeDry ? "block" : "none";
+	bb.ele.labelKeepAwayFromFlameIcon.style.display = state.keepAwayFromFlame ? "block" : "none";
+	bb.ele.labelToxicIcon.style.display = state.toxic ? "block" : "none";
+	bb.ele.labelHazardProfileIcon.style.display = state.showsHazardProfileLabel ? "block" : "none";
+	bb.ele.fragileLabel.style.display = state.fragile ? "inline-block" : "none";
+	bb.ele.storeDryLabel.style.display = state.storeDry ? "inline-block" : "none";
+	bb.ele.keepAwayFromFlameLabel.style.display = state.keepAwayFromFlame ? "inline-block" : "none";
+	bb.ele.toxicLabel.style.display = state.toxic ? "inline-block" : "none";
+	bb.ele.hazardProfileLabel.style.display = state.showsHazardProfileLabel ? "inline-block" : "none";
 
-	var hazardLabel = bb.dry.getHazardLabel(hazardProfile);
+	var hazardLabel = bb.dry.getHazardLabel(state.hazardProfile);
 	bb.ele.hazardProfileLabelTitle.textContent = hazardLabel[0];
 	bb.ele.hazardProfileLabelBody.textContent = hazardLabel[1];
-	bb.ele.labelHazardProfileIcon.setAttribute('aria-label', hazardProfile ? hazardLabel[0] : 'Hazard profile');
+	bb.ele.labelHazardProfileIcon.setAttribute('aria-label', state.hazardProfile ? hazardLabel[0] : 'Hazard profile');
+	bb.dry.updateItemRecordDisplay(state);
+	bb.dry.updateLabelSetSummary(state);
 }
 
 bb.dry.updateCriticalNoteMemory = function(sku, row) {
@@ -699,34 +825,81 @@ bb.dry.updateCriticalNoteMemory = function(sku, row) {
 	}
 }
 
-bb.dry.applyLabelConfiguration = function() {
-	if (!bb.sku.value) {
-		bb.ele.criticalNotesSaveStatus.textContent = "Select a SKU first.";
-		return;
-	}
-
-	var editedSku = bb.sku.value;
-	var row = bb.dry.getLabelConfigurationFromForm(editedSku);
-	bb.dry.updateCriticalNoteMemory(editedSku, row);
-	bb.sku.coo = row.CountryOfOrigin;
-	bb.dry.makeLabelPreview();
-	bb.dry.applyCriticalNotesForSku();
-	bb.dry.updateLabelConfigurationResetButton();
-	bb.ele.criticalNotesSaveStatus.textContent = "Printable labels updated.";
+bb.dry.updateInventoryMemory = function(sku, record) {
+	var row = bb.dry.getInventoryRow(sku);
+	if (!row) { return; }
+	row.ItemName = record.ItemName;
+	row.Vendor = record.Vendor;
 }
 
-bb.dry.resetLabelConfiguration = function() {
-	if (!bb.sku.value) { return; }
-	var original = bb.dry.getOriginalCriticalNoteRow(bb.sku.value);
-	if (!original) { return; }
+bb.dry.getLabelConfigurationFromItemRecord = function(record) {
+	return {
+		LocalSKU: record.LocalSKU,
+		CountryOfOrigin: record.CountryOfOrigin,
+		Fragile: record.Fragile,
+		StoreDry: record.StoreDry,
+		KeepAwayFromFlame: record.KeepAwayFromFlame,
+		Toxic: record.Toxic,
+		HazardProfile: record.HazardProfile
+	};
+}
 
-	var restored = Object.assign({}, original);
-	bb.dry.updateCriticalNoteMemory(bb.sku.value, restored);
-	bb.sku.coo = restored.CountryOfOrigin || "";
-	bb.dry.populateCriticalNotesAdmin();
+bb.dry.openItemRecordEditor = function() {
+	if (!bb.sku.value || !bb.ele.itemRecordEditor) { return; }
+	if (!bb.ele.itemRecordEditor.hidden) {
+		bb.ele.itemRecordDescriptionInput.focus();
+		return;
+	}
+	bb.dry.populateItemRecordEditor();
+	bb.ele.itemRecordView.hidden = true;
+	bb.ele.itemRecordEditor.hidden = false;
+	bb.ele.itemRecordEditButton.setAttribute('aria-expanded', 'true');
+	bb.ele.itemRecordEditButton.hidden = true;
+	bb.ele.itemRecordStatus.textContent = '';
+	bb.ele.itemRecordDescriptionInput.focus();
+}
+
+bb.dry.closeItemRecordEditor = function(options) {
+	options = options || {};
+	if (!bb.ele.itemRecordEditor) { return; }
+	if (options.restoreDraft && bb.sku.value) {
+		bb.dry.populateItemRecordEditor();
+	}
+	bb.ele.itemRecordEditor.hidden = true;
+	bb.ele.itemRecordView.hidden = false;
+	bb.ele.itemRecordEditButton.hidden = false;
+	bb.ele.itemRecordEditButton.setAttribute('aria-expanded', 'false');
+	if (typeof options.status === 'string') {
+		bb.ele.itemRecordStatus.textContent = options.status;
+	}
+	if (options.returnFocus && !bb.ele.itemRecordEditButton.disabled) {
+		bb.ele.itemRecordEditButton.focus();
+	}
+}
+
+bb.dry.saveItemRecord = function() {
+	if (!bb.sku.value) { return; }
+	var editedSku = bb.sku.value;
+	var record = bb.dry.getItemRecordDraft(editedSku);
+	if (!record.ItemName || !record.Vendor) { return; }
+
+	bb.dry.updateInventoryMemory(editedSku, record);
+	bb.dry.updateCriticalNoteMemory(editedSku, bb.dry.getLabelConfigurationFromItemRecord(record));
+	bb.sku.name = record.ItemName;
+	bb.sku.vendor = record.Vendor;
+	bb.sku.coo = record.CountryOfOrigin;
+	bb.dry.updateEle(bb.ele.name, bb.sku.name);
+	bb.dry.updateEle(bb.ele.vendor, bb.sku.vendor);
 	bb.dry.makeLabelPreview();
 	bb.dry.applyCriticalNotesForSku();
-	bb.ele.criticalNotesSaveStatus.textContent = "Printable labels updated.";
+	bb.dry.populateItemRecordEditor();
+	bb.dry.closeItemRecordEditor({ restoreDraft:false, returnFocus:true, status:'Changes apply only to this browser session.' });
+}
+
+bb.dry.resetItemRecordDraft = function() {
+	if (!bb.sku.value) { return; }
+	bb.dry.populateItemRecordDraft(bb.dry.getItemRecord(bb.sku.value, true));
+	bb.ele.itemRecordStatus.textContent = 'Defaults restored in the editor. Save for session to apply.';
 }
 
 
@@ -1062,16 +1235,16 @@ bb.dry.deleteSkuImage = function() {
 				newContainerDiv.classList.add('cardContent');
 				var newSkuDiv = document.createElement("div");
 					newSkuDiv.classList.add('cardSku');
-					newSkuDiv.innerHTML = targetSKU;
+					newSkuDiv.textContent = targetSKU;
 				newContainerDiv.append(newSkuDiv)
 				var newNameDiv = document.createElement("div");
 					newNameDiv.classList.add('cardName');
-					newNameDiv.innerHTML = itemNameStr;
+					newNameDiv.textContent = itemNameStr;
 				newContainerDiv.append(newNameDiv)
 				var newQtyDiv = document.createElement("div");
 					newQtyDiv.classList.add('cardQty');
 					if(lineItem.Quantity > 1) { newQtyDiv.classList.add('moreThanOneQty'); }
-					newQtyDiv.innerHTML = "Quantity: " + lineItem.Quantity;
+					newQtyDiv.textContent = "Quantity: " + lineItem.Quantity;
 				newContainerDiv.append(newQtyDiv)
 			newBlock.append(newContainerDiv)
 		tabContentEle.append(newBlock)
@@ -1091,7 +1264,7 @@ bb.dry.deleteSkuImage = function() {
 			bb.dry.populateSelectBox({'optArr':bb.ajax.inventorySkus}); // reset select box to house all skus again
 			bb.ele.searchInput.value = '';
 			bb.ele.tab1.button.click(); // click on the default tab (Assembly)
-			var clickedSku = cardContent.getElementsByClassName("cardSku")[0].innerHTML;
+			var clickedSku = cardContent.getElementsByClassName("cardSku")[0].textContent;
 			bb.ele.skuSelectBox.value = clickedSku.toUpperCase();
 			bb.ele.skuSelectBox.dispatchEvent(new Event('change'));
 		}
@@ -1102,9 +1275,9 @@ bb.dry.deleteSkuImage = function() {
 		
 	bb.dry.updateEle = function(targetEle, value) {
 		if (value == "") {
-			targetEle.innerHTML = "~"
+			targetEle.textContent = "~"
 		} else {
-			targetEle.innerHTML = value;
+			targetEle.textContent = value;
 		}
 	}
 
@@ -1116,6 +1289,10 @@ bb.dry.deleteSkuImage = function() {
 	// when they hit enter, it tries to select the SKU in the multiselect box
 	document.addEventListener('keydown', function(event) {
 		if (bb.ele.imageZoomModal && !bb.ele.imageZoomModal.hidden) { return; }
+		var eventTarget = event.target;
+		if (eventTarget && eventTarget.closest && eventTarget.closest('#itemRecordEditor')) { return; }
+		if (eventTarget && eventTarget.isContentEditable) { return; }
+		if (eventTarget && eventTarget.matches('button') && (event.key === 'Enter' || event.key === ' ')) { return; }
 		const arrowKeys = ['ArrowUp', 'ArrowDown']
 		if (arrowKeys.indexOf(event.key) >= 0) {
 			if (bb.ele.skuSelectBox !== document.activeElement) {
@@ -1187,10 +1364,13 @@ bb.ajax.finished = function () {
 	bb.ajax.criticalNoteOriginal = bb.ajax.criticalNote.map(function(row) {
 		return Object.assign({}, row);
 	});
-  bb.ajax.assemblies = bb.dry.tsvStrToObj(bb.ajax.fileData['assembliesCSV']);
-  bb.ajax.inventory = bb.dry.tsvStrToObj(bb.ajax.fileData['inventoryCSV']);
+	bb.ajax.assemblies = bb.dry.tsvStrToObj(bb.ajax.fileData['assembliesCSV']);
+	bb.ajax.inventory = bb.dry.tsvStrToObj(bb.ajax.fileData['inventoryCSV']);
+	bb.ajax.inventoryOriginal = bb.ajax.inventory.map(function(row) {
+		return Object.assign({}, row);
+	});
 
-  bb.ajax.inventorySkus = bb.dry.getKeyArr(bb.ajax.inventory, "LocalSKU");
+	bb.ajax.inventorySkus = bb.dry.getKeyArr(bb.ajax.inventory, "LocalSKU");
 
   bb.dry.populateSelectBox({'optArr':bb.ajax.inventorySkus});
   
@@ -1469,17 +1649,17 @@ bb.dry.updateImageSrc = function (imgEle, sku) {
 	bb.dry.makeLabelPreview = function () {
 		//console.log("make preview")
 		for (var item of document.getElementsByClassName('labelSku')) { // update SKUs on the preview labels
-			item.innerHTML = bb.ele.sku.innerHTML;
+			item.textContent = bb.sku.value;
 		}
 		
 		for (var item of document.getElementsByClassName('labelDesc')) { //update descriptions
-			item.innerHTML = bb.ele.name.innerHTML;
+			item.textContent = bb.sku.name;
 		}
 		for (var item of document.getElementsByClassName('labelDate')) { //update descriptions
-			item.innerHTML = new Date().toDateString();
+			item.textContent = new Date().toDateString();
 		}
 		for (var item of document.getElementsByClassName('labelDatecode')) { // year and month datecode like:  0918
-			item.innerHTML = ("0" + (new Date().getMonth() + 1)).slice(-2) + new Date().getFullYear().toString().substr(2,2);
+			item.textContent = ("0" + (new Date().getMonth() + 1)).slice(-2) + new Date().getFullYear().toString().substr(2,2);
 		}	
 
 		var countryOfOrigin = document.querySelector("#barcodeCountryOfOrigin");

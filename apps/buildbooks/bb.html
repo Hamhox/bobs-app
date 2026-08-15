@@ -17,8 +17,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300..900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300..800&family=Rubik:wght@300..900&display=swap" rel="stylesheet">
 	<!-- Load app files -->
-	<link rel="stylesheet" href="assets/bb.css?v=0.0.188">
-	<script src="assets/bb.js?v=0.0.686"></script>
+	<link rel="stylesheet" href="assets/bb.css?v=0.0.190">
+	<script src="assets/bb.js?v=0.0.692"></script>
 					
       <script src="assets/jsbarcode.all.min.js?v=0.0.03"></script>
       <script src="assets/print.min.js?v=0.0.03"></script>
@@ -94,15 +94,73 @@
 		<!--	<a id="mainTopImgAnchor" href="" target="_blank">
 			<img id='mainTopImg' class='cardImg' src="assets/noimage.svg" alt="SKU Image"></a>-->
 			<div id="mainTopContent">
-				<h1 id="containerHeaderTitle">Select a SKU...</h1>
-				<div class="mainTopLabel"></div>
-				<div id="selectedItemName" class="mainTopText heading1">~</div>
-				<div class="mainTopLabel">Vendor:</div>
-				<div id="selectedVendor" class="mainTopText">~</div>
-				<div class="mainTopLabel" style="display:none;">UPC:</div>
-				<div id="selectedUpc" class="mainTopText" style="display:none;">~</div>
-				<div class="mainTopLabel">History:</div>
-				<div id="clickHistory" class="mainTopText">~</div>
+				<div class="itemRecordTitleRow">
+					<h1 id="containerHeaderTitle">Select a SKU...</h1>
+					<button id="buttonEditItemRecord" class="itemRecordEditButton" type="button" aria-expanded="false" aria-controls="itemRecordEditor" aria-label="Edit item record" title="Edit item record" disabled>
+						<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 16.5-.8 4.3 4.3-.8L19 8.5 15.5 5 4 16.5Z M13.8 6.7l3.5 3.5"/></svg>
+						<span class="visuallyHidden">Edit item record</span>
+					</button>
+				</div>
+
+				<div id="itemRecordView">
+					<div id="selectedItemName" class="itemRecordDescription">~</div>
+					<dl class="itemRecordMeta">
+						<div><dt>Vendor:</dt><dd id="selectedVendor">~</dd></div>
+						<div><dt>Origin:</dt><dd id="selectedOrigin">~</dd></div>
+						<div id="selectedHazardRow" hidden><dt>Hazard:</dt><dd id="selectedHazard">~</dd></div>
+						<div><dt>History:</dt><dd id="clickHistory">~</dd></div>
+					</dl>
+					<div id="itemHandlingBadges" class="itemHandlingBadges" aria-label="Handling requirements" hidden>
+						<span id="itemBadgeFragile" hidden>Fragile</span>
+						<span id="itemBadgeStoreDry" hidden>Store dry</span>
+						<span id="itemBadgeKeepAwayFromFlame" hidden>Keep away from flame</span>
+						<span id="itemBadgeToxic" hidden>Toxic</span>
+					</div>
+				</div>
+
+				<form id="itemRecordEditor" class="itemRecordEditor" hidden aria-labelledby="itemRecordEditorTitle">
+					<h2 id="itemRecordEditorTitle" class="itemRecordEditorTitle">Edit item record <span id="itemRecordEditorSku"></span></h2>
+					<div class="itemRecordEditorFields">
+						<label class="itemRecordFieldFull" for="itemRecordDescriptionInput">Description
+							<input id="itemRecordDescriptionInput" type="text" autocomplete="off" required>
+						</label>
+						<label for="itemRecordVendorInput">Vendor
+							<input id="itemRecordVendorInput" type="text" autocomplete="off" required>
+						</label>
+						<label for="itemRecordCountryOfOrigin">Country of origin
+							<input id="itemRecordCountryOfOrigin" type="text" autocomplete="off">
+						</label>
+						<label for="itemRecordHazardProfile">Hazard profile
+							<select id="itemRecordHazardProfile" aria-describedby="hazardPresetHint">
+								<option value="">None</option>
+								<option value="AMMUNITION">Ammunition</option>
+								<option value="COMBUSTIBLE">Combustible</option>
+								<option value="CONTROLLED_MEDICAL">Controlled medical</option>
+								<option value="EXPLOSIVE">Explosive</option>
+								<option value="FLAMMABLE">Flammable</option>
+								<option value="ORDNANCE">Ordnance</option>
+								<option value="SHARP_EDGE">Sharp edge</option>
+								<option value="TOXIC">Toxic</option>
+							</select>
+						</label>
+					</div>
+					<fieldset class="itemRecordHandlingFields">
+						<legend>Handling requirements</legend>
+						<label><input id="itemRecordFragileCheckbox" type="checkbox"> Fragile</label>
+						<label><input id="itemRecordStoreDryCheckbox" type="checkbox"> Store dry</label>
+						<label><input id="itemRecordKeepAwayFromFlameCheckbox" type="checkbox"> Keep away from flame</label>
+						<label><input id="itemRecordToxicCheckbox" type="checkbox"> Toxic</label>
+					</fieldset>
+					<p id="hazardPresetHint" class="itemRecordEditorHint">Changing the hazard profile replaces the handling selections. You can adjust them before saving.</p>
+					<div class="itemRecordEditorActions">
+						<button id="buttonSaveItemRecord" class="itemRecordSaveButton" type="submit">Save for session</button>
+						<button id="buttonCancelItemRecord" type="button">Cancel</button>
+						<button id="buttonResetItemRecord" type="button">Reset defaults</button>
+					</div>
+					<p class="itemRecordSessionNote">Changes apply only to this browser session.</p>
+				</form>
+				<p id="itemRecordStatus" class="itemRecordStatus" role="status" aria-live="polite"></p>
+				<div id="selectedUpc" style="display:none;">~</div>
 			</div>
 		<!--	<div id="mainTopImgNotes">
 			</div> -->
@@ -134,45 +192,21 @@
 				<div id="printContainer" class="printer_container" style="width:500px">
 					<div id="printer_main">
 						<div id="print_form">
-							<details id="criticalNotesAdminPanel">
-								<summary>Click to adjust regulatory settings &gt;&gt;</summary>
-								<div class="criticalNotesAdminContent">
-									<div class="criticalNotesAdminHeader">Label configuration for <span id="criticalNotesAdminSku">selected SKU</span></div>
-									<div class="criticalNotesAdminFields">
-										<label for="criticalNotesCountryOfOrigin">Country of origin
-											<input id="criticalNotesCountryOfOrigin" type="text" autocomplete="off">
-										</label>
-										<label for="criticalNotesHazardProfile">Hazard profile
-											<select id="criticalNotesHazardProfile">
-												<option value="">None</option>
-												<option value="AMMUNITION">Ammunition</option>
-												<option value="COMBUSTIBLE">Combustible</option>
-												<option value="CONTROLLED_MEDICAL">Controlled medical</option>
-												<option value="EXPLOSIVE">Explosive</option>
-												<option value="FLAMMABLE">Flammable</option>
-												<option value="ORDNANCE">Ordnance</option>
-												<option value="SHARP_EDGE">Sharp edge</option>
-												<option value="TOXIC">Toxic</option>
-											</select>
-										</label>
-									</div>
-									<div class="criticalNotesAdminChecks">
-										<label><input id="criticalNotesFragileCheckbox" type="checkbox"> Fragile</label>
-										<label><input id="criticalNotesStoreDryCheckbox" type="checkbox"> Store dry</label>
-										<label><input id="criticalNotesKeepAwayFromFlameCheckbox" type="checkbox"> Keep away from flame</label>
-										<label><input id="criticalNotesToxicCheckbox" type="checkbox"> Toxic</label>
-									</div>
-									<div class="criticalNotesActions">
-										<button id="buttonResetCriticalNotes" type="button" hidden>Reset</button>
-										<span id="criticalNotesSaveStatus" aria-live="polite"></span>
-									</div>
+							<section class="labelSetHeader" aria-labelledby="labelSetTitle">
+								<div class="labelSetTitleRow">
+									<h2 id="labelSetTitle">Printable labels</h2>
+									<span id="labelSetCount">1 label</span>
 								</div>
-							</details>
-
-							<p><button class="labelPrintPrompt" type="button" onclick="bb.dry.sendPrint('pLabel')">Click on label to print &gt;&gt;</button></p>
+								<p id="labelSetSummary" aria-live="polite">1 label for selected SKU: Package label.</p>
+								<p class="labelSetHelp">Select a label preview to open the print dialog.</p>
+								<div class="labelSetActions">
+									<button id="buttonEditItemFromLabels" type="button" disabled>Edit item record</button>
+									<button class="labelPrintPrompt" type="button" data-print-target="pLabel">Print primary label</button>
+								</div>
+							</section>
 							
 							<div id="pLabelContainer" class="barcodeContainer">
-								<div class="productlabel" onclick="bb.dry.sendPrint('pLabel')"> <!-- packaging labels preview -->
+								<div class="productlabel" data-print-target="pLabel" role="button" tabindex="0" aria-label="Print package label"> <!-- packaging labels preview -->
 									<div id="plabelPrintDivs" class="plabelWrapper">
 										<div class="labelSku" id="barcodeH1">Hello!</div>
 										<div class="labelDesc" id="barcodeP">Select a SKU...</div>
@@ -262,7 +296,7 @@
 								
 							
 							<div id="fragileLabelContainer" class="barcodeContainer regulatoryLabelContainer">
-								<div class="productlabel handlingLabel" onclick="bb.dry.sendPrint('fragileLabel')">
+								<div class="productlabel handlingLabel" data-print-target="fragileLabel" role="button" tabindex="0" aria-label="Print fragile label">
 									<div id="fragileLabelPrintDivs" class="plabelWrapper handlingLabelWrapper">
 										<svg class="handlingLabelIcon" aria-hidden="true" viewBox="0 0 32 32"><path d="M9 3h14l-2 10a5 5 0 0 1-5 4 5 5 0 0 1-5-4L9 3Z M16 17v9 M11 29h10 M13 7l3 3-2 3 3 3"/></svg>
 										<div class="handlingLabelCopy"><strong>FRAGILE</strong><span>HANDLE WITH CARE</span><small class="labelSku">SELECT A SKU</small></div>
@@ -271,7 +305,7 @@
 							</div>
 
 							<div id="storeDryLabelContainer" class="barcodeContainer regulatoryLabelContainer">
-								<div class="productlabel handlingLabel" onclick="bb.dry.sendPrint('storeDryLabel')">
+								<div class="productlabel handlingLabel" data-print-target="storeDryLabel" role="button" tabindex="0" aria-label="Print store dry label">
 									<div id="storeDryLabelPrintDivs" class="plabelWrapper handlingLabelWrapper">
 										<svg class="handlingLabelIcon" aria-hidden="true" viewBox="0 0 32 32"><path d="M4 15a12 12 0 0 1 24 0c-2-2-4-2-6 0-2-2-4-2-6 0-2-2-4-2-6 0-2-2-4-2-6 0Z M16 15v9c0 4 5 4 5 0 M7 4 5 8 M13 2l-1 5 M25 4l2 4"/></svg>
 										<div class="handlingLabelCopy"><strong>KEEP DRY</strong><span>PROTECT FROM MOISTURE</span><small class="labelSku">SELECT A SKU</small></div>
@@ -280,7 +314,7 @@
 							</div>
 
 							<div id="keepAwayFromFlameLabelContainer" class="barcodeContainer regulatoryLabelContainer">
-								<div class="productlabel handlingLabel" onclick="bb.dry.sendPrint('keepAwayFromFlameLabel')">
+								<div class="productlabel handlingLabel" data-print-target="keepAwayFromFlameLabel" role="button" tabindex="0" aria-label="Print keep away from flame label">
 									<div id="keepAwayFromFlameLabelPrintDivs" class="plabelWrapper handlingLabelWrapper">
 										<svg class="handlingLabelIcon" aria-hidden="true" viewBox="0 0 32 32"><circle cx="16" cy="16" r="13"/><path d="M16 25c-5 0-8-3-8-8 0-4 3-6 6-10 0 4 3 5 3 8 1-2 2-4 2-6 4 4 5 7 5 10 0 4-3 6-8 6Z M6 6l20 20"/></svg>
 										<div class="handlingLabelCopy"><strong>KEEP AWAY FROM FLAME</strong><span>NO FLAME, SPARKS OR HOT SURFACES</span><small class="labelSku">SELECT A SKU</small></div>
@@ -289,7 +323,7 @@
 							</div>
 
 							<div id="toxicLabelContainer" class="barcodeContainer regulatoryLabelContainer">
-								<div class="productlabel handlingLabel" onclick="bb.dry.sendPrint('toxicLabel')">
+								<div class="productlabel handlingLabel" data-print-target="toxicLabel" role="button" tabindex="0" aria-label="Print toxic material label">
 									<div id="toxicLabelPrintDivs" class="plabelWrapper handlingLabelWrapper">
 										<svg class="handlingLabelIcon" aria-hidden="true" viewBox="0 0 32 32"><path d="M8 13a8 8 0 1 1 16 0c0 4-2 6-4 7v4h-8v-4c-2-1-4-3-4-7Z M13 12h.01 M19 12h.01 M14 17h4 M7 27l18-8 M7 19l18 8"/></svg>
 										<div class="handlingLabelCopy"><strong>TOXIC MATERIAL</strong><span>DO NOT INGEST OR INHALE · KEEP SEALED · RESTRICT ACCESS</span><small class="labelSku">SELECT A SKU</small></div>
@@ -298,7 +332,7 @@
 							</div>
 
 							<div id="hazardProfileLabelContainer" class="barcodeContainer regulatoryLabelContainer">
-								<div class="productlabel handlingLabel" onclick="bb.dry.sendPrint('hazardProfileLabel')">
+								<div class="productlabel handlingLabel" data-print-target="hazardProfileLabel" role="button" tabindex="0" aria-label="Print hazard profile label">
 									<div id="hazardProfileLabelPrintDivs" class="plabelWrapper handlingLabelWrapper">
 										<svg class="handlingLabelIcon handlingLabelIconHazard" aria-hidden="true" viewBox="0 0 32 32"><path d="M16 3 29 27H3L16 3Z M16 10v9 M16 23v1"/></svg>
 										<div class="handlingLabelCopy"><strong id="hazardProfileLabelTitle">HAZARD PROFILE</strong><span id="hazardProfileLabelBody">FOLLOW REQUIRED HANDLING PROCEDURES</span><small class="labelSku">SELECT A SKU</small></div>
