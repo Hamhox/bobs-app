@@ -82,7 +82,7 @@
 		bb.ele.criticalNotesKeepAwayFromFlameCheckbox = document.getElementById('criticalNotesKeepAwayFromFlameCheckbox');
 		bb.ele.criticalNotesToxicCheckbox = document.getElementById('criticalNotesToxicCheckbox');
 		bb.ele.criticalNotesHazardProfile = document.getElementById('criticalNotesHazardProfile');
-		bb.ele.criticalNotesSaveButton = document.getElementById('buttonSaveCriticalNotes');
+		bb.ele.criticalNotesResetButton = document.getElementById('buttonResetCriticalNotes');
 		bb.ele.criticalNotesSaveStatus = document.getElementById('criticalNotesSaveStatus');
 		
 		bb.ele.tab1 			= document.getElementById('tab1');
@@ -304,11 +304,26 @@
 		if (bb.ele.imageDeleteConfirmButton) {
 			bb.ele.imageDeleteConfirmButton.addEventListener('click', bb.dry.deleteSkuImage, false);
 		}
-		if (bb.ele.criticalNotesSaveButton) {
-			bb.ele.criticalNotesSaveButton.addEventListener('click', bb.dry.saveCriticalNotes, false);
+		if (bb.ele.criticalNotesResetButton) {
+			bb.ele.criticalNotesResetButton.addEventListener('click', bb.dry.resetLabelConfiguration, false);
 		}
 		if (bb.ele.criticalNotesHazardProfile) {
-			bb.ele.criticalNotesHazardProfile.addEventListener('change', bb.dry.applyHazardProfilePreset, false);
+			bb.ele.criticalNotesHazardProfile.addEventListener('change', function() {
+				bb.dry.applyHazardProfilePreset();
+				bb.dry.applyLabelConfiguration();
+			}, false);
+		}
+		var autoApplyLabelFields = [
+			{ ele: bb.ele.criticalNotesCountryOfOrigin, eventName: 'input' },
+			{ ele: bb.ele.criticalNotesFragileCheckbox, eventName: 'change' },
+			{ ele: bb.ele.criticalNotesStoreDryCheckbox, eventName: 'change' },
+			{ ele: bb.ele.criticalNotesKeepAwayFromFlameCheckbox, eventName: 'change' },
+			{ ele: bb.ele.criticalNotesToxicCheckbox, eventName: 'change' }
+		];
+		for (var labelField of autoApplyLabelFields) {
+			if (labelField.ele) {
+				labelField.ele.addEventListener(labelField.eventName, bb.dry.applyLabelConfiguration, false);
+			}
 		}
 		document.addEventListener('keydown', function(evn) {
 			if (evn.key !== 'Escape') { return; }
@@ -534,6 +549,47 @@ bb.dry.getCriticalNoteRow = function(sku) {
 	return null;
 }
 
+bb.dry.getOriginalCriticalNoteRow = function(sku) {
+	if (!sku || !bb.ajax.criticalNoteOriginal) { return null; }
+	for (var i = 0; i < bb.ajax.criticalNoteOriginal.length; i++) {
+		if (bb.ajax.criticalNoteOriginal[i].LocalSKU == sku) {
+			return bb.ajax.criticalNoteOriginal[i];
+		}
+	}
+	return null;
+}
+
+bb.dry.getLabelConfigurationFromForm = function(sku) {
+	return {
+		LocalSKU: sku,
+		CountryOfOrigin: bb.ele.criticalNotesCountryOfOrigin.value.trim(),
+		Fragile: bb.ele.criticalNotesFragileCheckbox.checked ? "1" : "0",
+		StoreDry: bb.ele.criticalNotesStoreDryCheckbox.checked ? "1" : "0",
+		KeepAwayFromFlame: bb.ele.criticalNotesKeepAwayFromFlameCheckbox.checked ? "1" : "0",
+		Toxic: bb.ele.criticalNotesToxicCheckbox.checked ? "1" : "0",
+		HazardProfile: bb.ele.criticalNotesHazardProfile.value
+	};
+}
+
+bb.dry.labelConfigurationsMatch = function(left, right) {
+	var fields = ['LocalSKU', 'CountryOfOrigin', 'Fragile', 'StoreDry', 'KeepAwayFromFlame', 'Toxic', 'HazardProfile'];
+	left = left || {};
+	right = right || {};
+	for (var i = 0; i < fields.length; i++) {
+		if (String(left[fields[i]] || "") !== String(right[fields[i]] || "")) {
+			return false;
+		}
+	}
+	return true;
+}
+
+bb.dry.updateLabelConfigurationResetButton = function() {
+	if (!bb.ele.criticalNotesResetButton) { return; }
+	var current = bb.dry.getCriticalNoteRow(bb.sku.value);
+	var original = bb.dry.getOriginalCriticalNoteRow(bb.sku.value);
+	bb.ele.criticalNotesResetButton.hidden = !bb.sku.value || bb.dry.labelConfigurationsMatch(current, original);
+}
+
 bb.dry.populateCriticalNotesAdmin = function() {
 	if (!bb.ele.criticalNotesAdminSku) { return; }
 
@@ -547,7 +603,7 @@ bb.dry.populateCriticalNotesAdmin = function() {
 	bb.ele.criticalNotesToxicCheckbox.checked = row.Toxic == "1";
 	bb.ele.criticalNotesHazardProfile.value = row.HazardProfile || "";
 	bb.ele.criticalNotesSaveStatus.textContent = "";
-	bb.ele.criticalNotesSaveButton.disabled = !bb.sku.value;
+	bb.dry.updateLabelConfigurationResetButton();
 }
 
 bb.dry.getHazardLabel = function(hazardProfile) {
@@ -584,13 +640,14 @@ bb.dry.applyHazardProfilePreset = function() {
 	};
 	var rules = presets[profile] || [];
 
+	for (var fieldName in fields) {
+		if (Object.prototype.hasOwnProperty.call(fields, fieldName)) {
+			fields[fieldName].checked = false;
+		}
+	}
 	for (var i = 0; i < rules.length; i++) {
 		fields[rules[i]].checked = true;
 	}
-
-	bb.ele.criticalNotesSaveStatus.textContent = rules.length
-		? "Profile defaults added; adjust the handling rules if needed."
-		: "Profile changed; existing handling rules were kept.";
 }
 
 bb.dry.applyCriticalNotesForSku = function() {
@@ -642,39 +699,34 @@ bb.dry.updateCriticalNoteMemory = function(sku, row) {
 	}
 }
 
-bb.dry.saveCriticalNotes = function() {
+bb.dry.applyLabelConfiguration = function() {
 	if (!bb.sku.value) {
 		bb.ele.criticalNotesSaveStatus.textContent = "Select a SKU first.";
 		return;
 	}
 
-	bb.ele.criticalNotesSaveButton.disabled = true;
-	bb.ele.criticalNotesSaveStatus.textContent = "Applying locally...";
-
 	var editedSku = bb.sku.value;
-	var row = {
-		LocalSKU: editedSku,
-		CountryOfOrigin: bb.ele.criticalNotesCountryOfOrigin.value.trim(),
-		Fragile: bb.ele.criticalNotesFragileCheckbox.checked ? "1" : "0",
-		StoreDry: bb.ele.criticalNotesStoreDryCheckbox.checked ? "1" : "0",
-		KeepAwayFromFlame: bb.ele.criticalNotesKeepAwayFromFlameCheckbox.checked ? "1" : "0",
-		Toxic: bb.ele.criticalNotesToxicCheckbox.checked ? "1" : "0",
-		HazardProfile: bb.ele.criticalNotesHazardProfile.value
-	};
+	var row = bb.dry.getLabelConfigurationFromForm(editedSku);
+	bb.dry.updateCriticalNoteMemory(editedSku, row);
+	bb.sku.coo = row.CountryOfOrigin;
+	bb.dry.makeLabelPreview();
+	bb.dry.applyCriticalNotesForSku();
+	bb.dry.updateLabelConfigurationResetButton();
+	bb.ele.criticalNotesSaveStatus.textContent = "Printable labels updated.";
+}
 
-	setTimeout(function() {
-		bb.dry.updateCriticalNoteMemory(editedSku, row);
+bb.dry.resetLabelConfiguration = function() {
+	if (!bb.sku.value) { return; }
+	var original = bb.dry.getOriginalCriticalNoteRow(bb.sku.value);
+	if (!original) { return; }
 
-		if (bb.sku.value === editedSku) {
-			bb.sku.coo = row.CountryOfOrigin;
-			bb.dry.makeLabelPreview();
-			bb.dry.applyCriticalNotesForSku();
-			bb.ele.criticalNotesSaveStatus.textContent = "Applied for this browser session.";
-			bb.ele.criticalNotesSaveButton.disabled = false;
-		}
-
-		bb.dry.showQuickFeedback("Label configuration applied locally.");
-	}, 450);
+	var restored = Object.assign({}, original);
+	bb.dry.updateCriticalNoteMemory(bb.sku.value, restored);
+	bb.sku.coo = restored.CountryOfOrigin || "";
+	bb.dry.populateCriticalNotesAdmin();
+	bb.dry.makeLabelPreview();
+	bb.dry.applyCriticalNotesForSku();
+	bb.ele.criticalNotesSaveStatus.textContent = "Printable labels updated.";
 }
 
 
@@ -1131,7 +1183,10 @@ bb.dry.deleteSkuImage = function() {
 bb.ajax.finished = function () {
   console.log('Ajax files finished loading');
 
-  bb.ajax.criticalNote = bb.dry.tsvStrToObj(bb.ajax.fileData['criticalNoteCSV']);
+	bb.ajax.criticalNote = bb.dry.tsvStrToObj(bb.ajax.fileData['criticalNoteCSV']);
+	bb.ajax.criticalNoteOriginal = bb.ajax.criticalNote.map(function(row) {
+		return Object.assign({}, row);
+	});
   bb.ajax.assemblies = bb.dry.tsvStrToObj(bb.ajax.fileData['assembliesCSV']);
   bb.ajax.inventory = bb.dry.tsvStrToObj(bb.ajax.fileData['inventoryCSV']);
 

@@ -650,7 +650,7 @@ img#armor-tech-logo-svg {
 	
 #criticalNotesAdminPanel {
 	display: block;
-	margin: 0 20px 20px 20px;
+	margin: 24px 20px 20px 20px;
 	padding: 14px 16px;
 	border: 1px solid rgba(0,0,0,.18);
 	border-radius: 4px;
@@ -713,14 +713,6 @@ img#armor-tech-logo-svg {
 	margin-right: 5px;
 }
 
-.criticalNotesAdminHelp {
-	max-width: 640px;
-	margin: -2px 0 12px 0;
-	color: rgba(0,0,0,.58);
-	font-size: 12px;
-	line-height: 1.45;
-}
-
 .criticalNotesActions {
 	display: flex;
 	align-items: center;
@@ -728,20 +720,19 @@ img#armor-tech-logo-svg {
 	margin-top: 10px;
 }
 
-#buttonSaveCriticalNotes {
+#buttonResetCriticalNotes {
 	padding: 8px 12px;
-	border: 0;
+	border: 1px solid #1a57d2;
 	border-radius: 4px;
-	background: #1a57d2;
-	color: #fff;
+	background: #fff;
+	color: #1a57d2;
 	cursor: pointer;
 	font-family: 'Miriam Libre';
 	font-weight: 700;
 }
 
-#buttonSaveCriticalNotes:disabled {
-	opacity: .55;
-	cursor: default;
+#buttonResetCriticalNotes[hidden] {
+	display: none;
 }
 
 #criticalNotesSaveStatus {
