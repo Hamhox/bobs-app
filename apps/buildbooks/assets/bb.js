@@ -1430,13 +1430,26 @@ bb.dry.updateImageSrc = function (imgEle, sku) {
 		var countryOfOrigin = document.querySelector("#barcodeCountryOfOrigin");
 		if (countryOfOrigin) {
 			var coo = bb.sku.coo ? String(bb.sku.coo).trim() : "";
-			if (coo.length > 0) {
-				countryOfOrigin.textContent = "COO: " + coo;
-				countryOfOrigin.style.display = 'block';
-			} else {
-				countryOfOrigin.textContent = "";
-				countryOfOrigin.style.display = 'none';
+			var labelConfig = bb.dry.getCriticalNoteRow(bb.sku.value) || {};
+			var hazardProfile = labelConfig.HazardProfile ? String(labelConfig.HazardProfile).trim() : "";
+			var hazardName = hazardProfile.toLowerCase().replace(/_/g, " ");
+			if (hazardName.length > 0) {
+				hazardName = hazardName.charAt(0).toUpperCase() + hazardName.slice(1);
 			}
+
+			countryOfOrigin.textContent = "";
+			if (coo.length > 0) {
+				countryOfOrigin.appendChild(document.createTextNode("COO: " + coo));
+			}
+			if (hazardName.length > 0) {
+				if (coo.length > 0) {
+					countryOfOrigin.appendChild(document.createElement("br"));
+				}
+				var hazardLine = document.createElement("strong");
+				hazardLine.textContent = "Hazard: " + hazardName;
+				countryOfOrigin.appendChild(hazardLine);
+			}
+			countryOfOrigin.style.display = coo.length > 0 || hazardName.length > 0 ? 'block' : 'none';
 		}
 		
 		//	console.log(bb.ele.upc.innerHTML);
