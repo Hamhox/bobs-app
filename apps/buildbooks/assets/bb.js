@@ -1520,7 +1520,18 @@ bb.dry.updateImageSrc = function (imgEle, sku) {
 			document.querySelector("#svglogo").style.display = 'none';
 		}
 		
-		JsBarcode('.label3of9', bb.ele.sku.innerHTML, {format:'code39', value:bb.ele.sku.innerHTML, 'width':1, 'displayValue':false}); // update UPC bar codes
+		JsBarcode('.label3of9', bb.ele.sku.innerHTML, {
+			format:'code39',
+			value:bb.ele.sku.innerHTML,
+			width:1,
+			height:26,
+			displayValue:false,
+			margin:0,
+			marginTop:0,
+			marginBottom:0,
+			marginLeft:10,
+			marginRight:10
+		}); // update Code 39 barcode
 
 	}
 	
