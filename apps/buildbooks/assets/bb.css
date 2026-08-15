@@ -799,7 +799,7 @@ img#armor-tech-logo-svg {
 	
 	@media print {
 		@page {
-			size: 3in 1.5in;
+			size: 3.5in 1in;
 			margin: 0;
 		}
 		
@@ -928,9 +928,9 @@ img#armor-tech-logo-svg {
 }
 #plabelUpc {
     position: absolute;
-    top: -33px;
+    top: -5px;
     right: -2px;
-    width: 140px;
+    width: auto;
 }
 #barcodeCountryOfOrigin {
     display: none;

@@ -1516,7 +1516,7 @@ bb.dry.updateImageSrc = function (imgEle, sku) {
 		} else {
 			//console.log("length NOT < 3");
 			// if the upc code exists, update the label preview
-			JsBarcode('.labelUpc', bb.ele.upc.innerHTML, {format:'upc', value:bb.ele.upc, 'width':2, height:'90', 'displayValue':true, 'background':'', font:'Miriam Libre'}); // update 3of9 bar codes
+			JsBarcode('.labelUpc', bb.ele.upc.innerHTML, {format:'upc', value:bb.ele.upc, width:1.16, height:52, fontSize:12, textMargin:1, margin:6, displayValue:true, background:'', font:'Miriam Libre'}); // update UPC barcode
 			document.querySelector("#svglogo").style.display = 'none';
 		}
 		
