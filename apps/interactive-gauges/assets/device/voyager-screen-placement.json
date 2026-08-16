@@ -1,0 +1,29 @@
+{
+  "source": {
+    "width": 739,
+    "height": 422,
+    "aspectRatio": "739 / 422"
+  },
+  "screen": {
+    "x": 176,
+    "y": 93,
+    "width": 384,
+    "height": 240,
+    "normalized": {
+      "left": "23.816%",
+      "top": "22.038%",
+      "width": "51.962%",
+      "height": "56.872%"
+    }
+  },
+  "shell4x": {
+    "width": 2956,
+    "height": 1688,
+    "screen": {
+      "x": 704,
+      "y": 372,
+      "width": 1536,
+      "height": 960
+    }
+  }
+}

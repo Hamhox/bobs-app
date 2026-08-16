@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#090b13" />
+    <meta
+      name="description"
+      content="Operate a faithful browser recreation of the Trail Tech Voyager interface and inspect the historical system behind it."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Interactive Gauge Archive | Bob's App" />
+    <meta
+      property="og:description"
+      content="The live interaction is the case study. Explore 146 recovered Voyager interface states and the architecture behind them."
+    />
+    <meta property="og:url" content="https://bobs-app.vercel.app/apps/interactive-gauges" />
+    <meta property="og:image" content="https://bobs-app.vercel.app/og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>Interactive Gauge Archive | Bob's App</title>
+    <link rel="icon" href="/bobs-app-symbol-logo.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/apps/interactive-gauges/interactive-gauges.css" />
+    <script type="module" src="/apps/interactive-gauges/interactive-gauges.js"></script>
+  </head>
+  <body class="gauges-body">
+    <a class="skip-link" href="#content">Skip to the interactive gauge</a>
+
+    <header class="masthead gauges-masthead">
+      <a class="wordmark" href="/" aria-label="Bob's App, home">
+        <img src="/bobs-app-logo.svg" alt="" width="572" height="100" />
+      </a>
+      <p class="index-position"><span>Interactive</span> / Gauge Archive</p>
+      <nav aria-label="Primary navigation">
+        <a href="#archive">Archive</a>
+        <a href="#system-map">System map</a>
+        <a href="/projects/gauge-evolution">Gauge story</a>
+      </nav>
+    </header>
+
+    <main id="content">
+      <section class="gauges-hero" aria-labelledby="page-title">
+        <div class="gauges-hero__inner">
+          <div class="gauges-hero__copy">
+            <p class="gauges-eyebrow">Interactive Gauge Archive</p>
+            <h1 id="page-title">The interface is the case study.</h1>
+            <p class="gauges-deck">
+              Working recreations of the screens, controls and logic behind a generation of
+              trail technology.
+            </p>
+            <div class="gauges-actions">
+              <button class="gauges-button gauges-button--primary" id="start-guided-ride" type="button" disabled>
+                Start guided ride <span aria-hidden="true">&#8594;</span>
+              </button>
+              <button class="gauges-button gauges-button--text" id="explore-freely" type="button" disabled>
+                Explore freely <span aria-hidden="true">&#8594;</span>
+              </button>
+            </div>
+
+            <div class="guide-panel" id="guide-panel" data-mode="idle">
+              <strong class="guide-panel__number" id="guide-number">READY</strong>
+              <div class="guide-panel__copy">
+                <span id="guide-label">Archive loading</span>
+                <p id="guide-instruction">The recovered interface is being prepared.</p>
+              </div>
+              <button class="guide-panel__exit" id="exit-guide" type="button" hidden>Exit guide</button>
+            </div>
+            <p class="sr-only" id="guide-live" aria-live="polite"></p>
+          </div>
+
+          <div class="voyager-experience">
+            <div class="voyager-statusline">
+              <span id="voyager-load-status">Authentic archive runtime</span>
+              <button id="reset-archive" type="button" disabled>Reset to start</button>
+            </div>
+
+            <figure class="voyager-figure">
+              <div
+                class="voyager-stage"
+                id="voyager-stage"
+                tabindex="0"
+                role="application"
+                aria-label="Interactive Trail Tech Voyager gauge. Use the physical controls, M for Menu, arrow keys, Enter, Escape, or C for the center control."
+              >
+                <div class="voyager-screen-opening">
+                  <img
+                    class="voyager-screen"
+                    id="voyager-screen"
+                    src="/apps/interactive-gauges/assets/screens/s-main1-1.gif"
+                    alt="Voyager interface archive state index"
+                    width="504"
+                    height="303"
+                  />
+                </div>
+                <img
+                  class="voyager-shell"
+                  src="/apps/interactive-gauges/assets/device/voyager-shell-4x.png"
+                  alt=""
+                  width="2956"
+                  height="1688"
+                  draggable="false"
+                />
+
+                <button class="voyager-control voyager-control--menu" data-action="menu" type="button" aria-label="Menu" disabled></button>
+                <button class="voyager-control voyager-control--back" data-action="back" type="button" aria-label="Back" disabled></button>
+                <button class="voyager-control voyager-control--up" data-action="up" type="button" aria-label="Direction up" disabled></button>
+                <button class="voyager-control voyager-control--left" data-action="left" type="button" aria-label="Direction left" disabled></button>
+                <button class="voyager-control voyager-control--center" data-action="center" type="button" aria-label="Directional center" disabled></button>
+                <button class="voyager-control voyager-control--right" data-action="right" type="button" aria-label="Direction right" disabled></button>
+                <button class="voyager-control voyager-control--down" data-action="down" type="button" aria-label="Direction down" disabled></button>
+                <button class="voyager-control voyager-control--enter" data-action="enter" type="button" aria-label="Enter" disabled></button>
+              </div>
+              <figcaption class="voyager-caption">
+                <span>Archive state: <strong id="voyager-state-code">index</strong></span>
+                <span id="voyager-timer-status">Archive timer: none</span>
+              </figcaption>
+            </figure>
+
+            <details class="keyboard-help">
+              <summary>Keyboard controls</summary>
+              <p>Focus the gauge, then use M for Menu and arrow keys to move. Enter confirms, Escape goes back, and C presses the five-way center.</p>
+            </details>
+            <p class="sr-only" id="interaction-live" aria-live="polite"></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="archive-section" id="archive" aria-labelledby="archive-title">
+        <div class="archive-heading">
+          <p class="gauges-eyebrow">Recovered working system</p>
+          <h2 id="archive-title">A linked prototype, normalized without rewriting its behavior.</h2>
+          <p>
+            Before firmware and tooling were locked, each browser page represented one device
+            state. Its links encoded the physical controls. This recreation preserves those
+            transitions, including controls that intentionally do nothing.
+          </p>
+        </div>
+
+        <dl class="archive-register" aria-label="Voyager archive counts">
+          <div>
+            <dt>146</dt>
+            <dd>Working browser states</dd>
+          </div>
+          <div>
+            <dt>156</dt>
+            <dd>Available 504 by 303 screen GIFs</dd>
+          </div>
+          <div>
+            <dt>About 184</dt>
+            <dd>Designed screens on the architecture board</dd>
+          </div>
+        </dl>
+
+        <div class="archive-process">
+          <article>
+            <span>01 / Product ownership</span>
+            <h3>Make the interaction concrete.</h3>
+            <p>Owners could operate the proposed interface instead of debating an abstract requirement.</p>
+          </article>
+          <article>
+            <span>02 / Design and QA</span>
+            <h3>Expose missing states early.</h3>
+            <p>Real navigation paths made gaps, no-ops and awkward loops visible before production.</p>
+          </article>
+          <article>
+            <span>03 / Engineering handoff</span>
+            <h3>Give firmware a shared target.</h3>
+            <p>The linked prototype documented behavior while the architecture board captured the broader system.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="system-map-section" id="system-map" aria-labelledby="system-map-title">
+        <div class="system-map-section__copy">
+          <p class="gauges-eyebrow">System architecture</p>
+          <h2 id="system-map-title">See the whole interface at once.</h2>
+          <p>
+            The original vector board records screen layouts, menu structures and flowchart
+            relationships at full archival scale. V1 keeps that composition intact for direct
+            inspection.
+          </p>
+          <div class="system-map-actions">
+            <button class="gauges-button gauges-button--primary" id="open-system-map" type="button">
+              Open system map <span aria-hidden="true">&#8599;</span>
+            </button>
+            <a
+              class="gauges-button gauges-button--text"
+              href="/apps/interactive-gauges/assets/system/voyager-screens-b1.pdf"
+              download
+            >Download archival PDF</a>
+          </div>
+        </div>
+        <div class="system-map-section__visual" aria-hidden="true">
+          <span>SCREEN LAYOUT</span>
+          <span>MENU FLOW</span>
+          <span>FULL SYSTEM</span>
+        </div>
+      </section>
+    </main>
+
+    <footer class="gauges-footer">
+      <span>Bob's App / Interactive Gauge Archive</span>
+      <nav aria-label="Footer navigation">
+        <a href="/">Directory</a>
+        <a href="/projects/gauge-evolution">Gauge story</a>
+        <a href="#content">Back to top</a>
+      </nav>
+    </footer>
+
+    <dialog class="system-map-dialog" id="system-map-dialog" aria-labelledby="map-dialog-title">
+      <header class="system-map-dialog__header">
+        <div>
+          <p class="gauges-eyebrow">Voyager architecture board</p>
+          <h2 id="map-dialog-title">Approximately 184 designed screens</h2>
+        </div>
+        <div class="system-map-dialog__status">
+          <span id="system-map-status" aria-live="polite">Fit to view</span>
+          <button data-map-close type="button" aria-label="Close system map">Close</button>
+        </div>
+      </header>
+      <div class="system-map-toolbar" aria-label="System map controls">
+        <button data-map-zoom-in type="button" aria-label="Zoom in">+</button>
+        <button data-map-zoom-out type="button" aria-label="Zoom out">&#8722;</button>
+        <button data-map-fit type="button">Fit map</button>
+        <button data-map-reset type="button">Reset</button>
+      </div>
+      <div
+        class="system-map-viewport"
+        id="system-map-viewport"
+        tabindex="0"
+        aria-label="Pan and zoom viewer for the Voyager architecture board. Drag to pan, scroll to zoom, or use the toolbar."
+      >
+        <img id="system-map-image" alt="Voyager interface architecture board showing screen layouts, menu structures and flowcharts" draggable="false" />
+      </div>
+      <p class="system-map-dialog__hint">Drag or use arrow keys to pan. Scroll, pinch, plus or minus to zoom. Home fits the map.</p>
+    </dialog>
+  </body>
+</html>
