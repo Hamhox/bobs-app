@@ -893,7 +893,7 @@ bb.dry.saveItemRecord = function() {
 	bb.dry.makeLabelPreview();
 	bb.dry.applyCriticalNotesForSku();
 	bb.dry.populateItemRecordEditor();
-	bb.dry.closeItemRecordEditor({ restoreDraft:false, returnFocus:true, status:'Changes apply only to this browser session.' });
+	bb.dry.closeItemRecordEditor({ restoreDraft:false, returnFocus:true, status:'DEMO MODE' });
 }
 
 bb.dry.resetItemRecordDraft = function() {

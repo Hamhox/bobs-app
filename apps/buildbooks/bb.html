@@ -17,8 +17,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300..900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300..800&family=Rubik:wght@300..900&display=swap" rel="stylesheet">
 	<!-- Load app files -->
-	<link rel="stylesheet" href="assets/bb.css?v=0.0.190">
-	<script src="assets/bb.js?v=0.0.692"></script>
+	<link rel="stylesheet" href="assets/bb.css?v=0.0.192">
+	<script src="assets/bb.js?v=0.0.693"></script>
 					
       <script src="assets/jsbarcode.all.min.js?v=0.0.03"></script>
       <script src="assets/print.min.js?v=0.0.03"></script>
@@ -106,15 +106,23 @@
 					<div id="selectedItemName" class="itemRecordDescription">~</div>
 					<dl class="itemRecordMeta">
 						<div><dt>Vendor:</dt><dd id="selectedVendor">~</dd></div>
-						<div><dt>Origin:</dt><dd id="selectedOrigin">~</dd></div>
+						<div class="itemRecordMetaFull"><dt>Origin:</dt><dd id="selectedOrigin">~</dd></div>
 						<div id="selectedHazardRow" hidden><dt>Hazard:</dt><dd id="selectedHazard">~</dd></div>
 						<div><dt>History:</dt><dd id="clickHistory">~</dd></div>
 					</dl>
-					<div id="itemHandlingBadges" class="itemHandlingBadges" aria-label="Handling requirements" hidden>
-						<span id="itemBadgeFragile" hidden>Fragile</span>
-						<span id="itemBadgeStoreDry" hidden>Store dry</span>
-						<span id="itemBadgeKeepAwayFromFlame" hidden>Keep away from flame</span>
-						<span id="itemBadgeToxic" hidden>Toxic</span>
+					<div id="itemHandlingBadges" class="itemHandlingBadges" role="group" aria-label="Handling requirements" hidden>
+						<span id="itemBadgeFragile" class="itemHandlingSymbol" role="img" aria-label="Fragile" title="Fragile" hidden>
+							<img src="assets/fragile-icon.svg" alt="" aria-hidden="true">
+						</span>
+						<span id="itemBadgeStoreDry" class="itemHandlingSymbol" role="img" aria-label="Keep dry" title="Keep dry" hidden>
+							<img src="assets/umbrella-icon.svg" alt="" aria-hidden="true">
+						</span>
+						<span id="itemBadgeKeepAwayFromFlame" class="itemHandlingSymbol" role="img" aria-label="Keep away from flame" title="Keep away from flame" hidden>
+							<img src="assets/flammable_icon.svg" alt="" aria-hidden="true">
+						</span>
+						<span id="itemBadgeToxic" class="itemHandlingSymbol" role="img" aria-label="Toxic" title="Toxic" hidden>
+							<img src="assets/toxic-skull-icon.svg" alt="" aria-hidden="true">
+						</span>
 					</div>
 				</div>
 
@@ -131,7 +139,7 @@
 							<input id="itemRecordCountryOfOrigin" type="text" autocomplete="off">
 						</label>
 						<label for="itemRecordHazardProfile">Hazard profile
-							<select id="itemRecordHazardProfile" aria-describedby="hazardPresetHint">
+							<select id="itemRecordHazardProfile">
 								<option value="">None</option>
 								<option value="AMMUNITION">Ammunition</option>
 								<option value="COMBUSTIBLE">Combustible</option>
@@ -151,13 +159,12 @@
 						<label><input id="itemRecordKeepAwayFromFlameCheckbox" type="checkbox"> Keep away from flame</label>
 						<label><input id="itemRecordToxicCheckbox" type="checkbox"> Toxic</label>
 					</fieldset>
-					<p id="hazardPresetHint" class="itemRecordEditorHint">Changing the hazard profile replaces the handling selections. You can adjust them before saving.</p>
 					<div class="itemRecordEditorActions">
 						<button id="buttonSaveItemRecord" class="itemRecordSaveButton" type="submit">Save for session</button>
 						<button id="buttonCancelItemRecord" type="button">Cancel</button>
 						<button id="buttonResetItemRecord" type="button">Reset defaults</button>
 					</div>
-					<p class="itemRecordSessionNote">Changes apply only to this browser session.</p>
+					<p class="itemRecordSessionNote">DEMO MODE</p>
 				</form>
 				<p id="itemRecordStatus" class="itemRecordStatus" role="status" aria-live="polite"></p>
 				<div id="selectedUpc" style="display:none;">~</div>
@@ -272,18 +279,10 @@
 </svg>
 
 										<div id="labelRegulatoryIcons" aria-label="Package handling symbols">
-											<svg id="labelFragileIcon" class="labelRegulatoryIcon" role="img" aria-label="Fragile" viewBox="0 0 32 32">
-												<path d="M9 3h14l-2 10a5 5 0 0 1-5 4 5 5 0 0 1-5-4L9 3Z M16 17v9 M11 29h10 M13 7l3 3-2 3 3 3"/>
-											</svg>
-											<svg id="labelStoreDryIcon" class="labelRegulatoryIcon" role="img" aria-label="Keep dry" viewBox="0 0 32 32">
-												<path d="M4 15a12 12 0 0 1 24 0c-2-2-4-2-6 0-2-2-4-2-6 0-2-2-4-2-6 0-2-2-4-2-6 0Z M16 15v9c0 4 5 4 5 0 M7 4 5 8 M13 2l-1 5 M25 4l2 4"/>
-											</svg>
-											<svg id="labelKeepAwayFromFlameIcon" class="labelRegulatoryIcon" role="img" aria-label="Keep away from flame" viewBox="0 0 32 32">
-												<circle cx="16" cy="16" r="13"/><path d="M16 25c-5 0-8-3-8-8 0-4 3-6 6-10 0 4 3 5 3 8 1-2 2-4 2-6 4 4 5 7 5 10 0 4-3 6-8 6Z M6 6l20 20"/>
-											</svg>
-											<svg id="labelToxicIcon" class="labelRegulatoryIcon" role="img" aria-label="Toxic" viewBox="0 0 32 32">
-												<path d="M8 13a8 8 0 1 1 16 0c0 4-2 6-4 7v4h-8v-4c-2-1-4-3-4-7Z M13 12h.01 M19 12h.01 M14 17h4 M7 27l18-8 M7 19l18 8"/>
-											</svg>
+											<img id="labelFragileIcon" class="labelRegulatoryIcon" src="assets/fragile-icon.svg" alt="Fragile">
+											<img id="labelStoreDryIcon" class="labelRegulatoryIcon" src="assets/umbrella-icon.svg" alt="Keep dry">
+											<img id="labelKeepAwayFromFlameIcon" class="labelRegulatoryIcon" src="assets/flammable_icon.svg" alt="Keep away from flame">
+											<img id="labelToxicIcon" class="labelRegulatoryIcon" src="assets/toxic-skull-icon.svg" alt="Toxic">
 											<svg id="labelHazardProfileIcon" class="labelRegulatoryIcon" role="img" aria-label="Hazard profile" viewBox="0 0 32 32">
 												<path d="M16 3 29 27H3L16 3Z M16 10v9 M16 23v1"/>
 											</svg>
@@ -298,7 +297,7 @@
 							<div id="fragileLabelContainer" class="barcodeContainer regulatoryLabelContainer">
 								<div class="productlabel handlingLabel" data-print-target="fragileLabel" role="button" tabindex="0" aria-label="Print fragile label">
 									<div id="fragileLabelPrintDivs" class="plabelWrapper handlingLabelWrapper">
-										<svg class="handlingLabelIcon" aria-hidden="true" viewBox="0 0 32 32"><path d="M9 3h14l-2 10a5 5 0 0 1-5 4 5 5 0 0 1-5-4L9 3Z M16 17v9 M11 29h10 M13 7l3 3-2 3 3 3"/></svg>
+										<img class="handlingLabelIcon" src="assets/fragile-icon.svg" alt="" aria-hidden="true">
 										<div class="handlingLabelCopy"><strong>FRAGILE</strong><span>HANDLE WITH CARE</span><small class="labelSku">SELECT A SKU</small></div>
 									</div>
 								</div>
@@ -307,7 +306,7 @@
 							<div id="storeDryLabelContainer" class="barcodeContainer regulatoryLabelContainer">
 								<div class="productlabel handlingLabel" data-print-target="storeDryLabel" role="button" tabindex="0" aria-label="Print store dry label">
 									<div id="storeDryLabelPrintDivs" class="plabelWrapper handlingLabelWrapper">
-										<svg class="handlingLabelIcon" aria-hidden="true" viewBox="0 0 32 32"><path d="M4 15a12 12 0 0 1 24 0c-2-2-4-2-6 0-2-2-4-2-6 0-2-2-4-2-6 0-2-2-4-2-6 0Z M16 15v9c0 4 5 4 5 0 M7 4 5 8 M13 2l-1 5 M25 4l2 4"/></svg>
+										<img class="handlingLabelIcon" src="assets/umbrella-icon.svg" alt="" aria-hidden="true">
 										<div class="handlingLabelCopy"><strong>KEEP DRY</strong><span>PROTECT FROM MOISTURE</span><small class="labelSku">SELECT A SKU</small></div>
 									</div>
 								</div>
@@ -316,7 +315,7 @@
 							<div id="keepAwayFromFlameLabelContainer" class="barcodeContainer regulatoryLabelContainer">
 								<div class="productlabel handlingLabel" data-print-target="keepAwayFromFlameLabel" role="button" tabindex="0" aria-label="Print keep away from flame label">
 									<div id="keepAwayFromFlameLabelPrintDivs" class="plabelWrapper handlingLabelWrapper">
-										<svg class="handlingLabelIcon" aria-hidden="true" viewBox="0 0 32 32"><circle cx="16" cy="16" r="13"/><path d="M16 25c-5 0-8-3-8-8 0-4 3-6 6-10 0 4 3 5 3 8 1-2 2-4 2-6 4 4 5 7 5 10 0 4-3 6-8 6Z M6 6l20 20"/></svg>
+										<img class="handlingLabelIcon" src="assets/flammable_icon.svg" alt="" aria-hidden="true">
 										<div class="handlingLabelCopy"><strong>KEEP AWAY FROM FLAME</strong><span>NO FLAME, SPARKS OR HOT SURFACES</span><small class="labelSku">SELECT A SKU</small></div>
 									</div>
 								</div>
@@ -325,7 +324,7 @@
 							<div id="toxicLabelContainer" class="barcodeContainer regulatoryLabelContainer">
 								<div class="productlabel handlingLabel" data-print-target="toxicLabel" role="button" tabindex="0" aria-label="Print toxic material label">
 									<div id="toxicLabelPrintDivs" class="plabelWrapper handlingLabelWrapper">
-										<svg class="handlingLabelIcon" aria-hidden="true" viewBox="0 0 32 32"><path d="M8 13a8 8 0 1 1 16 0c0 4-2 6-4 7v4h-8v-4c-2-1-4-3-4-7Z M13 12h.01 M19 12h.01 M14 17h4 M7 27l18-8 M7 19l18 8"/></svg>
+										<img class="handlingLabelIcon" src="assets/toxic-skull-icon.svg" alt="" aria-hidden="true">
 										<div class="handlingLabelCopy"><strong>TOXIC MATERIAL</strong><span>DO NOT INGEST OR INHALE · KEEP SEALED · RESTRICT ACCESS</span><small class="labelSku">SELECT A SKU</small></div>
 									</div>
 								</div>
