@@ -9,6 +9,17 @@
 	var assetBaseUrl = new URL('.', currentScriptUrl);
 	var logoBytesPromise = null;
 	var fontBytesPromise = null;
+	var svgIconPromises = Object.create(null);
+	var SVG_ICON_ASSETS = Object.freeze({
+		'logo-stores-ammunition.svg': true,
+		'logo-stores-combustible.svg': true,
+		'logo-stores-explosive.svg': true,
+		'logo-stores-flammable.svg': true,
+		'logo-stores-medical.svg': true,
+		'logo-stores-ordnance.svg': true,
+		'logo-stores-sharp.svg': true,
+		'logo-stores-toxic.svg': true
+	});
 
 	var ICON_PATHS = {
 		fragile: {
@@ -184,15 +195,18 @@
 	function drawHandlingIcon(page, iconName, x, top, size, black) {
 		if (iconName === 'hazard') {
 			var y = PAGE_HEIGHT - top;
+			var hazardScale = size / 10.5;
 			page.drawSvgPath('M1 10 L5.25 1 L9.5 10 Z', {
 				x: x,
 				y: y,
+				scale: hazardScale,
 				borderColor: black,
-				borderWidth: 0.7
+				borderWidth: 0.7 * hazardScale
 			});
 			page.drawSvgPath('M4.9 4 L5.6 4 L5.45 7.2 L5.05 7.2 Z M5.05 8 L5.45 8 L5.45 8.6 L5.05 8.6 Z', {
 				x: x,
 				y: y,
+				scale: hazardScale,
 				color: black
 			});
 			return;
@@ -313,30 +327,137 @@
 		return { regular: fonts[0], bold: fonts[1] };
 	}
 
-	async function buildPrimaryPdf(model) {
-		var library = requireDependency('pdf-lib', global.PDFLib);
-		var pdfDoc = await library.PDFDocument.create();
+	function parseNumberList(value) {
+		return String(value || '').trim().split(/[\s,]+/).filter(Boolean).map(function (part) {
+			return Number(part);
+		});
+	}
+
+	function polygonToPath(points) {
+		var values = parseNumberList(points);
+		if (values.length < 6 || values.length % 2 !== 0 || values.some(function (value) { return !Number.isFinite(value); })) {
+			throw new Error('The label icon contains an invalid polygon.');
+		}
+		var path = 'M' + values[0] + ' ' + values[1];
+		for (var index = 2; index < values.length; index += 2) {
+			path += ' L' + values[index] + ' ' + values[index + 1];
+		}
+		return path + ' Z';
+	}
+
+	function parseSvgIcon(source, filename) {
+		if (/\btransform\s*=/i.test(source) || /<(?:rect|line|polyline|ellipse|text|image|use|foreignObject)\b/i.test(source)) {
+			throw new Error('The label icon uses unsupported SVG geometry: ' + filename);
+		}
+		var viewBoxMatch = source.match(/\bviewBox\s*=\s*["']([^"']+)["']/i);
+		var viewBox = viewBoxMatch ? parseNumberList(viewBoxMatch[1]) : [];
+		if (viewBox.length !== 4 || viewBox.some(function (value) { return !Number.isFinite(value); }) || viewBox[2] <= 0 || viewBox[3] <= 0) {
+			throw new Error('The label icon has an invalid viewBox: ' + filename);
+		}
+
+		var paths = [];
+		var pathPattern = /<path\b[^>]*\bd\s*=\s*["']([^"']+)["'][^>]*>/gi;
+		var match;
+		while ((match = pathPattern.exec(source))) { paths.push(match[1]); }
+		var polygonPattern = /<polygon\b[^>]*\bpoints\s*=\s*["']([^"']+)["'][^>]*>/gi;
+		while ((match = polygonPattern.exec(source))) { paths.push(polygonToPath(match[1])); }
+		var circles = [];
+		var circlePattern = /<circle\b([^>]*)>/gi;
+		while ((match = circlePattern.exec(source))) {
+			var attributes = match[1];
+			var readAttribute = function (name) {
+				var attributeMatch = attributes.match(new RegExp('\\b' + name + '\\s*=\\s*["\\\']([^"\\\']+)["\\\']', 'i'));
+				return attributeMatch ? Number(attributeMatch[1]) : NaN;
+			};
+			var circle = { cx: readAttribute('cx'), cy: readAttribute('cy'), r: readAttribute('r') };
+			if (!Number.isFinite(circle.cx) || !Number.isFinite(circle.cy) || !Number.isFinite(circle.r) || circle.r <= 0) {
+				throw new Error('The label icon contains an invalid circle: ' + filename);
+			}
+			circles.push(circle);
+		}
+		if (paths.length === 0 && circles.length === 0) {
+			throw new Error('The label icon contains no supported geometry: ' + filename);
+		}
+		return Object.freeze({
+			minX: viewBox[0],
+			minY: viewBox[1],
+			width: viewBox[2],
+			height: viewBox[3],
+			paths: Object.freeze(paths),
+			circles: Object.freeze(circles)
+		});
+	}
+
+	async function getSvgIcon(filename) {
+		if (!SVG_ICON_ASSETS[filename]) {
+			throw new Error('Unknown label icon: ' + filename);
+		}
+		if (!svgIconPromises[filename]) {
+			svgIconPromises[filename] = fetch(new URL(filename, assetBaseUrl)).then(function (response) {
+				if (!response.ok) { throw new Error('Unable to load the label icon: ' + filename); }
+				return response.text();
+			}).then(function (source) {
+				return parseSvgIcon(source, filename);
+			});
+		}
+		return svgIconPromises[filename];
+	}
+
+	function drawSvgIcon(page, icon, x, top, size, color) {
+		var scale = Math.min(size / icon.width, size / icon.height);
+		var offsetX = (size - icon.width * scale) / 2;
+		var offsetY = (size - icon.height * scale) / 2;
+		var anchorX = x + offsetX - icon.minX * scale;
+		var anchorY = PAGE_HEIGHT - top - offsetY + icon.minY * scale;
+		icon.paths.forEach(function (path) {
+			page.drawSvgPath(path, {
+				x: anchorX,
+				y: anchorY,
+				scale: scale,
+				color: color
+			});
+		});
+		icon.circles.forEach(function (circle) {
+			page.drawCircle({
+				x: x + offsetX + (circle.cx - icon.minX) * scale,
+				y: PAGE_HEIGHT - top - offsetY - (circle.cy - icon.minY) * scale,
+				size: circle.r * scale,
+				color: color
+			});
+		});
+	}
+
+	function wrapText(text, font, size, maxWidth, maxLines) {
+		var words = String(text || '').trim().split(/\s+/).filter(Boolean);
+		if (words.length === 0) { return []; }
+		var lines = [];
+		var line = '';
+		words.forEach(function (word) {
+			var candidate = line ? line + ' ' + word : word;
+			if (line && font.widthOfTextAtSize(candidate, size) > maxWidth) {
+				lines.push(line);
+				line = word;
+			} else {
+				line = candidate;
+			}
+		});
+		if (line) { lines.push(line); }
+		if (lines.length > maxLines) {
+			var visible = lines.slice(0, maxLines - 1);
+			visible.push(truncateText(lines.slice(maxLines - 1).join(' '), font, size, maxWidth));
+			lines = visible;
+		}
+		return lines.map(function (value) { return truncateText(value, font, size, maxWidth); });
+	}
+
+	function createLabelPage(pdfDoc) {
 		var page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
 		page.setMediaBox(0, 0, PAGE_WIDTH, PAGE_HEIGHT);
 		page.setCropBox(0, 0, PAGE_WIDTH, PAGE_HEIGHT);
+		return page;
+	}
 
-		var fonts = await embedLabelFonts(pdfDoc);
-		var colors = {
-			black: library.rgb(0, 0, 0),
-			gray: library.rgb(0.72, 0.72, 0.72),
-			yellow: library.rgb(1, 1, 0)
-		};
-
-		pdfDoc.setTitle(model.sku + ' package label');
-		pdfDoc.setAuthor('Buildbooks');
-		pdfDoc.setSubject('3.5 x 1 inch package label');
-		pdfDoc.setCreator('Buildbooks');
-		pdfDoc.setProducer('pdf-lib 1.17.1');
-		var viewerPreferences = pdfDoc.catalog.getOrCreateViewerPreferences();
-		viewerPreferences.setPrintScaling(library.PrintScaling.None);
-		viewerPreferences.setPickTrayByPDFSize(true);
-		viewerPreferences.setDisplayDocTitle(true);
-
+	async function drawPrimaryPage(pdfDoc, page, model, fonts, colors) {
 		drawTextFromTop(page, model.sku, {
 			x: 7.5,
 			top: 4.5,
@@ -448,32 +569,105 @@
 		}
 
 		drawHandlingIcons(page, model.handling, colors.black);
+	}
+
+	async function drawHandlingPage(page, model, fonts, colors) {
+		var iconX = 9;
+		var iconTop = 9.75;
+		var iconSize = 52.5;
+		if (model.iconAsset) {
+			drawSvgIcon(page, await getSvgIcon(model.iconAsset), iconX, iconTop, iconSize, colors.black);
+		} else {
+			drawHandlingIcon(page, model.iconKey, iconX, iconTop, iconSize, colors.black);
+		}
+
+		var copyX = 73.5;
+		var copyWidth = 169.5;
+		var titleSize = fitTextSize(model.title, fonts.bold, 16.5, 10.5, copyWidth);
+		var titleHeight = fonts.bold.heightAtSize(titleSize, { descender: false });
+		var bodySize = 6.75;
+		var bodyLineHeight = 7.5;
+		var bodyLines = wrapText(model.body, fonts.bold, bodySize, copyWidth, 2);
+		var skuSize = 6.75;
+		var skuHeight = fonts.bold.heightAtSize(skuSize, { descender: false });
+		var titleGap = bodyLines.length ? 3 : 0;
+		var skuGap = 3;
+		var totalHeight = titleHeight + titleGap + bodyLines.length * bodyLineHeight + skuGap + skuHeight;
+		var top = Math.max(4.5, (PAGE_HEIGHT - totalHeight) / 2);
+
+		drawTextFromTop(page, model.title, {
+			x: copyX,
+			top: top,
+			size: titleSize,
+			font: fonts.bold,
+			maxWidth: copyWidth,
+			color: colors.black
+		});
+		var bodyTop = top + titleHeight + titleGap;
+		bodyLines.forEach(function (line, index) {
+			drawTextFromTop(page, line, {
+				x: copyX,
+				top: bodyTop + index * bodyLineHeight,
+				size: bodySize,
+				font: fonts.bold,
+				maxWidth: copyWidth,
+				color: colors.black
+			});
+		});
+		drawTextFromTop(page, model.sku, {
+			x: copyX,
+			top: bodyTop + bodyLines.length * bodyLineHeight + skuGap,
+			size: skuSize,
+			font: fonts.bold,
+			maxWidth: copyWidth,
+			color: colors.black
+		});
+	}
+
+	function configureDocument(pdfDoc, library, request) {
+		var pageCount = request.pages.length;
+		var title = request.target === 'all' ? request.sku + ' label set' : request.sku + ' ' + request.pages[0].name;
+		pdfDoc.setTitle(title);
+		pdfDoc.setAuthor('Buildbooks');
+		pdfDoc.setSubject('3.5 x 1 inch label' + (pageCount === 1 ? '' : ' set'));
+		pdfDoc.setCreator('Buildbooks');
+		pdfDoc.setProducer('pdf-lib 1.17.1');
+		var viewerPreferences = pdfDoc.catalog.getOrCreateViewerPreferences();
+		viewerPreferences.setPrintScaling(library.PrintScaling.None);
+		viewerPreferences.setPickTrayByPDFSize(true);
+		viewerPreferences.setDisplayDocTitle(true);
+	}
+
+	async function buildLabelPdf(request) {
+		if (!request || !Array.isArray(request.pages) || request.pages.length === 0) {
+			throw new Error('The label PDF request contains no pages.');
+		}
+		var library = requireDependency('pdf-lib', global.PDFLib);
+		var pdfDoc = await library.PDFDocument.create();
+		var fonts = await embedLabelFonts(pdfDoc);
+		var colors = {
+			black: library.rgb(0, 0, 0),
+			gray: library.rgb(0.72, 0.72, 0.72),
+			yellow: library.rgb(1, 1, 0)
+		};
+		configureDocument(pdfDoc, library, request);
+
+		for (var index = 0; index < request.pages.length; index++) {
+			var descriptor = request.pages[index];
+			var page = createLabelPage(pdfDoc);
+			if (descriptor.kind === 'primary') {
+				await drawPrimaryPage(pdfDoc, page, descriptor.model, fonts, colors);
+			} else if (descriptor.kind === 'handling') {
+				await drawHandlingPage(page, descriptor, fonts, colors);
+			} else {
+				throw new Error('Unknown label page type: ' + descriptor.kind);
+			}
+		}
 		return pdfDoc.save();
 	}
 
-	function getFilename(model) {
-		var safeSku = String(model.sku || 'label').trim().toLowerCase().replace(/[^a-z0-9_-]+/g, '-');
-		return 'buildbooks-' + safeSku + '-package-label.pdf';
-	}
-
-	async function downloadPrimaryPdf(model) {
-		var bytes = await buildPrimaryPdf(model);
-		var blobUrl = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
-		var download = document.createElement('a');
-		download.href = blobUrl;
-		download.download = getFilename(model);
-		download.hidden = true;
-		document.body.appendChild(download);
-		download.click();
-		download.remove();
-		global.setTimeout(function () { URL.revokeObjectURL(blobUrl); }, 30000);
-		return { filename: getFilename(model), bytes: bytes };
-	}
-
 	global.BuildbooksLabelPdf = Object.freeze({
-		buildPrimaryPdf: buildPrimaryPdf,
-		downloadPrimaryPdf: downloadPrimaryPdf,
-		getFilename: getFilename,
+		buildLabelPdf: buildLabelPdf,
 		pageSize: Object.freeze({ width: PAGE_WIDTH, height: PAGE_HEIGHT })
 	});
 })(window);

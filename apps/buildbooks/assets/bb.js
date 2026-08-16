@@ -13,6 +13,8 @@
 		bb.localSkuImages = Object.create(null);
 		bb.hiddenImagePaths = Object.create(null);
 		bb.pdfBusy = false;
+		bb.pdfJobId = 0;
+		bb.pdfPrintSessions = [];
 
 	//
 	// kicks off as soon as possible when everything is loaded
@@ -84,6 +86,8 @@
 		bb.ele.itemBadgeStoreDry = document.getElementById('itemBadgeStoreDry');
 		bb.ele.itemBadgeKeepAwayFromFlame = document.getElementById('itemBadgeKeepAwayFromFlame');
 		bb.ele.itemBadgeToxic = document.getElementById('itemBadgeToxic');
+		bb.ele.labelSetHeader = document.querySelector('.labelSetHeader');
+		bb.ele.labelPrintButton = document.getElementById('buttonPrintLabels');
 		bb.ele.labelSetSummary = document.getElementById('labelSetSummary');
 		bb.ele.labelPdfStatus = document.getElementById('labelPdfStatus');
 		bb.ele.barcodeWarningHeadline = document.getElementById('barcodeWarningHeadline');
@@ -347,17 +351,20 @@
 		}
 		for (var pdfAction of document.querySelectorAll('[data-label-pdf-target]')) {
 			pdfAction.addEventListener('click', function() {
-				bb.dry.downloadLabelPdf(this.dataset.labelPdfTarget);
+				if (this.getAttribute('aria-disabled') === 'true') { return; }
+				bb.dry.beginLabelPdfPrint(this.dataset.labelPdfTarget);
 			}, false);
 			if (pdfAction.tagName !== 'BUTTON') {
 				pdfAction.addEventListener('keydown', function(evn) {
 					if (evn.key !== 'Enter' && evn.key !== ' ') { return; }
 					evn.preventDefault();
 					evn.stopPropagation();
-					bb.dry.downloadLabelPdf(this.dataset.labelPdfTarget);
+					if (this.getAttribute('aria-disabled') === 'true') { return; }
+					bb.dry.beginLabelPdfPrint(this.dataset.labelPdfTarget);
 				}, false);
 			}
 		}
+		window.addEventListener('pagehide', bb.dry.cleanupLabelPdfSessions, false);
 		document.addEventListener('keydown', function(evn) {
 			if (evn.key !== 'Escape') { return; }
 			bb.dry.closeImageTools();
@@ -720,14 +727,6 @@ bb.dry.getLabelOutputState = function() {
 		hazardProfile: row.HazardProfile ? String(row.HazardProfile).trim().toUpperCase() : ""
 	};
 	state.showsHazardProfileLabel = !!state.hazardProfile && !(state.hazardProfile === "TOXIC" && state.toxic);
-	state.labelNames = ['Package label'];
-	if (state.fragile) { state.labelNames.push('Fragile'); }
-	if (state.storeDry) { state.labelNames.push('Store dry'); }
-	if (state.keepAwayFromFlame) { state.labelNames.push('Keep away from flame'); }
-	if (state.toxic) { state.labelNames.push('Toxic material'); }
-	if (state.showsHazardProfileLabel) {
-		state.labelNames.push(bb.dry.formatItemRecordValue(bb.dry.getHazardLabel(state.hazardProfile).title));
-	}
 	return state;
 }
 
@@ -751,9 +750,13 @@ bb.dry.updateItemRecordDisplay = function(state) {
 
 bb.dry.updateLabelSetSummary = function(state) {
 	state = state || bb.dry.getLabelOutputState();
-	var count = state.labelNames.length;
+	var pages = bb.dry.getLabelPdfPages(null, state);
+	var labelNames = pages.map(function(page) { return page.name; });
+	var count = pages.length;
 	var countText = count + (count === 1 ? ' label' : ' labels');
-	bb.ele.labelSetSummary.textContent = countText + ' for ' + (bb.sku.value || 'selected SKU') + ': ' + state.labelNames.join(', ') + '.';
+	bb.ele.labelSetSummary.textContent = countText + ' for ' + (bb.sku.value || 'selected SKU') + ': ' + labelNames.join(', ') + '.';
+	bb.ele.labelPrintButton.disabled = !bb.sku.value || bb.pdfBusy;
+	bb.ele.labelPrintButton.setAttribute('aria-label', 'Print all ' + countText + ' for ' + bb.sku.value + '; opens a print-ready PDF in a new tab');
 }
 
 bb.dry.getLabelDateCode = function(now) {
@@ -775,10 +778,10 @@ bb.dry.normalizeUpcPayload = function(rawUpc) {
 	return '';
 }
 
-bb.dry.getPrimaryLabelPdfModel = function(now) {
+bb.dry.getPrimaryLabelPdfModel = function(now, state) {
 	if (!bb.sku.value) { throw new Error('Select a SKU before generating a label PDF.'); }
 	var inventoryRow = bb.dry.getInventoryRow(bb.sku.value) || {};
-	var state = bb.dry.getLabelOutputState();
+	state = state || bb.dry.getLabelOutputState();
 	var handling = Object.freeze({
 		fragile: state.fragile,
 		storeDry: state.storeDry,
@@ -799,11 +802,78 @@ bb.dry.getPrimaryLabelPdfModel = function(now) {
 	});
 }
 
+bb.dry.getLabelPdfPages = function(now, state) {
+	if (!bb.sku.value) { throw new Error('Select a SKU before generating label PDFs.'); }
+	state = state || bb.dry.getLabelOutputState();
+	var pages = [Object.freeze({
+		kind: 'primary',
+		key: 'primary',
+		name: 'Package label',
+		model: bb.dry.getPrimaryLabelPdfModel(now, state)
+	})];
+	var addHandlingPage = function(key, name, title, body, iconKey, iconAsset) {
+		pages.push(Object.freeze({
+			kind: 'handling',
+			key: key,
+			name: name,
+			sku: String(bb.sku.value),
+			title: title,
+			body: body,
+			iconKey: iconKey || '',
+			iconAsset: iconAsset || ''
+		}));
+	};
+
+	if (state.fragile) {
+		addHandlingPage('fragile', 'Fragile', 'FRAGILE', 'HANDLE WITH CARE', 'fragile');
+	}
+	if (state.storeDry) {
+		addHandlingPage('storeDry', 'Store dry', 'KEEP DRY', 'PROTECT FROM MOISTURE', 'storeDry');
+	}
+	if (state.keepAwayFromFlame) {
+		addHandlingPage('keepAwayFromFlame', 'Keep away from flame', 'KEEP AWAY FROM FLAME', 'NO FLAME, SPARKS OR HOT SURFACES', 'keepAwayFromFlame');
+	}
+	if (state.toxic) {
+		addHandlingPage('toxic', 'Toxic material', 'TOXIC MATERIAL', 'DO NOT INGEST OR INHALE \u00b7 KEEP SEALED \u00b7 RESTRICT ACCESS', '', 'logo-stores-toxic.svg');
+	}
+	if (state.showsHazardProfileLabel) {
+		var hazardLabel = bb.dry.getHazardLabel(state.hazardProfile);
+		var usesGenericIcon = hazardLabel.icon === 'plabelWarning.svg';
+		addHandlingPage(
+			'hazardProfile',
+			bb.dry.formatItemRecordValue(hazardLabel.title),
+			hazardLabel.title,
+			hazardLabel.body,
+			usesGenericIcon ? 'hazard' : '',
+			usesGenericIcon ? '' : hazardLabel.icon
+		);
+	}
+	return Object.freeze(pages);
+}
+
+bb.dry.getLabelPdfRequest = function(target, now) {
+	var requestedTarget = String(target || 'all');
+	var pages = bb.dry.getLabelPdfPages(now);
+	if (requestedTarget !== 'all') {
+		pages = pages.filter(function(page) { return page.key === requestedTarget; });
+	}
+	if (pages.length === 0) {
+		throw new Error('The selected label is not enabled for this item.');
+	}
+	return Object.freeze({
+		version: 1,
+		target: requestedTarget,
+		sku: String(bb.sku.value),
+		pages: Object.freeze(pages.slice())
+	});
+}
+
 bb.dry.setLabelPdfBusy = function(isBusy) {
 	bb.pdfBusy = isBusy;
+	bb.ele.labelSetHeader.setAttribute('aria-busy', isBusy ? 'true' : 'false');
 	for (var action of document.querySelectorAll('[data-label-pdf-target]')) {
 		if (action.tagName === 'BUTTON') {
-			action.disabled = isBusy;
+			action.disabled = isBusy || !bb.sku.value;
 		} else if (isBusy) {
 			action.setAttribute('aria-disabled', 'true');
 		} else {
@@ -812,19 +882,107 @@ bb.dry.setLabelPdfBusy = function(isBusy) {
 	}
 }
 
-bb.dry.downloadLabelPdf = async function(target) {
-	if (target !== 'primary' || bb.pdfBusy) { return; }
-	bb.dry.setLabelPdfBusy(true);
-	bb.ele.labelPdfStatus.textContent = 'Preparing primary-label PDF...';
+bb.dry.releaseLabelPdfSession = function(session) {
+	if (!session) { return; }
+	if (session.timer) { window.clearInterval(session.timer); }
+	if (session.url) { URL.revokeObjectURL(session.url); }
+	var index = bb.pdfPrintSessions.indexOf(session);
+	if (index >= 0) { bb.pdfPrintSessions.splice(index, 1); }
+}
+
+bb.dry.trackLabelPdfSession = function(printWindow, blobUrl) {
+	var session = { window: printWindow, url: blobUrl, timer: null };
+	session.timer = window.setInterval(function() {
+		if (!session.window || session.window.closed) {
+			bb.dry.releaseLabelPdfSession(session);
+		}
+	}, 2000);
+	bb.pdfPrintSessions.push(session);
+	return session;
+}
+
+bb.dry.cleanupLabelPdfSessions = function() {
+	while (bb.pdfPrintSessions.length > 0) {
+		bb.dry.releaseLabelPdfSession(bb.pdfPrintSessions[bb.pdfPrintSessions.length - 1]);
+	}
+}
+
+bb.dry.reserveLabelPdfWindow = function(request) {
+	var printWindow = window.open('', '_blank');
+	if (!printWindow) { return null; }
+	printWindow.document.title = 'Preparing Buildbooks labels';
+	printWindow.document.body.textContent = 'Preparing ' + request.pages.length + ' print-ready label' + (request.pages.length === 1 ? '' : 's') + ' for ' + request.sku + '...';
+	return printWindow;
+}
+
+bb.dry.beginLabelPdfPrint = function(target) {
+	if (bb.pdfBusy) { return; }
+	var request;
 	try {
-		var model = bb.dry.getPrimaryLabelPdfModel();
-		var result = await BuildbooksLabelPdf.downloadPrimaryPdf(model);
-		bb.ele.labelPdfStatus.textContent = result.filename + ' downloaded.';
+		request = bb.dry.getLabelPdfRequest(target);
 	} catch (error) {
-		console.error('Unable to generate the primary-label PDF.', error);
-		bb.ele.labelPdfStatus.textContent = 'Unable to generate the primary-label PDF. Please try again.';
+		console.error('Unable to prepare the label request.', error);
+		bb.ele.labelPdfStatus.textContent = 'Unable to prepare labels for printing. Please try again.';
+		return;
+	}
+
+	var printWindow = bb.dry.reserveLabelPdfWindow(request);
+	if (!printWindow) {
+		bb.ele.labelPdfStatus.textContent = 'Pop-up blocked. Allow pop-ups for this site, then choose Print Labels again.';
+		return;
+	}
+
+	bb.pdfJobId += 1;
+	var jobId = bb.pdfJobId;
+	var countText = request.pages.length + (request.pages.length === 1 ? ' label' : ' labels');
+	bb.dry.setLabelPdfBusy(true);
+	bb.ele.labelPdfStatus.textContent = 'Preparing ' + countText + ' for ' + request.sku + '...';
+	bb.dry.openLabelPdfForPrint(request, printWindow, jobId);
+}
+
+bb.dry.openLabelPdfForPrint = async function(request, printWindow, jobId) {
+	var blobUrl = '';
+	var session = null;
+	try {
+		var bytes = await BuildbooksLabelPdf.buildLabelPdf(request);
+		if (printWindow.closed) { throw new Error('The print window was closed.'); }
+		blobUrl = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
+		session = bb.dry.trackLabelPdfSession(printWindow, blobUrl);
+
+		var printAttempted = false;
+		var tryPrint = function() {
+			if (printAttempted || printWindow.closed) { return; }
+			printAttempted = true;
+			try {
+				printWindow.focus();
+				printWindow.print();
+			} catch (error) {
+				// The PDF viewer remains open when scripted printing is unavailable.
+			}
+		};
+		try {
+			printWindow.addEventListener('load', function() {
+				window.setTimeout(tryPrint, 400);
+			}, { once: true });
+		} catch (error) {
+			// The timed attempt below remains available across viewer implementations.
+		}
+		printWindow.location.replace(blobUrl);
+		window.setTimeout(tryPrint, 1800);
+
+		if (bb.sku.value === request.sku && bb.pdfJobId === jobId) {
+			var countText = request.pages.length + (request.pages.length === 1 ? ' print-ready label' : ' print-ready labels');
+			bb.ele.labelPdfStatus.textContent = 'Opened ' + countText + ' for ' + request.sku + ' in a new tab. Use the PDF viewer\'s Print control if no dialog appeared.';
+		}
+	} catch (error) {
+		console.error('Unable to prepare labels for printing.', error);
+		if (blobUrl && !session) { URL.revokeObjectURL(blobUrl); }
+		if (printWindow && !printWindow.closed) { printWindow.close(); }
+		if (bb.sku.value === request.sku && bb.pdfJobId === jobId) {
+			bb.ele.labelPdfStatus.textContent = error.message === 'The print window was closed.' ? 'Print window closed before the PDF was ready.' : 'Unable to prepare labels for printing. Please try again.';
+		}
 	} finally {
-		bb.dry.setLabelPdfBusy(false);
+		if (bb.pdfJobId === jobId) { bb.dry.setLabelPdfBusy(false); }
 	}
 }
 

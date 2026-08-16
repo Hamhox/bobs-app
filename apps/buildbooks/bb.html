@@ -21,8 +21,8 @@
 	<script src="assets/jsbarcode.all.min.js?v=0.0.03"></script>
 	<script src="assets/vendor/pdf-lib-1.17.1.min.js"></script>
 	<script src="assets/vendor/fontkit-1.1.1.umd.min.js"></script>
-	<script src="assets/buildbooks-label-pdf.js?v=0.0.003"></script>
-	<script src="assets/bb.js?v=0.0.699"></script>
+	<script src="assets/buildbooks-label-pdf.js?v=0.0.004"></script>
+	<script src="assets/bb.js?v=0.0.700"></script>
 	<script src="assets/clipboard.min.js?v=0.0.01"></script>
 </head>
 <body>
@@ -203,14 +203,15 @@
 							<section class="labelSetHeader" aria-labelledby="labelSetTitle">
 								<div class="labelSetTitleRow">
 									<h2 id="labelSetTitle">Printable labels</h2>
-									<button class="labelPrintPrompt" type="button" data-label-pdf-target="primary">Download primary-label PDF</button>
+									<button id="buttonPrintLabels" class="labelPrintPrompt" type="button" data-label-pdf-target="all" aria-describedby="labelPdfHint" disabled>Print Labels</button>
 								</div>
 								<p id="labelSetSummary" aria-live="polite">1 label for selected SKU: Package label.</p>
+								<span id="labelPdfHint" class="visuallyHidden">Opens a print-ready PDF in a new tab.</span>
 								<p id="labelPdfStatus" class="labelPdfStatus" role="status" aria-live="polite"></p>
 							</section>
 							
 							<div id="pLabelContainer" class="barcodeContainer">
-								<div class="productlabel" data-label-pdf-target="primary" role="button" tabindex="0" aria-label="Download package label PDF"> <!-- packaging labels preview -->
+								<div class="productlabel" data-label-pdf-target="primary" role="button" tabindex="0" aria-label="Print package label; opens a print-ready PDF in a new tab"> <!-- packaging labels preview -->
 									<div id="plabelPrintDivs" class="plabelWrapper">
 										<div class="labelSku" id="barcodeH1">Hello!</div>
 										<div class="labelDesc" id="barcodeP">Select a SKU...</div>
@@ -292,7 +293,7 @@
 								
 							
 							<div id="fragileLabelContainer" class="barcodeContainer regulatoryLabelContainer">
-								<div class="productlabel handlingLabel">
+								<div class="productlabel handlingLabel" data-label-pdf-target="fragile" role="button" tabindex="0" aria-label="Print fragile label; opens a print-ready PDF in a new tab">
 									<div id="fragileLabelPrintDivs" class="plabelWrapper handlingLabelWrapper">
 										<img class="handlingLabelIcon" src="assets/fragile-icon.svg" alt="" aria-hidden="true">
 										<div class="handlingLabelCopy"><strong>FRAGILE</strong><span>HANDLE WITH CARE</span><small class="labelSku">SELECT A SKU</small></div>
@@ -301,7 +302,7 @@
 							</div>
 
 							<div id="storeDryLabelContainer" class="barcodeContainer regulatoryLabelContainer">
-								<div class="productlabel handlingLabel">
+								<div class="productlabel handlingLabel" data-label-pdf-target="storeDry" role="button" tabindex="0" aria-label="Print keep dry label; opens a print-ready PDF in a new tab">
 									<div id="storeDryLabelPrintDivs" class="plabelWrapper handlingLabelWrapper">
 										<img class="handlingLabelIcon" src="assets/umbrella-icon.svg" alt="" aria-hidden="true">
 										<div class="handlingLabelCopy"><strong>KEEP DRY</strong><span>PROTECT FROM MOISTURE</span><small class="labelSku">SELECT A SKU</small></div>
@@ -310,7 +311,7 @@
 							</div>
 
 							<div id="keepAwayFromFlameLabelContainer" class="barcodeContainer regulatoryLabelContainer">
-								<div class="productlabel handlingLabel">
+								<div class="productlabel handlingLabel" data-label-pdf-target="keepAwayFromFlame" role="button" tabindex="0" aria-label="Print keep away from flame label; opens a print-ready PDF in a new tab">
 									<div id="keepAwayFromFlameLabelPrintDivs" class="plabelWrapper handlingLabelWrapper">
 										<img class="handlingLabelIcon" src="assets/flammable_icon.svg" alt="" aria-hidden="true">
 										<div class="handlingLabelCopy"><strong>KEEP AWAY FROM FLAME</strong><span>NO FLAME, SPARKS OR HOT SURFACES</span><small class="labelSku">SELECT A SKU</small></div>
@@ -319,7 +320,7 @@
 							</div>
 
 							<div id="toxicLabelContainer" class="barcodeContainer regulatoryLabelContainer">
-								<div class="productlabel handlingLabel">
+								<div class="productlabel handlingLabel" data-label-pdf-target="toxic" role="button" tabindex="0" aria-label="Print toxic material label; opens a print-ready PDF in a new tab">
 									<div id="toxicLabelPrintDivs" class="plabelWrapper handlingLabelWrapper">
 										<img class="handlingLabelIcon" src="assets/logo-stores-toxic.svg" alt="" aria-hidden="true">
 										<div class="handlingLabelCopy"><strong>TOXIC MATERIAL</strong><span>DO NOT INGEST OR INHALE · KEEP SEALED · RESTRICT ACCESS</span><small class="labelSku">SELECT A SKU</small></div>
@@ -328,7 +329,7 @@
 							</div>
 
 							<div id="hazardProfileLabelContainer" class="barcodeContainer regulatoryLabelContainer">
-								<div class="productlabel handlingLabel">
+								<div class="productlabel handlingLabel" data-label-pdf-target="hazardProfile" role="button" tabindex="0" aria-label="Print hazard profile label; opens a print-ready PDF in a new tab">
 									<div id="hazardProfileLabelPrintDivs" class="plabelWrapper handlingLabelWrapper">
 										<img id="hazardProfileLabelIcon" class="handlingLabelIcon" src="assets/plabelWarning.svg" alt="" aria-hidden="true">
 										<div class="handlingLabelCopy"><strong id="hazardProfileLabelTitle">HAZARD PROFILE</strong><span id="hazardProfileLabelBody">FOLLOW REQUIRED HANDLING PROCEDURES</span><small class="labelSku">SELECT A SKU</small></div>
@@ -341,7 +342,7 @@
 
 								<button class="accordion">How do I print the label PDF?</button>
 								<div class="panel">
-									<p>Download the package-label PDF above, open it in a PDF viewer, and print it at Actual Size or 100% on 3.5&quot; &times; 1&quot; label stock.</p>
+									<p>Choose Print Labels, then use Print in the PDF viewer. Select Actual Size or 100% on 3.5&quot; &times; 1&quot; label stock. Select an individual preview to print only that label.</p>
 								</div>
 
 								<button class="accordion">Label printer setup</button>
