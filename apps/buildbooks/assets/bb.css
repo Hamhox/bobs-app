@@ -889,8 +889,7 @@ img#armor-tech-logo-svg {
 	margin-top: 14px;
 }
 
-.itemRecordEditorActions button,
-.labelSetActions button {
+.itemRecordEditorActions button {
 	box-sizing: border-box;
 	min-height: 36px;
 	padding: 7px 12px;
@@ -902,22 +901,18 @@ img#armor-tech-logo-svg {
 	font: 800 12px 'Miriam Libre';
 }
 
-.itemRecordEditorActions .itemRecordSaveButton,
-.labelSetActions .labelPrintPrompt {
+.itemRecordEditorActions .itemRecordSaveButton {
 	background: #1a57d2;
 	color: #fff;
 }
 
 .itemRecordEditorActions button:hover:not(:disabled),
-.itemRecordEditorActions button:focus-visible,
-.labelSetActions button:hover:not(:disabled),
-.labelSetActions button:focus-visible {
+.itemRecordEditorActions button:focus-visible {
 	outline: 2px solid rgba(26,87,210,.20);
 	outline-offset: 2px;
 }
 
-.itemRecordEditorActions button:disabled,
-.labelSetActions button:disabled {
+.itemRecordEditorActions button:disabled {
 	opacity: .42;
 	cursor: default;
 }
@@ -934,13 +929,13 @@ img#armor-tech-logo-svg {
 	box-sizing: border-box;
 	width: calc(100% - 40px);
 	margin: 10px 20px 4px;
-	padding: 0 0 14px;
+	padding: 0 0 10px;
 	border-bottom: 1px solid rgba(0,0,0,.13);
 }
 
 .labelSetTitleRow {
 	display: flex;
-	align-items: baseline;
+	align-items: center;
 	justify-content: space-between;
 	gap: 12px;
 }
@@ -949,33 +944,30 @@ img#armor-tech-logo-svg {
 	margin: 0;
 	font-size: 19px;
 }
-
-#labelSetCount {
-	color: #1a57d2;
-	font-size: 11px;
-	font-weight: 900;
-	letter-spacing: .06em;
-	text-transform: uppercase;
-}
-
 #labelSetSummary {
-	margin: 6px 0 0;
+	margin: 4px 0 0;
 	font-size: 13px;
 	font-weight: 700;
 	line-height: 1.35;
 }
 
-.labelSetHelp {
-	margin: 4px 0 0;
-	color: rgba(0,0,0,.56);
-	font-size: 11px;
+.labelPrintPrompt {
+	box-sizing: border-box;
+	min-height: 34px;
+	padding: 6px 12px;
+	border: 1px solid rgba(0,0,0,.25);
+	border-radius: 4px;
+	background: #fff;
+	color: #171717;
+	cursor: pointer;
+	font: 800 12px 'Miriam Libre';
 }
 
-.labelSetActions {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 8px;
-	margin-top: 12px;
+.labelPrintPrompt:hover,
+.labelPrintPrompt:focus-visible {
+	border-color: rgba(0,0,0,.48);
+	outline: 2px solid rgba(26,87,210,.18);
+	outline-offset: 2px;
 }
 
 #printarea {
@@ -997,6 +989,7 @@ img#armor-tech-logo-svg {
 		@page {
 			size: 3.5in 1in;
 			margin: 0;
+			display: block !important;
 		}
 		
 		#printarea {
@@ -1320,12 +1313,8 @@ svg.handlingLabelIcon {
 		margin: 10px 8px 4px;
 	}
 
-	.labelSetActions {
-		flex-direction: column;
-	}
-
-	.labelSetActions button {
-		width: 100%;
+	.labelSetTitleRow {
+		align-items: flex-start;
 	}
 }
 

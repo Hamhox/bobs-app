@@ -83,9 +83,7 @@
 		bb.ele.itemBadgeStoreDry = document.getElementById('itemBadgeStoreDry');
 		bb.ele.itemBadgeKeepAwayFromFlame = document.getElementById('itemBadgeKeepAwayFromFlame');
 		bb.ele.itemBadgeToxic = document.getElementById('itemBadgeToxic');
-		bb.ele.labelSetCount = document.getElementById('labelSetCount');
 		bb.ele.labelSetSummary = document.getElementById('labelSetSummary');
-		bb.ele.editItemFromLabelsButton = document.getElementById('buttonEditItemFromLabels');
 		bb.ele.notesimg 		= document.getElementById('notesTopImg');
 		bb.ele.imageUploadButton = document.getElementById('buttonUploadImage');
 		bb.ele.imageDeleteButton = document.getElementById('buttonDeleteImage');
@@ -323,12 +321,6 @@
 		}
 		if (bb.ele.itemRecordEditButton) {
 			bb.ele.itemRecordEditButton.addEventListener('click', bb.dry.openItemRecordEditor, false);
-		}
-		if (bb.ele.editItemFromLabelsButton) {
-			bb.ele.editItemFromLabelsButton.addEventListener('click', function() {
-				bb.dry.openItemRecordEditor();
-				bb.ele.mainTop.scrollIntoView({ block:'start' });
-			}, false);
 		}
 		if (bb.ele.itemRecordEditor) {
 			bb.ele.itemRecordEditor.addEventListener('submit', function(evn) {
@@ -777,14 +769,12 @@ bb.dry.updateItemRecordDisplay = function(state) {
 	bb.ele.itemHandlingBadges.hidden = !(state.fragile || state.storeDry || state.keepAwayFromFlame || state.toxic);
 	bb.ele.itemRecordEditButton.disabled = !bb.sku.value;
 	bb.ele.itemRecordEditButton.setAttribute('aria-label', bb.sku.value ? 'Edit item record for ' + bb.sku.value : 'Edit item record');
-	bb.ele.editItemFromLabelsButton.disabled = !bb.sku.value;
 }
 
 bb.dry.updateLabelSetSummary = function(state) {
 	state = state || bb.dry.getLabelOutputState();
 	var count = state.labelNames.length;
 	var countText = count + (count === 1 ? ' label' : ' labels');
-	bb.ele.labelSetCount.textContent = countText;
 	bb.ele.labelSetSummary.textContent = countText + ' for ' + (bb.sku.value || 'selected SKU') + ': ' + state.labelNames.join(', ') + '.';
 }
 

@@ -17,8 +17,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300..900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300..800&family=Rubik:wght@300..900&display=swap" rel="stylesheet">
 	<!-- Load app files -->
-	<link rel="stylesheet" href="assets/bb.css?v=0.0.192">
-	<script src="assets/bb.js?v=0.0.693"></script>
+	<link rel="stylesheet" href="assets/bb.css?v=0.0.194">
+	<script src="assets/bb.js?v=0.0.694"></script>
 					
       <script src="assets/jsbarcode.all.min.js?v=0.0.03"></script>
       <script src="assets/print.min.js?v=0.0.03"></script>
@@ -202,14 +202,9 @@
 							<section class="labelSetHeader" aria-labelledby="labelSetTitle">
 								<div class="labelSetTitleRow">
 									<h2 id="labelSetTitle">Printable labels</h2>
-									<span id="labelSetCount">1 label</span>
+									<button class="labelPrintPrompt" type="button" data-print-target="pLabel">Print Labels</button>
 								</div>
 								<p id="labelSetSummary" aria-live="polite">1 label for selected SKU: Package label.</p>
-								<p class="labelSetHelp">Select a label preview to open the print dialog.</p>
-								<div class="labelSetActions">
-									<button id="buttonEditItemFromLabels" type="button" disabled>Edit item record</button>
-									<button class="labelPrintPrompt" type="button" data-print-target="pLabel">Print primary label</button>
-								</div>
 							</section>
 							
 							<div id="pLabelContainer" class="barcodeContainer">
