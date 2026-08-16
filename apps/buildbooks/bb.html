@@ -17,11 +17,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300..900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300..800&family=Rubik:wght@300..900&display=swap" rel="stylesheet">
 	<!-- Load app files -->
-	<link rel="stylesheet" href="assets/bb.css?v=0.0.197">
+	<link rel="stylesheet" href="assets/bb.css?v=0.0.198">
 	<script src="assets/jsbarcode.all.min.js?v=0.0.03"></script>
 	<script src="assets/vendor/pdf-lib-1.17.1.min.js"></script>
 	<script src="assets/vendor/fontkit-1.1.1.umd.min.js"></script>
-	<script src="assets/buildbooks-label-pdf.js?v=0.0.004"></script>
+	<script src="assets/buildbooks-label-pdf.js?v=0.0.005"></script>
 	<script src="assets/bb.js?v=0.0.700"></script>
 	<script src="assets/clipboard.min.js?v=0.0.01"></script>
 </head>
@@ -197,9 +197,7 @@
 			</div>
 			
 			<div id="tab3" class="tabcontent">
-				<div id="printContainer" class="printer_container">
-					<div id="printer_main">
-						<div id="print_form">
+				<div id="labelSetContainer">
 							<section class="labelSetHeader" aria-labelledby="labelSetTitle">
 								<div class="labelSetTitleRow">
 									<h2 id="labelSetTitle">Printable labels</h2>
@@ -211,61 +209,20 @@
 							</section>
 							
 							<div id="pLabelContainer" class="barcodeContainer">
-								<div class="productlabel" data-label-pdf-target="primary" role="button" tabindex="0" aria-label="Print package label; opens a print-ready PDF in a new tab"> <!-- packaging labels preview -->
-									<div id="plabelPrintDivs" class="plabelWrapper">
+								<div class="productlabel" data-label-pdf-target="primary" role="button" tabindex="0" aria-label="Print package label; opens a print-ready PDF in a new tab">
+									<div class="labelPreviewContent">
 										<div class="labelSku" id="barcodeH1">Hello!</div>
 										<div class="labelDesc" id="barcodeP">Select a SKU...</div>
 										<div class="labelDatecode" id="barcodeDate"></div>
 										<div id="barcodeWarning"><strong>WARNING:</strong> <span id="barcodeWarningHeadline"></span></div>
 										<div id="barcodeWarning2"></div>
 										<svg class="labelUpc" id="plabelUpc"></svg>
-										<!--<img class="labelUpc" id="plabelUpc">-->
 										<div id="barcodeCountryOfOrigin"></div>
 										<div id="plabel3of9Mask">
 											<svg class="label3of9"></svg>
-											<!--<img class="label3of9" id="plabel3of9">-->
 										</div>
 										
-<img id="svglogo" src="assets/buildbooks-symbol-water.svg" alt="Buildbooks" />
-<!-- 										
-<!-- Generator: Adobe Illustrator 22.1.0, SVG Export Plug-In  ->
-<svg id="svglogo" version="1.1"
-	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
-	 x="0px" y="0px" width="245.3px" height="160.6px" viewBox="0 0 245.3 160.6" style="enable-background:new 0 0 245.3 160.6;"
-	 xml:space="preserve">
-<defs>
-</defs>
-<g>
-	<g>
-		<path d="M94.2,0.3L87.8,24L82.1,0.3h-8.7L55.6,23.5l-3.6-7.1c3.5-1,7.2-3,8.5-7.6c1.4-5-2.1-8.5-10.4-8.5H1.6L0,6.2h13.2l-5.1,19
-			h10.9l5.1-19h9.8l9.6,0l4.1,0c2.4-0.1,4.6,0.6,3.9,3.1c-0.4,1.4-2.2,3.4-5.5,3.4h-5.5l1-3.7h-9.2L28,25.2h9.2l1.9-7.2h4.2l1.8,7.6
-			l9.1-0.4l7.9,0l3.6-4.4H76l1.4,4.4h10.1h0.6h8.7l6.7-24.9H94.2z M68.8,15.6c2.1-3.1,3.3-3.3,5.6-7c0,0,1.2,4,1.4,7H68.8z"/>
-	</g>
-	<g>
-		<polygon points="112,19 125.6,19 124,25.2 101.2,25.2 107.9,0.3 117,0.3 		"/>
-	</g>
-	<g>
-		<polygon points="236.3,0.4 245.3,0.4 238.7,25.2 229.6,25.2 232.5,14.5 224.6,14.5 221.7,25.2 212.7,25.2 219.3,0.4 228.4,0.4 
-			226,9.3 233.9,9.3 		"/>
-	</g>
-	<g>
-		<path d="M210.3,19.8l0.6,4.6c-1.9,0.5-5,1.1-7.9,1.1c-9.4,0-16.3-3.7-16.2-10.2h-13.6l-1.1,4.1h13.6l-1.6,5.8h-22.7l5.1-19h-9
-			l-5.1,19h-10.9l5.1-19h-13.6l1.6-5.9l55.8,0l-1.6,5.8h-13.1l-1.1,4l13.5,0c3-6.3,11.4-10.1,21.2-10.1c2.1,0,5.7,0.5,7.8,1.2
-			l-3.4,4.4c-1.4-0.4-4.4-0.5-5.3-0.5c-4.6,0-9.8,2.3-11.2,7.6c-1.4,5.2,2.6,7.6,7.6,7.6C206.8,20.4,208.7,20.1,210.3,19.8z"/>
-	</g>
-</g>
-<g>
-	<g>
-		<polygon points="194.6,55.3 50.8,55.3 60.4,66.1 185,66.1 		"/>
-	</g>
-	<g>
-		<polygon points="115.5,160.6 115.5,145.3 115.5,76.9 104.7,76.9 70,76.9 79.6,87.7 104.7,87.7 104.7,132.1 26.7,44.5 29,44.5 
-			216.3,44.5 218.6,44.5 140.7,132.1 140.7,87.7 165.7,87.7 175.3,76.9 140.7,76.9 129.9,76.9 129.9,145.3 129.9,160.6 242.7,33.7 
-			2.7,33.7 		"/>
-	</g>
-</g>
-</svg>
--->
+										<img id="svglogo" src="assets/buildbooks-symbol-water.svg" alt="Buildbooks">
 <svg id="plabelWarning" version="1.1" baseProfile="basic" inkscape:version="0.48.4 r9939" sodipodi:docname="AJAX1.svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 100 100" xml:space="preserve">
 	<path id="outline" inkscape:connector-curvature="0" d="M3.4,93.7h93.3c1.2,0,2.3-0.6,2.9-1.7c0.6-1,0.6-2.3,0-3.4L52.9,7.8
 		c-0.6-1-1.7-1.7-2.9-1.7c-1.2,0-2.3,0.6-2.9,1.7L0.5,88.6c-0.6,1-0.6,2.3,0,3.4C1.1,93,2.2,93.7,3.4,93.7z"/>
@@ -294,7 +251,7 @@
 							
 							<div id="fragileLabelContainer" class="barcodeContainer regulatoryLabelContainer">
 								<div class="productlabel handlingLabel" data-label-pdf-target="fragile" role="button" tabindex="0" aria-label="Print fragile label; opens a print-ready PDF in a new tab">
-									<div id="fragileLabelPrintDivs" class="plabelWrapper handlingLabelWrapper">
+									<div class="labelPreviewContent handlingLabelWrapper">
 										<img class="handlingLabelIcon" src="assets/fragile-icon.svg" alt="" aria-hidden="true">
 										<div class="handlingLabelCopy"><strong>FRAGILE</strong><span>HANDLE WITH CARE</span><small class="labelSku">SELECT A SKU</small></div>
 									</div>
@@ -303,7 +260,7 @@
 
 							<div id="storeDryLabelContainer" class="barcodeContainer regulatoryLabelContainer">
 								<div class="productlabel handlingLabel" data-label-pdf-target="storeDry" role="button" tabindex="0" aria-label="Print keep dry label; opens a print-ready PDF in a new tab">
-									<div id="storeDryLabelPrintDivs" class="plabelWrapper handlingLabelWrapper">
+									<div class="labelPreviewContent handlingLabelWrapper">
 										<img class="handlingLabelIcon" src="assets/umbrella-icon.svg" alt="" aria-hidden="true">
 										<div class="handlingLabelCopy"><strong>KEEP DRY</strong><span>PROTECT FROM MOISTURE</span><small class="labelSku">SELECT A SKU</small></div>
 									</div>
@@ -312,7 +269,7 @@
 
 							<div id="keepAwayFromFlameLabelContainer" class="barcodeContainer regulatoryLabelContainer">
 								<div class="productlabel handlingLabel" data-label-pdf-target="keepAwayFromFlame" role="button" tabindex="0" aria-label="Print keep away from flame label; opens a print-ready PDF in a new tab">
-									<div id="keepAwayFromFlameLabelPrintDivs" class="plabelWrapper handlingLabelWrapper">
+									<div class="labelPreviewContent handlingLabelWrapper">
 										<img class="handlingLabelIcon" src="assets/flammable_icon.svg" alt="" aria-hidden="true">
 										<div class="handlingLabelCopy"><strong>KEEP AWAY FROM FLAME</strong><span>NO FLAME, SPARKS OR HOT SURFACES</span><small class="labelSku">SELECT A SKU</small></div>
 									</div>
@@ -321,7 +278,7 @@
 
 							<div id="toxicLabelContainer" class="barcodeContainer regulatoryLabelContainer">
 								<div class="productlabel handlingLabel" data-label-pdf-target="toxic" role="button" tabindex="0" aria-label="Print toxic material label; opens a print-ready PDF in a new tab">
-									<div id="toxicLabelPrintDivs" class="plabelWrapper handlingLabelWrapper">
+									<div class="labelPreviewContent handlingLabelWrapper">
 										<img class="handlingLabelIcon" src="assets/logo-stores-toxic.svg" alt="" aria-hidden="true">
 										<div class="handlingLabelCopy"><strong>TOXIC MATERIAL</strong><span>DO NOT INGEST OR INHALE · KEEP SEALED · RESTRICT ACCESS</span><small class="labelSku">SELECT A SKU</small></div>
 									</div>
@@ -330,7 +287,7 @@
 
 							<div id="hazardProfileLabelContainer" class="barcodeContainer regulatoryLabelContainer">
 								<div class="productlabel handlingLabel" data-label-pdf-target="hazardProfile" role="button" tabindex="0" aria-label="Print hazard profile label; opens a print-ready PDF in a new tab">
-									<div id="hazardProfileLabelPrintDivs" class="plabelWrapper handlingLabelWrapper">
+									<div class="labelPreviewContent handlingLabelWrapper">
 										<img id="hazardProfileLabelIcon" class="handlingLabelIcon" src="assets/plabelWarning.svg" alt="" aria-hidden="true">
 										<div class="handlingLabelCopy"><strong id="hazardProfileLabelTitle">HAZARD PROFILE</strong><span id="hazardProfileLabelBody">FOLLOW REQUIRED HANDLING PROCEDURES</span><small class="labelSku">SELECT A SKU</small></div>
 									</div>
@@ -368,16 +325,7 @@
 								</div>
 							</div>
 
-								
-							</div>
-							<!-- /barcodeContainer -->
-						</div>
-						<!-- /print_form -->
-					</div>
-					
-					<!-- /printer_main -->
 				</div>
-				<!-- /printer_container -->
 			</div>
 
 

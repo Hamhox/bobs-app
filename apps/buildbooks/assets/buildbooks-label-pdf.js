@@ -544,7 +544,7 @@
 		});
 
 		if (model.countryOfOrigin || model.hazardName) {
-			var metadataTop = 55.5;
+			var metadataTop = 54.75;
 			if (model.countryOfOrigin) {
 				drawTextFromTop(page, 'COO: ' + model.countryOfOrigin, {
 					x: 136.5,

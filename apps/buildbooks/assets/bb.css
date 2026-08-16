@@ -930,7 +930,7 @@ img#armor-tech-logo-svg {
 	outline-offset: 2px;
 }
 
-#printContainer {
+#labelSetContainer {
 	width: 500px;
 }
 
@@ -939,7 +939,7 @@ img#armor-tech-logo-svg {
 			position: relative;
 			padding: 10px;
 			background-color: #efefef;
-			box-shadow: 1px 2px 10px rgba(0,0,0,0.2); /* Reduced intensity box-shadow: 1px 3px 30px 3px rgba(58,58,58,.9); */
+			box-shadow: 1px 2px 10px rgba(0,0,0,0.2);
 			margin: 58px 0px 0px 120px;
 			transform: scale(1.5);
 		}
@@ -994,7 +994,7 @@ img#armor-tech-logo-svg {
 	outline: 3px solid #1a57d2;
 	outline-offset: 4px;
 }
-.plabelWrapper {
+.labelPreviewContent {
     font-family: 'Miriam Libre';
 	color: black;
 }
@@ -1060,7 +1060,7 @@ img#armor-tech-logo-svg {
 #barcodeCountryOfOrigin {
     display: none;
     position: absolute;
-	top: 74px;
+	top: 73px;
 	right: 8px;
 	width: 146px;
     overflow: hidden;
@@ -1224,7 +1224,7 @@ svg.handlingLabelIcon {
 		grid-row: 1;
 	}
 
-	#printContainer {
+	#labelSetContainer {
 		box-sizing: border-box;
 		width: 100% !important;
 		min-width: 0;
