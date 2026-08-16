@@ -24,7 +24,8 @@ const guideElements = {
   stage,
 };
 
-const preloadCache = new Set();
+const preloadCache = new Map();
+let transitionPending = false;
 
 function screenUrl(state) {
   return `${APP_BASE}/${state.screen}`;
@@ -32,29 +33,60 @@ function screenUrl(state) {
 
 function preloadState(manifest, stateId) {
   const state = manifest.states[stateId];
-  if (!state) return;
+  if (!state) return Promise.resolve();
   const url = screenUrl(state);
-  if (preloadCache.has(url)) return;
-  preloadCache.add(url);
-  const image = new Image();
-  image.src = url;
+  if (preloadCache.has(url)) return preloadCache.get(url);
+
+  const preload = new Promise((resolve, reject) => {
+    const image = new Image();
+    image.decoding = "async";
+    image.onload = async () => {
+      try {
+        await image.decode();
+      } catch {
+        // A completed image remains safe to display when decode() is unavailable.
+      }
+      resolve(url);
+    };
+    image.onerror = () => {
+      preloadCache.delete(url);
+      reject(new Error(`Voyager screen could not be loaded: ${state.screen}`));
+    };
+    image.src = url;
+  });
+
+  preloadCache.set(url, preload);
+  return preload;
+}
+
+function guidedPreloadTargets(manifest) {
+  const targets = new Set(manifest.guidedRoute);
+  for (const stateId of manifest.guidedRoute) {
+    const state = manifest.states[stateId];
+    for (const target of Object.values(state.transitions)) {
+      if (target) targets.add(target);
+    }
+    if (state.autoTransition?.target) targets.add(state.autoTransition.target);
+  }
+  return [...targets];
 }
 
 function pulseControl(action, moved) {
   for (const control of controls.filter((item) => item.dataset.action === action)) {
+    if (stage.dataset.guideActive === "true" && !control.hasAttribute("data-guided")) continue;
     control.dataset.pressed = moved ? "true" : "noop";
     window.setTimeout(() => control.removeAttribute("data-pressed"), 180);
   }
 }
 
-function renderState(engine, state, event) {
+function commitState(engine, state, event) {
   const manifest = engine.getManifest();
   screen.src = screenUrl(state);
   screen.alt = `Voyager interface archive state ${state.id}`;
   stateCode.textContent = state.id;
   timerStatus.textContent = state.autoTransition?.active
-    ? `Archive timer: ${Math.round(state.autoTransition.delayMs / 1000)} seconds`
-    : "Archive timer: none";
+    ? `${Math.round(state.autoTransition.delayMs / 1000)} sec`
+    : "None";
 
   for (const control of controls) {
     const target = state.transitions[control.dataset.action];
@@ -69,7 +101,7 @@ function renderState(engine, state, event) {
   const likelyTargets = new Set(
     [...Object.values(state.transitions), state.autoTransition?.target].filter(Boolean),
   );
-  for (const target of likelyTargets) preloadState(manifest, target);
+  for (const target of likelyTargets) preloadState(manifest, target).catch(() => {});
 
   if (event.type === "auto") {
     interactionLive.textContent = `Archived timer advanced the interface to ${state.id}.`;
@@ -80,10 +112,31 @@ function renderState(engine, state, event) {
   }
 }
 
+async function dispatchAfterPreload(action, source, engine) {
+  if (transitionPending) return null;
+  const currentState = engine.getState();
+  const target = currentState.transitions[action];
+
+  if (!target || target === currentState.id) return engine.dispatch(action, source);
+
+  transitionPending = true;
+  stage.setAttribute("aria-busy", "true");
+  try {
+    await preloadState(engine.getManifest(), target);
+    return engine.dispatch(action, source);
+  } catch (error) {
+    interactionLive.textContent = error.message;
+    return null;
+  } finally {
+    transitionPending = false;
+    stage.removeAttribute("aria-busy");
+  }
+}
+
 function bindControl(control, engine) {
-  control.addEventListener("click", () => {
-    const result = engine.dispatch(control.dataset.action, "physical-control");
-    pulseControl(control.dataset.action, result.to !== null);
+  control.addEventListener("click", async () => {
+    const result = await dispatchAfterPreload(control.dataset.action, "physical-control", engine);
+    if (result) pulseControl(control.dataset.action, result.to !== null);
   });
 }
 
@@ -101,7 +154,7 @@ function bindKeyboard(engine) {
     C: "center",
   };
 
-  stage.addEventListener("keydown", (event) => {
+  stage.addEventListener("keydown", async (event) => {
     if (
       event.target.matches("button") &&
       (event.key === "Enter" || event.key === " " || event.key === "Spacebar")
@@ -111,8 +164,8 @@ function bindKeyboard(engine) {
     const action = keyActions[event.key];
     if (!action) return;
     event.preventDefault();
-    const result = engine.dispatch(action, "keyboard");
-    pulseControl(action, result.to !== null);
+    const result = await dispatchAfterPreload(action, "keyboard", engine);
+    if (result) pulseControl(action, result.to !== null);
   });
 }
 
@@ -127,16 +180,12 @@ function enableInterface(engine, guide) {
   bindKeyboard(engine);
   guide.exit();
 
-  startGuideButton.addEventListener("click", () => {
-    guide.start();
-    stage.focus({ preventScroll: true });
-  });
-  exploreButton.addEventListener("click", () => guide.exit({ focusStage: true }));
-  guideExitButton.addEventListener("click", () => guide.exit({ focusStage: true }));
+  startGuideButton.addEventListener("click", () => guide.start());
+  exploreButton.addEventListener("click", () => guide.exit());
+  guideExitButton.addEventListener("click", () => guide.exit());
   resetButton.addEventListener("click", () => {
     if (guide.active) guide.start();
     else engine.reset("index", "archive-reset");
-    stage.focus({ preventScroll: true });
   });
 }
 
@@ -148,14 +197,15 @@ async function initializeVoyager() {
     const engine = new VoyagerStateEngine(manifest);
     const guide = new VoyagerGuide(engine, guideElements);
     engine.subscribe((state, event) => {
-      renderState(engine, state, event);
+      commitState(engine, state, event);
       guide.observe(state, event);
     });
-    for (const stateId of manifest.guidedRoute) preloadState(manifest, stateId);
+    document.querySelector("#voyager-load-status").textContent = "Loading";
+    await Promise.all(guidedPreloadTargets(manifest).map((stateId) => preloadState(manifest, stateId)));
+    document.querySelector("#voyager-load-status").textContent = "Ready";
     enableInterface(engine, guide);
   } catch (error) {
-    document.querySelector("#voyager-load-status").textContent =
-      "The interface archive could not be loaded. Please refresh the page.";
+    document.querySelector("#voyager-load-status").textContent = "Unavailable";
     interactionLive.textContent = error.message;
     stage.dataset.loadError = "true";
   }
@@ -169,5 +219,8 @@ const mapViewer = new VoyagerMapViewer({
   source: `${APP_BASE}/assets/system/voyager-screens-b1.svg`,
 });
 
-document.querySelector("#open-system-map").addEventListener("click", () => mapViewer.open());
+document.querySelector("#open-system-map").addEventListener("click", () => mapViewer.open("overview"));
+for (const regionButton of document.querySelectorAll("[data-map-region]")) {
+  regionButton.addEventListener("click", () => mapViewer.open(regionButton.dataset.mapRegion));
+}
 initializeVoyager();

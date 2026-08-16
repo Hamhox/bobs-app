@@ -48,21 +48,22 @@ export class VoyagerGuide {
     this.#engine.setAutoTransitionsEnabled(false);
     this.#engine.reset("index", "guided-start");
     this.#elements.panel.dataset.mode = "active";
+    this.#elements.stage.dataset.guideActive = "true";
     this.#elements.exit.hidden = false;
     this.#render();
   }
 
-  exit({ focusStage = false } = {}) {
+  exit() {
     this.#active = false;
     this.#complete = false;
     this.#engine.setAutoTransitionsEnabled(true);
     this.#clearHighlights();
+    delete this.#elements.stage.dataset.guideActive;
     this.#elements.panel.dataset.mode = "idle";
     this.#elements.number.textContent = "FREE";
     this.#elements.label.textContent = "Archive controls enabled";
     this.#elements.instruction.textContent = "Use the device buttons or focus the gauge for keyboard controls.";
     this.#elements.exit.hidden = true;
-    if (focusStage) this.#elements.stage.focus({ preventScroll: true });
   }
 
   observe(state, event) {
@@ -102,6 +103,7 @@ export class VoyagerGuide {
 
   #renderComplete() {
     this.#clearHighlights();
+    delete this.#elements.stage.dataset.guideActive;
     this.#elements.panel.dataset.mode = "complete";
     this.#elements.number.textContent = "DONE";
     this.#elements.label.textContent = "Objective complete";

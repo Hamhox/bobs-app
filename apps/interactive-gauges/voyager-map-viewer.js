@@ -1,4 +1,11 @@
 const clamp = (value, minimum, maximum) => Math.min(maximum, Math.max(minimum, value));
+const IMAGE_WIDTH = 4195.24;
+const IMAGE_HEIGHT = 6495.11;
+const PRESETS = {
+  reading: { x: 1560, y: 2250, scale: 0.7, label: "Reading view" },
+  "screen-layout": { x: 720, y: 650, scale: 0.72, label: "Screen layout" },
+  "menu-flow": { x: 3520, y: 630, scale: 0.7, label: "Menu flow" },
+};
 
 export class VoyagerMapViewer {
   #dialog;
@@ -12,6 +19,7 @@ export class VoyagerMapViewer {
   #pointers = new Map();
   #gesture = null;
   #resizeObserver;
+  #activePreset = "overview";
 
   constructor({ dialog, viewport, image, status, source }) {
     this.#dialog = dialog;
@@ -20,17 +28,20 @@ export class VoyagerMapViewer {
     this.#status = status;
     this.#source = source;
     this.#resizeObserver = new ResizeObserver(() => {
-      if (this.#dialog.open) this.fit();
+      if (this.#dialog.open && this.#activePreset !== "custom") {
+        this.showPreset(this.#activePreset);
+      }
     });
     this.#bindEvents();
   }
 
-  open() {
+  open(preset = "overview") {
     if (!this.#image.hasAttribute("src")) this.#image.src = this.#source;
     this.#dialog.showModal();
     this.#resizeObserver.observe(this.#viewport);
-    if (this.#image.complete) this.fit();
-    else this.#image.addEventListener("load", () => this.fit(), { once: true });
+    const applyPreset = () => window.requestAnimationFrame(() => this.showPreset(preset));
+    if (this.#image.complete) applyPreset();
+    else this.#image.addEventListener("load", applyPreset, { once: true });
     this.#viewport.focus({ preventScroll: true });
   }
 
@@ -41,12 +52,26 @@ export class VoyagerMapViewer {
 
   fit() {
     const viewport = this.#viewport.getBoundingClientRect();
-    const imageWidth = 4195.24;
-    const imageHeight = 6495.11;
-    this.#scale = Math.min(viewport.width / imageWidth, viewport.height / imageHeight) * 0.94;
-    this.#x = (viewport.width - imageWidth * this.#scale) / 2;
-    this.#y = (viewport.height - imageHeight * this.#scale) / 2;
-    this.#render();
+    this.#scale = Math.min(viewport.width / IMAGE_WIDTH, viewport.height / IMAGE_HEIGHT) * 0.94;
+    this.#x = (viewport.width - IMAGE_WIDTH * this.#scale) / 2;
+    this.#y = (viewport.height - IMAGE_HEIGHT * this.#scale) / 2;
+    this.#activePreset = "overview";
+    this.#render("Overview");
+  }
+
+  showPreset(preset) {
+    if (preset === "overview" || !PRESETS[preset]) {
+      this.fit();
+      return;
+    }
+
+    const viewport = this.#viewport.getBoundingClientRect();
+    const target = PRESETS[preset];
+    this.#scale = target.scale;
+    this.#x = viewport.width / 2 - target.x * this.#scale;
+    this.#y = viewport.height / 2 - target.y * this.#scale;
+    this.#activePreset = preset;
+    this.#render(target.label);
   }
 
   zoomBy(factor, originX, originY) {
@@ -59,12 +84,14 @@ export class VoyagerMapViewer {
     this.#x = px - imageX * nextScale;
     this.#y = py - imageY * nextScale;
     this.#scale = nextScale;
+    this.#activePreset = "custom";
     this.#render();
   }
 
   panBy(deltaX, deltaY) {
     this.#x += deltaX;
     this.#y += deltaY;
+    this.#activePreset = "custom";
     this.#render();
   }
 
@@ -72,13 +99,18 @@ export class VoyagerMapViewer {
     this.#dialog.querySelector("[data-map-close]").addEventListener("click", () => this.close());
     this.#dialog.querySelector("[data-map-zoom-in]").addEventListener("click", () => this.zoomBy(1.25));
     this.#dialog.querySelector("[data-map-zoom-out]").addEventListener("click", () => this.zoomBy(0.8));
-    this.#dialog.querySelector("[data-map-fit]").addEventListener("click", () => this.fit());
-    this.#dialog.querySelector("[data-map-reset]").addEventListener("click", () => this.fit());
+    this.#dialog.querySelector("[data-map-overview]").addEventListener("click", () => this.showPreset("overview"));
+    this.#dialog.querySelector("[data-map-reading]").addEventListener("click", () => this.showPreset("reading"));
 
     this.#dialog.addEventListener("click", (event) => {
       if (event.target === this.#dialog) this.close();
     });
     this.#dialog.addEventListener("cancel", (event) => {
+      event.preventDefault();
+      this.close();
+    });
+    this.#dialog.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape" && event.key !== "Esc") return;
       event.preventDefault();
       this.close();
     });
@@ -121,7 +153,9 @@ export class VoyagerMapViewer {
         "+": () => this.zoomBy(1.25),
         "=": () => this.zoomBy(1.25),
         "-": () => this.zoomBy(0.8),
-        Home: () => this.fit(),
+        Home: () => this.showPreset("overview"),
+        "0": () => this.showPreset("overview"),
+        "1": () => this.showPreset("reading"),
       };
       const action = keyActions[event.key];
       if (!action) return;
@@ -149,6 +183,7 @@ export class VoyagerMapViewer {
     if (this.#pointers.size === 1) {
       this.#x = start.x + current.center.x - start.center.x;
       this.#y = start.y + current.center.y - start.center.y;
+      this.#activePreset = "custom";
       this.#render();
       return;
     }
@@ -164,11 +199,13 @@ export class VoyagerMapViewer {
     this.#scale = nextScale;
     this.#x = currentCenterX - imageX * nextScale;
     this.#y = currentCenterY - imageY * nextScale;
+    this.#activePreset = "custom";
     this.#render();
   }
 
-  #render() {
+  #render(label = "") {
     this.#image.style.transform = `translate3d(${this.#x}px, ${this.#y}px, 0) scale(${this.#scale})`;
-    this.#status.textContent = `${Math.round(this.#scale * 100)}% zoom`;
+    const zoom = `${Math.round(this.#scale * 100)}% zoom`;
+    this.#status.textContent = label ? `${label} · ${zoom}` : zoom;
   }
 }
