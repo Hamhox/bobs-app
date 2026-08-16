@@ -1650,7 +1650,7 @@ bb.ajax.finished = function () {
 	bb.dry.configureDataSources = function () {
 		bb.ajax.path1 = 'database/buildbooks-bom.tsv';
 		bb.ajax.path2 = 'database/buildbooks-inventory.tsv';
-		bb.ajax.path3 = 'database/Buildbooks_CRITICAL_NOTES.tsv';
+		bb.ajax.path3 = 'database/buildbooks-label-configuration.tsv';
 	}
 	
 	//

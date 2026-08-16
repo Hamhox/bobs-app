@@ -36,13 +36,13 @@
     <section class="tool-panel" aria-labelledby="uploadPanelTitle">
       <div class="tool-panel__header">
         <h2 id="uploadPanelTitle">Buildbooks data package</h2>
-        <span>Three files required</span>
+        <span>Four files required</span>
       </div>
       <div class="tool-panel__body">
         <div class="database-download">
           <div class="database-download__copy">
             <strong>Inspect the current QAR dataset</strong>
-            <span>Download the BOM, inventory, and item metadata as three plain-text TSV files.</span>
+            <span>Download the BOM, inventory, item metadata, and label configuration as four plain-text TSV files.</span>
           </div>
           <a class="download-button" href="/apps/buildbooks/downloads/buildbooks-qar-database.zip" download>
             Download database ZIP <span aria-hidden="true">↓</span>
@@ -73,11 +73,21 @@
           <div class="file-row" data-file-field>
             <div class="file-row__label">
               <strong>Item metadata</strong>
-              <span>Label requirements and critical notes</span>
+              <span>Stock, stowage, sourcing, and historical context</span>
             </div>
             <span class="file-name" data-file-name>No file selected</span>
             <input id="metadataFile" type="file" accept=".tsv,.csv,text/tab-separated-values,text/csv">
             <label class="file-button" for="metadataFile"><span data-file-action>Add file</span></label>
+          </div>
+
+          <div class="file-row" data-file-field>
+            <div class="file-row__label">
+              <strong>Label configuration</strong>
+              <span>Country of origin, handling flags, and hazard profiles</span>
+            </div>
+            <span class="file-name" data-file-name>No file selected</span>
+            <input id="labelConfigurationFile" type="file" accept=".tsv,.csv,text/tab-separated-values,text/csv">
+            <label class="file-button" for="labelConfigurationFile"><span data-file-action>Add file</span></label>
           </div>
         </div>
 
