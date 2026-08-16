@@ -453,37 +453,6 @@ img#armor-tech-logo-svg {
 }
 
 
-	@media print {
-		body {
-			color: #000;
-			background: #fff;
-		}
-		#topbar, #main {
-			display: none;
-		}
-		#sidebar {
-			display: none;
-		}
-		#buttonHideSidebar {
-			display: none;
-		}
-		#main {
-			width: 100%;
-			position: inherit;
-			left: unset;
-			top: unset;
-			right: unset;
-			box-shadow: unset;
-			border-radius: unset;
-			background-color: unset;
-		}
-		#footer {
-			display: none;
-		}
-	}
-	
-	
-	
 /* BUILDBOOKS APP Styles */	
 /* BUILDBOOKS APP Styles */	
 /* BUILDBOOKS APP Styles */	
@@ -619,27 +588,6 @@ img#armor-tech-logo-svg {
 		padding-right: 8px;
 	}
 	
-	.bb_button {
-		padding: 10px 21px 8px 23px;
-		margin: 20px 20px;
-		text-transform: uppercase;
-		font-weight: 900;
-		color: dimgray;
-		vertical-align: middle;
-		font-size: large;
-	}
-	.bb_button:hover {
-		background-color: #fefefe;
-		color: #1a57d2;
-		border: 2px solid blue;
-	}
-	.printBtnIcon { 
-	font-size: xxx-large;
-    vertical-align: middle;
-    line-height: 50px;
-	color: red;
-}
-	}
 	.bb_icon {
 		width: 20px;
 		vertical-align: middle;
@@ -937,6 +885,7 @@ img#armor-tech-logo-svg {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+	flex-wrap: wrap;
 	gap: 12px;
 }
 
@@ -949,6 +898,17 @@ img#armor-tech-logo-svg {
 	font-size: 13px;
 	font-weight: 700;
 	line-height: 1.35;
+}
+
+.labelPdfStatus {
+	margin: 4px 0 0;
+	font-size: 12px;
+	font-weight: 700;
+	line-height: 1.35;
+}
+
+.labelPdfStatus:empty {
+	display: none;
 }
 
 .labelPrintPrompt {
@@ -970,42 +930,9 @@ img#armor-tech-logo-svg {
 	outline-offset: 2px;
 }
 
-#printarea {
-		font-family: 'swiss721-bc', Impact, sans-serif;
-		position: fixed;
-		background-color: white;
-		height: 1in;
-		width: 3.5in;
-		z-index: 10;
-		left: 80px;
-		bottom: 52px;
-		transform: scale(1.3);
-		border: 1px solid lightgray;
-		border-radius: 7px;
-		display: none;
-	}
-	
-	@media print {
-		@page {
-			size: 3.5in 1in;
-			margin: 0;
-			display: block !important;
-		}
-		
-		#printarea {
-			position: fixed;
-			background-color: white;
-			left: unset;
-			top: unset;
-			right: unset;
-			bottom: unset;
-			transform: scale(1);
-			border: unset;
-			border-radius: unset;
-			display: block;
-		}
-	}
-
+#printContainer {
+	width: 500px;
+}
 
 		.barcodeContainer {
 			display: inline-block;
@@ -1059,11 +986,11 @@ img#armor-tech-logo-svg {
     box-shadow: 0px 0px 2px 1px rgba(58,58,58,.3);
 }
 
-.productlabel[data-print-target] {
+.productlabel[data-label-pdf-target] {
 	cursor: pointer;
 }
 
-.productlabel[data-print-target]:focus-visible {
+.productlabel[data-label-pdf-target]:focus-visible {
 	outline: 3px solid #1a57d2;
 	outline-offset: 4px;
 }
@@ -1191,10 +1118,6 @@ svg.labelRegulatoryIcon {
 	display: none;
 }
 
-.handlingLabel {
-	cursor: pointer;
-}
-
 .handlingLabelWrapper {
 	display: grid;
 	grid-template-columns: 74px minmax(0, 1fr);
@@ -1319,6 +1242,10 @@ svg.handlingLabelIcon {
 }
 
 @media (max-width: 420px) {
+	.labelPrintPrompt {
+		width: 100%;
+	}
+
 	.itemRecordHandlingFields,
 	.itemRecordEditorActions {
 		grid-template-columns: 1fr;

@@ -12,6 +12,7 @@
 		bb.imageUploadStatusTimer = null;
 		bb.localSkuImages = Object.create(null);
 		bb.hiddenImagePaths = Object.create(null);
+		bb.pdfBusy = false;
 
 	//
 	// kicks off as soon as possible when everything is loaded
@@ -84,6 +85,9 @@
 		bb.ele.itemBadgeKeepAwayFromFlame = document.getElementById('itemBadgeKeepAwayFromFlame');
 		bb.ele.itemBadgeToxic = document.getElementById('itemBadgeToxic');
 		bb.ele.labelSetSummary = document.getElementById('labelSetSummary');
+		bb.ele.labelPdfStatus = document.getElementById('labelPdfStatus');
+		bb.ele.barcodeWarningHeadline = document.getElementById('barcodeWarningHeadline');
+		bb.ele.barcodeWarningDetail = document.getElementById('barcodeWarning2');
 		bb.ele.notesimg 		= document.getElementById('notesTopImg');
 		bb.ele.imageUploadButton = document.getElementById('buttonUploadImage');
 		bb.ele.imageDeleteButton = document.getElementById('buttonDeleteImage');
@@ -116,10 +120,6 @@
 			bb.ele.tab3.button 	= document.getElementById('button_tab3');
 			bb.ele.tab3.header 	= bb.ele.tab3.getElementsByTagName("p")[0];
 			bb.ele.tab3.content = bb.ele.tab3.getElementsByTagName("div")[0];
-			bb.ele.printQty = document.getElementById('inputPrintQty');
-			bb.ele.printButton = document.getElementById('printButton');
-			//bb.ele.barcodeContainer = document.getElementById('barcodeContainer');
-			bb.ele.printContainer = document.getElementById('printContainer');
 			bb.ele.labelFragileIcon = document.getElementById('labelFragileIcon');
 			bb.ele.labelStoreDryIcon = document.getElementById('labelStoreDryIcon');
 			bb.ele.labelKeepAwayFromFlameIcon = document.getElementById('labelKeepAwayFromFlameIcon');
@@ -130,6 +130,7 @@
 			bb.ele.keepAwayFromFlameLabel = document.getElementById('keepAwayFromFlameLabelContainer');
 			bb.ele.toxicLabel = document.getElementById('toxicLabelContainer');
 			bb.ele.hazardProfileLabel = document.getElementById('hazardProfileLabelContainer');
+			bb.ele.hazardProfileLabelIcon = document.getElementById('hazardProfileLabelIcon');
 			bb.ele.hazardProfileLabelTitle = document.getElementById('hazardProfileLabelTitle');
 			bb.ele.hazardProfileLabelBody = document.getElementById('hazardProfileLabelBody');
 			
@@ -344,16 +345,16 @@
 				bb.dry.updateItemRecordEditorButtons();
 			}, false);
 		}
-		for (var printAction of document.querySelectorAll('[data-print-target]')) {
-			printAction.addEventListener('click', function() {
-				bb.dry.sendPrint(this.dataset.printTarget);
+		for (var pdfAction of document.querySelectorAll('[data-label-pdf-target]')) {
+			pdfAction.addEventListener('click', function() {
+				bb.dry.downloadLabelPdf(this.dataset.labelPdfTarget);
 			}, false);
-			if (printAction.tagName !== 'BUTTON') {
-				printAction.addEventListener('keydown', function(evn) {
+			if (pdfAction.tagName !== 'BUTTON') {
+				pdfAction.addEventListener('keydown', function(evn) {
 					if (evn.key !== 'Enter' && evn.key !== ' ') { return; }
 					evn.preventDefault();
 					evn.stopPropagation();
-					bb.dry.sendPrint(this.dataset.printTarget);
+					bb.dry.downloadLabelPdf(this.dataset.labelPdfTarget);
 				}, false);
 			}
 		}
@@ -366,30 +367,6 @@
 			}
 		}, false);
 	})
-
-	//
-	// user clicked on a label, intending to print it
-	// First determine which label was clicked on, then update it to the printable area div, then print
-bb.dry.sendPrint = function (userClicked) {
-	var printTargets = {
-		pLabel: '#plabelPrintDivs',
-		fragileLabel: '#fragileLabelPrintDivs',
-		storeDryLabel: '#storeDryLabelPrintDivs',
-		keepAwayFromFlameLabel: '#keepAwayFromFlameLabelPrintDivs',
-		toxicLabel: '#toxicLabelPrintDivs',
-		hazardProfileLabel: '#hazardProfileLabelPrintDivs'
-	};
-	var printDivs = document.querySelector(printTargets[userClicked] || printTargets.pLabel);
-	if (!printDivs) { return; }
-
-	var printarea = document.querySelector('#printarea');
-	printarea.innerHTML = '';
-	printarea.appendChild(printDivs.cloneNode(true));
-
-	window.print();
-
-	bb.dry.showQuickFeedback("Label sent to printer!");
-}
 
 bb.dry.showQuickFeedback = function(message) {
   let feedback = document.createElement('div');
@@ -456,6 +433,7 @@ bb.dry.versionedImageUrl = function(path) {
 			console.log('SKU not found in list: ' + sku.value)
 			return false;
 		}
+		if (bb.ele.labelPdfStatus) { bb.ele.labelPdfStatus.textContent = ''; }
 		bb.dry.closeItemRecordEditor({ restoreDraft:false, returnFocus:false, status:'' });
 
 		if (!imageVersionReady) {
@@ -685,16 +663,16 @@ bb.dry.updateItemRecordEditorButtons = function() {
 
 bb.dry.getHazardLabel = function(hazardProfile) {
 	var labels = {
-		AMMUNITION: ['AMMUNITION STORES', 'KEEP DRY · SEGREGATE FROM IGNITION SOURCES · VERIFY COUNT'],
-		COMBUSTIBLE: ['COMBUSTIBLE STORES', 'KEEP COOL · VENTILATE · SEPARATE FROM IGNITION SOURCES'],
-		CONTROLLED_MEDICAL: ['CONTROLLED MEDICAL STORES', 'KEEP SEALED · RESTRICT ACCESS'],
-		EXPLOSIVE: ['EXPLOSIVE STORES', 'ISOLATE FROM FLAME, SPARKS, IMPACT AND UNAUTHORIZED HANDLING'],
-		FLAMMABLE: ['FLAMMABLE STORES', 'KEEP SEALED · KEEP AWAY FROM FLAME AND SPARKS'],
-		ORDNANCE: ['HEAVY ORDNANCE', 'SECURE AGAINST MOVEMENT · INSPECT BEFORE ISSUE'],
-		SHARP_EDGE: ['SHARP EDGE OR POINT', 'KEEP SHEATHED OR SECURED · INSPECT BEFORE ISSUE'],
-		TOXIC: ['TOXIC MATERIAL', 'DO NOT INGEST OR INHALE · KEEP SEALED · RESTRICT ACCESS']
+		AMMUNITION: { title: 'AMMUNITION STORES', body: 'KEEP DRY · SEGREGATE FROM IGNITION SOURCES · VERIFY COUNT', icon: 'logo-stores-ammunition.svg' },
+		COMBUSTIBLE: { title: 'COMBUSTIBLE STORES', body: 'KEEP COOL · VENTILATE · SEPARATE FROM IGNITION SOURCES', icon: 'logo-stores-combustible.svg' },
+		CONTROLLED_MEDICAL: { title: 'CONTROLLED MEDICAL STORES', body: 'KEEP SEALED · RESTRICT ACCESS', icon: 'logo-stores-medical.svg' },
+		EXPLOSIVE: { title: 'EXPLOSIVE STORES', body: 'ISOLATE FROM FLAME, SPARKS, IMPACT AND UNAUTHORIZED HANDLING', icon: 'logo-stores-explosive.svg' },
+		FLAMMABLE: { title: 'FLAMMABLE STORES', body: 'KEEP SEALED · KEEP AWAY FROM FLAME AND SPARKS', icon: 'logo-stores-flammable.svg' },
+		ORDNANCE: { title: 'HEAVY ORDNANCE', body: 'SECURE AGAINST MOVEMENT · INSPECT BEFORE ISSUE', icon: 'logo-stores-ordnance.svg' },
+		SHARP_EDGE: { title: 'SHARP EDGE OR POINT', body: 'KEEP SHEATHED OR SECURED · INSPECT BEFORE ISSUE', icon: 'logo-stores-sharp.svg' },
+		TOXIC: { title: 'TOXIC MATERIAL', body: 'DO NOT INGEST OR INHALE · KEEP SEALED · RESTRICT ACCESS', icon: 'logo-stores-toxic.svg' }
 	};
-	return labels[hazardProfile] || ['HAZARD PROFILE', 'FOLLOW REQUIRED HANDLING PROCEDURES'];
+	return labels[hazardProfile] || { title: 'HAZARD PROFILE', body: 'FOLLOW REQUIRED HANDLING PROCEDURES', icon: 'plabelWarning.svg' };
 }
 
 bb.dry.applyHazardProfilePreset = function() {
@@ -748,7 +726,7 @@ bb.dry.getLabelOutputState = function() {
 	if (state.keepAwayFromFlame) { state.labelNames.push('Keep away from flame'); }
 	if (state.toxic) { state.labelNames.push('Toxic material'); }
 	if (state.showsHazardProfileLabel) {
-		state.labelNames.push(bb.dry.formatItemRecordValue(bb.dry.getHazardLabel(state.hazardProfile)[0]));
+		state.labelNames.push(bb.dry.formatItemRecordValue(bb.dry.getHazardLabel(state.hazardProfile).title));
 	}
 	return state;
 }
@@ -778,10 +756,81 @@ bb.dry.updateLabelSetSummary = function(state) {
 	bb.ele.labelSetSummary.textContent = countText + ' for ' + (bb.sku.value || 'selected SKU') + ': ' + state.labelNames.join(', ') + '.';
 }
 
+bb.dry.getLabelDateCode = function(now) {
+	var date = now instanceof Date ? now : new Date(now || Date.now());
+	return ('0' + (date.getMonth() + 1)).slice(-2) + String(date.getFullYear()).slice(-2);
+}
+
+bb.dry.getPrimaryLabelWarning = function() {
+	return Object.freeze({
+		headline: 'WARNING: ARRR-TISANAL PIECE | FITMENT',
+		detail: 'CHECKS PREVENT REBEL WRECKS'
+	});
+}
+
+bb.dry.normalizeUpcPayload = function(rawUpc) {
+	var digits = String(rawUpc || '').replace(/\D/g, '');
+	if (digits.length === 12) { return digits.slice(0, 11); }
+	if (digits.length === 11) { return digits; }
+	return '';
+}
+
+bb.dry.getPrimaryLabelPdfModel = function(now) {
+	if (!bb.sku.value) { throw new Error('Select a SKU before generating a label PDF.'); }
+	var inventoryRow = bb.dry.getInventoryRow(bb.sku.value) || {};
+	var state = bb.dry.getLabelOutputState();
+	var handling = Object.freeze({
+		fragile: state.fragile,
+		storeDry: state.storeDry,
+		keepAwayFromFlame: state.keepAwayFromFlame,
+		toxic: state.toxic,
+		showHazardProfileIcon: state.showsHazardProfileLabel
+	});
+	return Object.freeze({
+		version: 2,
+		sku: String(bb.sku.value),
+		description: String(bb.sku.name || ''),
+		dateCode: bb.dry.getLabelDateCode(now),
+		upcPayload: bb.dry.normalizeUpcPayload(inventoryRow.UPC),
+		countryOfOrigin: String(bb.sku.coo || '').trim(),
+		hazardName: bb.dry.formatItemRecordValue(state.hazardProfile),
+		handling: handling,
+		warning: bb.dry.getPrimaryLabelWarning()
+	});
+}
+
+bb.dry.setLabelPdfBusy = function(isBusy) {
+	bb.pdfBusy = isBusy;
+	for (var action of document.querySelectorAll('[data-label-pdf-target]')) {
+		if (action.tagName === 'BUTTON') {
+			action.disabled = isBusy;
+		} else if (isBusy) {
+			action.setAttribute('aria-disabled', 'true');
+		} else {
+			action.removeAttribute('aria-disabled');
+		}
+	}
+}
+
+bb.dry.downloadLabelPdf = async function(target) {
+	if (target !== 'primary' || bb.pdfBusy) { return; }
+	bb.dry.setLabelPdfBusy(true);
+	bb.ele.labelPdfStatus.textContent = 'Preparing primary-label PDF...';
+	try {
+		var model = bb.dry.getPrimaryLabelPdfModel();
+		var result = await BuildbooksLabelPdf.downloadPrimaryPdf(model);
+		bb.ele.labelPdfStatus.textContent = result.filename + ' downloaded.';
+	} catch (error) {
+		console.error('Unable to generate the primary-label PDF.', error);
+		bb.ele.labelPdfStatus.textContent = 'Unable to generate the primary-label PDF. Please try again.';
+	} finally {
+		bb.dry.setLabelPdfBusy(false);
+	}
+}
+
 bb.dry.applyCriticalNotesForSku = function() {
 	var state = bb.dry.getLabelOutputState();
 
-	bb.ele.printContainer.style.display = "block";
 	bb.ele.labelFragileIcon.style.display = state.fragile ? "block" : "none";
 	bb.ele.labelStoreDryIcon.style.display = state.storeDry ? "block" : "none";
 	bb.ele.labelKeepAwayFromFlameIcon.style.display = state.keepAwayFromFlame ? "block" : "none";
@@ -794,9 +843,10 @@ bb.dry.applyCriticalNotesForSku = function() {
 	bb.ele.hazardProfileLabel.style.display = state.showsHazardProfileLabel ? "inline-block" : "none";
 
 	var hazardLabel = bb.dry.getHazardLabel(state.hazardProfile);
-	bb.ele.hazardProfileLabelTitle.textContent = hazardLabel[0];
-	bb.ele.hazardProfileLabelBody.textContent = hazardLabel[1];
-	bb.ele.labelHazardProfileIcon.setAttribute('aria-label', state.hazardProfile ? hazardLabel[0] : 'Hazard profile');
+	bb.ele.hazardProfileLabelIcon.src = 'assets/' + hazardLabel.icon;
+	bb.ele.hazardProfileLabelTitle.textContent = hazardLabel.title;
+	bb.ele.hazardProfileLabelBody.textContent = hazardLabel.body;
+	bb.ele.labelHazardProfileIcon.setAttribute('aria-label', state.hazardProfile ? hazardLabel.title : 'Hazard profile');
 	bb.dry.updateItemRecordDisplay(state);
 	bb.dry.updateLabelSetSummary(state);
 }
@@ -1649,8 +1699,11 @@ bb.dry.updateImageSrc = function (imgEle, sku) {
 			item.textContent = new Date().toDateString();
 		}
 		for (var item of document.getElementsByClassName('labelDatecode')) { // year and month datecode like:  0918
-			item.textContent = ("0" + (new Date().getMonth() + 1)).slice(-2) + new Date().getFullYear().toString().substr(2,2);
+			item.textContent = bb.dry.getLabelDateCode();
 		}	
+		var warning = bb.dry.getPrimaryLabelWarning();
+		bb.ele.barcodeWarningHeadline.textContent = warning.headline.replace(/^WARNING:\s*/i, '');
+		bb.ele.barcodeWarningDetail.textContent = warning.detail;
 
 		var countryOfOrigin = document.querySelector("#barcodeCountryOfOrigin");
 		if (countryOfOrigin) {

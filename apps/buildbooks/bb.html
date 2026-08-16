@@ -17,12 +17,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300..900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300..800&family=Rubik:wght@300..900&display=swap" rel="stylesheet">
 	<!-- Load app files -->
-	<link rel="stylesheet" href="assets/bb.css?v=0.0.194">
-	<script src="assets/bb.js?v=0.0.694"></script>
-					
-      <script src="assets/jsbarcode.all.min.js?v=0.0.03"></script>
-      <script src="assets/print.min.js?v=0.0.03"></script>
-      <script src="assets/clipboard.min.js?v=0.0.01"></script>
+	<link rel="stylesheet" href="assets/bb.css?v=0.0.197">
+	<script src="assets/jsbarcode.all.min.js?v=0.0.03"></script>
+	<script src="assets/vendor/pdf-lib-1.17.1.min.js"></script>
+	<script src="assets/vendor/fontkit-1.1.1.umd.min.js"></script>
+	<script src="assets/buildbooks-label-pdf.js?v=0.0.003"></script>
+	<script src="assets/bb.js?v=0.0.699"></script>
+	<script src="assets/clipboard.min.js?v=0.0.01"></script>
 </head>
 <body>
 
@@ -196,25 +197,26 @@
 			</div>
 			
 			<div id="tab3" class="tabcontent">
-				<div id="printContainer" class="printer_container" style="width:500px">
+				<div id="printContainer" class="printer_container">
 					<div id="printer_main">
 						<div id="print_form">
 							<section class="labelSetHeader" aria-labelledby="labelSetTitle">
 								<div class="labelSetTitleRow">
 									<h2 id="labelSetTitle">Printable labels</h2>
-									<button class="labelPrintPrompt" type="button" data-print-target="pLabel">Print Labels</button>
+									<button class="labelPrintPrompt" type="button" data-label-pdf-target="primary">Download primary-label PDF</button>
 								</div>
 								<p id="labelSetSummary" aria-live="polite">1 label for selected SKU: Package label.</p>
+								<p id="labelPdfStatus" class="labelPdfStatus" role="status" aria-live="polite"></p>
 							</section>
 							
 							<div id="pLabelContainer" class="barcodeContainer">
-								<div class="productlabel" data-print-target="pLabel" role="button" tabindex="0" aria-label="Print package label"> <!-- packaging labels preview -->
+								<div class="productlabel" data-label-pdf-target="primary" role="button" tabindex="0" aria-label="Download package label PDF"> <!-- packaging labels preview -->
 									<div id="plabelPrintDivs" class="plabelWrapper">
 										<div class="labelSku" id="barcodeH1">Hello!</div>
 										<div class="labelDesc" id="barcodeP">Select a SKU...</div>
 										<div class="labelDatecode" id="barcodeDate"></div>
-										<div id="barcodeWarning"><strong>WARNING:</strong> CANCER AND REPRODUCTIVE HARM</div>
-										<div id="barcodeWarning2">WWW.P65WARNINGS.CA.GOV</div>
+										<div id="barcodeWarning"><strong>WARNING:</strong> <span id="barcodeWarningHeadline"></span></div>
+										<div id="barcodeWarning2"></div>
 										<svg class="labelUpc" id="plabelUpc"></svg>
 										<!--<img class="labelUpc" id="plabelUpc">-->
 										<div id="barcodeCountryOfOrigin"></div>
@@ -290,7 +292,7 @@
 								
 							
 							<div id="fragileLabelContainer" class="barcodeContainer regulatoryLabelContainer">
-								<div class="productlabel handlingLabel" data-print-target="fragileLabel" role="button" tabindex="0" aria-label="Print fragile label">
+								<div class="productlabel handlingLabel">
 									<div id="fragileLabelPrintDivs" class="plabelWrapper handlingLabelWrapper">
 										<img class="handlingLabelIcon" src="assets/fragile-icon.svg" alt="" aria-hidden="true">
 										<div class="handlingLabelCopy"><strong>FRAGILE</strong><span>HANDLE WITH CARE</span><small class="labelSku">SELECT A SKU</small></div>
@@ -299,7 +301,7 @@
 							</div>
 
 							<div id="storeDryLabelContainer" class="barcodeContainer regulatoryLabelContainer">
-								<div class="productlabel handlingLabel" data-print-target="storeDryLabel" role="button" tabindex="0" aria-label="Print store dry label">
+								<div class="productlabel handlingLabel">
 									<div id="storeDryLabelPrintDivs" class="plabelWrapper handlingLabelWrapper">
 										<img class="handlingLabelIcon" src="assets/umbrella-icon.svg" alt="" aria-hidden="true">
 										<div class="handlingLabelCopy"><strong>KEEP DRY</strong><span>PROTECT FROM MOISTURE</span><small class="labelSku">SELECT A SKU</small></div>
@@ -308,7 +310,7 @@
 							</div>
 
 							<div id="keepAwayFromFlameLabelContainer" class="barcodeContainer regulatoryLabelContainer">
-								<div class="productlabel handlingLabel" data-print-target="keepAwayFromFlameLabel" role="button" tabindex="0" aria-label="Print keep away from flame label">
+								<div class="productlabel handlingLabel">
 									<div id="keepAwayFromFlameLabelPrintDivs" class="plabelWrapper handlingLabelWrapper">
 										<img class="handlingLabelIcon" src="assets/flammable_icon.svg" alt="" aria-hidden="true">
 										<div class="handlingLabelCopy"><strong>KEEP AWAY FROM FLAME</strong><span>NO FLAME, SPARKS OR HOT SURFACES</span><small class="labelSku">SELECT A SKU</small></div>
@@ -317,18 +319,18 @@
 							</div>
 
 							<div id="toxicLabelContainer" class="barcodeContainer regulatoryLabelContainer">
-								<div class="productlabel handlingLabel" data-print-target="toxicLabel" role="button" tabindex="0" aria-label="Print toxic material label">
+								<div class="productlabel handlingLabel">
 									<div id="toxicLabelPrintDivs" class="plabelWrapper handlingLabelWrapper">
-										<img class="handlingLabelIcon" src="assets/toxic-skull-icon.svg" alt="" aria-hidden="true">
+										<img class="handlingLabelIcon" src="assets/logo-stores-toxic.svg" alt="" aria-hidden="true">
 										<div class="handlingLabelCopy"><strong>TOXIC MATERIAL</strong><span>DO NOT INGEST OR INHALE · KEEP SEALED · RESTRICT ACCESS</span><small class="labelSku">SELECT A SKU</small></div>
 									</div>
 								</div>
 							</div>
 
 							<div id="hazardProfileLabelContainer" class="barcodeContainer regulatoryLabelContainer">
-								<div class="productlabel handlingLabel" data-print-target="hazardProfileLabel" role="button" tabindex="0" aria-label="Print hazard profile label">
+								<div class="productlabel handlingLabel">
 									<div id="hazardProfileLabelPrintDivs" class="plabelWrapper handlingLabelWrapper">
-										<svg class="handlingLabelIcon handlingLabelIconHazard" aria-hidden="true" viewBox="0 0 32 32"><path d="M16 3 29 27H3L16 3Z M16 10v9 M16 23v1"/></svg>
+										<img id="hazardProfileLabelIcon" class="handlingLabelIcon" src="assets/plabelWarning.svg" alt="" aria-hidden="true">
 										<div class="handlingLabelCopy"><strong id="hazardProfileLabelTitle">HAZARD PROFILE</strong><span id="hazardProfileLabelBody">FOLLOW REQUIRED HANDLING PROCEDURES</span><small class="labelSku">SELECT A SKU</small></div>
 									</div>
 								</div>
@@ -337,49 +339,31 @@
 							<button class="accordion accordion-h1">Setup Instructions:</button>
 							<div class="panel">						
 
-								<button class="accordion">How do I print labels?</button>
+								<button class="accordion">How do I print the label PDF?</button>
 								<div class="panel">
-									<p>Click on the label preview image above, select 'Print' in the browser menu, or press ctrl-P or ctrl-shift-P.</p>
+									<p>Download the package-label PDF above, open it in a PDF viewer, and print it at Actual Size or 100% on 3.5&quot; &times; 1&quot; label stock.</p>
 								</div>
 
-								<button class="accordion">Initial Printer Setup</button>
+								<button class="accordion">Label printer setup</button>
 								<div class="panel">
-									<p>To print, you must have the printer added to Windows on your computer through USB or the network. Press the Windows key and type 'printers' to open the Printers & Scanners Windows screen. Make sure the printer is showing, try to print a test page.</p>
+									<p>Configure your printer or PDF viewer for 3.5&quot; &times; 1&quot; label stock before printing.</p>
 								</div>
 
-								<button class="accordion">Printer Preferences</button>
+								<button class="accordion">Print settings</button>
 								<div class="panel">
-									<p>Setup printer options, or the print will not fill the label:</p>
+									<p>Use these PDF viewer and printer-driver settings:</p>
 									<ul>
-										<li>Page height: 1&quot;</li>
-										<li>Page width: 3.5&quot;</li>
-										<li>Offset Top: 0.1&quot;</li>
-										<li>Offset Left: 0.05&quot;</li>
-										<li>Do NOT Shrink Page to Fit</li>
-										<li>Scale: 100%</li>
+										<li>Paper size: 3.5&quot; &times; 1&quot;</li>
+										<li>Scale: Actual Size or 100%</li>
 										<li>Margins: 0</li>
 										<li>Headers and Footers: --blank--</li>
 									</ul>
-									<p>Depending, these may be found in Windows 'printing preferences' and the browser 'page setup.'
+									<p>The PDF requests the correct physical page size, but the printer driver must also support and select that stock.</p>
 								</div> 
 
-								<button class="accordion">Preferences Not Permanent</button>
+								<button class="accordion">PDF does not fit the label</button>
 								<div class="panel">
-									<p>The system should remember printing preferences. If not, try these things:</p>
-									<ul>
-										<li>Set preferences directly. Press the Windows key and type 'printers' to open the Printers & Scanners Windows screen. Click 'Manage' then 'Printing Preferences.' Set the preferences here to definitely save them.</li>
-										<li>If using Firefox, type 'about:config' in the address bar. Scroll down and click the 'Clear saved print settings' button. Reboot Firefox. Try to print the label by using the Firefox menu, making sure to set the page height settings. The new settings should now be saved each time printing is tried.</li>
-									</ul>
-								</div>
-								
-								
-								<button class="accordion">Print Doesn't Fit Label!!!</button>
-								<div class="panel">
-									<p>See 'Printer Preferences' above. Preferences are critical to the print being properly aligned on the label.</p>
-								</div>
-								<button class="accordion">Supported Browsers</button>
-								<div class="panel">
-									<p>The labels are known to print in Chrome 87.0.4280.88 and Firefox 83.0 on a Zebra ZT410 printer. Buildbooks does not work in Internet Explorer.</p>
+									<p>Confirm that page scaling is disabled and the printer driver is using matching 3.5&quot; &times; 1&quot; stock.</p>
 								</div>
 							</div>
 
@@ -401,8 +385,6 @@
 		</div>
 	</div>
 	
-	
-	<div id="printarea"><p>This is the hidden print area.</p></div>
 	
 	<div id="imageDeleteModal" class="imageModal" style="display:none;">
 		<div class="imageModalBox">
