@@ -905,6 +905,7 @@ img#armor-tech-logo-svg {
 	font-size: 12px;
 	font-weight: 700;
 	line-height: 1.35;
+	white-space: pre-line;
 }
 
 .labelPdfStatus:empty {

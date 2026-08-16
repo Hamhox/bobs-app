@@ -971,8 +971,8 @@ bb.dry.openLabelPdfForPrint = async function(request, printWindow, jobId) {
 		window.setTimeout(tryPrint, 1800);
 
 		if (bb.sku.value === request.sku && bb.pdfJobId === jobId) {
-			var countText = request.pages.length + (request.pages.length === 1 ? ' print-ready label' : ' print-ready labels');
-			bb.ele.labelPdfStatus.textContent = 'Opened ' + countText + ' for ' + request.sku + ' in a new tab. Use the PDF viewer\'s Print control if no dialog appeared.';
+			var countText = request.pages.length + (request.pages.length === 1 ? ' label' : ' labels');
+			bb.ele.labelPdfStatus.textContent = 'Sent ' + countText + ' to print in new tab.\nNote: Select \'Save as PDF\' in the print dialog or 3.5x1" page size.';
 		}
 	} catch (error) {
 		console.error('Unable to prepare labels for printing.', error);
