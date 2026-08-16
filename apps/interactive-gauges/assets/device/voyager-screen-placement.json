@@ -1,29 +1,38 @@
 {
-  "source": {
+  "coordinateSource": "voyager-housing-render-v2.png; transparent padding trimmed; control geometry locked to voyager-device-source.png",
+  "activeHousing": {
+    "width": 1592,
+    "height": 889,
+    "aspectRatio": "1592 / 889",
+    "screenOpening": {
+      "x": 366,
+      "y": 198,
+      "width": 859,
+      "height": 535
+    },
+    "liveScreen": {
+      "sourceAspectRatio": "504 / 303",
+      "x": 366,
+      "y": 207.289,
+      "width": 859,
+      "height": 516.423,
+      "fit": "contain within the opening; never stretch or crop"
+    },
+    "controls": {
+      "menu": { "x": 136, "y": 197, "width": 139, "height": 136, "center": [205, 265] },
+      "back": { "x": 136, "y": 493, "width": 139, "height": 136, "center": [205, 561] },
+      "up": { "x": 1364, "y": 151, "width": 90, "height": 96, "center": [1409, 199] },
+      "left": { "x": 1297, "y": 219, "width": 94, "height": 95, "center": [1344, 267] },
+      "center": { "x": 1363, "y": 218, "width": 92, "height": 97, "center": [1409, 267] },
+      "right": { "x": 1429, "y": 219, "width": 94, "height": 95, "center": [1476, 267] },
+      "down": { "x": 1364, "y": 314, "width": 90, "height": 96, "center": [1409, 362] },
+      "enter": { "x": 1322, "y": 493, "width": 139, "height": 136, "center": [1391, 561] }
+    }
+  },
+  "originalDeviceSource": {
     "width": 739,
     "height": 422,
-    "aspectRatio": "739 / 422"
-  },
-  "screen": {
-    "x": 176,
-    "y": 93,
-    "width": 384,
-    "height": 240,
-    "normalized": {
-      "left": "23.816%",
-      "top": "22.038%",
-      "width": "51.962%",
-      "height": "56.872%"
-    }
-  },
-  "shell4x": {
-    "width": 2956,
-    "height": 1688,
-    "screen": {
-      "x": 704,
-      "y": 372,
-      "width": 1536,
-      "height": 960
-    }
+    "aspectRatio": "739 / 422",
+    "screen": { "x": 176, "y": 93, "width": 384, "height": 240 }
   }
 }

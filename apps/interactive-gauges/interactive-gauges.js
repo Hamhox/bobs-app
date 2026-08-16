@@ -11,15 +11,12 @@ const interactionLive = document.querySelector("#interaction-live");
 const controls = [...document.querySelectorAll("[data-action]")];
 const startGuideButton = document.querySelector("#start-guided-ride");
 const exploreButton = document.querySelector("#explore-freely");
-const resetButton = document.querySelector("#reset-archive");
-const guideExitButton = document.querySelector("#exit-guide");
 const guideElements = {
   panel: document.querySelector("#guide-panel"),
   number: document.querySelector("#guide-number"),
   label: document.querySelector("#guide-label"),
   instruction: document.querySelector("#guide-instruction"),
   live: document.querySelector("#guide-live"),
-  exit: guideExitButton,
   controls,
   stage,
 };
@@ -176,17 +173,11 @@ function enableInterface(engine, guide) {
   }
   startGuideButton.disabled = false;
   exploreButton.disabled = false;
-  resetButton.disabled = false;
   bindKeyboard(engine);
   guide.exit();
 
   startGuideButton.addEventListener("click", () => guide.start());
   exploreButton.addEventListener("click", () => guide.exit());
-  guideExitButton.addEventListener("click", () => guide.exit());
-  resetButton.addEventListener("click", () => {
-    if (guide.active) guide.start();
-    else engine.reset("index", "archive-reset");
-  });
 }
 
 async function initializeVoyager() {
@@ -220,7 +211,4 @@ const mapViewer = new VoyagerMapViewer({
 });
 
 document.querySelector("#open-system-map").addEventListener("click", () => mapViewer.open("overview"));
-for (const regionButton of document.querySelectorAll("[data-map-region]")) {
-  regionButton.addEventListener("click", () => mapViewer.open(regionButton.dataset.mapRegion));
-}
 initializeVoyager();

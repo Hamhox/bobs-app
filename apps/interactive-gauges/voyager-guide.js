@@ -49,7 +49,6 @@ export class VoyagerGuide {
     this.#engine.reset("index", "guided-start");
     this.#elements.panel.dataset.mode = "active";
     this.#elements.stage.dataset.guideActive = "true";
-    this.#elements.exit.hidden = false;
     this.#render();
   }
 
@@ -60,10 +59,9 @@ export class VoyagerGuide {
     this.#clearHighlights();
     delete this.#elements.stage.dataset.guideActive;
     this.#elements.panel.dataset.mode = "idle";
-    this.#elements.number.textContent = "FREE";
+    this.#elements.number.textContent = "01";
     this.#elements.label.textContent = "Archive controls enabled";
-    this.#elements.instruction.textContent = "Use the device buttons or focus the gauge for keyboard controls.";
-    this.#elements.exit.hidden = true;
+    this.#elements.instruction.textContent = "Press MENU to begin.";
   }
 
   observe(state, event) {

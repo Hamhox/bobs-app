@@ -25,7 +25,8 @@
 
 .gauges-hero {
   position: relative;
-  min-height: calc(100svh - 4.25rem);
+  height: calc(100svh - 4.25rem);
+  min-height: 0;
   overflow: hidden;
   isolation: isolate;
   background-color: var(--brand-dark);
@@ -54,13 +55,13 @@
 
 .gauges-hero__inner {
   display: grid;
-  grid-template-columns: minmax(22rem, 0.7fr) minmax(38rem, 1.35fr);
-  gap: clamp(2rem, 4vw, 6rem);
+  grid-template-columns: minmax(17rem, 0.58fr) minmax(34rem, 1.42fr);
+  gap: clamp(1.5rem, 3.5vw, 4.5rem);
   align-items: center;
-  width: min(100% - 3rem, 108rem);
-  min-height: calc(100svh - 4.25rem);
+  width: min(100% - 3rem, 112rem);
+  height: 100%;
   margin-inline: auto;
-  padding: clamp(3rem, 6vw, 6rem) 0;
+  padding: clamp(1rem, 2.5vh, 2rem) 0;
 }
 
 .gauges-hero__copy {
@@ -78,26 +79,29 @@
 }
 
 .gauges-hero h1,
-.archive-heading h2,
 .system-map-section h2,
 .system-map-dialog h2 {
   margin: 0;
-  font-family: Impact, Haettenschweiler, "Arial Narrow Bold", "Arial Narrow", sans-serif;
-  font-weight: 800;
-  letter-spacing: 0.015em;
+  font-family: "Arial Narrow", "Roboto Condensed", Haettenschweiler, Impact, sans-serif;
+  font-stretch: condensed;
+  font-weight: 700;
+  letter-spacing: -0.018em;
   line-height: 0.9;
   text-transform: uppercase;
 }
 
 .gauges-hero h1 {
-  max-width: 9ch;
-  font-size: clamp(4rem, 6.8vw, 7.8rem);
-  text-wrap: balance;
+  font-size: clamp(3.65rem, min(7vw, 9.7vh), 7.4rem);
+}
+
+.gauges-hero h1 span {
+  display: block;
+  white-space: nowrap;
 }
 
 .gauges-deck {
   max-width: 31rem;
-  margin: clamp(1.5rem, 3vw, 2.5rem) 0 0;
+  margin: clamp(1.1rem, 2.2vh, 1.8rem) 0 0;
   color: #c0c4cc;
   font-family: Georgia, "Times New Roman", serif;
   font-size: clamp(1.15rem, 1.45vw, 1.45rem);
@@ -110,7 +114,7 @@
   flex-wrap: wrap;
   gap: 0.8rem 1.35rem;
   align-items: center;
-  margin-top: clamp(2rem, 4vw, 3rem);
+  margin-top: clamp(1.35rem, 2.8vh, 2.2rem);
 }
 
 .gauges-button {
@@ -157,80 +161,6 @@
   color: var(--brand-text);
 }
 
-.guide-panel {
-  display: grid;
-  grid-template-columns: minmax(18rem, 1.05fr) minmax(18rem, 1fr) auto;
-  width: min(100%, 66rem);
-  min-height: 5.3rem;
-  margin: 0.7rem auto 0;
-  border: 1px solid rgb(154 166 178 / 0.28);
-  background: linear-gradient(110deg, rgb(13 18 28 / 0.94), rgb(9 11 19 / 0.86));
-  box-shadow: 0 1.5rem 3rem rgb(0 0 0 / 0.22);
-}
-
-.instrument-readouts {
-  display: grid;
-  grid-template-columns: 0.75fr 1.35fr 0.65fr;
-  min-width: 0;
-}
-
-.instrument-readout {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  justify-content: center;
-  gap: 0.38rem;
-  padding: 0.9rem 0.72rem;
-  border-right: 1px solid var(--brand-border);
-}
-
-.instrument-readout span,
-.guide-panel__copy span {
-  display: block;
-  color: var(--brand-muted);
-  font: 700 0.55rem "IBM Plex Mono", Consolas, monospace;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.instrument-readout strong {
-  overflow: hidden;
-  color: var(--brand-text);
-  font: 700 0.58rem "IBM Plex Mono", Consolas, monospace;
-  letter-spacing: 0.055em;
-  text-overflow: ellipsis;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.instrument-guide {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 0.9rem;
-  align-items: center;
-  min-width: 0;
-  padding: 0.85rem 1rem;
-  border-right: 1px solid var(--brand-border);
-}
-
-.guide-panel__number {
-  min-width: 3.8rem;
-  color: var(--brand-purple-glow);
-  font: 700 1rem "IBM Plex Mono", Consolas, monospace;
-  letter-spacing: 0.08em;
-}
-
-.guide-panel__copy p {
-  margin: 0.32rem 0 0;
-  color: var(--brand-text);
-  font: 650 0.62rem/1.4 "IBM Plex Mono", Consolas, monospace;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.guide-panel__exit,
-.instrument-actions > button,
-.keyboard-help summary,
 .system-map-dialog button {
   min-height: 2.75rem;
   padding: 0.6rem 0.8rem;
@@ -243,12 +173,43 @@
   cursor: pointer;
 }
 
-.guide-panel__exit:hover,
-.instrument-actions > button:hover,
-.keyboard-help summary:hover,
 .system-map-dialog button:hover {
   border-color: var(--brand-text);
   color: var(--brand-text);
+}
+
+.voyager-cue {
+  display: flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: 0.72rem;
+  width: min(100%, 61rem);
+  margin: clamp(0.2rem, 0.8vh, 0.6rem) auto 0;
+  color: #c8cbd1;
+  font: 700 clamp(0.62rem, 0.72vw, 0.76rem) "IBM Plex Mono", Consolas, monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.voyager-cue::after {
+  width: min(16rem, 24vw);
+  height: 1px;
+  margin-left: 0.7rem;
+  background: linear-gradient(90deg, rgb(196 201 208 / 0.72), transparent);
+  content: "";
+}
+
+.guide-panel__number {
+  color: var(--brand-purple-glow);
+  font-size: 1rem;
+}
+
+.voyager-cue__divider {
+  color: var(--brand-muted);
+}
+
+.voyager-cue p {
+  margin: 0;
 }
 
 .guide-panel[data-mode="active"] .guide-panel__number,
@@ -256,33 +217,24 @@
   color: var(--gauge-guide);
 }
 
-.guide-panel[data-mode="active"] {
-  border-color: rgb(255 152 31 / 0.42);
-}
-
-.instrument-actions {
-  display: flex;
-  gap: 0.45rem;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 0.75rem;
-}
-
 .voyager-experience {
   position: relative;
   z-index: 2;
+  display: grid;
+  align-content: center;
   min-width: 0;
+  min-height: 0;
 }
 
 .voyager-figure {
-  width: min(100%, 68rem);
+  width: min(100%, calc(179svh - 17.9rem), 76rem);
   margin: 0 auto;
 }
 
 .voyager-stage {
   position: relative;
   width: 100%;
-  aspect-ratio: 739 / 422;
+  aspect-ratio: 1592 / 889;
   margin-inline: auto;
   filter:
     drop-shadow(0 2.5rem 2.5rem rgb(0 0 0 / 0.55))
@@ -307,10 +259,10 @@
 .voyager-screen-opening {
   position: absolute;
   z-index: 1;
-  top: 22.038%;
-  left: 23.816%;
-  width: 51.962%;
-  height: 56.872%;
+  top: 22.272%;
+  left: 22.99%;
+  width: 53.957%;
+  height: 60.18%;
   overflow: hidden;
   background: #1b1b1b;
 }
@@ -355,7 +307,7 @@
 
 .voyager-control::after {
   position: absolute;
-  inset: 7%;
+  inset: 10%;
   border: 1px solid transparent;
   border-radius: inherit;
   background: transparent;
@@ -399,25 +351,29 @@
   opacity: 0;
 }
 
+.voyager-stage[data-guide-active="true"] .voyager-control:not([data-guided]):focus-visible {
+  outline-color: transparent;
+}
+
 .voyager-control--menu {
-  top: 26.3%;
-  left: 8.1%;
-  width: 10.7%;
-  height: 18.7%;
+  top: 22.2%;
+  left: 8.55%;
+  width: 8.7%;
+  height: 15.3%;
 }
 
 .voyager-control--back {
-  top: 61.5%;
-  left: 8.1%;
-  width: 10.7%;
-  height: 18.7%;
+  top: 55.45%;
+  left: 8.55%;
+  width: 8.7%;
+  height: 15.3%;
 }
 
 .voyager-control--up {
-  top: 17.4%;
-  left: 87.1%;
-  width: 6.6%;
-  height: 13.2%;
+  top: 16.99%;
+  left: 85.68%;
+  width: 5.65%;
+  height: 10.8%;
   border-radius: 0.6rem 0.6rem 1rem 1rem;
 }
 
@@ -427,10 +383,10 @@
 }
 
 .voyager-control--left {
-  top: 25.2%;
-  left: 82.4%;
-  width: 7.1%;
-  height: 13.2%;
+  top: 24.65%;
+  left: 81.47%;
+  width: 5.9%;
+  height: 10.7%;
   border-radius: 0.6rem 1rem 1rem 0.6rem;
 }
 
@@ -441,10 +397,10 @@
 
 .voyager-control--center {
   z-index: 4;
-  top: 25.5%;
-  left: 87.3%;
-  width: 6%;
-  height: 12.4%;
+  top: 24.5%;
+  left: 85.63%;
+  width: 5.75%;
+  height: 10.95%;
 }
 
 .voyager-control--center::after {
@@ -452,10 +408,10 @@
 }
 
 .voyager-control--right {
-  top: 25.2%;
-  left: 91.8%;
-  width: 7.1%;
-  height: 13.2%;
+  top: 24.65%;
+  left: 89.76%;
+  width: 5.9%;
+  height: 10.7%;
   border-radius: 1rem 0.6rem 0.6rem 1rem;
 }
 
@@ -465,10 +421,10 @@
 }
 
 .voyager-control--down {
-  top: 33.3%;
-  left: 87.1%;
-  width: 6.6%;
-  height: 13.2%;
+  top: 35.32%;
+  left: 85.68%;
+  width: 5.65%;
+  height: 10.8%;
   border-radius: 1rem 1rem 0.6rem 0.6rem;
 }
 
@@ -478,176 +434,83 @@
 }
 
 .voyager-control--enter {
-  top: 61.5%;
-  left: 83.9%;
-  width: 10.7%;
-  height: 18.7%;
+  top: 55.45%;
+  left: 83.03%;
+  width: 8.7%;
+  height: 15.3%;
 }
 
-.keyboard-help {
-  position: relative;
-  margin: 0;
-  color: var(--brand-muted);
-  font: 650 0.6rem/1.55 "IBM Plex Mono", Consolas, monospace;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.keyboard-help summary {
-  display: grid;
-  min-height: 2.75rem;
-  place-items: center;
-  padding: 0.6rem 0.8rem;
-  list-style: none;
-  cursor: pointer;
-}
-
-.keyboard-help summary::-webkit-details-marker {
-  display: none;
-}
-
-.keyboard-help p {
-  position: absolute;
-  z-index: 7;
-  right: 0;
-  bottom: calc(100% + 0.85rem);
-  width: min(24rem, 78vw);
-  margin: 0;
-  padding: 1rem;
-  border: 1px solid var(--brand-border);
-  background: #090b13;
-  box-shadow: 0 1rem 2.5rem rgb(0 0 0 / 0.45);
-}
-
-.archive-section,
 .system-map-section,
 .gauges-footer {
   width: min(100% - 3rem, 90rem);
   margin-inline: auto;
 }
 
-.archive-section {
-  padding: clamp(5rem, 10vw, 10rem) 0;
-}
-
-.archive-heading {
-  display: grid;
-  grid-template-columns: minmax(18rem, 0.8fr) minmax(20rem, 0.7fr);
-  gap: 2rem clamp(3rem, 9vw, 10rem);
-  align-items: end;
-}
-
-.archive-heading .gauges-eyebrow {
-  grid-column: 1 / -1;
-  margin-bottom: 0;
-}
-
-.archive-heading h2,
 .system-map-section h2 {
-  font-size: clamp(3.25rem, 6vw, 6.5rem);
+  font-size: clamp(3rem, 4.8vw, 4.8rem);
 }
 
-.archive-heading > p:last-child,
-.system-map-section__copy > p:last-of-type {
-  margin: 0;
-  color: var(--brand-muted);
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(1.05rem, 1.35vw, 1.25rem);
-  line-height: 1.65;
-}
-
-.archive-register {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin: clamp(4rem, 8vw, 7rem) 0 0;
-  border-top: 1px solid var(--brand-border);
-  border-left: 1px solid var(--brand-border);
-}
-
-.archive-register > div {
-  min-height: 14rem;
-  padding: clamp(1.4rem, 2.5vw, 2.5rem);
-  border-right: 1px solid var(--brand-border);
-  border-bottom: 1px solid var(--brand-border);
-}
-
-.archive-register dt {
-  color: var(--brand-text);
-  font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
-  font-size: clamp(3.5rem, 6vw, 6.5rem);
-  letter-spacing: 0.02em;
-  line-height: 1;
-  text-transform: uppercase;
-}
-
-.archive-register dd {
-  max-width: 14rem;
-  margin: 2rem 0 0;
-  color: var(--brand-muted);
-  font: 700 0.65rem/1.5 "IBM Plex Mono", Consolas, monospace;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.archive-process {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1px;
-  margin-top: clamp(4rem, 7vw, 7rem);
-  background: var(--brand-border);
-  border: 1px solid var(--brand-border);
-}
-
-.archive-process article {
-  min-height: 20rem;
-  padding: clamp(1.5rem, 2.7vw, 2.7rem);
-  background: linear-gradient(160deg, rgb(255 255 255 / 0.025), transparent 52%), var(--brand-card);
-}
-
-.archive-process span {
-  color: var(--brand-purple-glow);
-  font: 700 0.58rem "IBM Plex Mono", Consolas, monospace;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.archive-process h3 {
-  max-width: 12ch;
-  margin: 4rem 0 1.2rem;
-  font-size: clamp(1.5rem, 2.2vw, 2.2rem);
-  line-height: 1.08;
-}
-
-.archive-process p {
-  max-width: 27rem;
-  margin: 0;
-  color: var(--brand-muted);
-  font-family: Georgia, "Times New Roman", serif;
-  line-height: 1.6;
+.system-map-section h2 span {
+  display: block;
+  white-space: nowrap;
 }
 
 .system-map-section {
   display: grid;
-  grid-template-columns: minmax(20rem, 0.85fr) minmax(24rem, 1.15fr);
-  gap: clamp(3rem, 8vw, 9rem);
+  grid-template-columns: minmax(23rem, 1fr) minmax(22rem, 0.8fr);
+  gap: clamp(3rem, 7vw, 7rem);
   align-items: center;
-  padding: clamp(5rem, 10vw, 10rem) 0;
+  padding: clamp(4.5rem, 8vw, 7.5rem) 0;
   border-top: 1px solid var(--brand-border);
 }
 
-.system-map-section h2 {
-  max-width: 9ch;
+.system-map-section__copy > p:last-of-type {
+  max-width: 43rem;
+  margin: 1.8rem 0 0;
+  color: var(--brand-muted);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.05rem, 1.3vw, 1.22rem);
+  line-height: 1.65;
 }
 
-.system-map-section__copy > p:last-of-type {
-  max-width: 38rem;
-  margin-top: 2rem;
+.system-map-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: clamp(2.2rem, 4vw, 3.4rem) 0 0;
+  border-block: 1px solid var(--brand-border);
+}
+
+.system-map-facts div {
+  min-width: 0;
+  padding: 1.25rem clamp(0.5rem, 1.4vw, 1.2rem) 1.3rem 0;
+}
+
+.system-map-facts div + div {
+  padding-left: clamp(0.7rem, 1.4vw, 1.2rem);
+  border-left: 1px solid var(--brand-border);
+}
+
+.system-map-facts dt {
+  color: var(--brand-text);
+  font-family: "Arial Narrow", "Roboto Condensed", Haettenschweiler, Impact, sans-serif;
+  font-size: clamp(2.4rem, 4vw, 4rem);
+  font-stretch: condensed;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.system-map-facts dd {
+  margin: 0.7rem 0 0;
+  color: var(--brand-muted);
+  font: 700 0.58rem/1.45 "IBM Plex Mono", Consolas, monospace;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
 }
 
 .system-map-section__visual {
   position: relative;
   display: grid;
-  min-height: min(62vw, 40rem);
+  min-height: clamp(28rem, 52vw, 39rem);
   overflow: hidden;
   border: 1px solid var(--brand-border);
   background:
@@ -675,47 +538,6 @@
   height: 94%;
   object-fit: contain;
   filter: brightness(0.9) contrast(1.08) drop-shadow(0 1.5rem 2rem rgb(0 0 0 / 0.36));
-}
-
-.system-map-region-links {
-  position: absolute;
-  z-index: 2;
-  inset: 0;
-}
-
-.system-map-region-links button {
-  position: absolute;
-  min-height: 2.75rem;
-  padding: 0.7rem 0.85rem;
-  border: 1px solid var(--brand-border);
-  background: rgb(9 11 19 / 0.92);
-  color: var(--brand-muted);
-  font: 700 0.58rem "IBM Plex Mono", Consolas, monospace;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  cursor: pointer;
-}
-
-.system-map-region-links button:hover,
-.system-map-region-links button:focus-visible {
-  border-color: var(--brand-purple-glow);
-  color: var(--brand-text);
-}
-
-.system-map-region-links button:nth-child(1) {
-  top: 16%;
-  left: 7%;
-}
-
-.system-map-region-links button:nth-child(2) {
-  right: 6%;
-  top: 25%;
-}
-
-.system-map-region-links button:nth-child(3) {
-  right: 7%;
-  bottom: 12%;
-  color: var(--brand-purple-glow);
 }
 
 .gauges-footer {
@@ -859,19 +681,38 @@
 
 @media (max-width: 1180px) {
   .gauges-hero__inner {
-    grid-template-columns: 1fr;
-    align-content: center;
-  }
-
-  .gauges-hero__copy {
-    max-width: 48rem;
+    grid-template-columns: minmax(16rem, 0.55fr) minmax(31rem, 1.45fr);
+    gap: 1.5rem;
   }
 
   .gauges-hero h1 {
-    max-width: 12ch;
+    font-size: clamp(3.65rem, min(6.7vw, 9.2vh), 6.4rem);
+  }
+}
+
+@media (max-width: 900px) {
+  .gauges-hero {
+    height: auto;
+    min-height: calc(100svh - 4.25rem);
   }
 
-  .voyager-experience {
+  .gauges-hero__inner {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: calc(100svh - 4.25rem);
+    padding: clamp(2.5rem, 7vw, 4rem) 0;
+  }
+
+  .gauges-hero__copy {
+    max-width: 42rem;
+  }
+
+  .gauges-hero h1 {
+    font-size: clamp(4rem, 11vw, 6.5rem);
+  }
+
+  .voyager-experience,
+  .voyager-figure {
     width: min(100%, 68rem);
     margin-inline: auto;
   }
@@ -886,40 +727,8 @@
     display: none;
   }
 
-  .gauges-masthead nav a:nth-child(2) {
-    display: none;
-  }
-
-  .archive-heading,
   .system-map-section {
     grid-template-columns: 1fr;
-  }
-
-  .archive-register,
-  .archive-process {
-    grid-template-columns: 1fr;
-  }
-
-  .archive-register > div {
-    min-height: 10rem;
-  }
-
-  .archive-process article {
-    min-height: 16rem;
-  }
-
-  .guide-panel {
-    grid-template-columns: 1fr;
-  }
-
-  .instrument-readouts,
-  .instrument-guide {
-    border-right: 0;
-    border-bottom: 1px solid var(--brand-border);
-  }
-
-  .instrument-actions {
-    justify-content: flex-start;
   }
 
   .system-map-section__visual {
@@ -938,18 +747,20 @@
   }
 
   .gauges-hero {
-    min-height: 0;
     background-position: 61% center;
   }
 
   .gauges-hero__inner {
     width: min(100% - 2rem, 38rem);
-    min-height: 0;
-    padding: 3.5rem 0 4.5rem;
+    padding: 3rem 0 3.5rem;
   }
 
   .gauges-hero h1 {
-    font-size: clamp(3.4rem, 17vw, 5rem);
+    font-size: clamp(3rem, 14vw, 4.2rem);
+  }
+
+  .gauges-deck {
+    display: none;
   }
 
   .voyager-experience {
@@ -967,22 +778,32 @@
     width: 36rem;
   }
 
-  .guide-panel {
+  .voyager-cue {
     width: calc(100vw - 2rem);
+    margin-top: 0.8rem;
   }
 
-  .instrument-readouts {
-    grid-template-columns: 0.75fr 1.35fr 0.65fr;
+  .voyager-cue::after {
+    display: none;
   }
 
-  .instrument-actions {
-    flex-wrap: wrap;
-  }
-
-  .archive-section,
   .system-map-section,
   .gauges-footer {
     width: min(100% - 2rem, 90rem);
+  }
+
+  .system-map-facts {
+    grid-template-columns: 1fr;
+  }
+
+  .system-map-facts div + div {
+    padding-left: 0;
+    border-top: 1px solid var(--brand-border);
+    border-left: 0;
+  }
+
+  .system-map-section h2 span {
+    white-space: normal;
   }
 
   .gauges-footer,
