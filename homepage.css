@@ -1,0 +1,548 @@
+/* Story-led homepage */
+
+.directory-body {
+  position: relative;
+  isolation: isolate;
+  background:
+    radial-gradient(
+      ellipse 78% 68% at 88% 7%,
+      rgb(112 43 188 / 42%) 0%,
+      rgb(72 32 126 / 27%) 34%,
+      rgb(27 20 63 / 12%) 53%,
+      transparent 72%
+    ),
+    linear-gradient(
+      180deg,
+      #1b1832 0%,
+      #121326 42%,
+      #0a0e18 78%,
+      #080b12 100%
+    );
+}
+
+.directory-body::before {
+  background: none;
+}
+
+.directory-body .directory-masthead {
+  position: relative;
+  grid-template-columns: 1fr auto;
+  border-bottom-color: rgb(128 112 171 / 0.24);
+  background: rgb(8 11 18 / 0.48);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.directory-body .directory-masthead .wordmark {
+  width: clamp(9.75rem, 13vw, 11.5rem);
+}
+
+.directory-body .directory-masthead nav a {
+  color: #aaa6ba;
+}
+
+.directory-body .directory-masthead nav a:hover,
+.directory-body .directory-masthead nav a:focus-visible {
+  color: #f2eee6;
+}
+
+.directory-body .directory-main {
+  position: relative;
+  z-index: 1;
+  grid-template-areas:
+    "directory intro"
+    "directory career";
+  grid-template-columns: minmax(27rem, 0.92fr) minmax(31rem, 1.08fr);
+  column-gap: clamp(4rem, 6vw, 6.5rem);
+  row-gap: 1.15rem;
+  align-items: start;
+  width: min(100% - 5rem, 96rem);
+  padding-block: clamp(2rem, 4.8vh, 3.25rem);
+}
+
+.directory-body .site-directory {
+  align-self: center;
+  margin: 0.5rem 0.625rem;
+  padding: 2.5rem;
+  border: 1px solid rgb(124 105 161 / 0.3);
+  background: rgb(19 17 35 / 0.86);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.02),
+    0 1.125rem 3.75rem rgb(0 0 0 / 0.14);
+}
+
+.directory-body .directory-heading {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  margin-bottom: 1.55rem;
+}
+
+.directory-body .directory-heading::after {
+  height: 1px;
+  background: #29283d;
+  content: "";
+  flex: 1;
+}
+
+.directory-body .directory-heading h2 {
+  flex: none;
+  margin: 0;
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: clamp(1.15rem, 1.65vw, 1.55rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.12em;
+}
+
+.directory-body .directory-list {
+  position: relative;
+  border-top: 0;
+  background: linear-gradient(90deg, #0c0c17 0 5rem, transparent 5rem);
+}
+
+.directory-body .directory-list::before {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  bottom: 0;
+  left: 5rem;
+  width: 1px;
+  background: #29283d;
+  content: "";
+  pointer-events: none;
+}
+
+.directory-body .directory-list li {
+  border-bottom-color: #29283d;
+}
+
+.directory-body .directory-row {
+  grid-template-columns: 3.8rem minmax(0, 1fr) 2rem;
+  gap: 1.35rem;
+  min-height: 6.7rem;
+  padding: 1.15rem 0.5rem 1.15rem 1.15rem;
+  border-left: 2px solid transparent;
+  transition: background-color 300ms ease, border-color 300ms ease;
+}
+
+.directory-body .directory-row.is-active {
+  padding: 1.15rem 0.5rem 1.15rem 1.15rem;
+  border-left-color: #ff5a36;
+  background: rgb(74 31 52 / 0.31);
+  transition-duration: 120ms;
+}
+
+.directory-body .directory-number {
+  display: flex;
+  gap: 0.55rem;
+  align-self: stretch;
+  align-items: center;
+  padding-right: 1.2rem;
+  border-right: 0;
+  font-size: 0.72rem;
+  transition: color 250ms ease;
+}
+
+.directory-body .directory-number::before {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: #15151f;
+  box-shadow: inset 0 0 0 1px rgb(170 166 186 / 0.09);
+  content: "";
+  flex: 0 0 auto;
+  transition: background-color 250ms ease, box-shadow 250ms ease;
+}
+
+.directory-body .directory-row--recommended .directory-number {
+  color: #ff5a36;
+}
+
+.directory-body .story-directory.is-engaged .directory-row--recommended:not(.is-active) .directory-number,
+.directory-body .story-directory.is-boot-sequence .directory-row--recommended:not(.is-booting) .directory-number {
+  color: var(--brand-muted);
+}
+
+.directory-body .story-directory:not(.is-engaged):not(.is-boot-sequence) .directory-row--recommended .directory-number::before,
+.directory-body .directory-row.is-active .directory-number::before,
+.directory-body .directory-row.is-booting .directory-number::before {
+  background: #ff6a44;
+  box-shadow:
+    0 0 0 0.22rem rgb(255 90 54 / 0.08),
+    0 0 0.9rem rgb(255 90 54 / 0.48);
+}
+
+.directory-body .story-directory:not(.is-engaged):not(.is-boot-sequence) .directory-row--recommended .directory-number::before {
+  animation: story-beacon 8s ease-out 2s infinite;
+}
+
+.directory-body .directory-row.is-active .directory-number,
+.directory-body .directory-row.is-booting .directory-number {
+  color: #ff5a36;
+  transition-duration: 100ms;
+}
+
+.directory-body .directory-row.is-active .directory-number::before,
+.directory-body .directory-row.is-booting .directory-number::before {
+  transition-duration: 100ms;
+}
+
+.directory-body .directory-entry {
+  gap: 0.55rem;
+  align-self: center;
+}
+
+.directory-body .directory-row .directory-entry strong {
+  color: #e8e6e1;
+  font-size: clamp(1rem, 1.35vw, 1.28rem);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: 0.08em;
+}
+
+.directory-body .directory-entry > span:last-child {
+  max-width: 33rem;
+  color: #a9aabc;
+  font-size: clamp(0.78rem, 0.95vw, 0.93rem);
+  line-height: 1.4;
+}
+
+.directory-body .directory-action {
+  align-self: center;
+  color: #747689;
+  font-size: 1.35rem;
+  font-weight: 400;
+  transition: color 250ms ease;
+}
+
+.directory-body .directory-row.is-active .directory-action {
+  color: #ff5a36;
+  transition-duration: 100ms;
+}
+
+@keyframes story-beacon {
+  0%, 5%, 100% {
+    box-shadow:
+      0 0 0 0.22rem rgb(255 90 54 / 0.08),
+      0 0 0.9rem rgb(255 90 54 / 0.42);
+  }
+
+  1.5%, 3.75% {
+    box-shadow:
+      0 0 0 0.3rem rgb(255 90 54 / 0.11),
+      0 0 1.1rem rgb(255 90 54 / 0.72);
+  }
+
+  2.6% {
+    box-shadow:
+      0 0 0 0.22rem rgb(255 90 54 / 0.08),
+      0 0 0.85rem rgb(255 90 54 / 0.38);
+  }
+}
+
+.directory-body .directory-intro .section-label::before {
+  display: none;
+}
+
+.directory-body .directory-intro {
+  position: relative;
+  grid-area: intro;
+  align-self: end;
+}
+
+.story-atmosphere {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: clip;
+  pointer-events: none;
+  isolation: isolate;
+}
+
+.story-atmosphere__image {
+  position: absolute;
+  top: 46%;
+  right: -7vw;
+  width: min(61vw, 68.75rem);
+  height: auto;
+  opacity: 0.32;
+  filter: none;
+  mix-blend-mode: normal;
+  transform: translateY(-50%);
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgb(0 0 0 / 0.12) 26%,
+    rgb(0 0 0 / 0.58) 48%,
+    #000 70%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgb(0 0 0 / 0.12) 26%,
+    rgb(0 0 0 / 0.58) 48%,
+    #000 70%
+  );
+}
+
+.directory-body .directory-intro h1 {
+  max-width: 8ch;
+  margin-top: 1.45rem;
+  font-size: clamp(4.3rem, 6.1vw, 6.15rem);
+  line-height: 0.84;
+}
+
+.directory-body .directory-intro-copy {
+  position: relative;
+  z-index: 2;
+  isolation: isolate;
+  max-width: 37rem;
+  margin-top: 1.8rem;
+  padding-top: 1.55rem;
+}
+
+.directory-body .directory-intro-copy::before {
+  position: absolute;
+  z-index: -1;
+  inset: -1rem -2rem -9rem -1.5rem;
+  background: radial-gradient(
+    ellipse at 35% 45%,
+    rgb(8 11 18 / 0.58) 0%,
+    rgb(8 11 18 / 0.25) 54%,
+    transparent 80%
+  );
+  content: "";
+  pointer-events: none;
+}
+
+.directory-body .directory-intro-copy p,
+.directory-body .career-context p {
+  margin: 0;
+  color: #d7d5d0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1rem, 1.3vw, 1.2rem);
+  line-height: 1.42;
+}
+
+.directory-body .career-context {
+  position: relative;
+  z-index: 2;
+  grid-area: career;
+  align-self: start;
+  max-width: 37rem;
+}
+
+.directory-body .first-story-cta {
+  display: inline-flex;
+  min-height: 2.8rem;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1.4rem;
+  padding: 0.75rem 1.1rem;
+  border: 1px solid #fff;
+  background: #147a52;
+  color: #fff;
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.055em;
+  line-height: 1;
+  text-decoration: none;
+  transition: background-color 150ms ease;
+}
+
+.directory-body .first-story-cta:hover,
+.directory-body .first-story-cta:focus-visible {
+  background: #199663;
+}
+
+.directory-body .directory-footer {
+  position: relative;
+  z-index: 1;
+  width: min(100% - 5rem, 96rem);
+  padding-block: 1rem 1.25rem;
+}
+
+.directory-body .directory-footer nav {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.directory-body .directory-footer a:hover,
+.directory-body .directory-footer a:focus-visible {
+  color: var(--brand-text);
+}
+
+@media (min-width: 901px) and (max-height: 760px) {
+  .directory-body .directory-main {
+    padding-block: 1.5rem;
+  }
+
+  .directory-body .directory-heading {
+    margin-bottom: 1rem;
+  }
+
+  .directory-body .directory-row {
+    min-height: 5.8rem;
+  }
+
+  .directory-body .directory-intro h1 {
+    margin-top: 1rem;
+    font-size: clamp(3.9rem, 5.4vw, 5.3rem);
+  }
+
+  .directory-body .directory-intro-copy {
+    margin-top: 1.2rem;
+    padding-top: 1.1rem;
+  }
+
+  .directory-body .directory-intro-copy p,
+  .directory-body .career-context p {
+    font-size: clamp(0.9rem, 1.12vw, 1.04rem);
+    line-height: 1.38;
+  }
+
+  .directory-body .directory-footer {
+    padding-block: 0.8rem 1rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .directory-body .directory-main {
+    grid-template-areas:
+      "intro"
+      "directory"
+      "career";
+    grid-template-columns: 1fr;
+    row-gap: 4rem;
+    width: min(100% - 3rem, 46rem);
+  }
+
+  .directory-body .directory-intro h1 {
+    font-size: clamp(4rem, 12vw, 6rem);
+  }
+
+  .directory-body .directory-footer {
+    width: min(100% - 3rem, 46rem);
+  }
+
+  .directory-body .site-directory {
+    margin: 0;
+  }
+
+  .story-atmosphere {
+    display: none;
+  }
+
+  .directory-body .directory-intro-copy::before {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .directory-body .directory-main {
+    row-gap: 0;
+    padding-block: 2rem 4rem;
+  }
+
+  .directory-body .directory-intro h1 {
+    margin-top: 1.2rem;
+    font-size: clamp(3.35rem, 16vw, 4.5rem);
+    line-height: 0.86;
+    letter-spacing: -0.045em;
+  }
+
+  .directory-body .directory-intro-copy {
+    margin-top: 1.4rem;
+    padding-top: 1.15rem;
+  }
+
+  .directory-body .directory-intro-copy p {
+    font-size: 1rem;
+    line-height: 1.45;
+  }
+
+  .directory-body .story-directory {
+    margin-top: 2rem;
+    padding: 1.1rem 0.75rem 0.75rem;
+  }
+
+  .directory-body .directory-heading {
+    margin-bottom: 1rem;
+  }
+
+  .directory-body .directory-heading h2 {
+    font-size: 1.45rem;
+  }
+
+  .directory-body .directory-row,
+  .directory-body .directory-row.is-active {
+    grid-template-columns: 2.6rem minmax(0, 1fr) 1.05rem;
+    gap: 0.6rem;
+    min-height: 5.65rem;
+    padding: 0.7rem 0.1rem 0.7rem 0.5rem;
+  }
+
+  .directory-body .directory-list {
+    background: linear-gradient(90deg, #0c0c17 0 3.1rem, transparent 3.1rem);
+  }
+
+  .directory-body .directory-list::before {
+    left: 3.1rem;
+  }
+
+  .directory-body .directory-number {
+    gap: 0.3rem;
+    padding-right: 0.2rem;
+  }
+
+  .directory-body .directory-row .directory-entry strong {
+    font-size: 1.18rem;
+    line-height: 1.15;
+    letter-spacing: 0.055em;
+  }
+
+  .directory-body .directory-entry > span:last-child {
+    font-size: 0.92rem;
+    line-height: 1.4;
+  }
+
+  .directory-body .career-context {
+    margin-top: 2rem;
+    padding: 1.5rem 0.2rem 0;
+    border-top: 1px solid #29283d;
+  }
+
+  .directory-body .career-context p {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+}
+
+@media (max-width: 560px) {
+  .directory-body .directory-masthead .wordmark {
+    width: 9rem;
+  }
+
+  .directory-body .directory-main,
+  .directory-body .directory-footer {
+    width: min(100% - 1.25rem, 46rem);
+  }
+
+  .directory-body .directory-footer {
+    align-items: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .directory-body .directory-row,
+  .directory-body .directory-number,
+  .directory-body .directory-number::before,
+  .directory-body .directory-action,
+  .story-atmosphere__image {
+    animation: none;
+    transition: none;
+    transform: none;
+  }
+}

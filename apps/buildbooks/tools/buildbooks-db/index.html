@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Buildbooks Database · Buildbooks</title>
+  <link rel="icon" href="/apps/buildbooks/favicon.ico">
+  <link rel="icon" type="image/svg+xml" href="/apps/buildbooks/assets/buildbooks-symbol-water.svg">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apps/buildbooks/assets/apple-touch-icon.png">
+  <link rel="manifest" href="/apps/buildbooks/assets/site.webmanifest">
+  <link rel="stylesheet" href="/apps/buildbooks/assets/tool-demo.css?v=2">
+  <script src="/apps/buildbooks/tools/buildbooks-db/upload-demo.js?v=1" defer></script>
+</head>
+<body>
+  <header class="tool-topbar">
+    <a class="tool-topbar__brand" href="/apps/buildbooks/bb?item=QAR-0001&amp;tab=1" aria-label="Return to Buildbooks">
+      <img src="/apps/buildbooks/assets/buildbooks-logo-water.svg" alt="Buildbooks">
+    </a>
+    <nav class="tool-topbar__nav" aria-label="Buildbooks utility navigation">
+      <a href="/apps/buildbooks/bb?item=QAR-0001&amp;tab=1">Buildbooks</a>
+      <a href="/apps/buildbooks/tools/buildbooks-images/index.html">Restore images</a>
+      <a href="/">Return to Bob's App</a>
+    </nav>
+  </header>
+
+  <main class="tool-page">
+    <div class="tool-heading">
+      <div>
+        <p class="tool-eyebrow">Dataset maintenance</p>
+        <h1>Buildbooks database</h1>
+        <p class="tool-lede">Demo mode: download the data, change it, then re-upload to convert Buildbooks to your BOMs.</p>
+      </div>
+      <span class="demo-chip">Portfolio simulation</span>
+    </div>
+
+    <section class="tool-panel" aria-labelledby="uploadPanelTitle">
+      <div class="tool-panel__header">
+        <h2 id="uploadPanelTitle">Buildbooks data package</h2>
+        <span>Four files required</span>
+      </div>
+      <div class="tool-panel__body">
+        <div class="database-download">
+          <div class="database-download__copy">
+            <strong>Inspect the current QAR dataset</strong>
+            <span>Download the BOM, inventory, item metadata, and label configuration as four plain-text TSV files.</span>
+          </div>
+          <a class="download-button" href="/apps/buildbooks/downloads/buildbooks-qar-database.zip" download>
+            Download database ZIP <span aria-hidden="true">↓</span>
+          </a>
+        </div>
+
+        <div class="file-stack">
+          <div class="file-row" data-file-field>
+            <div class="file-row__label">
+              <strong>Bill of materials</strong>
+              <span>Assembly and part relationships</span>
+            </div>
+            <span class="file-name" data-file-name>No file selected</span>
+            <input id="bomFile" type="file" accept=".tsv,.csv,text/tab-separated-values,text/csv">
+            <label class="file-button" for="bomFile"><span data-file-action>Add file</span></label>
+          </div>
+
+          <div class="file-row" data-file-field>
+            <div class="file-row__label">
+              <strong>Inventory</strong>
+              <span>SKU, description, vendor, and UPC records</span>
+            </div>
+            <span class="file-name" data-file-name>No file selected</span>
+            <input id="inventoryFile" type="file" accept=".tsv,.csv,text/tab-separated-values,text/csv">
+            <label class="file-button" for="inventoryFile"><span data-file-action>Add file</span></label>
+          </div>
+
+          <div class="file-row" data-file-field>
+            <div class="file-row__label">
+              <strong>Item metadata</strong>
+              <span>Stock, stowage, sourcing, and historical context</span>
+            </div>
+            <span class="file-name" data-file-name>No file selected</span>
+            <input id="metadataFile" type="file" accept=".tsv,.csv,text/tab-separated-values,text/csv">
+            <label class="file-button" for="metadataFile"><span data-file-action>Add file</span></label>
+          </div>
+
+          <div class="file-row" data-file-field>
+            <div class="file-row__label">
+              <strong>Label configuration</strong>
+              <span>Country of origin, handling flags, and hazard profiles</span>
+            </div>
+            <span class="file-name" data-file-name>No file selected</span>
+            <input id="labelConfigurationFile" type="file" accept=".tsv,.csv,text/tab-separated-values,text/csv">
+            <label class="file-button" for="labelConfigurationFile"><span data-file-action>Add file</span></label>
+          </div>
+        </div>
+
+        <div class="upload-actions">
+          <p class="tool-note">Files remain in this browser. This public demo never sends or stores them.</p>
+          <button id="runUpload" class="primary-button" type="button" disabled>Update Buildbooks</button>
+        </div>
+
+        <div id="uploadProgress" class="progress-area" role="status" aria-live="polite">
+          <div class="progress-track" aria-hidden="true"><div id="progressBar" class="progress-bar"></div></div>
+          <div class="progress-copy">
+            <strong id="progressLabel">Ready</strong>
+            <span id="progressPercent">0%</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<!-- This is a Gemini Class website, framework by Bob Tischendorf, copyright 2018. -->
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Buildbooks</title>
+	<link rel="icon" href="favicon.ico">
+	<link rel="icon" type="image/svg+xml" href="assets/buildbooks-symbol-water.svg">
+	<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+	<link rel="manifest" href="assets/site.webmanifest">
+	
+	<link rel="preconnect" href="https://fonts.gstatic.com">
+	<link href="https://fonts.googleapis.com/css2?family=Sriracha&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Miriam+Libre:wght@400;700&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300..900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300..800&family=Rubik:wght@300..900&display=swap" rel="stylesheet">
+	<!-- Load app files -->
+	<link rel="stylesheet" href="assets/bb.css?v=0.0.199">
+	<script src="assets/jsbarcode.all.min.js?v=0.0.03"></script>
+	<script src="assets/vendor/pdf-lib-1.17.1.min.js"></script>
+	<script src="assets/vendor/fontkit-1.1.1.umd.min.js"></script>
+	<script src="assets/buildbooks-label-pdf.js?v=0.0.005"></script>
+	<script src="assets/bb.js?v=0.0.702"></script>
+	<script src="assets/clipboard.min.js?v=0.0.01"></script>
+</head>
+<body>
+
+
+	<div id="topbar">
+		<div id="topbarActions">
+			<span id="shareLink" href='' data-clipboard-text="test">Copy Link</span> 
+			| <button id="toolsMenuButton" type="button" aria-expanded="false" aria-controls="toolsMenu" title="Buildbooks menu"><img src="assets/menu-icon.svg" alt="Buildbooks menu"></button>
+			<div id="toolsMenu" aria-label="Buildbooks menu">
+				<a href="/">Return to Bob's App</a>
+				<a href="tools/buildbooks-images/index.html">Restore Images</a>
+				<a href="tools/buildbooks-db/index.html">Upload Database</a>
+			</div>
+		</div>
+		<div id="armor-tech-logo"><a href="bb.html?item=QAR-0001&amp;tab=1"><img id="armor-tech-logo-svg" src="assets/buildbooks-logo-water.svg" alt="Buildbooks"></a></div>
+	</div>
+
+	<span id="browserError" class="error" style="display:none;">
+		CODE I.E.D.<br>
+		<br>
+		INTERNET EXPLORER DETECTED<br>
+		<br>
+		Please use a standards compliant browser, such as FIREFOX or CHROME.<br>
+		<br>
+	</span>
+	
+	
+	<div id="sidebar">
+		<div class="sidebarBlock">
+			<label for="sidebarSearchInput">Search SKUs:</label>
+			<input id="sidebarSearchInput" type="search" placeholder="Type or scan SKU">
+		</div>
+
+		<div class="sidebarBlock sidebarBlock--main-ship">
+			<button id="mainShipButton" type="button">Blackbeard's Ship</button>
+		</div>
+
+		<div class="sidebarBlock">
+			<select id="SKUselect" name="nameSKUselect" size="15" onchange="bb.dry.loadSku(this)"></select>
+		</div>
+	</div>
+	
+	
+	
+	<div id="main">
+
+		<div id="mainTop">
+			<div id="headerThumbnailViewer">
+			  <div id="mainHeaderImageStage">
+			    <a id="mainHeaderImgLink" href="#" target="_blank">
+			      <img id="mainHeaderImg" src="assets/noimage.svg" alt="Main Image">
+			    </a>
+			    <div id="mainImageToolbar" aria-label="Image controls">
+			      <button id="buttonImageTools" class="imageToolsToggle" type="button" aria-expanded="false" aria-controls="imageToolActions" title="Image controls" aria-label="Show image controls"><span aria-hidden="true">•••</span></button>
+			      <div id="imageToolActions" class="imageToolActions" hidden>
+			        <button id="buttonUploadImage" class="imageToolButton" type="button" title="Add an image" aria-label="Add an image"><img src="assets/upload_icon.svg" alt=""></button>
+			        <button id="buttonDeleteImage" class="imageToolButton" type="button" title="Remove selected image" aria-label="Remove selected image" disabled><img src="assets/delete_icon.svg" alt=""></button>
+			        <button id="buttonZoomImage" class="imageToolButton" type="button" title="Enlarge selected image" aria-label="Enlarge selected image" disabled>
+			          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m15.5 15.5 5 5"></path></svg>
+			        </button>
+			      </div>
+			    </div>
+			    <input id="inputUploadImage" type="file" accept="image/*" style="display:none;">
+			  </div>
+			  <div id="imageUploadStatus" role="status" aria-live="polite"></div>
+
+			  <div id="thumbnailContainer"></div>
+			</div>
+		<!--	<a id="mainTopImgAnchor" href="" target="_blank">
+			<img id='mainTopImg' class='cardImg' src="assets/noimage.svg" alt="SKU Image"></a>-->
+			<div id="mainTopContent">
+				<div class="itemRecordTitleRow">
+					<h1 id="containerHeaderTitle">Select a SKU...</h1>
+					<button id="buttonEditItemRecord" class="itemRecordEditButton" type="button" aria-expanded="false" aria-controls="itemRecordEditor" aria-label="Edit item record" title="Edit item record" disabled>
+						<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 16.5-.8 4.3 4.3-.8L19 8.5 15.5 5 4 16.5Z M13.8 6.7l3.5 3.5"/></svg>
+						<span class="visuallyHidden">Edit item record</span>
+					</button>
+				</div>
+
+				<div id="itemRecordView">
+					<div id="selectedItemName" class="itemRecordDescription">~</div>
+					<dl class="itemRecordMeta">
+						<div><dt>Vendor:</dt><dd id="selectedVendor">~</dd></div>
+						<div class="itemRecordMetaFull"><dt>Origin:</dt><dd id="selectedOrigin">~</dd></div>
+						<div id="selectedHazardRow" hidden><dt>Hazard:</dt><dd id="selectedHazard">~</dd></div>
+						<div><dt>History:</dt><dd id="clickHistory">~</dd></div>
+					</dl>
+					<div id="itemHandlingBadges" class="itemHandlingBadges" role="group" aria-label="Handling requirements" hidden>
+						<span id="itemBadgeFragile" class="itemHandlingSymbol" role="img" aria-label="Fragile" title="Fragile" hidden>
+							<img src="assets/fragile-icon.svg" alt="" aria-hidden="true">
+						</span>
+						<span id="itemBadgeStoreDry" class="itemHandlingSymbol" role="img" aria-label="Keep dry" title="Keep dry" hidden>
+							<img src="assets/umbrella-icon.svg" alt="" aria-hidden="true">
+						</span>
+						<span id="itemBadgeKeepAwayFromFlame" class="itemHandlingSymbol" role="img" aria-label="Keep away from flame" title="Keep away from flame" hidden>
+							<img src="assets/flammable_icon.svg" alt="" aria-hidden="true">
+						</span>
+						<span id="itemBadgeToxic" class="itemHandlingSymbol" role="img" aria-label="Toxic" title="Toxic" hidden>
+							<img src="assets/toxic-skull-icon.svg" alt="" aria-hidden="true">
+						</span>
+					</div>
+				</div>
+
+				<form id="itemRecordEditor" class="itemRecordEditor" hidden aria-labelledby="itemRecordEditorTitle">
+					<h2 id="itemRecordEditorTitle" class="itemRecordEditorTitle">Edit item record <span id="itemRecordEditorSku"></span></h2>
+					<div class="itemRecordEditorFields">
+						<label class="itemRecordFieldFull" for="itemRecordDescriptionInput">Description
+							<input id="itemRecordDescriptionInput" type="text" autocomplete="off" required>
+						</label>
+						<label for="itemRecordVendorInput">Vendor
+							<input id="itemRecordVendorInput" type="text" autocomplete="off" required>
+						</label>
+						<label for="itemRecordCountryOfOrigin">Country of origin
+							<input id="itemRecordCountryOfOrigin" type="text" autocomplete="off">
+						</label>
+						<label for="itemRecordHazardProfile">Hazard profile
+							<select id="itemRecordHazardProfile">
+								<option value="">None</option>
+								<option value="AMMUNITION">Ammunition</option>
+								<option value="COMBUSTIBLE">Combustible</option>
+								<option value="CONTROLLED_MEDICAL">Controlled medical</option>
+								<option value="EXPLOSIVE">Explosive</option>
+								<option value="FLAMMABLE">Flammable</option>
+								<option value="ORDNANCE">Ordnance</option>
+								<option value="SHARP_EDGE">Sharp edge</option>
+								<option value="TOXIC">Toxic</option>
+							</select>
+						</label>
+					</div>
+					<fieldset class="itemRecordHandlingFields">
+						<legend>Handling requirements</legend>
+						<label><input id="itemRecordFragileCheckbox" type="checkbox"> Fragile</label>
+						<label><input id="itemRecordStoreDryCheckbox" type="checkbox"> Store dry</label>
+						<label><input id="itemRecordKeepAwayFromFlameCheckbox" type="checkbox"> Keep away from flame</label>
+						<label><input id="itemRecordToxicCheckbox" type="checkbox"> Toxic</label>
+					</fieldset>
+					<div class="itemRecordEditorActions">
+						<button id="buttonSaveItemRecord" class="itemRecordSaveButton" type="submit">Save for session</button>
+						<button id="buttonCancelItemRecord" type="button">Cancel</button>
+						<button id="buttonResetItemRecord" type="button">Reset defaults</button>
+					</div>
+					<p class="itemRecordSessionNote">DEMO MODE</p>
+				</form>
+				<p id="itemRecordStatus" class="itemRecordStatus" role="status" aria-live="polite"></p>
+				<div id="selectedUpc" style="display:none;">~</div>
+			</div>
+		<!--	<div id="mainTopImgNotes">
+			</div> -->
+		</div>
+		<div id="mainTabs">
+			<!-- Tab links -->
+			<div class="tab">
+			  <button id="button_tab1" class="tablinks" onclick="bb.dry.showTab(event, 'tab1')">Assembly</button>
+			  <button id="button_tab2" class="tablinks" onclick="bb.dry.showTab(event, 'tab2')">Used In</button>
+			  <button id="button_tab3" class="tablinks" onclick="bb.dry.showTab(event, 'tab3')">Labels</button>
+			</div>
+			<!-- Tab content -->
+			<div id="tab1" class="tabcontent">
+				<span class="error" style="display:none;">
+					CODE 88:<br> ALERT THE BUILDBOOKS TEAM.
+					<br>
+					<span id="showErrorBom">Show BOM</span>
+				</span>
+				<p>The list of parts used to assemble SKU:</p>
+				<div></div>
+			</div>
+
+			<div id="tab2" class="tabcontent">
+				<p>The list of assemblies that SKU is used in:</p>
+				<div></div>
+			</div>
+			
+			<div id="tab3" class="tabcontent">
+				<div id="labelSetContainer">
+							<section class="labelSetHeader" aria-labelledby="labelSetTitle">
+								<div class="labelSetTitleRow">
+									<h2 id="labelSetTitle">Printable labels</h2>
+									<button id="buttonPrintLabels" class="labelPrintPrompt" type="button" data-label-pdf-target="all" aria-describedby="labelPdfHint" disabled>Print Labels</button>
+								</div>
+								<p id="labelSetSummary" aria-live="polite">1 label for selected SKU: Package label.</p>
+								<span id="labelPdfHint" class="visuallyHidden">Opens a print-ready PDF in a new tab.</span>
+								<p id="labelPdfStatus" class="labelPdfStatus" role="status" aria-live="polite"></p>
+							</section>
+							
+							<div id="pLabelContainer" class="barcodeContainer">
+								<div class="productlabel" data-label-pdf-target="primary" role="button" tabindex="0" aria-label="Print package label; opens a print-ready PDF in a new tab">
+									<div class="labelPreviewContent">
+										<div class="labelSku" id="barcodeH1">Hello!</div>
+										<div class="labelDesc" id="barcodeP">Select a SKU...</div>
+										<div class="labelDatecode" id="barcodeDate"></div>
+										<div id="barcodeWarning"><strong>WARNING:</strong> <span id="barcodeWarningHeadline"></span></div>
+										<div id="barcodeWarning2"></div>
+										<svg class="labelUpc" id="plabelUpc"></svg>
+										<div id="barcodeCountryOfOrigin"></div>
+										<div id="plabel3of9Mask">
+											<svg class="label3of9"></svg>
+										</div>
+										
+										<img id="svglogo" src="assets/buildbooks-symbol-water.svg" alt="Buildbooks">
+<svg id="plabelWarning" version="1.1" baseProfile="basic" inkscape:version="0.48.4 r9939" sodipodi:docname="AJAX1.svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 100 100" xml:space="preserve">
+	<path id="outline" inkscape:connector-curvature="0" d="M3.4,93.7h93.3c1.2,0,2.3-0.6,2.9-1.7c0.6-1,0.6-2.3,0-3.4L52.9,7.8
+		c-0.6-1-1.7-1.7-2.9-1.7c-1.2,0-2.3,0.6-2.9,1.7L0.5,88.6c-0.6,1-0.6,2.3,0,3.4C1.1,93,2.2,93.7,3.4,93.7z"/>
+	<polygon id="yellow" fill="#FFFF00" points="50,16.3 90.8,86.9 9.2,86.9 "/>
+	<circle id="bangbot" sodipodi:cx="287.21899" sodipodi:cy="398.10199" sodipodi:rx="25.643" sodipodi:ry="25.643" cx="50" cy="76.3" r="4.7">
+	</circle>
+	<path id="bangtop" inkscape:connector-curvature="0" d="M52.8,66.4l3.3-30.6c0.3-2.5-1-4.9-3.1-6.1c-2.2-1.2-4.9-1-6.9,0.5
+		s-2.9,4.1-2.3,6.5l3.5,30.3c0.1,1,0.7,1.8,1.6,2.2c0.9,0.4,1.9,0.3,2.7-0.3C52.5,68.4,53,67.4,52.8,66.4"/>
+</svg>
+
+										<div id="labelRegulatoryIcons" aria-label="Package handling symbols">
+											<img id="labelFragileIcon" class="labelRegulatoryIcon" src="assets/fragile-icon.svg" alt="Fragile">
+											<img id="labelStoreDryIcon" class="labelRegulatoryIcon" src="assets/umbrella-icon.svg" alt="Keep dry">
+											<img id="labelKeepAwayFromFlameIcon" class="labelRegulatoryIcon" src="assets/flammable_icon.svg" alt="Keep away from flame">
+											<img id="labelToxicIcon" class="labelRegulatoryIcon" src="assets/toxic-skull-icon.svg" alt="Toxic">
+											<svg id="labelHazardProfileIcon" class="labelRegulatoryIcon" role="img" aria-label="Hazard profile" viewBox="0 0 32 32">
+												<path d="M16 3 29 27H3L16 3Z M16 10v9 M16 23v1"/>
+											</svg>
+										</div>
+
+
+									</div>
+								</div>
+							  </div>
+								
+							
+							<div id="fragileLabelContainer" class="barcodeContainer regulatoryLabelContainer">
+								<div class="productlabel handlingLabel" data-label-pdf-target="fragile" role="button" tabindex="0" aria-label="Print fragile label; opens a print-ready PDF in a new tab">
+									<div class="labelPreviewContent handlingLabelWrapper">
+										<img class="handlingLabelIcon" src="assets/fragile-icon.svg" alt="" aria-hidden="true">
+										<div class="handlingLabelCopy"><strong>FRAGILE</strong><span>HANDLE WITH CARE</span><small class="labelSku">SELECT A SKU</small></div>
+									</div>
+								</div>
+							</div>
+
+							<div id="storeDryLabelContainer" class="barcodeContainer regulatoryLabelContainer">
+								<div class="productlabel handlingLabel" data-label-pdf-target="storeDry" role="button" tabindex="0" aria-label="Print keep dry label; opens a print-ready PDF in a new tab">
+									<div class="labelPreviewContent handlingLabelWrapper">
+										<img class="handlingLabelIcon" src="assets/umbrella-icon.svg" alt="" aria-hidden="true">
+										<div class="handlingLabelCopy"><strong>KEEP DRY</strong><span>PROTECT FROM MOISTURE</span><small class="labelSku">SELECT A SKU</small></div>
+									</div>
+								</div>
+							</div>
+
+							<div id="keepAwayFromFlameLabelContainer" class="barcodeContainer regulatoryLabelContainer">
+								<div class="productlabel handlingLabel" data-label-pdf-target="keepAwayFromFlame" role="button" tabindex="0" aria-label="Print keep away from flame label; opens a print-ready PDF in a new tab">
+									<div class="labelPreviewContent handlingLabelWrapper">
+										<img class="handlingLabelIcon" src="assets/flammable_icon.svg" alt="" aria-hidden="true">
+										<div class="handlingLabelCopy"><strong>KEEP AWAY FROM FLAME</strong><span>NO FLAME, SPARKS OR HOT SURFACES</span><small class="labelSku">SELECT A SKU</small></div>
+									</div>
+								</div>
+							</div>
+
+							<div id="toxicLabelContainer" class="barcodeContainer regulatoryLabelContainer">
+								<div class="productlabel handlingLabel" data-label-pdf-target="toxic" role="button" tabindex="0" aria-label="Print toxic material label; opens a print-ready PDF in a new tab">
+									<div class="labelPreviewContent handlingLabelWrapper">
+										<img class="handlingLabelIcon" src="assets/logo-stores-toxic.svg" alt="" aria-hidden="true">
+										<div class="handlingLabelCopy"><strong>TOXIC MATERIAL</strong><span>DO NOT INGEST OR INHALE · KEEP SEALED · RESTRICT ACCESS</span><small class="labelSku">SELECT A SKU</small></div>
+									</div>
+								</div>
+							</div>
+
+							<div id="hazardProfileLabelContainer" class="barcodeContainer regulatoryLabelContainer">
+								<div class="productlabel handlingLabel" data-label-pdf-target="hazardProfile" role="button" tabindex="0" aria-label="Print hazard profile label; opens a print-ready PDF in a new tab">
+									<div class="labelPreviewContent handlingLabelWrapper">
+										<img id="hazardProfileLabelIcon" class="handlingLabelIcon" src="assets/plabelWarning.svg" alt="" aria-hidden="true">
+										<div class="handlingLabelCopy"><strong id="hazardProfileLabelTitle">HAZARD PROFILE</strong><span id="hazardProfileLabelBody">FOLLOW REQUIRED HANDLING PROCEDURES</span><small class="labelSku">SELECT A SKU</small></div>
+									</div>
+								</div>
+							</div>
+
+							<button class="accordion accordion-h1">Setup Instructions:</button>
+							<div class="panel">						
+
+								<button class="accordion">How do I print the label PDF?</button>
+								<div class="panel">
+									<p>Choose Print Labels, then use Print in the PDF viewer. Select Actual Size or 100% on 3.5&quot; &times; 1&quot; label stock. Select an individual preview to print only that label.</p>
+								</div>
+
+								<button class="accordion">Label printer setup</button>
+								<div class="panel">
+									<p>Configure your printer or PDF viewer for 3.5&quot; &times; 1&quot; label stock before printing.</p>
+								</div>
+
+								<button class="accordion">Print settings</button>
+								<div class="panel">
+									<p>Use these PDF viewer and printer-driver settings:</p>
+									<ul>
+										<li>Paper size: 3.5&quot; &times; 1&quot;</li>
+										<li>Scale: Actual Size or 100%</li>
+										<li>Margins: 0</li>
+										<li>Headers and Footers: --blank--</li>
+									</ul>
+									<p>The PDF requests the correct physical page size, but the printer driver must also support and select that stock.</p>
+								</div> 
+
+								<button class="accordion">PDF does not fit the label</button>
+								<div class="panel">
+									<p>Confirm that page scaling is disabled and the printer driver is using matching 3.5&quot; &times; 1&quot; stock.</p>
+								</div>
+							</div>
+
+				</div>
+			</div>
+
+
+			<div class="bottomspacer">&nbsp;<br>&nbsp;<br>&nbsp;<br></div>
+				
+		</div>
+	</div>
+	
+	
+	<div id="imageDeleteModal" class="imageModal" style="display:none;">
+		<div class="imageModalBox">
+			<h2>Remove Image?</h2>
+			<p id="imageDeleteModalText">This demo change will last for this browser session.</p>
+			<div class="imageModalActions">
+				<button id="buttonCancelDeleteImage" type="button">Cancel</button>
+				<button id="buttonConfirmDeleteImage" type="button">Remove Image</button>
+			</div>
+		</div>
+	</div>
+
+	<div id="imageZoomModal" class="imageZoomModal" role="dialog" aria-modal="true" aria-label="Enlarged product image" hidden>
+		<button id="buttonCloseImageZoom" class="imageZoomClose" type="button" aria-label="Close enlarged image">×</button>
+		<img id="imageZoomPreview" src="assets/noimage.svg" alt="">
+	</div>
+	
+	
+	<div id="footer"><p>Bob Tischendorf -- July 1st 2026</p></div>
+	<div id="buttonHideSidebar" class="buttonHideSidebarTransition">
+		<svg baseProfile="tiny" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 10 34" xml:space="preserve">
+			<g>
+				<circle fill="#CDCFD2" cx="5" cy="6" r="4"/><circle fill="#CDCFD2" cx="5" cy="17" r="5"/><circle fill="#CDCFD2" cx="5" cy="28" r="4"/>
+			</g>
+		</svg>
+	</div>
+
+	
+</body>
+</html>
