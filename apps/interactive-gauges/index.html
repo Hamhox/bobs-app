@@ -19,6 +19,14 @@
     <meta name="twitter:card" content="summary_large_image" />
     <title>Interactive Gauge Archive | Bob's App</title>
     <link rel="icon" href="/bobs-app-symbol-logo.svg" type="image/svg+xml" />
+    <link rel="preload" href="/apps/interactive-gauges/assets/fonts/bobs-font-v1/woff/BobsFont8Pixel-Regular.woff" as="font" type="font/woff" crossorigin />
+    <link rel="preload" href="/apps/interactive-gauges/assets/fonts/bobs-font-v1/woff/BobsFont12Pixel-Regular.woff" as="font" type="font/woff" crossorigin />
+    <link rel="preload" href="/apps/interactive-gauges/assets/fonts/bobs-font-v1/woff/BobsFont16Pixel-Regular.woff" as="font" type="font/woff" crossorigin />
+    <link rel="preload" href="/apps/interactive-gauges/assets/fonts/bobs-font-v1/woff/BobsFont24Pixel-Regular.woff" as="font" type="font/woff" crossorigin />
+    <link rel="preload" href="/apps/interactive-gauges/assets/fonts/bobs-font-v1/woff/BobsFont32Pixel-Regular.woff" as="font" type="font/woff" crossorigin />
+    <link rel="preload" href="/apps/interactive-gauges/assets/fonts/bobs-font-v1/woff/BobsFont40Pixel-Regular.woff" as="font" type="font/woff" crossorigin />
+    <link rel="preload" href="/apps/interactive-gauges/assets/fonts/bobs-font-v1/woff/BobsFont48Pixel-Regular.woff" as="font" type="font/woff" crossorigin />
+    <link rel="preload" href="/apps/interactive-gauges/assets/fonts/bobs-font-v1/woff/BobsFont96Pixel-Regular.woff" as="font" type="font/woff" crossorigin />
     <link rel="stylesheet" href="/styles.css" />
     <link rel="stylesheet" href="/apps/interactive-gauges/interactive-gauges.css" />
     <script type="module" src="/apps/interactive-gauges/interactive-gauges.js"></script>
@@ -165,13 +173,13 @@
         <div class="font-playground" id="font-playground" data-grid="8">
           <header class="font-playground__header">
             <div>
-              <p class="font-playground__eyebrow">03 / Display type</p>
-              <h2 id="font-lab-title">Eight fonts, one pixel grid</h2>
-              <p class="font-playground__instruction">Click the specimen and type.</p>
+              <p class="font-playground__eyebrow">03 / Font Reconstruction</p>
+              <h2 id="font-lab-title">The trouble with fonts on embedded devices</h2>
+              <p class="font-playground__instruction">...is every size needs a whole 'nother font</p>
             </div>
             <p class="font-playground__file">
               <span id="font-position">Font 01 / 08</span>
-              <span id="font-active-file">BobsFont8Pixel-Regular.ttf</span>
+              <span id="font-active-file">Selected</span>
             </p>
           </header>
 
@@ -198,6 +206,7 @@
                   max="7"
                   step="1"
                   value="0"
+                  disabled
                   aria-label="Font drawing"
                   aria-valuetext="8 point font drawing, 1 of 8"
                 />

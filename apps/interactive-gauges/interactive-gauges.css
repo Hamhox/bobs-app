@@ -3,7 +3,7 @@
   src: url("assets/fonts/bobs-font-v1/woff/BobsFont8Pixel-Regular.woff") format("woff");
   font-style: normal;
   font-weight: 400;
-  font-display: swap;
+  font-display: block;
 }
 
 @font-face {
@@ -11,7 +11,7 @@
   src: url("assets/fonts/bobs-font-v1/woff/BobsFont12Pixel-Regular.woff") format("woff");
   font-style: normal;
   font-weight: 400;
-  font-display: swap;
+  font-display: block;
 }
 
 @font-face {
@@ -19,7 +19,7 @@
   src: url("assets/fonts/bobs-font-v1/woff/BobsFont16Pixel-Regular.woff") format("woff");
   font-style: normal;
   font-weight: 400;
-  font-display: swap;
+  font-display: block;
 }
 
 @font-face {
@@ -27,7 +27,7 @@
   src: url("assets/fonts/bobs-font-v1/woff/BobsFont24Pixel-Regular.woff") format("woff");
   font-style: normal;
   font-weight: 400;
-  font-display: swap;
+  font-display: block;
 }
 
 @font-face {
@@ -35,7 +35,7 @@
   src: url("assets/fonts/bobs-font-v1/woff/BobsFont32Pixel-Regular.woff") format("woff");
   font-style: normal;
   font-weight: 400;
-  font-display: swap;
+  font-display: block;
 }
 
 @font-face {
@@ -43,7 +43,7 @@
   src: url("assets/fonts/bobs-font-v1/woff/BobsFont40Pixel-Regular.woff") format("woff");
   font-style: normal;
   font-weight: 400;
-  font-display: swap;
+  font-display: block;
 }
 
 @font-face {
@@ -51,7 +51,7 @@
   src: url("assets/fonts/bobs-font-v1/woff/BobsFont48Pixel-Regular.woff") format("woff");
   font-style: normal;
   font-weight: 400;
-  font-display: swap;
+  font-display: block;
 }
 
 @font-face {
@@ -59,7 +59,7 @@
   src: url("assets/fonts/bobs-font-v1/woff/BobsFont96Pixel-Regular.woff") format("woff");
   font-style: normal;
   font-weight: 400;
-  font-display: swap;
+  font-display: block;
 }
 
 .gauges-body {
@@ -777,6 +777,11 @@
   margin: 0.4rem 0 0;
   accent-color: var(--brand-purple-glow);
   cursor: ew-resize;
+}
+
+.font-drawing-control input[type="range"]:disabled {
+  cursor: progress;
+  opacity: 0.58;
 }
 
 .font-drawing-control__range {
