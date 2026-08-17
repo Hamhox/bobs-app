@@ -45,6 +45,46 @@ const MENU_GROUP_STATE_OVERRIDES = {
   "set3-5-1-3-2": "m-set3-5-1-3-1",
 };
 
+// The flowchart repeats archive screens under descriptive Illustrator group names.
+const FLOWCHART_STATE_MAP = {
+  "user-screen-1-settings-screen": "m-set3-5-1-1",
+  "user-screens-screen": "m-set3-5-1",
+  "speed-units": "m-set3-2-1-1",
+  "distance-units": "m-set3-2-2-1",
+  "wheel-size": "m-set3-2-3-1",
+  "clock-format": "m-set3-2-4-1",
+  "time-of-day": "m-set3-2-5-1",
+  "temperature-units": "m-set3-2-6-1",
+  "unit-settings-screen": "m-set3-2-1",
+  "yellow-led-flash": "m-set3-6-3-1",
+  "red-led-flash": "m-set3-6-4-1",
+  "yellow-led-on": "m-set3-6-1-1",
+  "red-led-on": "m-set3-6-2-1",
+  "warning-led-lights-screen": "m-set3-6-1",
+  "map-orientation": "m-set3-4-1-1",
+  "map-auto-zoom": "m-set3-4-2-1",
+  "record-method": "m-set3-4-4-1",
+  "log-after-stop": "m-set3-4-3-1",
+  "wrap-when-full": "m-set3-4-5-1",
+  "sample-frequency": "m-set3-4-6-1",
+  "gps-settings-screen": "m-set3-4-1",
+  brightness: "m-set3-3-1-1",
+  "backlight-battery": "m-set3-3-2-1",
+  "backlight-external": "m-set3-3-3-1",
+  "safe-mode-timer": "m-set3-3-4-1",
+  "sleep-mode-timer": "m-set3-3-5-1",
+  "charge-mode": "m-set3-3-6-1",
+  "charge-level": "m-set3-3-7-1",
+  "system-settings-screen": "m-set3-3-1",
+  "settings-menu-screen": "m-set3-1",
+  "reset-ride-dst": "m-main1-3-1",
+  gps: "m-main1-6-1",
+  "speed-source": "m-main1-7-1",
+  "dest-waypoint-select": "m-main1-5-1",
+  "dest-waypoint-confirm": "m-main1-5-1-1",
+  "main-3": "m-main1-1",
+};
+
 const FLOWCHART_CONTAINER_IDS = new Set([
   "set",
   "settings-menu",
@@ -223,7 +263,9 @@ export class VoyagerMapViewer {
 
     const flow = this.#mapRoot.querySelector("#flowchart-screens");
     for (const group of flow?.querySelectorAll("g[id]") ?? []) {
-      if (!FLOWCHART_CONTAINER_IDS.has(group.id)) this.#registerScreen(group);
+      if (!FLOWCHART_CONTAINER_IDS.has(group.id)) {
+        this.#registerScreen(group, FLOWCHART_STATE_MAP[group.id]);
+      }
     }
 
     if (this.#screenTargets[0]) this.#screenTargets[0].group.setAttribute("tabindex", "0");
