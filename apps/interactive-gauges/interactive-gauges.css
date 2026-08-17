@@ -1,6 +1,6 @@
 @font-face {
   font-family: "Bobs Font 8 Pixel";
-  src: url("assets/fonts/bobs-font-v1/woff/BobsFont8Pixel-Regular.woff") format("woff");
+  src: url("assets/fonts/bobs-font-8px-v3.110/woff/BobsFont8Pixel-Regular.woff") format("woff");
   font-style: normal;
   font-weight: 400;
   font-display: block;
@@ -595,7 +595,6 @@
 }
 
 .font-playground__eyebrow,
-.font-playground__file,
 .font-drawing-control__range {
   font-family: "IBM Plex Mono", Consolas, monospace;
   text-transform: uppercase;
@@ -614,22 +613,6 @@
   color: var(--brand-muted);
   font-size: clamp(1rem, 1.6vw, 1.25rem);
   line-height: 1.35;
-}
-
-.font-playground__file {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem 1.2rem;
-  justify-content: flex-end;
-  margin: 0.15rem 0 0;
-  color: var(--brand-muted);
-  font-size: 0.6rem;
-  letter-spacing: 0.07em;
-  line-height: 1.5;
-}
-
-.font-playground__file span:first-child {
-  color: var(--brand-purple-glow);
 }
 
 .font-playground__body {
@@ -1118,10 +1101,6 @@
     align-items: flex-start;
     flex-direction: column;
     gap: 0.9rem;
-  }
-
-  .font-playground__file {
-    justify-content: flex-start;
   }
 
   .font-playground__body {
