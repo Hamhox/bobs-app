@@ -27,4 +27,6 @@ The runtime manifest is `data/voyager-states.json`. Presentation code does not c
 
 The architecture viewer uses `assets/system/voyager-screens-b2.svg`, a publication-approved export with named screen,
 menu, flowchart, connector, and region groups. The viewer frames the authored `screen-layout-screens`, `menu-screens`,
-and `flowchart-screens` groups from their live SVG `getBBox()` measurements.
+and `flowchart-screens` groups from their live SVG `getBBox()` measurements. Individual named screen groups are selectable;
+groups that resolve to a manifest state can open that state in the working gauge, while unmatched groups are identified as
+design-only rather than being assigned an uncertain prototype route.

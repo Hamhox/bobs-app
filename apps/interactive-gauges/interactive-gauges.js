@@ -187,6 +187,24 @@ async function initializeVoyager() {
     const manifest = await response.json();
     const engine = new VoyagerStateEngine(manifest);
     const guide = new VoyagerGuide(engine, guideElements);
+    mapViewer.connectPrototype(manifest, async (stateId) => {
+      stage.setAttribute("aria-busy", "true");
+      try {
+        await preloadState(manifest, stateId);
+        guide.exit();
+        engine.reset(stateId, "map-viewer");
+        interactionLive.textContent = `Interface map opened archive state ${stateId}.`;
+        stage.focus({ preventScroll: true });
+        stage.scrollIntoView({
+          behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+          block: "center",
+        });
+      } catch (error) {
+        interactionLive.textContent = error.message;
+      } finally {
+        stage.removeAttribute("aria-busy");
+      }
+    });
     engine.subscribe((state, event) => {
       commitState(engine, state, event);
       guide.observe(state, event);

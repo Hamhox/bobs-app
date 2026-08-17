@@ -198,11 +198,26 @@
         <div
           id="system-map-image"
           class="system-map-image"
-          role="img"
+          role="group"
           aria-label="Voyager interface architecture board showing screen layouts, menu screens and menu flow"
         ></div>
+        <aside class="system-map-selection" id="system-map-selection" aria-live="polite" hidden>
+          <p class="system-map-selection__eyebrow">Selected screen</p>
+          <div class="system-map-selection__heading">
+            <span id="system-map-selection-id-label">Screen ID</span>
+            <strong id="system-map-selection-id"></strong>
+          </div>
+          <span class="system-map-selection__status" id="system-map-selection-status"></span>
+          <p class="system-map-selection__group" id="system-map-selection-group"></p>
+          <button
+            class="gauges-button gauges-button--primary"
+            id="open-selected-map-screen"
+            type="button"
+            hidden
+          >Open This Screen in the Gauge <span aria-hidden="true">&#8599;</span></button>
+        </aside>
       </div>
-      <p class="system-map-dialog__hint">Drag or use arrow keys to pan. Scroll, pinch, plus or minus to zoom. Home fits the map.</p>
+      <p class="system-map-dialog__hint">Click a screen to inspect it. Drag or use arrow keys to pan. Scroll, pinch, plus or minus to zoom. Home fits the map.</p>
     </dialog>
   </body>
 </html>
