@@ -162,116 +162,63 @@
       </section>
 
       <section class="font-lab-section" id="font-lab" aria-labelledby="font-lab-title">
-        <header class="font-lab-section__header">
-          <div>
-            <p class="gauges-eyebrow">Bob's native-grid display family</p>
-            <h2 id="font-lab-title">
-              <span>Eight grids.</span>
-              <span>One pixel family.</span>
-            </h2>
-          </div>
-          <p>
-            Bob's Font redraws the same proportional display alphabet at eight native pixel
-            heights. Pick a grid, scale it on whole pixels, type over the specimen, and take the
-            matching desktop face with you.
-          </p>
-        </header>
-
-        <div class="font-playground" id="font-playground" data-grid="24">
+        <div class="font-playground" id="font-playground" data-grid="8">
           <header class="font-playground__header">
             <div>
-              <p>Live type tester</p>
-              <span>Bob's Font 1.120 / Regular</span>
+              <p class="font-playground__eyebrow">03 / Display type</p>
+              <h2 id="font-lab-title">Eight fonts, one pixel grid</h2>
+              <p class="font-playground__instruction">Click the specimen and type.</p>
             </div>
-            <div class="font-playground__actions">
-              <button id="font-reset" type="button">Reset</button>
+            <p class="font-playground__file">
+              <span id="font-position">Font 01 / 08</span>
+              <span id="font-active-file">BobsFont8Pixel-Regular.ttf</span>
+            </p>
+          </header>
+
+          <div class="font-playground__body">
+            <div class="font-playground__preview">
+              <label class="sr-only" for="font-preview">Editable Bob's Font specimen</label>
+              <input
+                id="font-preview"
+                type="text"
+                value="TYPE YOUR TRAIL NAME HERE"
+                autocomplete="off"
+                autocapitalize="characters"
+                spellcheck="false"
+                aria-describedby="font-active-face"
+              />
+            </div>
+
+            <div class="font-playground__controls">
+              <label class="font-drawing-control" for="font-grid">
+                <span>Font drawing</span>
+                <input
+                  id="font-grid"
+                  type="range"
+                  min="0"
+                  max="7"
+                  step="1"
+                  value="0"
+                  aria-label="Font drawing"
+                  aria-valuetext="Font 1 of 8, 8 pixel native grid"
+                  aria-describedby="font-active-face"
+                />
+                <span class="font-drawing-control__range" aria-hidden="true">
+                  <span>1</span><span>2</span><span>3</span><span>4</span>
+                  <span>5</span><span>6</span><span>7</span><span>8</span>
+                </span>
+              </label>
+
+              <p class="font-playground__face-detail" id="font-active-face">
+                8 PX native grid / Bob's Font 1.200
+              </p>
               <a
                 class="gauges-button gauges-button--primary"
                 id="font-download"
-                href="/apps/interactive-gauges/assets/fonts/bobs-font-v1/ttf/BobsFont24Pixel-Regular.ttf"
-                download="BobsFont24Pixel-Regular.ttf"
-              ><span id="font-download-label">Download 24 Pixel TTF</span> <span aria-hidden="true">&#8595;</span></a>
+                href="/apps/interactive-gauges/assets/fonts/bobs-font-v1/ttf/BobsFont8Pixel-Regular.ttf"
+                download="BobsFont8Pixel-Regular.ttf"
+              >Download selected TTF <span aria-hidden="true">&#8595;</span></a>
             </div>
-          </header>
-
-          <div class="font-playground__controls" aria-label="Font preview controls">
-            <label class="font-control" for="font-grid">
-              <span class="font-control__label">Native grid</span>
-              <output id="font-grid-output" for="font-grid">24 PX</output>
-              <input
-                id="font-grid"
-                type="range"
-                min="0"
-                max="7"
-                step="1"
-                value="3"
-                aria-label="Native grid"
-                aria-valuetext="24 pixel grid"
-              />
-              <span class="font-control__range font-control__range--grids" aria-hidden="true">
-                <span>8</span><span>12</span><span>16</span><span>24</span>
-                <span>32</span><span>40</span><span>48</span><span>96</span>
-              </span>
-            </label>
-
-            <label class="font-control" for="font-scale">
-              <span class="font-control__label">Pixel scale</span>
-              <output id="font-scale-output" for="font-scale">3&#215; / 72 PX</output>
-              <input
-                id="font-scale"
-                type="range"
-                min="1"
-                max="8"
-                step="1"
-                value="3"
-                aria-label="Pixel scale"
-                aria-valuetext="3 times, 72 pixels"
-              />
-              <span class="font-control__range" aria-hidden="true"><span>1&#215;</span><span>Whole pixels</span></span>
-            </label>
-
-            <label class="font-control" for="font-tracking">
-              <span class="font-control__label">Tracking</span>
-              <output id="font-tracking-output" for="font-tracking">0 PX</output>
-              <input
-                id="font-tracking"
-                type="range"
-                min="-2"
-                max="12"
-                step="1"
-                value="0"
-                aria-label="Tracking"
-                aria-valuetext="0 pixels"
-              />
-              <span class="font-control__range" aria-hidden="true"><span>Tight</span><span>Wide</span></span>
-            </label>
-          </div>
-
-          <div class="font-playground__presets" aria-label="Preview text presets">
-            <span>Try a specimen</span>
-            <button type="button" data-font-preset="trail" aria-pressed="true">Trail system</button>
-            <button type="button" data-font-preset="alphabet" aria-pressed="false">Alphabet</button>
-            <button type="button" data-font-preset="numbers" aria-pressed="false">Numbers</button>
-          </div>
-
-          <div class="font-playground__preview">
-            <label class="sr-only" for="font-preview">Editable Bob's Font preview</label>
-            <textarea
-              id="font-preview"
-              rows="3"
-              spellcheck="false"
-              aria-describedby="font-preview-hint"
-            >VOYAGER READY
-184 SCREENS
-ONE WORKING PROTOTYPE</textarea>
-            <p id="font-preview-hint">Edit the specimen directly. Best viewed at the named grid size or a whole-number multiple.</p>
-          </div>
-
-          <div class="font-playground__meta" role="group" aria-label="Font details">
-            <span>ASCII 0020&#8211;007E</span>
-            <span>Proportional spacing</span>
-            <span>Tabular numerals</span>
-            <span id="font-active-file">BobsFont24Pixel-Regular.ttf</span>
           </div>
         </div>
       </section>

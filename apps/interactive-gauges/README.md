@@ -30,3 +30,7 @@ menu, flowchart, connector, and region groups. The viewer frames the authored `s
 and `flowchart-screens` groups from their live SVG `getBBox()` measurements. Individual named screen groups are selectable;
 groups that resolve to a manifest state can open that state in the working gauge, while unmatched groups are identified as
 design-only rather than being assigned an uncertain prototype route.
+
+The compact display-type lab uses Bob's Font release 1.200 across all eight native pixel grids. The
+checked-in WOFF faces power the live specimen and each matching TTF remains available from the lab's
+single download action.
