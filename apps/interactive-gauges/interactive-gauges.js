@@ -210,5 +210,7 @@ const mapViewer = new VoyagerMapViewer({
   source: `${APP_BASE}/assets/system/voyager-screens-b2.svg`,
 });
 
-document.querySelector("#open-system-map").addEventListener("click", () => mapViewer.open("overview"));
+for (const opener of document.querySelectorAll("#open-system-map, #open-system-map-preview")) {
+  opener.addEventListener("click", () => mapViewer.open("overview"));
+}
 initializeVoyager();

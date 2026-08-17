@@ -2,17 +2,10 @@ const clamp = (value, minimum, maximum) => Math.min(maximum, Math.max(minimum, v
 const IMAGE_WIDTH = 4195.24;
 const IMAGE_HEIGHT = 6483.58;
 const PRESETS = {
-  reading: { x: 1560, y: 2250, scale: 0.7, label: "Reading view" },
-  "screen-layout": {
-    bounds: { x: 0.5, y: 0.5, width: 846.25, height: 1237.05 },
-    maximumScale: 0.72,
-    label: "Screen layout",
-  },
-  "menu-flow": {
-    bounds: { x: 2682.22, y: 12.41, width: 1512.52, height: 1454.73 },
-    maximumScale: 0.7,
-    label: "Menu flow",
-  },
+  overview: { groupId: "regions", label: "Overview" },
+  "screen-layout": { groupId: "screen-layout-screens", label: "Screen layout" },
+  "menu-screens": { groupId: "menu-screens", label: "Menu screens" },
+  "menu-flow": { groupId: "flowchart-screens", label: "Menu flow" },
 };
 
 export class VoyagerMapViewer {
@@ -28,6 +21,9 @@ export class VoyagerMapViewer {
   #gesture = null;
   #resizeObserver;
   #activePreset = "overview";
+  #pageLock = null;
+  #mapRoot = null;
+  #loadPromise = null;
 
   constructor({ dialog, viewport, image, status, source }) {
     this.#dialog = dialog;
@@ -44,49 +40,32 @@ export class VoyagerMapViewer {
   }
 
   open(preset = "overview") {
-    if (!this.#image.hasAttribute("src")) this.#image.src = this.#source;
+    this.#lockPageScroll();
     this.#dialog.showModal();
     this.#resizeObserver.observe(this.#viewport);
-    const applyPreset = () => window.requestAnimationFrame(() => this.showPreset(preset));
-    if (this.#image.complete) applyPreset();
-    else this.#image.addEventListener("load", applyPreset, { once: true });
+    this.#ensureMap().then((map) => {
+      if (map && this.#dialog.open) window.requestAnimationFrame(() => this.showPreset(preset));
+    });
     this.#viewport.focus({ preventScroll: true });
   }
 
   close() {
     this.#resizeObserver.disconnect();
-    this.#dialog.close();
-  }
-
-  fit() {
-    const viewport = this.#viewport.getBoundingClientRect();
-    this.#scale = Math.min(viewport.width / IMAGE_WIDTH, viewport.height / IMAGE_HEIGHT) * 0.94;
-    this.#x = (viewport.width - IMAGE_WIDTH * this.#scale) / 2;
-    this.#y = (viewport.height - IMAGE_HEIGHT * this.#scale) / 2;
-    this.#activePreset = "overview";
-    this.#render("Overview");
+    if (this.#dialog.open) this.#dialog.close();
+    this.#restorePageScroll();
   }
 
   showPreset(preset) {
-    if (preset === "overview" || !PRESETS[preset]) {
-      this.fit();
-      return;
-    }
-
     const viewport = this.#viewport.getBoundingClientRect();
-    const target = PRESETS[preset];
-    if (target.bounds) {
-      const horizontalScale = (viewport.width * 0.9) / target.bounds.width;
-      const verticalScale = (viewport.height * 0.86) / target.bounds.height;
-      this.#scale = Math.min(horizontalScale, verticalScale, target.maximumScale);
-      this.#x = viewport.width / 2 - (target.bounds.x + target.bounds.width / 2) * this.#scale;
-      this.#y = viewport.height / 2 - (target.bounds.y + target.bounds.height / 2) * this.#scale;
-    } else {
-      this.#scale = target.scale;
-      this.#x = viewport.width / 2 - target.x * this.#scale;
-      this.#y = viewport.height / 2 - target.y * this.#scale;
-    }
-    this.#activePreset = preset;
+    const presetName = PRESETS[preset] ? preset : "overview";
+    const target = PRESETS[presetName];
+    const bounds = this.#getGroupBounds(target.groupId);
+    const horizontalScale = (viewport.width * 0.9) / bounds.width;
+    const verticalScale = (viewport.height * 0.86) / bounds.height;
+    this.#scale = clamp(Math.min(horizontalScale, verticalScale), 0.06, 2.5);
+    this.#x = viewport.width / 2 - (bounds.x + bounds.width / 2) * this.#scale;
+    this.#y = viewport.height / 2 - (bounds.y + bounds.height / 2) * this.#scale;
+    this.#activePreset = presetName;
     this.#render(target.label);
   }
 
@@ -111,15 +90,105 @@ export class VoyagerMapViewer {
     this.#render();
   }
 
+  #getGroupBounds(groupId) {
+    const group = this.#mapRoot?.querySelector(`[id="${groupId}"]`);
+    if (!group || typeof group.getBBox !== "function") {
+      return { x: 0, y: 0, width: IMAGE_WIDTH, height: IMAGE_HEIGHT };
+    }
+
+    const box = group.getBBox();
+    const matrix = group.getCTM();
+    if (!matrix) return box;
+
+    const Point = group.ownerDocument.defaultView.DOMPoint;
+    const corners = [
+      new Point(box.x, box.y),
+      new Point(box.x + box.width, box.y),
+      new Point(box.x, box.y + box.height),
+      new Point(box.x + box.width, box.y + box.height),
+    ].map((point) => point.matrixTransform(matrix));
+    const xValues = corners.map((point) => point.x);
+    const yValues = corners.map((point) => point.y);
+    const x = Math.min(...xValues);
+    const y = Math.min(...yValues);
+    return {
+      x,
+      y,
+      width: Math.max(...xValues) - x,
+      height: Math.max(...yValues) - y,
+    };
+  }
+
+  #ensureMap() {
+    if (this.#mapRoot) return Promise.resolve(this.#mapRoot);
+    if (this.#loadPromise) return this.#loadPromise;
+
+    this.#status.textContent = "Loading interface map";
+    this.#loadPromise = fetch(this.#source)
+      .then((response) => {
+        if (!response.ok) throw new Error(`Map request failed with ${response.status}`);
+        return response.text();
+      })
+      .then((source) => {
+        const svgStart = source.indexOf("<svg");
+        if (svgStart < 0) throw new Error("Map SVG could not be parsed");
+        const template = document.createElement("template");
+        template.innerHTML = source.slice(svgStart);
+        const map = template.content.querySelector("svg");
+        if (!map) throw new Error("Map SVG could not be parsed");
+        map.setAttribute("aria-hidden", "true");
+        this.#image.replaceChildren(map);
+        this.#mapRoot = map;
+        return map;
+      })
+      .catch(() => {
+        this.#loadPromise = null;
+        this.#status.textContent = "Interface map unavailable";
+        return null;
+      });
+    return this.#loadPromise;
+  }
+
+  #lockPageScroll() {
+    if (this.#pageLock) return;
+    const root = document.documentElement;
+    const body = document.body;
+    this.#pageLock = {
+      x: window.scrollX,
+      y: window.scrollY,
+      rootOverflow: root.style.overflow,
+      rootScrollbarGutter: root.style.scrollbarGutter,
+      bodyOverflow: body.style.overflow,
+    };
+    root.style.overflow = "hidden";
+    root.style.scrollbarGutter = "stable";
+    body.style.overflow = "hidden";
+  }
+
+  #restorePageScroll() {
+    if (!this.#pageLock) return;
+    const root = document.documentElement;
+    const body = document.body;
+    const lock = this.#pageLock;
+    this.#pageLock = null;
+    root.style.overflow = lock.rootOverflow;
+    root.style.scrollbarGutter = lock.rootScrollbarGutter;
+    body.style.overflow = lock.bodyOverflow;
+    window.scrollTo(lock.x, lock.y);
+    window.requestAnimationFrame(() => window.scrollTo(lock.x, lock.y));
+  }
+
   #bindEvents() {
     this.#dialog.querySelector("[data-map-close]").addEventListener("click", () => this.close());
     this.#dialog.querySelector("[data-map-zoom-in]").addEventListener("click", () => this.zoomBy(1.25));
     this.#dialog.querySelector("[data-map-zoom-out]").addEventListener("click", () => this.zoomBy(0.8));
     this.#dialog.querySelector("[data-map-overview]").addEventListener("click", () => this.showPreset("overview"));
-    this.#dialog.querySelector("[data-map-reading]").addEventListener("click", () => this.showPreset("reading"));
     this.#dialog
       .querySelector("[data-map-screen-layout]")
       .addEventListener("click", () => this.showPreset("screen-layout"));
+    this.#dialog
+      .querySelector("[data-map-menu-screens]")
+      .addEventListener("click", () => this.showPreset("menu-screens"));
     this.#dialog
       .querySelector("[data-map-menu-flow]")
       .addEventListener("click", () => this.showPreset("menu-flow"));
@@ -177,8 +246,8 @@ export class VoyagerMapViewer {
         "-": () => this.zoomBy(0.8),
         Home: () => this.showPreset("overview"),
         "0": () => this.showPreset("overview"),
-        "1": () => this.showPreset("reading"),
-        "2": () => this.showPreset("screen-layout"),
+        "1": () => this.showPreset("screen-layout"),
+        "2": () => this.showPreset("menu-screens"),
         "3": () => this.showPreset("menu-flow"),
       };
       const action = keyActions[event.key];

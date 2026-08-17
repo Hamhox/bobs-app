@@ -122,18 +122,13 @@
           <p class="gauges-eyebrow">Voyager interface map</p>
           <h2 id="system-map-title">
             <span>184 screens.</span>
-            <span>One working system.</span>
+            <span>One working prototype.</span>
           </h2>
           <p>
-            Bob designed Voyager as a screen-by-screen interface map, exported 156 screen images,
-            and connected 146 of them into a working browser prototype. The team could operate the
-            gauge and test its navigation before the interface was committed to firmware.
+            Bob designed the Voyager interface screen by screen, exported 156 screen images, and
+            connected 146 states into a working browser prototype. The team could operate the gauge
+            and test its navigation before firmware was locked.
           </p>
-          <dl class="system-map-facts" aria-label="Voyager interface counts">
-            <div><dt>184</dt><dd>Designed screens</dd></div>
-            <div><dt>156</dt><dd>Exported screen images</dd></div>
-            <div><dt>146</dt><dd>Connected browser states</dd></div>
-          </dl>
           <div class="system-map-actions">
             <button class="gauges-button gauges-button--primary" id="open-system-map" type="button">
               Open full interface map <span aria-hidden="true">&#8599;</span>
@@ -145,7 +140,12 @@
             >Download original PDF</a>
           </div>
         </div>
-        <div class="system-map-section__visual">
+        <button
+          class="system-map-section__visual"
+          id="open-system-map-preview"
+          type="button"
+          aria-label="Explore Interface Map"
+        >
           <img
             src="/apps/interactive-gauges/assets/system/voyager-screens-b2.svg"
             alt="Zoomed-out preview of the Voyager screen architecture board"
@@ -154,7 +154,10 @@
             width="4195"
             height="6484"
           />
-        </div>
+          <span class="system-map-section__visual-label" aria-hidden="true">
+            Explore Interface Map <span>&#8599;</span>
+          </span>
+        </button>
       </section>
     </main>
 
@@ -182,8 +185,8 @@
         <button data-map-zoom-in type="button" aria-label="Zoom in">+</button>
         <button data-map-zoom-out type="button" aria-label="Zoom out">&#8722;</button>
         <button data-map-overview type="button">Overview</button>
-        <button data-map-reading type="button">Reading view</button>
         <button data-map-screen-layout type="button">Screen layout</button>
+        <button data-map-menu-screens type="button">Menu screens</button>
         <button data-map-menu-flow type="button">Menu flow</button>
       </div>
       <div
@@ -192,7 +195,12 @@
         tabindex="0"
         aria-label="Pan and zoom viewer for the Voyager architecture board. Drag to pan, scroll to zoom, or use the toolbar."
       >
-        <img id="system-map-image" alt="Voyager interface architecture board showing screen layouts, menu structures and flowcharts" draggable="false" />
+        <div
+          id="system-map-image"
+          class="system-map-image"
+          role="img"
+          aria-label="Voyager interface architecture board showing screen layouts, menu screens and menu flow"
+        ></div>
       </div>
       <p class="system-map-dialog__hint">Drag or use arrow keys to pan. Scroll, pinch, plus or minus to zoom. Home fits the map.</p>
     </dialog>
