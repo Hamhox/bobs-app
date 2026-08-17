@@ -1,3 +1,67 @@
+@font-face {
+  font-family: "Bobs Font 8 Pixel";
+  src: url("assets/fonts/bobs-font-v1/woff/BobsFont8Pixel-Regular.woff") format("woff");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Bobs Font 12 Pixel";
+  src: url("assets/fonts/bobs-font-v1/woff/BobsFont12Pixel-Regular.woff") format("woff");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Bobs Font 16 Pixel";
+  src: url("assets/fonts/bobs-font-v1/woff/BobsFont16Pixel-Regular.woff") format("woff");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Bobs Font 24 Pixel";
+  src: url("assets/fonts/bobs-font-v1/woff/BobsFont24Pixel-Regular.woff") format("woff");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Bobs Font 32 Pixel";
+  src: url("assets/fonts/bobs-font-v1/woff/BobsFont32Pixel-Regular.woff") format("woff");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Bobs Font 40 Pixel";
+  src: url("assets/fonts/bobs-font-v1/woff/BobsFont40Pixel-Regular.woff") format("woff");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Bobs Font 48 Pixel";
+  src: url("assets/fonts/bobs-font-v1/woff/BobsFont48Pixel-Regular.woff") format("woff");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Bobs Font 96 Pixel";
+  src: url("assets/fonts/bobs-font-v1/woff/BobsFont96Pixel-Regular.woff") format("woff");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
 .gauges-body {
   --gauge-guide: #ff981f;
   --gauge-guide-soft: rgb(255 152 31 / 0.18);
@@ -80,6 +144,7 @@
 
 .gauges-hero h1,
 .system-map-section h2,
+.font-lab-section h2,
 .system-map-dialog h2 {
   margin: 0;
   font-family: "Arial Narrow", "Roboto Condensed", Haettenschweiler, Impact, sans-serif;
@@ -441,6 +506,7 @@
 }
 
 .system-map-section,
+.font-lab-section,
 .gauges-footer {
   width: min(100% - 3rem, 90rem);
   margin-inline: auto;
@@ -450,7 +516,8 @@
   font-size: clamp(3rem, 4.8vw, 4.8rem);
 }
 
-.system-map-section h2 span {
+.system-map-section h2 span,
+.font-lab-section h2 span {
   display: block;
   white-space: nowrap;
 }
@@ -547,6 +614,286 @@
 .system-map-section__visual:focus-visible .system-map-section__visual-label {
   opacity: 1;
   transform: translateY(0);
+}
+
+.font-lab-section {
+  padding: clamp(4.5rem, 8vw, 7.5rem) 0;
+  border-top: 1px solid var(--brand-border);
+  scroll-margin-top: 4.25rem;
+}
+
+.font-lab-section__header {
+  display: grid;
+  grid-template-columns: minmax(25rem, 1.05fr) minmax(20rem, 0.75fr);
+  gap: clamp(3rem, 8vw, 8rem);
+  align-items: end;
+  margin-bottom: clamp(2.5rem, 5vw, 4.5rem);
+}
+
+.font-lab-section h2 {
+  font-size: clamp(3rem, 5.4vw, 5.4rem);
+}
+
+.font-lab-section__header > p {
+  max-width: 39rem;
+  margin: 0;
+  color: var(--brand-muted);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.05rem, 1.3vw, 1.22rem);
+  line-height: 1.65;
+}
+
+.font-playground {
+  --font-preview-size: 72px;
+  --font-preview-tracking: 0px;
+  overflow: hidden;
+  border: 1px solid var(--brand-border);
+  background: #0d1118;
+  box-shadow: 0 2.5rem 7rem rgb(0 0 0 / 0.28);
+}
+
+.font-playground__header {
+  display: flex;
+  min-height: 5.2rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1rem 1.2rem 1rem 1.4rem;
+  border-bottom: 1px solid var(--brand-border);
+  background:
+    radial-gradient(circle at 72% 0%, rgb(168 85 247 / 0.16), transparent 17rem),
+    #111620;
+}
+
+.font-playground__header p,
+.font-playground__header span,
+.font-playground__presets,
+.font-playground__meta,
+.font-control {
+  font-family: "IBM Plex Mono", Consolas, monospace;
+  text-transform: uppercase;
+}
+
+.font-playground__header p {
+  margin: 0;
+  color: var(--brand-text);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.font-playground__header > div:first-child > span {
+  display: block;
+  margin-top: 0.42rem;
+  color: var(--brand-muted);
+  font-size: 0.56rem;
+  letter-spacing: 0.1em;
+}
+
+.font-playground__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.font-playground__actions > button,
+.font-playground__presets button {
+  min-height: 2.75rem;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--brand-border);
+  background: rgb(9 11 19 / 0.6);
+  color: var(--brand-muted);
+  font: 700 0.58rem "IBM Plex Mono", Consolas, monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.font-playground__actions > button:hover,
+.font-playground__presets button:hover,
+.font-playground__presets button[aria-pressed="true"] {
+  border-color: var(--brand-purple-glow);
+  color: var(--brand-text);
+}
+
+.font-playground__controls {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-bottom: 1px solid var(--brand-border);
+}
+
+.font-control {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+  padding: 1.3rem 1.4rem 1.15rem;
+  border-right: 1px solid var(--brand-border);
+  color: var(--brand-muted);
+}
+
+.font-control:last-child {
+  border-right: 0;
+}
+
+.font-control__label,
+.font-control output {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+}
+
+.font-control output {
+  color: var(--brand-text);
+}
+
+.font-control input[type="range"] {
+  grid-column: 1 / -1;
+  width: 100%;
+  height: 1.4rem;
+  margin: 0.15rem 0 0;
+  accent-color: var(--brand-purple-glow);
+  cursor: ew-resize;
+}
+
+.font-control__range {
+  display: flex;
+  grid-column: 1 / -1;
+  justify-content: space-between;
+  color: #6f7b88;
+  font-size: 0.48rem;
+  letter-spacing: 0.08em;
+}
+
+.font-playground__presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  align-items: center;
+  padding: 0.8rem 1.4rem;
+  border-bottom: 1px solid var(--brand-border);
+  background: #0a0e14;
+  color: var(--brand-muted);
+  font-size: 0.52rem;
+  letter-spacing: 0.08em;
+}
+
+.font-playground__presets > span {
+  margin-right: 0.5rem;
+}
+
+.font-playground__presets button {
+  min-height: 2.15rem;
+  padding: 0.45rem 0.72rem;
+  font-size: 0.52rem;
+}
+
+.font-playground__preview {
+  position: relative;
+  min-height: clamp(27rem, 48vw, 39rem);
+  padding: clamp(4.5rem, 7vw, 6rem) clamp(1.5rem, 4vw, 4rem) 1.7rem;
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, rgb(23 25 29 / 0.055) 1px, transparent 1px),
+    linear-gradient(rgb(23 25 29 / 0.055) 1px, transparent 1px),
+    var(--brand-paper);
+  background-size: 1rem 1rem;
+  color: var(--brand-paper-text);
+}
+
+.font-playground__preview::before {
+  position: absolute;
+  top: 1.35rem;
+  left: clamp(1.5rem, 4vw, 4rem);
+  padding: 0.55rem 0.65rem;
+  border: 1px solid rgb(23 25 29 / 0.2);
+  background: rgb(240 237 229 / 0.86);
+  color: #3f444b;
+  content: attr(data-grid-label);
+  font: 700 0.55rem "IBM Plex Mono", Consolas, monospace;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.font-playground__preview textarea {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  min-height: clamp(17rem, 34vw, 28rem);
+  padding: 0;
+  overflow: auto;
+  border: 0;
+  outline: 0;
+  resize: vertical;
+  background: transparent;
+  color: var(--brand-paper-text);
+  font-size: var(--font-preview-size);
+  font-style: normal;
+  font-synthesis: none;
+  font-weight: 400;
+  letter-spacing: var(--font-preview-tracking);
+  line-height: 1.08;
+  caret-color: var(--brand-purple);
+}
+
+.font-playground[data-grid="8"] textarea {
+  font-family: "Bobs Font 8 Pixel", monospace;
+}
+
+.font-playground[data-grid="12"] textarea {
+  font-family: "Bobs Font 12 Pixel", monospace;
+}
+
+.font-playground[data-grid="16"] textarea {
+  font-family: "Bobs Font 16 Pixel", monospace;
+}
+
+.font-playground[data-grid="24"] textarea {
+  font-family: "Bobs Font 24 Pixel", monospace;
+}
+
+.font-playground[data-grid="32"] textarea {
+  font-family: "Bobs Font 32 Pixel", monospace;
+}
+
+.font-playground[data-grid="40"] textarea {
+  font-family: "Bobs Font 40 Pixel", monospace;
+}
+
+.font-playground[data-grid="48"] textarea {
+  font-family: "Bobs Font 48 Pixel", monospace;
+}
+
+.font-playground[data-grid="96"] textarea {
+  font-family: "Bobs Font 96 Pixel", monospace;
+}
+
+.font-playground__preview p {
+  position: relative;
+  z-index: 1;
+  max-width: 46rem;
+  margin: 1.2rem 0 0;
+  color: var(--brand-paper-muted);
+  font: 700 0.55rem/1.6 "IBM Plex Mono", Consolas, monospace;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.font-playground__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem 1.5rem;
+  justify-content: space-between;
+  padding: 0.95rem 1.4rem;
+  color: var(--brand-muted);
+  font-size: 0.5rem;
+  letter-spacing: 0.08em;
+}
+
+.font-playground__meta span:last-child {
+  color: var(--brand-purple-glow);
+  text-transform: none;
 }
 
 .gauges-footer {
@@ -859,6 +1206,10 @@
     grid-template-columns: 1fr;
   }
 
+  .font-lab-section__header {
+    grid-template-columns: 1fr;
+  }
+
   .system-map-section__visual {
     min-height: 32rem;
   }
@@ -872,6 +1223,18 @@
 
   .gauges-masthead nav a:last-child {
     display: none;
+  }
+
+  .gauges-masthead nav a:nth-child(2) {
+    display: inline;
+  }
+
+  .gauges-masthead nav {
+    gap: 0.75rem;
+  }
+
+  .gauges-masthead nav a {
+    font-size: 0.55rem;
   }
 
   .gauges-hero {
@@ -916,12 +1279,53 @@
   }
 
   .system-map-section,
+  .font-lab-section,
   .gauges-footer {
     width: min(100% - 2rem, 90rem);
   }
 
-  .system-map-section h2 span {
+  .system-map-section h2 span,
+  .font-lab-section h2 span {
     white-space: normal;
+  }
+
+  .font-playground__header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .font-playground__actions {
+    width: 100%;
+  }
+
+  .font-playground__actions .gauges-button {
+    flex: 1 1 14rem;
+  }
+
+  .font-playground__controls {
+    grid-template-columns: 1fr;
+  }
+
+  .font-control {
+    border-right: 0;
+    border-bottom: 1px solid var(--brand-border);
+  }
+
+  .font-control:last-child {
+    border-bottom: 0;
+  }
+
+  .font-playground__presets > span {
+    flex-basis: 100%;
+  }
+
+  .font-playground__preview {
+    min-height: 28rem;
+    padding-inline: 1rem;
+  }
+
+  .font-playground__preview::before {
+    left: 1rem;
   }
 
   .gauges-footer,

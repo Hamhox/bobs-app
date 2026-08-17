@@ -1,3 +1,4 @@
+import { initializeFontPlayground } from "./font-playground.js";
 import { VoyagerGuide } from "./voyager-guide.js";
 import { VoyagerMapViewer } from "./voyager-map-viewer.js";
 import { VoyagerStateEngine } from "./voyager-state-engine.js";
@@ -231,4 +232,8 @@ const mapViewer = new VoyagerMapViewer({
 for (const opener of document.querySelectorAll("#open-system-map, #open-system-map-preview")) {
   opener.addEventListener("click", () => mapViewer.open("overview"));
 }
+initializeFontPlayground(
+  document.querySelector("#font-playground"),
+  `${APP_BASE}/assets/fonts/bobs-font-v1`,
+);
 initializeVoyager();
