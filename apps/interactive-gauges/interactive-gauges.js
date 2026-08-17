@@ -207,7 +207,7 @@ const mapViewer = new VoyagerMapViewer({
   viewport: document.querySelector("#system-map-viewport"),
   image: document.querySelector("#system-map-image"),
   status: document.querySelector("#system-map-status"),
-  source: `${APP_BASE}/assets/system/voyager-screens-b1.svg`,
+  source: `${APP_BASE}/assets/system/voyager-screens-b2.svg`,
 });
 
 document.querySelector("#open-system-map").addEventListener("click", () => mapViewer.open("overview"));

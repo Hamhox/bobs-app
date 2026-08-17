@@ -1,10 +1,18 @@
 const clamp = (value, minimum, maximum) => Math.min(maximum, Math.max(minimum, value));
 const IMAGE_WIDTH = 4195.24;
-const IMAGE_HEIGHT = 6495.11;
+const IMAGE_HEIGHT = 6483.58;
 const PRESETS = {
   reading: { x: 1560, y: 2250, scale: 0.7, label: "Reading view" },
-  "screen-layout": { x: 720, y: 650, scale: 0.72, label: "Screen layout" },
-  "menu-flow": { x: 3520, y: 630, scale: 0.7, label: "Menu flow" },
+  "screen-layout": {
+    bounds: { x: 0.5, y: 0.5, width: 846.25, height: 1237.05 },
+    maximumScale: 0.72,
+    label: "Screen layout",
+  },
+  "menu-flow": {
+    bounds: { x: 2682.22, y: 12.41, width: 1512.52, height: 1454.73 },
+    maximumScale: 0.7,
+    label: "Menu flow",
+  },
 };
 
 export class VoyagerMapViewer {
@@ -67,9 +75,17 @@ export class VoyagerMapViewer {
 
     const viewport = this.#viewport.getBoundingClientRect();
     const target = PRESETS[preset];
-    this.#scale = target.scale;
-    this.#x = viewport.width / 2 - target.x * this.#scale;
-    this.#y = viewport.height / 2 - target.y * this.#scale;
+    if (target.bounds) {
+      const horizontalScale = (viewport.width * 0.9) / target.bounds.width;
+      const verticalScale = (viewport.height * 0.86) / target.bounds.height;
+      this.#scale = Math.min(horizontalScale, verticalScale, target.maximumScale);
+      this.#x = viewport.width / 2 - (target.bounds.x + target.bounds.width / 2) * this.#scale;
+      this.#y = viewport.height / 2 - (target.bounds.y + target.bounds.height / 2) * this.#scale;
+    } else {
+      this.#scale = target.scale;
+      this.#x = viewport.width / 2 - target.x * this.#scale;
+      this.#y = viewport.height / 2 - target.y * this.#scale;
+    }
     this.#activePreset = preset;
     this.#render(target.label);
   }
@@ -101,6 +117,12 @@ export class VoyagerMapViewer {
     this.#dialog.querySelector("[data-map-zoom-out]").addEventListener("click", () => this.zoomBy(0.8));
     this.#dialog.querySelector("[data-map-overview]").addEventListener("click", () => this.showPreset("overview"));
     this.#dialog.querySelector("[data-map-reading]").addEventListener("click", () => this.showPreset("reading"));
+    this.#dialog
+      .querySelector("[data-map-screen-layout]")
+      .addEventListener("click", () => this.showPreset("screen-layout"));
+    this.#dialog
+      .querySelector("[data-map-menu-flow]")
+      .addEventListener("click", () => this.showPreset("menu-flow"));
 
     this.#dialog.addEventListener("click", (event) => {
       if (event.target === this.#dialog) this.close();
@@ -156,6 +178,8 @@ export class VoyagerMapViewer {
         Home: () => this.showPreset("overview"),
         "0": () => this.showPreset("overview"),
         "1": () => this.showPreset("reading"),
+        "2": () => this.showPreset("screen-layout"),
+        "3": () => this.showPreset("menu-flow"),
       };
       const action = keyActions[event.key];
       if (!action) return;

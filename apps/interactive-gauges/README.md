@@ -24,3 +24,7 @@ The checked-in audit currently verifies:
 - 29 states whose explicit screen basename differs from the HTML state ID
 
 The runtime manifest is `data/voyager-states.json`. Presentation code does not contain historical transition rules.
+
+The architecture viewer uses `assets/system/voyager-screens-b2.svg`, a publication-approved export with named screen,
+menu, flowchart, connector, and region groups. The viewer's Screen layout and Menu flow presets use the authored
+`screen-layout-region` and `menu-flowchart-region` bounds.
