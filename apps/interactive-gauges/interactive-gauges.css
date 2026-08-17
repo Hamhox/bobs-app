@@ -6,62 +6,6 @@
   font-display: block;
 }
 
-@font-face {
-  font-family: "Bobs Font 12 Pixel";
-  src: url("assets/fonts/bobs-font-v1/woff/BobsFont12Pixel-Regular.woff") format("woff");
-  font-style: normal;
-  font-weight: 400;
-  font-display: block;
-}
-
-@font-face {
-  font-family: "Bobs Font 16 Pixel";
-  src: url("assets/fonts/bobs-font-v1/woff/BobsFont16Pixel-Regular.woff") format("woff");
-  font-style: normal;
-  font-weight: 400;
-  font-display: block;
-}
-
-@font-face {
-  font-family: "Bobs Font 24 Pixel";
-  src: url("assets/fonts/bobs-font-v1/woff/BobsFont24Pixel-Regular.woff") format("woff");
-  font-style: normal;
-  font-weight: 400;
-  font-display: block;
-}
-
-@font-face {
-  font-family: "Bobs Font 32 Pixel";
-  src: url("assets/fonts/bobs-font-v1/woff/BobsFont32Pixel-Regular.woff") format("woff");
-  font-style: normal;
-  font-weight: 400;
-  font-display: block;
-}
-
-@font-face {
-  font-family: "Bobs Font 40 Pixel";
-  src: url("assets/fonts/bobs-font-v1/woff/BobsFont40Pixel-Regular.woff") format("woff");
-  font-style: normal;
-  font-weight: 400;
-  font-display: block;
-}
-
-@font-face {
-  font-family: "Bobs Font 48 Pixel";
-  src: url("assets/fonts/bobs-font-v1/woff/BobsFont48Pixel-Regular.woff") format("woff");
-  font-style: normal;
-  font-weight: 400;
-  font-display: block;
-}
-
-@font-face {
-  font-family: "Bobs Font 96 Pixel";
-  src: url("assets/fonts/bobs-font-v1/woff/BobsFont96Pixel-Regular.woff") format("woff");
-  font-style: normal;
-  font-weight: 400;
-  font-display: block;
-}
-
 .gauges-body {
   --gauge-guide: #ff981f;
   --gauge-guide-soft: rgb(255 152 31 / 0.18);
@@ -631,7 +575,7 @@
 }
 
 .font-playground {
-  --font-preview-size: 8pt;
+  --font-preview-size: 24pt;
   padding: clamp(1.25rem, 2.4vw, 2rem);
   overflow: hidden;
   border: 1px solid var(--brand-border);
@@ -725,36 +669,8 @@
   caret-color: var(--brand-purple-glow);
 }
 
-.font-playground[data-grid="8"] #font-preview {
+.font-playground #font-preview {
   font-family: "Bobs Font 8 Pixel", monospace;
-}
-
-.font-playground[data-grid="12"] #font-preview {
-  font-family: "Bobs Font 12 Pixel", monospace;
-}
-
-.font-playground[data-grid="16"] #font-preview {
-  font-family: "Bobs Font 16 Pixel", monospace;
-}
-
-.font-playground[data-grid="24"] #font-preview {
-  font-family: "Bobs Font 24 Pixel", monospace;
-}
-
-.font-playground[data-grid="32"] #font-preview {
-  font-family: "Bobs Font 32 Pixel", monospace;
-}
-
-.font-playground[data-grid="40"] #font-preview {
-  font-family: "Bobs Font 40 Pixel", monospace;
-}
-
-.font-playground[data-grid="48"] #font-preview {
-  font-family: "Bobs Font 48 Pixel", monospace;
-}
-
-.font-playground[data-grid="96"] #font-preview {
-  font-family: "Bobs Font 96 Pixel", monospace;
 }
 
 .font-playground__controls {

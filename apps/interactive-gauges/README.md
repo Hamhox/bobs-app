@@ -31,6 +31,5 @@ and `flowchart-screens` groups from their live SVG `getBBox()` measurements. Ind
 groups that resolve to a manifest state can open that state in the working gauge, while unmatched groups are identified as
 design-only rather than being assigned an uncertain prototype route.
 
-The compact display-type lab uses Bob's Font release 1.200 across all eight native pixel grids. The
-checked-in WOFF faces power the live specimen and each matching TTF remains available from the lab's
-single download action.
+The compact display-type lab uses the 8-pixel face from Bob's Font release 1.200. Its slider scales
+that one face from 8pt through 96pt, while the single download action provides the matching 8pt TTF.

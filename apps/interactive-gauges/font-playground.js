@@ -1,14 +1,11 @@
-const FONT_GRIDS = [8, 12, 16, 24, 32, 40, 48, 96];
+const FONT_SCALES = [8, 12, 16, 24, 32, 40, 48, 96];
 
-export function initializeFontPlayground(root, assetBase) {
+export function initializeFontPlayground(root) {
   if (!root) return;
 
   const gridInput = root.querySelector("#font-grid");
-  const position = root.querySelector("#font-position");
-  const download = root.querySelector("#font-download");
-  const downloadLabel = root.querySelector("#font-download-label");
 
-  async function preloadFonts() {
+  async function preloadFont() {
     if (typeof document === "undefined" || !document.fonts) {
       gridInput.disabled = false;
       return;
@@ -17,13 +14,9 @@ export function initializeFontPlayground(root, assetBase) {
     root.setAttribute("aria-busy", "true");
     root.dataset.fontsReady = "loading";
     try {
-      await Promise.all(
-        FONT_GRIDS.map((grid) =>
-          document.fonts.load(
-            `${grid}pt "Bobs Font ${grid} Pixel"`,
-            "TYPE YOUR TRAIL NAME HERE 37\u00b0",
-          ),
-        ),
+      await document.fonts.load(
+        '24pt "Bobs Font 8 Pixel"',
+        "TYPE YOUR TRAIL NAME HERE 37\u00b0",
       );
       root.dataset.fontsReady = "true";
     } catch {
@@ -36,22 +29,16 @@ export function initializeFontPlayground(root, assetBase) {
 
   function updatePreview() {
     const index = Number(gridInput.value);
-    const grid = FONT_GRIDS[index];
-    const fileName = `BobsFont${grid}Pixel-Regular.ttf`;
+    const scale = FONT_SCALES[index];
 
-    root.dataset.grid = String(grid);
-    root.style.setProperty("--font-preview-size", `${grid}pt`);
-    position.textContent = `Font ${String(index + 1).padStart(2, "0")} / 08`;
+    root.style.setProperty("--font-preview-size", `${scale}pt`);
     gridInput.setAttribute(
       "aria-valuetext",
-      `${grid} point font drawing, ${index + 1} of 8`,
+      `${scale} point display scale, ${index + 1} of 8`,
     );
-    download.href = `${assetBase}/ttf/${fileName}`;
-    download.download = fileName;
-    downloadLabel.textContent = `Download ${grid}pt TTF`;
   }
 
   gridInput.addEventListener("input", updatePreview);
   updatePreview();
-  preloadFonts();
+  preloadFont();
 }

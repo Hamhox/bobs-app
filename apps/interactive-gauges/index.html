@@ -20,13 +20,6 @@
     <title>Interactive Gauge Archive | Bob's App</title>
     <link rel="icon" href="/bobs-app-symbol-logo.svg" type="image/svg+xml" />
     <link rel="preload" href="/apps/interactive-gauges/assets/fonts/bobs-font-v1/woff/BobsFont8Pixel-Regular.woff" as="font" type="font/woff" crossorigin />
-    <link rel="preload" href="/apps/interactive-gauges/assets/fonts/bobs-font-v1/woff/BobsFont12Pixel-Regular.woff" as="font" type="font/woff" crossorigin />
-    <link rel="preload" href="/apps/interactive-gauges/assets/fonts/bobs-font-v1/woff/BobsFont16Pixel-Regular.woff" as="font" type="font/woff" crossorigin />
-    <link rel="preload" href="/apps/interactive-gauges/assets/fonts/bobs-font-v1/woff/BobsFont24Pixel-Regular.woff" as="font" type="font/woff" crossorigin />
-    <link rel="preload" href="/apps/interactive-gauges/assets/fonts/bobs-font-v1/woff/BobsFont32Pixel-Regular.woff" as="font" type="font/woff" crossorigin />
-    <link rel="preload" href="/apps/interactive-gauges/assets/fonts/bobs-font-v1/woff/BobsFont40Pixel-Regular.woff" as="font" type="font/woff" crossorigin />
-    <link rel="preload" href="/apps/interactive-gauges/assets/fonts/bobs-font-v1/woff/BobsFont48Pixel-Regular.woff" as="font" type="font/woff" crossorigin />
-    <link rel="preload" href="/apps/interactive-gauges/assets/fonts/bobs-font-v1/woff/BobsFont96Pixel-Regular.woff" as="font" type="font/woff" crossorigin />
     <link rel="stylesheet" href="/styles.css" />
     <link rel="stylesheet" href="/apps/interactive-gauges/interactive-gauges.css" />
     <script type="module" src="/apps/interactive-gauges/interactive-gauges.js"></script>
@@ -170,16 +163,15 @@
       </section>
 
       <section class="font-lab-section" id="font-lab" aria-labelledby="font-lab-title">
-        <div class="font-playground" id="font-playground" data-grid="8">
+        <div class="font-playground" id="font-playground">
           <header class="font-playground__header">
             <div>
-              <p class="font-playground__eyebrow">03 / Font Reconstruction</p>
-              <h2 id="font-lab-title">The trouble with fonts on embedded devices</h2>
-              <p class="font-playground__instruction">...is every size needs a whole 'nother font</p>
+              <p class="font-playground__eyebrow">03 / Bob's Typography</p>
+              <h2 id="font-lab-title">Responsive pixel geometry is beautiful,</h2>
+              <p class="font-playground__instruction">...engineered for absolute clarity across modern displays and legacy grids alike.</p>
             </div>
             <p class="font-playground__file">
-              <span id="font-position">Font 01 / 08</span>
-              <span id="font-active-file">Selected</span>
+              <span id="font-active-file">Free Font</span>
             </p>
           </header>
 
@@ -198,17 +190,17 @@
 
             <div class="font-playground__controls">
               <label class="font-drawing-control" for="font-grid">
-                <span>Font drawing</span>
+                <span>Bob's Font</span>
                 <input
                   id="font-grid"
                   type="range"
                   min="0"
                   max="7"
                   step="1"
-                  value="0"
+                  value="3"
                   disabled
-                  aria-label="Font drawing"
-                  aria-valuetext="8 point font drawing, 1 of 8"
+                  aria-label="Bob's Font display scale"
+                  aria-valuetext="24 point display scale, 4 of 8"
                 />
                 <span class="font-drawing-control__range" aria-hidden="true">
                   <span>8pt</span><span>12pt</span><span>16pt</span><span>24pt</span>
@@ -221,7 +213,7 @@
                 id="font-download"
                 href="/apps/interactive-gauges/assets/fonts/bobs-font-v1/ttf/BobsFont8Pixel-Regular.ttf"
                 download="BobsFont8Pixel-Regular.ttf"
-              ><span id="font-download-label">Download 8pt TTF</span> <span aria-hidden="true">&#8595;</span></a>
+              >Download 8pt font</a>
             </div>
           </div>
         </div>
