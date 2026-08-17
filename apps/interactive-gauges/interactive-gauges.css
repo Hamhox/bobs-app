@@ -631,7 +631,7 @@
 }
 
 .font-playground {
-  --font-preview-size: 48px;
+  --font-preview-size: 8pt;
   padding: clamp(1.25rem, 2.4vw, 2rem);
   overflow: hidden;
   border: 1px solid var(--brand-border);
@@ -652,7 +652,6 @@
 
 .font-playground__eyebrow,
 .font-playground__file,
-.font-playground__face-detail,
 .font-drawing-control__range {
   font-family: "IBM Plex Mono", Consolas, monospace;
   text-transform: uppercase;
@@ -790,14 +789,6 @@
 
 .font-drawing-control__range span:first-child {
   color: var(--brand-purple-glow);
-}
-
-.font-playground__face-detail {
-  min-height: 1.2em;
-  margin: 0;
-  color: var(--brand-muted);
-  font-size: 0.55rem;
-  letter-spacing: 0.07em;
 }
 
 .font-playground__controls .gauges-button {

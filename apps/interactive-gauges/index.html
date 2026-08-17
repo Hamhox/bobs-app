@@ -185,7 +185,6 @@
                 autocomplete="off"
                 autocapitalize="characters"
                 spellcheck="false"
-                aria-describedby="font-active-face"
               />
             </div>
 
@@ -200,24 +199,20 @@
                   step="1"
                   value="0"
                   aria-label="Font drawing"
-                  aria-valuetext="Font 1 of 8, 8 pixel native grid"
-                  aria-describedby="font-active-face"
+                  aria-valuetext="8 point font drawing, 1 of 8"
                 />
                 <span class="font-drawing-control__range" aria-hidden="true">
-                  <span>1</span><span>2</span><span>3</span><span>4</span>
-                  <span>5</span><span>6</span><span>7</span><span>8</span>
+                  <span>8pt</span><span>12pt</span><span>16pt</span><span>24pt</span>
+                  <span>32pt</span><span>40pt</span><span>48pt</span><span>96pt</span>
                 </span>
               </label>
 
-              <p class="font-playground__face-detail" id="font-active-face">
-                8 PX native grid / Bob's Font 1.200
-              </p>
               <a
                 class="gauges-button gauges-button--primary"
                 id="font-download"
                 href="/apps/interactive-gauges/assets/fonts/bobs-font-v1/ttf/BobsFont8Pixel-Regular.ttf"
                 download="BobsFont8Pixel-Regular.ttf"
-              >Download selected TTF <span aria-hidden="true">&#8595;</span></a>
+              ><span id="font-download-label">Download 8pt TTF</span> <span aria-hidden="true">&#8595;</span></a>
             </div>
           </div>
         </div>
