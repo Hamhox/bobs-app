@@ -277,8 +277,11 @@ export class VoyagerMapViewer {
     this.#selection.id.textContent = selectionId;
     this.#selection.status.textContent = target.state ? "Connected Prototype State" : "Design Only";
     this.#selection.status.dataset.kind = target.state ? "connected" : "design";
-    this.#selection.group.textContent = `SVG group: ${target.groupId}`;
-    this.#selection.openButton.hidden = !target.state;
+    this.#selection.group.textContent = target.state
+      ? `SVG group: ${target.groupId}`
+      : `SVG group: ${target.groupId} · This screen is not part of the connected browser prototype.`;
+    this.#selection.openButton.hidden = false;
+    this.#selection.openButton.disabled = !target.state;
     this.#selection.openButton.dataset.stateId = target.state?.id ?? "";
     this.#activePreset = "custom";
     this.#render(`Selected ${selectionId}`);
@@ -304,8 +307,14 @@ export class VoyagerMapViewer {
     this.#selectedScreen = null;
     this.#selectionHighlight?.remove();
     this.#selectionHighlight = null;
-    this.#selection.panel.hidden = true;
-    this.#selection.openButton.hidden = true;
+    this.#selection.panel.hidden = false;
+    this.#selection.idLabel.textContent = "Select a screen";
+    this.#selection.id.textContent = "Open it in the gauge";
+    this.#selection.status.textContent = "Connected states only";
+    this.#selection.status.dataset.kind = "idle";
+    this.#selection.group.textContent = "Choose a named screen on the map.";
+    this.#selection.openButton.hidden = false;
+    this.#selection.openButton.disabled = true;
     this.#selection.openButton.removeAttribute("data-state-id");
     for (const target of this.#screenTargets) target.group.setAttribute("tabindex", "-1");
     if (this.#screenTargets[0]) this.#screenTargets[0].group.setAttribute("tabindex", "0");

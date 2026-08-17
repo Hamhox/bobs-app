@@ -755,6 +755,11 @@
   color: #cba5ff;
 }
 
+.system-map-selection__status[data-kind="idle"] {
+  border-color: rgb(255 255 255 / 0.18);
+  color: var(--brand-muted);
+}
+
 .system-map-selection__group {
   margin-top: 0.75rem;
   overflow-wrap: anywhere;
@@ -768,6 +773,15 @@
 
 .system-map-selection .gauges-button[hidden] {
   display: none;
+}
+
+.system-map-selection .gauges-button:disabled {
+  border-color: rgb(255 255 255 / 0.18);
+  background: rgb(255 255 255 / 0.055);
+  box-shadow: none;
+  color: rgb(255 255 255 / 0.46);
+  cursor: not-allowed;
+  transform: none;
 }
 
 .system-map-dialog__hint {
