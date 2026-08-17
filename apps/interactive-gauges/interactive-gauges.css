@@ -680,7 +680,10 @@
   transition: filter 140ms ease;
 }
 
-.system-map-image [data-map-screen]:hover,
+.system-map-image [data-map-screen]:hover {
+  filter: drop-shadow(0 0 0.24rem rgb(168 85 247 / 0.55));
+}
+
 .system-map-image [data-map-screen]:focus,
 .system-map-image [data-map-selected] {
   filter: drop-shadow(0 0 0.4rem rgb(168 85 247 / 0.92));

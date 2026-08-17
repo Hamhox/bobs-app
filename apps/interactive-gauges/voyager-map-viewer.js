@@ -1,6 +1,7 @@
 const clamp = (value, minimum, maximum) => Math.min(maximum, Math.max(minimum, value));
 const IMAGE_WIDTH = 4195.24;
 const IMAGE_HEIGHT = 6483.58;
+const POINTER_DRAG_THRESHOLD = 10;
 const PRESETS = {
   overview: { groupId: "regions", label: "Overview" },
   "screen-layout": { groupId: "screen-layout-screens", label: "Screen layout" },
@@ -122,6 +123,8 @@ export class VoyagerMapViewer {
   #selectionHighlight = null;
   #dragStart = null;
   #dragMoved = false;
+  #pressedScreen = null;
+  #pressedPointerId = null;
   #selection;
 
   constructor({ dialog, viewport, image, status, source }) {
@@ -457,7 +460,7 @@ export class VoyagerMapViewer {
     });
 
     this.#image.addEventListener("click", (event) => {
-      if (this.#dragMoved) return;
+      if (event.detail !== 0) return;
       const group = event.target.closest?.("[data-map-screen]");
       if (group) this.#selectScreen(group);
     });
@@ -499,29 +502,50 @@ export class VoyagerMapViewer {
     );
 
     this.#viewport.addEventListener("pointerdown", (event) => {
+      if (event.button !== 0) return;
+      const isFirstPointer = this.#pointers.size === 0;
       this.#viewport.setPointerCapture(event.pointerId);
       this.#pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
       this.#gesture = this.#gestureSnapshot();
       this.#dragStart = { x: event.clientX, y: event.clientY };
-      this.#dragMoved = false;
+      this.#dragMoved = !isFirstPointer;
+      this.#pressedScreen = isFirstPointer
+        ? event.target.closest?.("[data-map-screen]") ?? null
+        : null;
+      this.#pressedPointerId = isFirstPointer ? event.pointerId : null;
       this.#viewport.dataset.dragging = "true";
     });
     this.#viewport.addEventListener("pointermove", (event) => {
       if (!this.#pointers.has(event.pointerId)) return;
       this.#pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
       if (
-        this.#dragStart &&
-        Math.hypot(event.clientX - this.#dragStart.x, event.clientY - this.#dragStart.y) > 6
+        this.#pointers.size > 1 ||
+        (this.#dragStart &&
+          Math.hypot(event.clientX - this.#dragStart.x, event.clientY - this.#dragStart.y) >
+            POINTER_DRAG_THRESHOLD)
       ) {
         this.#dragMoved = true;
       }
+      if (!this.#dragMoved) return;
       this.#updateGesture();
     });
     for (const eventName of ["pointerup", "pointercancel"]) {
       this.#viewport.addEventListener(eventName, (event) => {
+        const screen = this.#pressedScreen;
+        const shouldSelect =
+          eventName === "pointerup" &&
+          this.#pointers.size === 1 &&
+          event.pointerId === this.#pressedPointerId &&
+          !this.#dragMoved &&
+          Boolean(screen);
         this.#pointers.delete(event.pointerId);
         this.#gesture = this.#gestureSnapshot();
-        if (!this.#pointers.size) delete this.#viewport.dataset.dragging;
+        if (!this.#pointers.size) {
+          delete this.#viewport.dataset.dragging;
+          this.#pressedScreen = null;
+          this.#pressedPointerId = null;
+          if (shouldSelect) this.#selectScreen(screen);
+        }
       });
     }
 
