@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { copyFile, mkdir, readdir, readFile, rm, stat, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
@@ -19,7 +19,6 @@ const EXPECTED = {
 const toolDirectory = path.dirname(fileURLToPath(import.meta.url));
 const appDirectory = path.resolve(toolDirectory, "..");
 const outputManifest = path.join(appDirectory, "data", "voyager-states.json");
-const outputScreens = path.join(appDirectory, "assets", "screens");
 
 function parseArguments(argv) {
   const sourceIndex = argv.indexOf("--source");
@@ -129,7 +128,7 @@ function parseState(filename, html) {
 
   return {
     id,
-    screen: `assets/screens/${screenSources[0]}`,
+    referenceScreen: screenSources[0],
     transitions: Object.fromEntries(ACTIONS.map((action) => [action, transitions[action]])),
     autoTransition: parseAutoTransition(html),
     archiveLinks: [...archiveLinks].sort((a, b) => a.localeCompare(b)),
@@ -196,7 +195,7 @@ async function main() {
   );
   const states = Object.fromEntries(stateRecords.map((state) => [state.id, state]));
   const referencedScreens = new Set(
-    stateRecords.map((state) => path.posix.basename(state.screen)),
+    stateRecords.map((state) => state.referenceScreen),
   );
 
   const sourceGifFiles = (await readdir(sourceImages)).filter((filename) =>
@@ -223,11 +222,11 @@ async function main() {
       if (!states[target]) throw new Error(`${state.id} archive link points to missing state ${target}`);
     }
 
-    const sourceScreen = path.join(sourceImages, path.posix.basename(state.screen));
+    const sourceScreen = path.join(sourceImages, state.referenceScreen);
     const dimensions = await gifDimensions(sourceScreen);
     if (dimensions.width !== EXPECTED.screenWidth || dimensions.height !== EXPECTED.screenHeight) {
       throw new Error(
-        `${state.screen} is ${dimensions.width}x${dimensions.height}, expected 504x303`,
+        `${state.referenceScreen} is ${dimensions.width}x${dimensions.height}, expected 504x303`,
       );
     }
   }
@@ -241,7 +240,7 @@ async function main() {
   const actionReachableStates = countReachable(states, "index");
   const archiveReachableStates = countReachable(states, "index", true);
   const stateScreenNameDifferences = stateRecords.filter(
-    (state) => state.id !== path.posix.basename(state.screen, ".gif"),
+    (state) => state.id !== path.posix.basename(state.referenceScreen, ".gif"),
   ).length;
 
   const audit = {
@@ -269,7 +268,7 @@ async function main() {
   }
 
   const manifest = {
-    version: 1,
+    version: 2,
     title: "Trail Tech Voyager linked-prototype manifest",
     initialState: "index",
     actions: ACTIONS,
@@ -278,15 +277,8 @@ async function main() {
     states,
   };
 
-  assertInsideApp(outputScreens);
   assertInsideApp(outputManifest);
-  await rm(outputScreens, { recursive: true, force: true });
-  await mkdir(outputScreens, { recursive: true });
   await mkdir(path.dirname(outputManifest), { recursive: true });
-
-  for (const screen of [...referencedScreens].sort((a, b) => a.localeCompare(b))) {
-    await copyFile(path.join(sourceImages, screen), path.join(outputScreens, screen));
-  }
   await writeFile(outputManifest, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
 
   console.log(JSON.stringify(audit, null, 2));

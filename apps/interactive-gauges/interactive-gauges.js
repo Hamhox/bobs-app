@@ -8,7 +8,6 @@ import { VoyagerStateEngine } from "./voyager-state-engine.js";
 const APP_BASE = "/apps/interactive-gauges";
 const VOYAGER_URL_PARAMETER = "voyager";
 const stage = document.querySelector("#voyager-stage");
-const screen = document.querySelector("#voyager-screen");
 const liveScreen = document.querySelector("#voyager-live-screen");
 const stateCode = document.querySelector("#voyager-state-code");
 const timerStatus = document.querySelector("#voyager-timer-status");
@@ -27,13 +26,10 @@ const guideElements = {
 };
 const liveRuntime = new VoyagerLiveRuntime({
   mount: liveScreen,
-  legacyImage: screen,
   stage,
   appBase: APP_BASE,
 });
 
-const preloadCache = new Map();
-let transitionPending = false;
 let pendingHistoryMode = null;
 
 function voyagerStateFromUrl() {
@@ -57,50 +53,6 @@ function focusGauge() {
   });
 }
 
-function screenUrl(state) {
-  return `${APP_BASE}/${state.screen}`;
-}
-
-function preloadState(manifest, stateId) {
-  const state = manifest.states[stateId];
-  if (!state) return Promise.resolve();
-  const url = screenUrl(state);
-  if (preloadCache.has(url)) return preloadCache.get(url);
-
-  const preload = new Promise((resolve, reject) => {
-    const image = new Image();
-    image.decoding = "async";
-    image.onload = async () => {
-      try {
-        await image.decode();
-      } catch {
-        // A completed image remains safe to display when decode() is unavailable.
-      }
-      resolve(url);
-    };
-    image.onerror = () => {
-      preloadCache.delete(url);
-      reject(new Error(`Voyager screen could not be loaded: ${state.screen}`));
-    };
-    image.src = url;
-  });
-
-  preloadCache.set(url, preload);
-  return preload;
-}
-
-function guidedPreloadTargets(manifest) {
-  const targets = new Set(manifest.guidedRoute);
-  for (const stateId of manifest.guidedRoute) {
-    const state = manifest.states[stateId];
-    for (const target of Object.values(state.transitions)) {
-      if (target) targets.add(target);
-    }
-    if (state.autoTransition?.target) targets.add(state.autoTransition.target);
-  }
-  return [...targets];
-}
-
 function pulseControl(action, moved) {
   liveRuntime.pulseInput(action);
   for (const control of controls.filter((item) => item.dataset.action === action)) {
@@ -112,8 +64,6 @@ function pulseControl(action, moved) {
 
 function commitState(engine, state, event) {
   const manifest = engine.getManifest();
-  screen.src = screenUrl(state);
-  screen.alt = `Voyager interface archive state ${state.id}`;
   liveRuntime.render(state, event);
   stateCode.textContent = state.id;
   timerStatus.textContent = state.autoTransition?.active
@@ -131,11 +81,6 @@ function commitState(engine, state, event) {
       : `${control.getAttribute("aria-label")}: open ${target}`;
   }
 
-  const likelyTargets = new Set(
-    [...Object.values(state.transitions), state.autoTransition?.target].filter(Boolean),
-  );
-  for (const target of likelyTargets) preloadState(manifest, target).catch(() => {});
-
   if (event.type === "auto") {
     interactionLive.textContent = `Archived timer advanced the interface to ${state.id}.`;
   } else if (event.type === "dispatch" && event.to === null) {
@@ -145,32 +90,15 @@ function commitState(engine, state, event) {
   }
 }
 
-async function dispatchAfterPreload(action, source, engine) {
-  if (transitionPending) return null;
+function dispatchAction(action, source, engine) {
   const currentState = engine.getState();
   const policyStateId = liveRuntime.getInputPolicyStateId(currentState.id);
-  const policyState = engine.getManifest().states[policyStateId] ?? currentState;
-  const target = policyState.transitions[action];
-
-  if (!target || target === currentState.id) return engine.dispatch(action, source, policyStateId);
-
-  transitionPending = true;
-  stage.setAttribute("aria-busy", "true");
-  try {
-    if (!liveRuntime.supports(target)) await preloadState(engine.getManifest(), target);
-    return engine.dispatch(action, source, policyStateId);
-  } catch (error) {
-    interactionLive.textContent = error.message;
-    return null;
-  } finally {
-    transitionPending = false;
-    stage.removeAttribute("aria-busy");
-  }
+  return engine.dispatch(action, source, policyStateId);
 }
 
 function bindControl(control, engine) {
-  control.addEventListener("click", async () => {
-    const result = await dispatchAfterPreload(control.dataset.action, "physical-control", engine);
+  control.addEventListener("click", () => {
+    const result = dispatchAction(control.dataset.action, "physical-control", engine);
     if (result) pulseControl(control.dataset.action, result.to !== null);
   });
 }
@@ -189,7 +117,7 @@ function bindKeyboard(engine) {
     C: "center",
   };
 
-  stage.addEventListener("keydown", async (event) => {
+  stage.addEventListener("keydown", (event) => {
     if (
       event.target.matches("button") &&
       (event.key === "Enter" || event.key === " " || event.key === "Spacebar")
@@ -199,7 +127,7 @@ function bindKeyboard(engine) {
     const action = keyActions[event.key];
     if (!action) return;
     event.preventDefault();
-    const result = await dispatchAfterPreload(action, "keyboard", engine);
+    const result = dispatchAction(action, "keyboard", engine);
     if (result) pulseControl(action, result.to !== null);
   });
 }
@@ -224,15 +152,11 @@ function enableInterface(engine, guide) {
 
 async function initializeVoyager() {
   try {
+    document.querySelector("#voyager-load-status").textContent = "Loading";
     const response = await fetch(`${APP_BASE}/data/voyager-states.json`);
     if (!response.ok) throw new Error(`Manifest request failed with ${response.status}`);
     const manifest = await response.json();
-    let liveRuntimeError = null;
-    try {
-      await liveRuntime.initialize();
-    } catch (error) {
-      liveRuntimeError = error;
-    }
+    await liveRuntime.initialize();
     const engine = new VoyagerStateEngine(manifest);
     let guide;
     const syncDestinationHighlights = (stateId) => {
@@ -255,7 +179,7 @@ async function initializeVoyager() {
       } = parameters;
       const stateId = liveRuntime.resolveStateId(screenId);
       if (!manifest.states[stateId]) throw new Error(`Unknown Voyager state: ${screenId}`);
-      if (!liveRuntime.supports(stateId)) await preloadState(manifest, stateId);
+      if (!liveRuntime.supports(stateId)) throw new Error(`Voyager state ${screenId} does not have a live renderer.`);
       if (!preserveGuide) guide.exit();
       liveRuntime.applyNavigationParameters(runtimeParameters);
       pendingHistoryMode = history;
@@ -335,14 +259,8 @@ async function initializeVoyager() {
         interactionLive.textContent = error.message;
       });
     });
-    document.querySelector("#voyager-load-status").textContent = "Loading";
-    await Promise.all(guidedPreloadTargets(manifest).map((stateId) => preloadState(manifest, stateId)));
     document.querySelector("#voyager-load-status").textContent = "Ready";
     enableInterface(engine, guide);
-    if (liveRuntimeError) {
-      stage.dataset.liveError = "true";
-      interactionLive.textContent = `${liveRuntimeError.message} The original Voyager screen captures remain available.`;
-    }
   } catch (error) {
     document.querySelector("#voyager-load-status").textContent = "Unavailable";
     interactionLive.textContent = error.message;

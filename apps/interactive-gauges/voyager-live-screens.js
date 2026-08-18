@@ -9,6 +9,15 @@ export const VOYAGER_TAB_ORDER = [
 ];
 
 export const VOYAGER_SCREEN_REGISTRY = {
+  startup: {
+    id: "startup",
+    tabLabel: "STARTUP",
+    renderer: "startup",
+    showSideArrows: false,
+    variants: {
+      startup: { view: "logo", tabsVisible: false, sideArrows: false },
+    },
+  },
   main: {
     id: "main",
     tabLabel: "MAIN",
@@ -124,6 +133,7 @@ export const VOYAGER_INPUT_POLICY_ALIASES = {
 };
 
 export const VOYAGER_STABLE_STATE_ALIASES = {
+  "gauge.startup": "startup",
   "gauge.main.primary": "index",
   "gauge.main.primary.tabs-hidden": "index1-2",
   "gauge.main.secondary": "index2",

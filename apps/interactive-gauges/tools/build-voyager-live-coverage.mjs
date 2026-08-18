@@ -11,7 +11,7 @@ const outputPath = join(appDirectory, "data", "voyager-live-coverage.json");
 const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
 
 function familyFor(state) {
-  const file = state.screen.toLowerCase();
+  const file = state.referenceScreen.toLowerCase();
   if (state.id === "startup") return "startup";
   if (state.id.startsWith("index")) return "main-gauge";
   if (state.id.startsWith("map")) return "track-map";
@@ -33,13 +33,15 @@ const states = Object.values(manifest.states)
   .map((state) => ({
     id: state.id,
     family: familyFor(state),
-    renderer: liveStateIds.has(state.id) ? "live-svg" : "legacy-image",
-    status: VOYAGER_LIVE_STATE_IDS.has(state.id)
-      ? "pass-2-live"
-      : VOYAGER_MENU_STATE_IDS.has(state.id)
-        ? "pass-3-live"
-        : "comparison-fallback",
-    legacyScreen: state.screen,
+    renderer: liveStateIds.has(state.id) ? "live-svg" : "missing",
+    status: state.id === "startup"
+      ? "pass-5-live"
+      : VOYAGER_LIVE_STATE_IDS.has(state.id)
+        ? "pass-2-live"
+        : VOYAGER_MENU_STATE_IDS.has(state.id)
+          ? "pass-3-live"
+          : "unimplemented",
+    referenceScreen: state.referenceScreen,
     reachableInputs: Object.entries(state.transitions)
       .filter(([, target]) => target !== null)
       .map(([input]) => input),
@@ -52,15 +54,21 @@ const states = Object.values(manifest.states)
 const coverage = {
   schemaVersion: 1,
   sourceManifest: "voyager-states.json",
-  rendererPolicy: "Use live SVG when implemented; retain the original image as a comparison fallback during conversion.",
+  rendererPolicy: "Every production-reachable state uses the live SVG renderer. Historical screen filenames remain metadata only.",
   mapScope: "Track-only: current recording and loaded GPX tracks/routes. No basemap, terrain, tiles, roads, or place labels.",
   totals: {
     knownStates: states.length,
     liveStates: states.filter((state) => state.renderer === "live-svg").length,
-    comparisonFallbackStates: states.filter((state) => state.renderer === "legacy-image").length,
+    nonLiveStates: states.filter((state) => state.renderer !== "live-svg").length,
   },
   states,
 };
+
+if (coverage.totals.liveStates !== coverage.totals.knownStates || coverage.totals.nonLiveStates !== 0) {
+  throw new Error(
+    `Live coverage is incomplete: ${coverage.totals.liveStates}/${coverage.totals.knownStates} states`,
+  );
+}
 
 await writeFile(outputPath, `${JSON.stringify(coverage, null, 2)}\n`, "utf8");
 console.log(JSON.stringify(coverage.totals, null, 2));

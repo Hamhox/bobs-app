@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "title": "Trail Tech Voyager linked-prototype manifest",
   "initialState": "index",
   "actions": [
@@ -33,7 +33,6 @@
   "states": {
     "alt": {
       "id": "alt",
-      "screen": "assets/screens/s-alt1-1.gif",
       "transitions": {
         "menu": "m-main1-1",
         "up": "eng",
@@ -57,11 +56,11 @@
         "eng",
         "index",
         "m-main1-1"
-      ]
+      ],
+      "referenceScreen": "s-alt1-1.gif"
     },
     "alt1-2": {
       "id": "alt1-2",
-      "screen": "assets/screens/s-alt1-2.gif",
       "transitions": {
         "menu": "alt",
         "up": "alt",
@@ -80,11 +79,11 @@
       "archiveLinks": [
         "alt",
         "index"
-      ]
+      ],
+      "referenceScreen": "s-alt1-2.gif"
     },
     "alt2": {
       "id": "alt2",
-      "screen": "assets/screens/s-alt2.gif",
       "transitions": {
         "menu": "m-main1-1",
         "up": "eng2",
@@ -102,11 +101,11 @@
         "eng2",
         "index",
         "m-main1-1"
-      ]
+      ],
+      "referenceScreen": "s-alt2.gif"
     },
     "alt3": {
       "id": "alt3",
-      "screen": "assets/screens/s-alt3.gif",
       "transitions": {
         "menu": "m-main1-1",
         "up": "eng3",
@@ -124,11 +123,11 @@
         "eng3",
         "index",
         "m-main1-1"
-      ]
+      ],
+      "referenceScreen": "s-alt3.gif"
     },
     "cstm": {
       "id": "cstm",
-      "screen": "assets/screens/s-cstm1-1.gif",
       "transitions": {
         "menu": "m-set3-5-1",
         "up": "alt",
@@ -151,11 +150,11 @@
         "dir",
         "index",
         "m-set3-5-1"
-      ]
+      ],
+      "referenceScreen": "s-cstm1-1.gif"
     },
     "cstm1-2": {
       "id": "cstm1-2",
-      "screen": "assets/screens/s-cstm1-2.gif",
       "transitions": {
         "menu": "cstm",
         "up": "cstm",
@@ -170,11 +169,11 @@
       "archiveLinks": [
         "cstm",
         "index"
-      ]
+      ],
+      "referenceScreen": "s-cstm1-2.gif"
     },
     "cstm2-2": {
       "id": "cstm2-2",
-      "screen": "assets/screens/s-cstm2-2.gif",
       "transitions": {
         "menu": "cstm2",
         "up": "cstm2",
@@ -189,11 +188,11 @@
       "archiveLinks": [
         "cstm2",
         "index"
-      ]
+      ],
+      "referenceScreen": "s-cstm2-2.gif"
     },
     "cstm2": {
       "id": "cstm2",
-      "screen": "assets/screens/s-cstm2-1.gif",
       "transitions": {
         "menu": "m-set3-5-2",
         "up": "alt",
@@ -216,11 +215,11 @@
         "dir",
         "index",
         "m-set3-5-2"
-      ]
+      ],
+      "referenceScreen": "s-cstm2-1.gif"
     },
     "dir": {
       "id": "dir",
-      "screen": "assets/screens/s-dir1-1.gif",
       "transitions": {
         "menu": "m-main1-2",
         "up": "cstm",
@@ -243,11 +242,11 @@
         "index",
         "m-main1-2",
         "sat"
-      ]
+      ],
+      "referenceScreen": "s-dir1-1.gif"
     },
     "dir1-2": {
       "id": "dir1-2",
-      "screen": "assets/screens/s-dir1-2.gif",
       "transitions": {
         "menu": "dir",
         "up": "dir",
@@ -265,11 +264,11 @@
       },
       "archiveLinks": [
         "dir"
-      ]
+      ],
+      "referenceScreen": "s-dir1-2.gif"
     },
     "dir2": {
       "id": "dir2",
-      "screen": "assets/screens/s-dir2.gif",
       "transitions": {
         "menu": "m-main1-2",
         "up": "cstm",
@@ -291,11 +290,11 @@
         "index",
         "m-main1-2",
         "sat"
-      ]
+      ],
+      "referenceScreen": "s-dir2.gif"
     },
     "dir3": {
       "id": "dir3",
-      "screen": "assets/screens/s-dir3.gif",
       "transitions": {
         "menu": "dir2",
         "up": "dir2",
@@ -315,11 +314,11 @@
         "dir",
         "dir2",
         "index"
-      ]
+      ],
+      "referenceScreen": "s-dir3.gif"
     },
     "eng": {
       "id": "eng",
-      "screen": "assets/screens/s-eng1-1.gif",
       "transitions": {
         "menu": "m-main1-1",
         "up": "map",
@@ -343,11 +342,11 @@
         "index",
         "m-main1-1",
         "map"
-      ]
+      ],
+      "referenceScreen": "s-eng1-1.gif"
     },
     "eng1-2": {
       "id": "eng1-2",
-      "screen": "assets/screens/s-eng1-2.gif",
       "transitions": {
         "menu": "eng",
         "up": "eng",
@@ -362,11 +361,11 @@
       "archiveLinks": [
         "eng",
         "index"
-      ]
+      ],
+      "referenceScreen": "s-eng1-2.gif"
     },
     "eng2": {
       "id": "eng2",
-      "screen": "assets/screens/s-eng2.gif",
       "transitions": {
         "menu": "m-main1-1",
         "up": "alt2",
@@ -384,11 +383,11 @@
         "eng3",
         "index",
         "m-main1-1"
-      ]
+      ],
+      "referenceScreen": "s-eng2.gif"
     },
     "eng3": {
       "id": "eng3",
-      "screen": "assets/screens/s-eng3.gif",
       "transitions": {
         "menu": "m-main1-1",
         "up": "alt3",
@@ -406,11 +405,11 @@
         "eng2",
         "index",
         "m-main1-1"
-      ]
+      ],
+      "referenceScreen": "s-eng3.gif"
     },
     "index": {
       "id": "index",
-      "screen": "assets/screens/s-main1-1.gif",
       "transitions": {
         "menu": "m-main1-1",
         "up": "sat",
@@ -433,11 +432,11 @@
         "map",
         "sat",
         "startup"
-      ]
+      ],
+      "referenceScreen": "s-main1-1.gif"
     },
     "index1-2": {
       "id": "index1-2",
-      "screen": "assets/screens/s-main1-2.gif",
       "transitions": {
         "menu": "index",
         "up": "sat",
@@ -454,11 +453,11 @@
         "map",
         "sat",
         "startup"
-      ]
+      ],
+      "referenceScreen": "s-main1-2.gif"
     },
     "index2-2": {
       "id": "index2-2",
-      "screen": "assets/screens/s-main2-2.gif",
       "transitions": {
         "menu": "m-main1-1",
         "up": "sat",
@@ -479,11 +478,11 @@
         "m-main1-1",
         "map",
         "sat"
-      ]
+      ],
+      "referenceScreen": "s-main2-2.gif"
     },
     "index2": {
       "id": "index2",
-      "screen": "assets/screens/s-main2-1.gif",
       "transitions": {
         "menu": "m-main1-1",
         "up": "sat",
@@ -505,11 +504,11 @@
         "m-main1-1",
         "map",
         "sat"
-      ]
+      ],
+      "referenceScreen": "s-main2-1.gif"
     },
     "m-main1-1": {
       "id": "m-main1-1",
-      "screen": "assets/screens/m-main1-1.gif",
       "transitions": {
         "menu": "index",
         "up": "m-set3-1",
@@ -526,11 +525,11 @@
         "m-main1-2",
         "m-ride2-1",
         "m-set3-1"
-      ]
+      ],
+      "referenceScreen": "m-main1-1.gif"
     },
     "m-main1-2-1": {
       "id": "m-main1-2-1",
-      "screen": "assets/screens/m-main1-2-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -546,11 +545,11 @@
         "dir",
         "index",
         "m-main1-2"
-      ]
+      ],
+      "referenceScreen": "m-main1-2-1.gif"
     },
     "m-main1-2": {
       "id": "m-main1-2",
-      "screen": "assets/screens/m-main1-2.gif",
       "transitions": {
         "menu": "index",
         "up": "m-main1-7",
@@ -568,11 +567,11 @@
         "m-main1-2-1",
         "m-main1-3",
         "m-main1-7"
-      ]
+      ],
+      "referenceScreen": "m-main1-2.gif"
     },
     "m-main1-3-1": {
       "id": "m-main1-3-1",
-      "screen": "assets/screens/m-main1-3-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -587,11 +586,11 @@
       "archiveLinks": [
         "index",
         "m-main1-3"
-      ]
+      ],
+      "referenceScreen": "m-main1-3-1.gif"
     },
     "m-main1-3": {
       "id": "m-main1-3",
-      "screen": "assets/screens/m-main1-3.gif",
       "transitions": {
         "menu": "index",
         "up": "m-main1-2",
@@ -609,11 +608,11 @@
         "m-main1-2",
         "m-main1-3-1",
         "m-main1-4"
-      ]
+      ],
+      "referenceScreen": "m-main1-3.gif"
     },
     "m-main1-4": {
       "id": "m-main1-4",
-      "screen": "assets/screens/m-main1-4.gif",
       "transitions": {
         "menu": "index",
         "up": "m-main1-3",
@@ -631,11 +630,11 @@
         "m-main1-3",
         "m-main1-5",
         "map"
-      ]
+      ],
+      "referenceScreen": "m-main1-4.gif"
     },
     "m-main1-5-1-1": {
       "id": "m-main1-5-1-1",
-      "screen": "assets/screens/m-main1-5-1-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -651,11 +650,11 @@
         "dir",
         "index",
         "m-main1-5-1"
-      ]
+      ],
+      "referenceScreen": "m-main1-5-1-1.gif"
     },
     "m-main1-5-1": {
       "id": "m-main1-5-1",
-      "screen": "assets/screens/m-main1-5-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -671,11 +670,11 @@
         "index",
         "m-main1-5",
         "m-main1-5-1-1"
-      ]
+      ],
+      "referenceScreen": "m-main1-5-1.gif"
     },
     "m-main1-5": {
       "id": "m-main1-5",
-      "screen": "assets/screens/m-main1-5.gif",
       "transitions": {
         "menu": "index",
         "up": "m-main1-4",
@@ -693,11 +692,11 @@
         "m-main1-4",
         "m-main1-5-1",
         "m-main1-6"
-      ]
+      ],
+      "referenceScreen": "m-main1-5.gif"
     },
     "m-main1-6-1": {
       "id": "m-main1-6-1",
-      "screen": "assets/screens/m-main1-6-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -712,11 +711,11 @@
       "archiveLinks": [
         "index",
         "m-main1-6"
-      ]
+      ],
+      "referenceScreen": "m-main1-6-1.gif"
     },
     "m-main1-6": {
       "id": "m-main1-6",
-      "screen": "assets/screens/m-main1-6.gif",
       "transitions": {
         "menu": "index",
         "up": "m-main1-5",
@@ -734,11 +733,11 @@
         "m-main1-5",
         "m-main1-6-1",
         "m-main1-7"
-      ]
+      ],
+      "referenceScreen": "m-main1-6.gif"
     },
     "m-main1-7-1": {
       "id": "m-main1-7-1",
-      "screen": "assets/screens/m-main1-7-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -753,11 +752,11 @@
       "archiveLinks": [
         "index",
         "m-main1-7"
-      ]
+      ],
+      "referenceScreen": "m-main1-7-1.gif"
     },
     "m-main1-7": {
       "id": "m-main1-7",
-      "screen": "assets/screens/m-main1-7.gif",
       "transitions": {
         "menu": "index",
         "up": "m-main1-6",
@@ -775,11 +774,11 @@
         "m-main1-2",
         "m-main1-6",
         "m-main1-7-1"
-      ]
+      ],
+      "referenceScreen": "m-main1-7.gif"
     },
     "m-ride2-1": {
       "id": "m-ride2-1",
-      "screen": "assets/screens/m-ride2-1.gif",
       "transitions": {
         "menu": "index",
         "up": "m-main1-1",
@@ -796,11 +795,11 @@
         "m-main1-1",
         "m-ride2-2",
         "m-set3-1"
-      ]
+      ],
+      "referenceScreen": "m-ride2-1.gif"
     },
     "m-ride2-2-1": {
       "id": "m-ride2-2-1",
-      "screen": "assets/screens/m-ride2-2-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -815,11 +814,11 @@
       "archiveLinks": [
         "index",
         "m-ride2-2"
-      ]
+      ],
+      "referenceScreen": "m-ride2-2-1.gif"
     },
     "m-ride2-2": {
       "id": "m-ride2-2",
-      "screen": "assets/screens/m-ride2-2.gif",
       "transitions": {
         "menu": "index",
         "up": "m-ride2-6",
@@ -837,11 +836,11 @@
         "m-ride2-2-1",
         "m-ride2-3",
         "m-ride2-6"
-      ]
+      ],
+      "referenceScreen": "m-ride2-2.gif"
     },
     "m-ride2-3-1-1-1": {
       "id": "m-ride2-3-1-1-1",
-      "screen": "assets/screens/m-ride2-3-1-1-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -857,11 +856,11 @@
         "index",
         "m-ride2-3",
         "m-ride2-3-1-1"
-      ]
+      ],
+      "referenceScreen": "m-ride2-3-1-1-1.gif"
     },
     "m-ride2-3-1-1": {
       "id": "m-ride2-3-1-1",
-      "screen": "assets/screens/m-ride2-3-1-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -877,11 +876,11 @@
         "index",
         "m-ride2-3-1",
         "m-ride2-3-1-1-1"
-      ]
+      ],
+      "referenceScreen": "m-ride2-3-1-1.gif"
     },
     "m-ride2-3-1": {
       "id": "m-ride2-3-1",
-      "screen": "assets/screens/m-ride2-3-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -897,11 +896,11 @@
         "index",
         "m-ride2-3",
         "m-ride2-3-1-1"
-      ]
+      ],
+      "referenceScreen": "m-ride2-3-1.gif"
     },
     "m-ride2-3": {
       "id": "m-ride2-3",
-      "screen": "assets/screens/m-ride2-3.gif",
       "transitions": {
         "menu": "index",
         "up": "m-ride2-2",
@@ -919,11 +918,11 @@
         "m-ride2-2",
         "m-ride2-3-1",
         "m-ride2-4"
-      ]
+      ],
+      "referenceScreen": "m-ride2-3.gif"
     },
     "m-ride2-4-1-1": {
       "id": "m-ride2-4-1-1",
-      "screen": "assets/screens/m-ride2-4-1-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -939,11 +938,11 @@
         "index",
         "m-ride2-4",
         "m-ride2-4-1"
-      ]
+      ],
+      "referenceScreen": "m-ride2-4-1-1.gif"
     },
     "m-ride2-4-1": {
       "id": "m-ride2-4-1",
-      "screen": "assets/screens/m-ride2-4-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -959,11 +958,11 @@
         "index",
         "m-ride2-4",
         "m-ride2-4-1-1"
-      ]
+      ],
+      "referenceScreen": "m-ride2-4-1.gif"
     },
     "m-ride2-4": {
       "id": "m-ride2-4",
-      "screen": "assets/screens/m-ride2-4.gif",
       "transitions": {
         "menu": "index",
         "up": "m-ride2-3",
@@ -981,11 +980,11 @@
         "m-ride2-3",
         "m-ride2-4-1",
         "m-ride2-5"
-      ]
+      ],
+      "referenceScreen": "m-ride2-4.gif"
     },
     "m-ride2-5-1-1": {
       "id": "m-ride2-5-1-1",
-      "screen": "assets/screens/m-ride2-5-1-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -1001,11 +1000,11 @@
         "index",
         "m-ride2-5",
         "m-ride2-5-1"
-      ]
+      ],
+      "referenceScreen": "m-ride2-5-1-1.gif"
     },
     "m-ride2-5-1": {
       "id": "m-ride2-5-1",
-      "screen": "assets/screens/m-ride2-5-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -1021,11 +1020,11 @@
         "index",
         "m-ride2-5",
         "m-ride2-5-1-1"
-      ]
+      ],
+      "referenceScreen": "m-ride2-5-1.gif"
     },
     "m-ride2-5": {
       "id": "m-ride2-5",
-      "screen": "assets/screens/m-ride2-5.gif",
       "transitions": {
         "menu": "index",
         "up": "m-ride2-4",
@@ -1043,11 +1042,11 @@
         "m-ride2-4",
         "m-ride2-5-1",
         "m-ride2-6"
-      ]
+      ],
+      "referenceScreen": "m-ride2-5.gif"
     },
     "m-ride2-6-1-1": {
       "id": "m-ride2-6-1-1",
-      "screen": "assets/screens/m-ride2-6-1-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -1062,11 +1061,11 @@
       "archiveLinks": [
         "index",
         "m-ride2-6-1"
-      ]
+      ],
+      "referenceScreen": "m-ride2-6-1-1.gif"
     },
     "m-ride2-6-1": {
       "id": "m-ride2-6-1",
-      "screen": "assets/screens/m-ride2-6-1.gif",
       "transitions": {
         "menu": "index",
         "up": "m-ride2-6-4",
@@ -1084,11 +1083,11 @@
         "m-ride2-6-1-1",
         "m-ride2-6-2",
         "m-ride2-6-4"
-      ]
+      ],
+      "referenceScreen": "m-ride2-6-1.gif"
     },
     "m-ride2-6-2-1-1-1": {
       "id": "m-ride2-6-2-1-1-1",
-      "screen": "assets/screens/m-ride2-6-2-1-1-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -1104,11 +1103,11 @@
         "index",
         "m-ride2-6",
         "m-ride2-6-2-1-1"
-      ]
+      ],
+      "referenceScreen": "m-ride2-6-2-1-1-1.gif"
     },
     "m-ride2-6-2-1-1": {
       "id": "m-ride2-6-2-1-1",
-      "screen": "assets/screens/m-ride2-6-2-1-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -1124,11 +1123,11 @@
         "index",
         "m-ride2-6-2-1",
         "m-ride2-6-2-1-1-1"
-      ]
+      ],
+      "referenceScreen": "m-ride2-6-2-1-1.gif"
     },
     "m-ride2-6-2-1": {
       "id": "m-ride2-6-2-1",
-      "screen": "assets/screens/m-ride2-6-2-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -1144,11 +1143,11 @@
         "index",
         "m-ride2-6-2",
         "m-ride2-6-2-1-1"
-      ]
+      ],
+      "referenceScreen": "m-ride2-6-2-1.gif"
     },
     "m-ride2-6-2": {
       "id": "m-ride2-6-2",
-      "screen": "assets/screens/m-ride2-6-2.gif",
       "transitions": {
         "menu": "index",
         "up": "m-ride2-6-1",
@@ -1166,11 +1165,11 @@
         "m-ride2-6-1",
         "m-ride2-6-2-1",
         "m-ride2-6-3"
-      ]
+      ],
+      "referenceScreen": "m-ride2-6-2.gif"
     },
     "m-ride2-6-3-1": {
       "id": "m-ride2-6-3-1",
-      "screen": "assets/screens/m-ride2-6-3-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -1185,11 +1184,11 @@
       "archiveLinks": [
         "index",
         "m-ride2-6-3"
-      ]
+      ],
+      "referenceScreen": "m-ride2-6-3-1.gif"
     },
     "m-ride2-6-3": {
       "id": "m-ride2-6-3",
-      "screen": "assets/screens/m-ride2-6-3.gif",
       "transitions": {
         "menu": "index",
         "up": "m-ride2-6-2",
@@ -1207,11 +1206,11 @@
         "m-ride2-6-2",
         "m-ride2-6-3-1",
         "m-ride2-6-4"
-      ]
+      ],
+      "referenceScreen": "m-ride2-6-3.gif"
     },
     "m-ride2-6-4-1-1-1": {
       "id": "m-ride2-6-4-1-1-1",
-      "screen": "assets/screens/m-ride2-6-4-1-1-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -1227,11 +1226,11 @@
         "index",
         "m-ride2-6-4-1",
         "m-ride2-6-4-1-1"
-      ]
+      ],
+      "referenceScreen": "m-ride2-6-4-1-1-1.gif"
     },
     "m-ride2-6-4-1-1": {
       "id": "m-ride2-6-4-1-1",
-      "screen": "assets/screens/m-ride2-6-4-1-1.gif",
       "transitions": {
         "menu": "index",
         "up": "m-ride2-6-4-1-4",
@@ -1249,11 +1248,11 @@
         "m-ride2-6-4-1-1-1",
         "m-ride2-6-4-1-2",
         "m-ride2-6-4-1-4"
-      ]
+      ],
+      "referenceScreen": "m-ride2-6-4-1-1.gif"
     },
     "m-ride2-6-4-1-2-1": {
       "id": "m-ride2-6-4-1-2-1",
-      "screen": "assets/screens/m-ride2-6-4-1-2-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -1269,11 +1268,11 @@
         "index",
         "m-ride2-6-4-1",
         "m-ride2-6-4-1-2"
-      ]
+      ],
+      "referenceScreen": "m-ride2-6-4-1-2-1.gif"
     },
     "m-ride2-6-4-1-2": {
       "id": "m-ride2-6-4-1-2",
-      "screen": "assets/screens/m-ride2-6-4-1-2.gif",
       "transitions": {
         "menu": "index",
         "up": "m-ride2-6-4-1-1",
@@ -1291,11 +1290,11 @@
         "m-ride2-6-4-1-1",
         "m-ride2-6-4-1-2-1",
         "m-ride2-6-4-1-3"
-      ]
+      ],
+      "referenceScreen": "m-ride2-6-4-1-2.gif"
     },
     "m-ride2-6-4-1-3-1": {
       "id": "m-ride2-6-4-1-3-1",
-      "screen": "assets/screens/m-ride2-6-4-1-3-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -1311,11 +1310,11 @@
         "index",
         "m-ride2-6-4-1",
         "m-ride2-6-4-1-3"
-      ]
+      ],
+      "referenceScreen": "m-ride2-6-4-1-3-1.gif"
     },
     "m-ride2-6-4-1-3": {
       "id": "m-ride2-6-4-1-3",
-      "screen": "assets/screens/m-ride2-6-4-1-3.gif",
       "transitions": {
         "menu": "index",
         "up": "m-ride2-6-4-1-2",
@@ -1333,11 +1332,11 @@
         "m-ride2-6-4-1-2",
         "m-ride2-6-4-1-3-1",
         "m-ride2-6-4-1-4"
-      ]
+      ],
+      "referenceScreen": "m-ride2-6-4-1-3.gif"
     },
     "m-ride2-6-4-1-4-1": {
       "id": "m-ride2-6-4-1-4-1",
-      "screen": "assets/screens/m-ride2-6-4-1-4-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -1353,11 +1352,11 @@
         "index",
         "m-ride2-6-4-1",
         "m-ride2-6-4-1-4"
-      ]
+      ],
+      "referenceScreen": "m-ride2-6-4-1-4-1.gif"
     },
     "m-ride2-6-4-1-4": {
       "id": "m-ride2-6-4-1-4",
-      "screen": "assets/screens/m-ride2-6-4-1-4.gif",
       "transitions": {
         "menu": "index",
         "up": "m-ride2-6-4-1-3",
@@ -1375,11 +1374,11 @@
         "m-ride2-6-4-1-1",
         "m-ride2-6-4-1-3",
         "m-ride2-6-4-1-4-1"
-      ]
+      ],
+      "referenceScreen": "m-ride2-6-4-1-4.gif"
     },
     "m-ride2-6-4-1": {
       "id": "m-ride2-6-4-1",
-      "screen": "assets/screens/m-ride2-6-4-1.gif",
       "transitions": {
         "menu": "index",
         "up": "m-ride2-6-4-4",
@@ -1397,11 +1396,11 @@
         "m-ride2-6-4-1-1",
         "m-ride2-6-4-2",
         "m-ride2-6-4-4"
-      ]
+      ],
+      "referenceScreen": "m-ride2-6-4-1.gif"
     },
     "m-ride2-6-4-2": {
       "id": "m-ride2-6-4-2",
-      "screen": "assets/screens/m-ride2-6-4-2.gif",
       "transitions": {
         "menu": "index",
         "up": "m-ride2-6-4-1",
@@ -1419,11 +1418,11 @@
         "m-ride2-6-4-1",
         "m-ride2-6-4-1-1",
         "m-ride2-6-4-3"
-      ]
+      ],
+      "referenceScreen": "m-ride2-6-4-2.gif"
     },
     "m-ride2-6-4-3": {
       "id": "m-ride2-6-4-3",
-      "screen": "assets/screens/m-ride2-6-4-3.gif",
       "transitions": {
         "menu": "index",
         "up": "m-ride2-6-4-2",
@@ -1441,11 +1440,11 @@
         "m-ride2-6-4-1-1",
         "m-ride2-6-4-2",
         "m-ride2-6-4-4"
-      ]
+      ],
+      "referenceScreen": "m-ride2-6-4-3.gif"
     },
     "m-ride2-6-4-4": {
       "id": "m-ride2-6-4-4",
-      "screen": "assets/screens/m-ride2-6-4-4.gif",
       "transitions": {
         "menu": "index",
         "up": "m-ride2-6-4-3",
@@ -1463,11 +1462,11 @@
         "m-ride2-6-4-1",
         "m-ride2-6-4-1-1",
         "m-ride2-6-4-3"
-      ]
+      ],
+      "referenceScreen": "m-ride2-6-4-4.gif"
     },
     "m-ride2-6-4": {
       "id": "m-ride2-6-4",
-      "screen": "assets/screens/m-ride2-6-4.gif",
       "transitions": {
         "menu": "index",
         "up": "m-ride2-6-3",
@@ -1485,11 +1484,11 @@
         "m-ride2-6-1",
         "m-ride2-6-3",
         "m-ride2-6-4-1"
-      ]
+      ],
+      "referenceScreen": "m-ride2-6-4.gif"
     },
     "m-ride2-6": {
       "id": "m-ride2-6",
-      "screen": "assets/screens/m-ride2-6.gif",
       "transitions": {
         "menu": "index",
         "up": "m-ride2-5",
@@ -1507,11 +1506,11 @@
         "m-ride2-2",
         "m-ride2-5",
         "m-ride2-6-1"
-      ]
+      ],
+      "referenceScreen": "m-ride2-6.gif"
     },
     "m-set3-1": {
       "id": "m-set3-1",
-      "screen": "assets/screens/m-set3-1.gif",
       "transitions": {
         "menu": "index",
         "up": "m-ride2-1",
@@ -1528,11 +1527,11 @@
         "m-main1-1",
         "m-ride2-1",
         "m-set3-2"
-      ]
+      ],
+      "referenceScreen": "m-set3-1.gif"
     },
     "m-set3-2-1-1": {
       "id": "m-set3-2-1-1",
-      "screen": "assets/screens/m-set3-2-1-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -1547,11 +1546,11 @@
       "archiveLinks": [
         "index",
         "m-set3-2-1"
-      ]
+      ],
+      "referenceScreen": "m-set3-2-1-1.gif"
     },
     "m-set3-2-1": {
       "id": "m-set3-2-1",
-      "screen": "assets/screens/m-set3-2-1.gif",
       "transitions": {
         "menu": "index",
         "up": "m-set3-2-7",
@@ -1569,11 +1568,11 @@
         "m-set3-2-1-1",
         "m-set3-2-2",
         "m-set3-2-7"
-      ]
+      ],
+      "referenceScreen": "m-set3-2-1.gif"
     },
     "m-set3-2-2-1": {
       "id": "m-set3-2-2-1",
-      "screen": "assets/screens/m-set3-2-2-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -1588,11 +1587,11 @@
       "archiveLinks": [
         "index",
         "m-set3-2-2"
-      ]
+      ],
+      "referenceScreen": "m-set3-2-2-1.gif"
     },
     "m-set3-2-2": {
       "id": "m-set3-2-2",
-      "screen": "assets/screens/m-set3-2-2.gif",
       "transitions": {
         "menu": "index",
         "up": "m-set3-2-1",
@@ -1610,11 +1609,11 @@
         "m-set3-2-1",
         "m-set3-2-2-1",
         "m-set3-2-3"
-      ]
+      ],
+      "referenceScreen": "m-set3-2-2.gif"
     },
     "m-set3-2-3-1": {
       "id": "m-set3-2-3-1",
-      "screen": "assets/screens/m-set3-2-3-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -1629,11 +1628,11 @@
       "archiveLinks": [
         "index",
         "m-set3-2-3"
-      ]
+      ],
+      "referenceScreen": "m-set3-2-3-1.gif"
     },
     "m-set3-2-3": {
       "id": "m-set3-2-3",
-      "screen": "assets/screens/m-set3-2-3.gif",
       "transitions": {
         "menu": "index",
         "up": "m-set3-2-2",
@@ -1651,11 +1650,11 @@
         "m-set3-2-2",
         "m-set3-2-3-1",
         "m-set3-2-4"
-      ]
+      ],
+      "referenceScreen": "m-set3-2-3.gif"
     },
     "m-set3-2-4-1": {
       "id": "m-set3-2-4-1",
-      "screen": "assets/screens/m-set3-2-4-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -1670,11 +1669,11 @@
       "archiveLinks": [
         "index",
         "m-set3-2-4"
-      ]
+      ],
+      "referenceScreen": "m-set3-2-4-1.gif"
     },
     "m-set3-2-4": {
       "id": "m-set3-2-4",
-      "screen": "assets/screens/m-set3-2-4.gif",
       "transitions": {
         "menu": "index",
         "up": "m-set3-2-3",
@@ -1692,11 +1691,11 @@
         "m-set3-2-3",
         "m-set3-2-4-1",
         "m-set3-2-5"
-      ]
+      ],
+      "referenceScreen": "m-set3-2-4.gif"
     },
     "m-set3-2-5-1": {
       "id": "m-set3-2-5-1",
-      "screen": "assets/screens/m-set3-2-5-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -1711,11 +1710,11 @@
       "archiveLinks": [
         "index",
         "m-set3-2-5"
-      ]
+      ],
+      "referenceScreen": "m-set3-2-5-1.gif"
     },
     "m-set3-2-5": {
       "id": "m-set3-2-5",
-      "screen": "assets/screens/m-set3-2-5.gif",
       "transitions": {
         "menu": "index",
         "up": "m-set3-2-4",
@@ -1733,11 +1732,11 @@
         "m-set3-2-4",
         "m-set3-2-5-1",
         "m-set3-2-6"
-      ]
+      ],
+      "referenceScreen": "m-set3-2-5.gif"
     },
     "m-set3-2-6-1": {
       "id": "m-set3-2-6-1",
-      "screen": "assets/screens/m-set3-2-6-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -1752,11 +1751,11 @@
       "archiveLinks": [
         "index",
         "m-set3-2-6"
-      ]
+      ],
+      "referenceScreen": "m-set3-2-6-1.gif"
     },
     "m-set3-2-6": {
       "id": "m-set3-2-6",
-      "screen": "assets/screens/m-set3-2-6.gif",
       "transitions": {
         "menu": "index",
         "up": "m-set3-2-5",
@@ -1774,11 +1773,11 @@
         "m-set3-2-5",
         "m-set3-2-6-1",
         "m-set3-2-7"
-      ]
+      ],
+      "referenceScreen": "m-set3-2-6.gif"
     },
     "m-set3-2-7": {
       "id": "m-set3-2-7",
-      "screen": "assets/screens/m-set3-2-7.gif",
       "transitions": {
         "menu": "index",
         "up": "m-set3-2-6",
@@ -1795,11 +1794,11 @@
         "m-set3-2",
         "m-set3-2-1",
         "m-set3-2-6"
-      ]
+      ],
+      "referenceScreen": "m-set3-2-7.gif"
     },
     "m-set3-2": {
       "id": "m-set3-2",
-      "screen": "assets/screens/m-set3-2.gif",
       "transitions": {
         "menu": "index",
         "up": "m-set3-6",
@@ -1817,11 +1816,11 @@
         "m-set3-2-1",
         "m-set3-3",
         "m-set3-6"
-      ]
+      ],
+      "referenceScreen": "m-set3-2.gif"
     },
     "m-set3-3-1-1": {
       "id": "m-set3-3-1-1",
-      "screen": "assets/screens/m-set3-3-1-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -1836,11 +1835,11 @@
       "archiveLinks": [
         "index",
         "m-set3-3-1"
-      ]
+      ],
+      "referenceScreen": "m-set3-3-1-1.gif"
     },
     "m-set3-3-1": {
       "id": "m-set3-3-1",
-      "screen": "assets/screens/m-set3-3-1.gif",
       "transitions": {
         "menu": "index",
         "up": "m-set3-3-8",
@@ -1858,11 +1857,11 @@
         "m-set3-3-1-1",
         "m-set3-3-2",
         "m-set3-3-8"
-      ]
+      ],
+      "referenceScreen": "m-set3-3-1.gif"
     },
     "m-set3-3-2-1": {
       "id": "m-set3-3-2-1",
-      "screen": "assets/screens/m-set3-3-2-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -1877,11 +1876,11 @@
       "archiveLinks": [
         "index",
         "m-set3-3-2"
-      ]
+      ],
+      "referenceScreen": "m-set3-3-2-1.gif"
     },
     "m-set3-3-2": {
       "id": "m-set3-3-2",
-      "screen": "assets/screens/m-set3-3-2.gif",
       "transitions": {
         "menu": "index",
         "up": "m-set3-3-1",
@@ -1899,11 +1898,11 @@
         "m-set3-3-1",
         "m-set3-3-2-1",
         "m-set3-3-3"
-      ]
+      ],
+      "referenceScreen": "m-set3-3-2.gif"
     },
     "m-set3-3-3-1": {
       "id": "m-set3-3-3-1",
-      "screen": "assets/screens/m-set3-3-3-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -1918,11 +1917,11 @@
       "archiveLinks": [
         "index",
         "m-set3-3-3"
-      ]
+      ],
+      "referenceScreen": "m-set3-3-3-1.gif"
     },
     "m-set3-3-3": {
       "id": "m-set3-3-3",
-      "screen": "assets/screens/m-set3-3-3.gif",
       "transitions": {
         "menu": "index",
         "up": "m-set3-3-2",
@@ -1940,11 +1939,11 @@
         "m-set3-3-2",
         "m-set3-3-3-1",
         "m-set3-3-4"
-      ]
+      ],
+      "referenceScreen": "m-set3-3-3.gif"
     },
     "m-set3-3-4-1": {
       "id": "m-set3-3-4-1",
-      "screen": "assets/screens/m-set3-3-4-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -1959,11 +1958,11 @@
       "archiveLinks": [
         "index",
         "m-set3-3-4"
-      ]
+      ],
+      "referenceScreen": "m-set3-3-4-1.gif"
     },
     "m-set3-3-4": {
       "id": "m-set3-3-4",
-      "screen": "assets/screens/m-set3-3-4.gif",
       "transitions": {
         "menu": "index",
         "up": "m-set3-3-3",
@@ -1981,11 +1980,11 @@
         "m-set3-3-3",
         "m-set3-3-4-1",
         "m-set3-3-5"
-      ]
+      ],
+      "referenceScreen": "m-set3-3-4.gif"
     },
     "m-set3-3-5-1": {
       "id": "m-set3-3-5-1",
-      "screen": "assets/screens/m-set3-3-5-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -2000,11 +1999,11 @@
       "archiveLinks": [
         "index",
         "m-set3-3-5"
-      ]
+      ],
+      "referenceScreen": "m-set3-3-5-1.gif"
     },
     "m-set3-3-5": {
       "id": "m-set3-3-5",
-      "screen": "assets/screens/m-set3-3-5.gif",
       "transitions": {
         "menu": "index",
         "up": "m-set3-3-4",
@@ -2022,11 +2021,11 @@
         "m-set3-3-4",
         "m-set3-3-5-1",
         "m-set3-3-6"
-      ]
+      ],
+      "referenceScreen": "m-set3-3-5.gif"
     },
     "m-set3-3-6-1": {
       "id": "m-set3-3-6-1",
-      "screen": "assets/screens/m-set3-3-6-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -2041,11 +2040,11 @@
       "archiveLinks": [
         "index",
         "m-set3-3-6"
-      ]
+      ],
+      "referenceScreen": "m-set3-3-6-1.gif"
     },
     "m-set3-3-6": {
       "id": "m-set3-3-6",
-      "screen": "assets/screens/m-set3-3-6.gif",
       "transitions": {
         "menu": "index",
         "up": "m-set3-3-5",
@@ -2063,11 +2062,11 @@
         "m-set3-3-5",
         "m-set3-3-6-1",
         "m-set3-3-7"
-      ]
+      ],
+      "referenceScreen": "m-set3-3-6.gif"
     },
     "m-set3-3-7-1": {
       "id": "m-set3-3-7-1",
-      "screen": "assets/screens/m-set3-3-7-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -2082,11 +2081,11 @@
       "archiveLinks": [
         "index",
         "m-set3-3-7"
-      ]
+      ],
+      "referenceScreen": "m-set3-3-7-1.gif"
     },
     "m-set3-3-7": {
       "id": "m-set3-3-7",
-      "screen": "assets/screens/m-set3-3-7.gif",
       "transitions": {
         "menu": "index",
         "up": "m-set3-3-6",
@@ -2104,11 +2103,11 @@
         "m-set3-3-6",
         "m-set3-3-7-1",
         "m-set3-3-8"
-      ]
+      ],
+      "referenceScreen": "m-set3-3-7.gif"
     },
     "m-set3-3-8": {
       "id": "m-set3-3-8",
-      "screen": "assets/screens/m-set3-3-8.gif",
       "transitions": {
         "menu": "index",
         "up": "m-set3-3-7",
@@ -2125,11 +2124,11 @@
         "m-set3-3",
         "m-set3-3-1",
         "m-set3-3-7"
-      ]
+      ],
+      "referenceScreen": "m-set3-3-8.gif"
     },
     "m-set3-3": {
       "id": "m-set3-3",
-      "screen": "assets/screens/m-set3-3.gif",
       "transitions": {
         "menu": "index",
         "up": "m-set3-2",
@@ -2147,11 +2146,11 @@
         "m-set3-2",
         "m-set3-3-1",
         "m-set3-4"
-      ]
+      ],
+      "referenceScreen": "m-set3-3.gif"
     },
     "m-set3-4-1-1": {
       "id": "m-set3-4-1-1",
-      "screen": "assets/screens/m-set3-4-1-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -2166,11 +2165,11 @@
       "archiveLinks": [
         "index",
         "m-set3-4-1"
-      ]
+      ],
+      "referenceScreen": "m-set3-4-1-1.gif"
     },
     "m-set3-4-1": {
       "id": "m-set3-4-1",
-      "screen": "assets/screens/m-set3-4-1.gif",
       "transitions": {
         "menu": "index",
         "up": "m-set3-4-7",
@@ -2188,11 +2187,11 @@
         "m-set3-4-1-1",
         "m-set3-4-2",
         "m-set3-4-7"
-      ]
+      ],
+      "referenceScreen": "m-set3-4-1.gif"
     },
     "m-set3-4-2-1": {
       "id": "m-set3-4-2-1",
-      "screen": "assets/screens/m-set3-4-2-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -2207,11 +2206,11 @@
       "archiveLinks": [
         "index",
         "m-set3-4-2"
-      ]
+      ],
+      "referenceScreen": "m-set3-4-2-1.gif"
     },
     "m-set3-4-2": {
       "id": "m-set3-4-2",
-      "screen": "assets/screens/m-set3-4-2.gif",
       "transitions": {
         "menu": "index",
         "up": "m-set3-4-1",
@@ -2229,11 +2228,11 @@
         "m-set3-4-1",
         "m-set3-4-2-1",
         "m-set3-4-3"
-      ]
+      ],
+      "referenceScreen": "m-set3-4-2.gif"
     },
     "m-set3-4-3-1": {
       "id": "m-set3-4-3-1",
-      "screen": "assets/screens/m-set3-4-3-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -2248,11 +2247,11 @@
       "archiveLinks": [
         "index",
         "m-set3-4-3"
-      ]
+      ],
+      "referenceScreen": "m-set3-4-3-1.gif"
     },
     "m-set3-4-3": {
       "id": "m-set3-4-3",
-      "screen": "assets/screens/m-set3-4-3.gif",
       "transitions": {
         "menu": "index",
         "up": "m-set3-4-2",
@@ -2270,11 +2269,11 @@
         "m-set3-4-2",
         "m-set3-4-3-1",
         "m-set3-4-4"
-      ]
+      ],
+      "referenceScreen": "m-set3-4-3.gif"
     },
     "m-set3-4-4-1": {
       "id": "m-set3-4-4-1",
-      "screen": "assets/screens/m-set3-4-4-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -2289,11 +2288,11 @@
       "archiveLinks": [
         "index",
         "m-set3-4-4"
-      ]
+      ],
+      "referenceScreen": "m-set3-4-4-1.gif"
     },
     "m-set3-4-4": {
       "id": "m-set3-4-4",
-      "screen": "assets/screens/m-set3-4-4.gif",
       "transitions": {
         "menu": "index",
         "up": "m-set3-4-3",
@@ -2311,11 +2310,11 @@
         "m-set3-4-3",
         "m-set3-4-4-1",
         "m-set3-4-5"
-      ]
+      ],
+      "referenceScreen": "m-set3-4-4.gif"
     },
     "m-set3-4-5-1": {
       "id": "m-set3-4-5-1",
-      "screen": "assets/screens/m-set3-4-5-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -2330,11 +2329,11 @@
       "archiveLinks": [
         "index",
         "m-set3-4-5"
-      ]
+      ],
+      "referenceScreen": "m-set3-4-5-1.gif"
     },
     "m-set3-4-5": {
       "id": "m-set3-4-5",
-      "screen": "assets/screens/m-set3-4-5.gif",
       "transitions": {
         "menu": "index",
         "up": "m-set3-4-4",
@@ -2352,11 +2351,11 @@
         "m-set3-4-4",
         "m-set3-4-5-1",
         "m-set3-4-6"
-      ]
+      ],
+      "referenceScreen": "m-set3-4-5.gif"
     },
     "m-set3-4-6-1": {
       "id": "m-set3-4-6-1",
-      "screen": "assets/screens/m-set3-4-6-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -2371,11 +2370,11 @@
       "archiveLinks": [
         "index",
         "m-set3-4-6"
-      ]
+      ],
+      "referenceScreen": "m-set3-4-6-1.gif"
     },
     "m-set3-4-6": {
       "id": "m-set3-4-6",
-      "screen": "assets/screens/m-set3-4-6.gif",
       "transitions": {
         "menu": "index",
         "up": "m-set3-4-5",
@@ -2393,11 +2392,11 @@
         "m-set3-4-5",
         "m-set3-4-6-1",
         "m-set3-4-7"
-      ]
+      ],
+      "referenceScreen": "m-set3-4-6.gif"
     },
     "m-set3-4-7": {
       "id": "m-set3-4-7",
-      "screen": "assets/screens/m-set3-4-7.gif",
       "transitions": {
         "menu": "index",
         "up": "m-set3-4-6",
@@ -2414,11 +2413,11 @@
         "m-set3-4",
         "m-set3-4-1",
         "m-set3-4-6"
-      ]
+      ],
+      "referenceScreen": "m-set3-4-7.gif"
     },
     "m-set3-4": {
       "id": "m-set3-4",
-      "screen": "assets/screens/m-set3-4.gif",
       "transitions": {
         "menu": "index",
         "up": "m-set3-3",
@@ -2436,11 +2435,11 @@
         "m-set3-3",
         "m-set3-4-1",
         "m-set3-5"
-      ]
+      ],
+      "referenceScreen": "m-set3-4.gif"
     },
     "m-set3-5-1-1-1": {
       "id": "m-set3-5-1-1-1",
-      "screen": "assets/screens/m-set3-5-1-1-1.gif",
       "transitions": {
         "menu": "cstm",
         "up": null,
@@ -2456,11 +2455,11 @@
         "cstm",
         "index",
         "m-set3-5-1-1"
-      ]
+      ],
+      "referenceScreen": "m-set3-5-1-1-1.gif"
     },
     "m-set3-5-1-1": {
       "id": "m-set3-5-1-1",
-      "screen": "assets/screens/m-set3-5-1-1.gif",
       "transitions": {
         "menu": "cstm",
         "up": "m-set3-5-1-7",
@@ -2479,11 +2478,11 @@
         "m-set3-5-1-1-1",
         "m-set3-5-1-2",
         "m-set3-5-1-7"
-      ]
+      ],
+      "referenceScreen": "m-set3-5-1-1.gif"
     },
     "m-set3-5-1-2-1": {
       "id": "m-set3-5-1-2-1",
-      "screen": "assets/screens/m-set3-5-1-2-1.gif",
       "transitions": {
         "menu": "cstm",
         "up": null,
@@ -2499,11 +2498,11 @@
         "cstm",
         "index",
         "m-set3-5-1-2"
-      ]
+      ],
+      "referenceScreen": "m-set3-5-1-2-1.gif"
     },
     "m-set3-5-1-2": {
       "id": "m-set3-5-1-2",
-      "screen": "assets/screens/m-set3-5-1-2.gif",
       "transitions": {
         "menu": "cstm",
         "up": "m-set3-5-1-1",
@@ -2522,11 +2521,11 @@
         "m-set3-5-1-1",
         "m-set3-5-1-2-1",
         "m-set3-5-1-3"
-      ]
+      ],
+      "referenceScreen": "m-set3-5-1-2.gif"
     },
     "m-set3-5-1-3-1": {
       "id": "m-set3-5-1-3-1",
-      "screen": "assets/screens/m-set3-5-1-3-1.gif",
       "transitions": {
         "menu": "cstm",
         "up": null,
@@ -2542,11 +2541,11 @@
         "cstm",
         "index",
         "m-set3-5-1-3"
-      ]
+      ],
+      "referenceScreen": "m-set3-5-1-3-1.gif"
     },
     "m-set3-5-1-3": {
       "id": "m-set3-5-1-3",
-      "screen": "assets/screens/m-set3-5-1-3.gif",
       "transitions": {
         "menu": "cstm",
         "up": "m-set3-5-1-2",
@@ -2565,11 +2564,11 @@
         "m-set3-5-1-2",
         "m-set3-5-1-3-1",
         "m-set3-5-1-4"
-      ]
+      ],
+      "referenceScreen": "m-set3-5-1-3.gif"
     },
     "m-set3-5-1-4": {
       "id": "m-set3-5-1-4",
-      "screen": "assets/screens/m-set3-5-1-4.gif",
       "transitions": {
         "menu": "cstm",
         "up": "m-set3-5-1-3",
@@ -2588,11 +2587,11 @@
         "m-set3-5-1-3",
         "m-set3-5-1-3-1",
         "m-set3-5-1-5"
-      ]
+      ],
+      "referenceScreen": "m-set3-5-1-4.gif"
     },
     "m-set3-5-1-5": {
       "id": "m-set3-5-1-5",
-      "screen": "assets/screens/m-set3-5-1-5.gif",
       "transitions": {
         "menu": "cstm",
         "up": "m-set3-5-1-4",
@@ -2611,11 +2610,11 @@
         "m-set3-5-1-3-1",
         "m-set3-5-1-4",
         "m-set3-5-1-6"
-      ]
+      ],
+      "referenceScreen": "m-set3-5-1-5.gif"
     },
     "m-set3-5-1-6": {
       "id": "m-set3-5-1-6",
-      "screen": "assets/screens/m-set3-5-1-6.gif",
       "transitions": {
         "menu": "cstm",
         "up": "m-set3-5-1-5",
@@ -2634,11 +2633,11 @@
         "m-set3-5-1-3-1",
         "m-set3-5-1-5",
         "m-set3-5-1-7"
-      ]
+      ],
+      "referenceScreen": "m-set3-5-1-6.gif"
     },
     "m-set3-5-1-7": {
       "id": "m-set3-5-1-7",
-      "screen": "assets/screens/m-set3-5-1-7.gif",
       "transitions": {
         "menu": "cstm",
         "up": "m-set3-5-1-6",
@@ -2656,11 +2655,11 @@
         "m-set3-5-1",
         "m-set3-5-1-1",
         "m-set3-5-1-6"
-      ]
+      ],
+      "referenceScreen": "m-set3-5-1-7.gif"
     },
     "m-set3-5-1": {
       "id": "m-set3-5-1",
-      "screen": "assets/screens/m-set3-5-1.gif",
       "transitions": {
         "menu": "cstm",
         "up": "m-set3-5-3",
@@ -2679,11 +2678,11 @@
         "m-set3-5-1-1",
         "m-set3-5-2",
         "m-set3-5-3"
-      ]
+      ],
+      "referenceScreen": "m-set3-5-1.gif"
     },
     "m-set3-5-2": {
       "id": "m-set3-5-2",
-      "screen": "assets/screens/m-set3-5-2.gif",
       "transitions": {
         "menu": "cstm2",
         "up": "m-set3-5-1",
@@ -2702,11 +2701,11 @@
         "m-set3-5-1",
         "m-set3-5-1-1",
         "m-set3-5-3"
-      ]
+      ],
+      "referenceScreen": "m-set3-5-2.gif"
     },
     "m-set3-5-3": {
       "id": "m-set3-5-3",
-      "screen": "assets/screens/m-set3-5-3.gif",
       "transitions": {
         "menu": "cstm",
         "up": "m-set3-5-2",
@@ -2724,11 +2723,11 @@
         "m-set3-5",
         "m-set3-5-1",
         "m-set3-5-2"
-      ]
+      ],
+      "referenceScreen": "m-set3-5-3.gif"
     },
     "m-set3-5": {
       "id": "m-set3-5",
-      "screen": "assets/screens/m-set3-5.gif",
       "transitions": {
         "menu": "index",
         "up": "m-set3-4",
@@ -2746,11 +2745,11 @@
         "m-set3-4",
         "m-set3-5-1",
         "m-set3-6"
-      ]
+      ],
+      "referenceScreen": "m-set3-5.gif"
     },
     "m-set3-6-1-1": {
       "id": "m-set3-6-1-1",
-      "screen": "assets/screens/m-set3-6-1-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -2765,11 +2764,11 @@
       "archiveLinks": [
         "index",
         "m-set3-6-1"
-      ]
+      ],
+      "referenceScreen": "m-set3-6-1-1.gif"
     },
     "m-set3-6-1": {
       "id": "m-set3-6-1",
-      "screen": "assets/screens/m-set3-6-1.gif",
       "transitions": {
         "menu": "index",
         "up": "m-set3-6-5",
@@ -2787,11 +2786,11 @@
         "m-set3-6-1-1",
         "m-set3-6-2",
         "m-set3-6-5"
-      ]
+      ],
+      "referenceScreen": "m-set3-6-1.gif"
     },
     "m-set3-6-2-1": {
       "id": "m-set3-6-2-1",
-      "screen": "assets/screens/m-set3-6-2-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -2806,11 +2805,11 @@
       "archiveLinks": [
         "index",
         "m-set3-6-2"
-      ]
+      ],
+      "referenceScreen": "m-set3-6-2-1.gif"
     },
     "m-set3-6-2": {
       "id": "m-set3-6-2",
-      "screen": "assets/screens/m-set3-6-2.gif",
       "transitions": {
         "menu": "index",
         "up": "m-set3-6-1",
@@ -2828,11 +2827,11 @@
         "m-set3-6-1",
         "m-set3-6-2-1",
         "m-set3-6-3"
-      ]
+      ],
+      "referenceScreen": "m-set3-6-2.gif"
     },
     "m-set3-6-3-1": {
       "id": "m-set3-6-3-1",
-      "screen": "assets/screens/m-set3-6-3-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -2847,11 +2846,11 @@
       "archiveLinks": [
         "index",
         "m-set3-6-3"
-      ]
+      ],
+      "referenceScreen": "m-set3-6-3-1.gif"
     },
     "m-set3-6-3": {
       "id": "m-set3-6-3",
-      "screen": "assets/screens/m-set3-6-3.gif",
       "transitions": {
         "menu": "index",
         "up": "m-set3-6-2",
@@ -2869,11 +2868,11 @@
         "m-set3-6-2",
         "m-set3-6-3-1",
         "m-set3-6-4"
-      ]
+      ],
+      "referenceScreen": "m-set3-6-3.gif"
     },
     "m-set3-6-4-1": {
       "id": "m-set3-6-4-1",
-      "screen": "assets/screens/m-set3-6-4-1.gif",
       "transitions": {
         "menu": "index",
         "up": null,
@@ -2888,11 +2887,11 @@
       "archiveLinks": [
         "index",
         "m-set3-6-4"
-      ]
+      ],
+      "referenceScreen": "m-set3-6-4-1.gif"
     },
     "m-set3-6-4": {
       "id": "m-set3-6-4",
-      "screen": "assets/screens/m-set3-6-4.gif",
       "transitions": {
         "menu": "index",
         "up": "m-set3-6-3",
@@ -2910,11 +2909,11 @@
         "m-set3-6-3",
         "m-set3-6-4-1",
         "m-set3-6-5"
-      ]
+      ],
+      "referenceScreen": "m-set3-6-4.gif"
     },
     "m-set3-6-5": {
       "id": "m-set3-6-5",
-      "screen": "assets/screens/m-set3-6-5.gif",
       "transitions": {
         "menu": "index",
         "up": "m-set3-6-4",
@@ -2931,11 +2930,11 @@
         "m-set3-6",
         "m-set3-6-1",
         "m-set3-6-4"
-      ]
+      ],
+      "referenceScreen": "m-set3-6-5.gif"
     },
     "m-set3-6": {
       "id": "m-set3-6",
-      "screen": "assets/screens/m-set3-6.gif",
       "transitions": {
         "menu": "index",
         "up": "m-set3-5",
@@ -2953,11 +2952,11 @@
         "m-set3-2",
         "m-set3-5",
         "m-set3-6-1"
-      ]
+      ],
+      "referenceScreen": "m-set3-6.gif"
     },
     "map": {
       "id": "map",
-      "screen": "assets/screens/s-map1-1.gif",
       "transitions": {
         "menu": "m-main1-4",
         "up": "index",
@@ -2979,11 +2978,11 @@
         "m-main1-4",
         "map",
         "map2"
-      ]
+      ],
+      "referenceScreen": "s-map1-1.gif"
     },
     "map1-2": {
       "id": "map1-2",
-      "screen": "assets/screens/s-map1-2.gif",
       "transitions": {
         "menu": "map",
         "up": "map",
@@ -2999,11 +2998,11 @@
         "eng",
         "index",
         "map"
-      ]
+      ],
+      "referenceScreen": "s-map1-2.gif"
     },
     "map2-2": {
       "id": "map2-2",
-      "screen": "assets/screens/s-map2-2.gif",
       "transitions": {
         "menu": "m-main1-4",
         "up": "map2",
@@ -3021,11 +3020,11 @@
         "map",
         "map2",
         "map3"
-      ]
+      ],
+      "referenceScreen": "s-map2-2.gif"
     },
     "map2": {
       "id": "map2",
-      "screen": "assets/screens/s-map2.gif",
       "transitions": {
         "menu": "m-main1-4",
         "up": "map2-2",
@@ -3043,11 +3042,11 @@
         "map",
         "map2-2",
         "map3"
-      ]
+      ],
+      "referenceScreen": "s-map2.gif"
     },
     "map3-2": {
       "id": "map3-2",
-      "screen": "assets/screens/s-map3-2.gif",
       "transitions": {
         "menu": "m-main1-4",
         "up": "map3",
@@ -3065,11 +3064,11 @@
         "map",
         "map2",
         "map3"
-      ]
+      ],
+      "referenceScreen": "s-map3-2.gif"
     },
     "map3": {
       "id": "map3",
-      "screen": "assets/screens/s-map3.gif",
       "transitions": {
         "menu": "m-main1-4",
         "up": "map3-2",
@@ -3087,11 +3086,11 @@
         "map",
         "map2",
         "map3-2"
-      ]
+      ],
+      "referenceScreen": "s-map3.gif"
     },
     "sat": {
       "id": "sat",
-      "screen": "assets/screens/s-sat1-1.gif",
       "transitions": {
         "menu": "m-main1-1",
         "up": "dir",
@@ -3112,11 +3111,11 @@
         "index",
         "m-main1-1",
         "sat"
-      ]
+      ],
+      "referenceScreen": "s-sat1-1.gif"
     },
     "sat1-2": {
       "id": "sat1-2",
-      "screen": "assets/screens/s-sat1-2.gif",
       "transitions": {
         "menu": "sat",
         "up": "sat",
@@ -3131,11 +3130,11 @@
       "archiveLinks": [
         "index",
         "sat"
-      ]
+      ],
+      "referenceScreen": "s-sat1-2.gif"
     },
     "startup": {
       "id": "startup",
-      "screen": "assets/screens/s-startup.gif",
       "transitions": {
         "menu": "index",
         "up": "index",
@@ -3153,7 +3152,8 @@
       },
       "archiveLinks": [
         "index"
-      ]
+      ],
+      "referenceScreen": "s-startup.gif"
     }
   }
 }

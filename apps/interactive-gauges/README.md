@@ -11,11 +11,11 @@ node tools/build-voyager-manifest.mjs --source <path-to-extracted-gps_demo3>
 node tools/validate-voyager-manifest.mjs
 ```
 
-The generator reads every historical HTML state, keeps the explicit screen reference, records all eight control transitions, preserves `href="#"` as a null transition, records meta-refresh declarations, and copies only the referenced 504 by 303 screen GIFs.
+The generator reads every historical HTML state, keeps the explicit screen filename as audit metadata, records all eight control transitions, preserves `href="#"` as a null transition, records meta-refresh declarations, and verifies the source archive's referenced 504 by 303 GIFs. The historical GIFs remain outside the public app and are not copied into production assets.
 
 The checked-in audit currently verifies:
 
-- 146 HTML states and 146 referenced runtime screens
+- 146 HTML states and 146 historical screen references
 - 156 available screen GIFs in the reviewed archive
 - 330 explicit no-op controls
 - 15 meta-refresh declarations, 14 active and one commented in the source
@@ -27,14 +27,14 @@ The runtime manifest is `data/voyager-states.json`. Presentation code does not c
 
 ## Live UI conversion
 
-The live renderer preserves the manifest as the navigation authority and replaces 145 of the 146 archived states with a
-reusable `504 x 303` SVG stage in `voyager-live-runtime.js`. `voyager-live-screens.js` is the screen registry for the 28
-states in the seven gauge families—Main, Map, Temperature, Altitude, User, Navigation, and Satellite—including tab
+The live renderer preserves the manifest as the navigation authority and renders all 146 archived states with a
+reusable `504 x 303` SVG stage in `voyager-live-runtime.js`. `voyager-live-screens.js` is the screen registry for the 29
+states in the startup and seven gauge families—Main, Map, Temperature, Altitude, User, Navigation, and Satellite—including tab
 chrome, primary and secondary views, captured map controls, graph interactions, and stable public IDs. The data-driven
 `voyager-menu-registry.js` and
 `voyager-menu-renderer.js` cover all 117 Main Menu, Ride Menu, Settings, and modal states with shared menu shells,
-confirmation, waypoint-map, keyboard, digit-input, settings-list, and brightness renderers. Only the timed startup frame
-retains its approved image as a comparison fallback.
+confirmation, waypoint-map, keyboard, digit-input, settings-list, and brightness renderers. The timed startup frame uses
+the approved Trail Tech wordmark as live vector geometry, so the production runtime has no screen-image fallback.
 
 The three Add Waypoint paths now produce persistent local waypoint records: current position samples the shared ride
 engine, latitude/longitude uses the entered archive coordinate, and crosshairs samples the displayed track position.
@@ -44,9 +44,24 @@ local record, so none of the waypoint workflows end at a visual-only confirmatio
 `data/voyager-live-coverage.json` inventories all 146 known states, their input coverage, composition family, renderer,
 and conversion status; regenerate it with `node tools/build-voyager-live-coverage.mjs` from this app directory.
 
-The live slice uses the publication-approved `voyager-straight-photo.png`. Its measured transparent LCD opening and the
+The live slice uses `voyager-straight-photo.webp`, an alpha-preserving conversion of the publication-approved source photograph. Its measured transparent LCD opening and the
 recalibrated physical-control coordinates are recorded in `assets/device/voyager-screen-placement.json`. The UI always
 retains the historical `504:303` display ratio inside that opening.
+
+The live screen and menu renderers reuse the publication-approved pixel artwork in
+`assets/ui/voyager-ui-icons.svg` for compass, temperature, pan/zoom, playback, screen indicator, keyboard,
+radio, crosshair, and confirmation controls. Regenerate the runtime-only icon sheet from a reviewed source export with:
+
+```powershell
+node tools/build-voyager-ui-kit.mjs --source <path-to-voyager-ui-kit.svg>
+```
+
+The generator performs a safety check and publishes only the named `ICONS` group; the source kit's reference board is
+not copied into the app.
+
+Asset intake record: the reviewed source was `voyager-ui-kit_v2.svg` with SHA-256
+`1258690247AD16F016A6682F3156894F0FC86C113E05265804B58CBE2E72EB4F`. The user confirmed publication approval for
+the supplied assets; the protected source file itself remains outside the repository.
 
 The map renderer is deliberately track-only. It draws the current recording and loaded local GPX track/route geometry,
 position, heading, waypoints, scale, and pan/zoom state. It contains no basemap, terrain, tiles, roads, place labels, route
@@ -84,8 +99,8 @@ publishes eight interface-relevant pages rather than embedding the source PDF or
 The reviewed artwork is stored in `assets/manual` as self-contained SVG files with the original text converted to paths.
 The source PDF is not copied into the public app. Each page has one stable `data-voyager-state` handoff; physical,
 keyboard, guide, history and architecture-map navigation emit the same `voyager:statechange` event and bring the nearest
-matching manual page forward. Page images are decoded before the deck swaps them, and the remaining seven are preloaded
-during browser idle time.
+matching manual page forward. Page images are decoded before the deck swaps them, and only the immediate previous and
+next pages are preloaded during browser idle time.
 
 The architecture viewer uses `assets/system/voyager-screens-b3.svg`, a publication-approved, font-backed export with
 named screen, menu, flowchart, connector, and region groups. Its embedded Bob's Font 3.110 web face preserves the artwork

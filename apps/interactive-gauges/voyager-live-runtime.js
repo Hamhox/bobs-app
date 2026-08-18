@@ -13,6 +13,7 @@ import {
   voyagerMenuState,
 } from "./voyager-menu-registry.js";
 import { renderVoyagerMenuMarkup, voyagerMenuAriaLabel } from "./voyager-menu-renderer.js";
+import { VOYAGER_COMPASS_VIEW_BOX, voyagerUiIcon } from "./voyager-ui-icons.js";
 
 const DIRECTION_INPUTS = new Set(["up", "down", "left", "right"]);
 const WAYPOINT_STORAGE_KEY = "bobs-app:voyager-waypoints:v1";
@@ -242,14 +243,22 @@ class VoyagerRideEngine {
 }
 
 function temperatureIcon(x, y, scale = 1, inverse = false) {
-  const className = inverse ? "voyager-live__line voyager-live__line--inverse" : "voyager-live__line";
-  return `
-    <g transform="translate(${x} ${y}) scale(${scale})" aria-hidden="true">
-      <path class="${className}" d="M8 1v17a7 7 0 1 0 8 0V1a4 4 0 0 0-8 0Z" />
-      <path class="${className}" d="M12 7v15" />
-      <path class="${className}" d="M0 31c3-3 6-3 9 0s6 3 9 0 6-3 9 0" />
-      <path class="${className}" d="M0 37c3-3 6-3 9 0s6 3 9 0 6-3 9 0" />
-    </g>`;
+  return voyagerUiIcon("fluid-temp-icon", {
+    x,
+    y,
+    width: 28 * scale,
+    height: 28 * scale,
+    className: inverse ? "voyager-ui-icon--inverse" : "",
+  });
+}
+
+function screenIndicatorMarkup(value, x = 73, y = 9, narrow = false) {
+  return voyagerUiIcon(`screen-indicator-16pt-${value}${narrow ? "-narrow" : ""}`, {
+    x,
+    y,
+    width: narrow ? 16 : 18,
+    height: 21,
+  });
 }
 
 function tabsMarkup(activeTab) {
@@ -268,33 +277,37 @@ function tabsMarkup(activeTab) {
 }
 
 function sideArrowsMarkup(tabsVisible) {
-  const leftArrow = tabsVisible ? "M67 130l12 20-12 20Z" : "M0 130l12 20-12 20Z";
   return `
-    <path class="voyager-live__ink" d="${leftArrow}" />
-    <path class="voyager-live__ink" d="M504 130l-12 20 12 20Z" />`;
+    ${voyagerUiIcon("screen-arrow-right", { x: tabsVisible ? 67 : 0, y: 132, width: 12, height: 35 })}
+    ${voyagerUiIcon("screen-arrow-left", { x: 492, y: 132, width: 12, height: 35 })}`;
 }
 
 function screenChromeMarkup(screen, variant) {
   return `${variant.tabsVisible ? tabsMarkup(screen.id) : ""}${variant.sideArrows ? sideArrowsMarkup(variant.tabsVisible) : ""}`;
 }
 
-function compassMarkup({ cx, cy, radius, pointerAttribute = "data-live-compass-pointer" }) {
-  const ticks = Array.from({ length: 16 }, (_, index) => {
-    const angle = index * 22.5;
-    const length = index % 4 === 0 ? 9 : 5;
-    return `<line class="voyager-live__compass-tick" x1="${cx}" y1="${cy - radius}" x2="${cx}" y2="${cy - radius + length}" transform="rotate(${angle} ${cx} ${cy})" />`;
-  }).join("");
-  const cardinalRadius = radius - 22;
+function startupMarkup() {
   return `
-    <circle class="voyager-live__paper voyager-live__compass-line" cx="${cx}" cy="${cy}" r="${radius}" />
-    ${ticks}
-    <text class="voyager-live__text voyager-live__text--medium voyager-live__text--muted" x="${cx}" y="${cy - cardinalRadius + 7}" text-anchor="middle">N</text>
-    <text class="voyager-live__text voyager-live__text--medium voyager-live__text--muted" x="${cx + cardinalRadius}" y="${cy + 7}" text-anchor="middle">E</text>
-    <text class="voyager-live__text voyager-live__text--medium voyager-live__text--muted" x="${cx}" y="${cy + cardinalRadius + 7}" text-anchor="middle">S</text>
-    <text class="voyager-live__text voyager-live__text--medium voyager-live__text--muted" x="${cx - cardinalRadius}" y="${cy + 7}" text-anchor="middle">W</text>
+    <rect class="voyager-live__surface" width="504" height="303" />
+    <g fill="#231f20" transform="translate(37 120) scale(1.75)" aria-label="Trail Tech">
+      <path d="M94.2.3l-6.4 23.7L82.1.3h-8.7L55.6 23.5 52 16.4c3.5-1 7.2-3 8.5-7.6 1.4-5-2.1-8.5-10.4-8.5H1.6L0 6.2h13.2l-5.1 19H19l5.1-19h23.5c2.4-.1 4.6.6 3.9 3.1-.4 1.4-2.2 3.4-5.5 3.4h-5.5l1-3.7h-9.2L28 25.2h9.2l1.9-7.2h4.2l1.8 7.6 9.1-.4h7.9l3.6-4.4H76l1.4 4.4h19.4L103.5.3h-9.3ZM68.8 15.6c2.1-3.1 3.3-3.3 5.6-7 0 0 1.2 4 1.4 7h-7Z" />
+      <path d="M112 19h13.6l-1.6 6.2h-22.8L107.9.3h9.1L112 19Z" />
+      <path d="M236.3.4h9l-6.6 24.8h-9.1l2.9-10.7h-7.9l-2.9 10.7h-9L219.3.4h9.1l-2.4 8.9h7.9l2.4-8.9Z" />
+      <path d="m210.3 19.8.6 4.6c-1.9.5-5 1.1-7.9 1.1-9.4 0-16.3-3.7-16.2-10.2h-13.6l-1.1 4.1h13.6l-1.6 5.8h-22.7l5.1-19h-9l-5.1 19h-10.9l5.1-19H133l1.6-5.9h55.8l-1.6 5.8h-13.1l-1.1 4h13.5C191.1 3.8 199.5 0 209.3 0c2.1 0 5.7.5 7.8 1.2l-3.4 4.4c-1.4-.4-4.4-.5-5.3-.5-4.6 0-9.8 2.3-11.2 7.6-1.4 5.2 2.6 7.6 7.6 7.6 2 .1 3.9-.2 5.5-.5Z" />
+    </g>`;
+}
+
+function compassMarkup({ cx, cy, radius, pointerAttribute = "data-live-compass-pointer" }) {
+  return `
+    ${voyagerUiIcon("compass-dial", { x: cx - radius, y: cy - radius, width: radius * 2, height: radius * 2 })}
     <g ${pointerAttribute} data-cx="${cx}" data-cy="${cy}">
-      <path class="voyager-live__compass-shadow" d="M${cx} ${cy - radius + 13}l10 ${radius - 2}-10-9-10 9Z" transform="rotate(-42 ${cx} ${cy})" />
-      <path class="voyager-live__ink" d="M${cx} ${cy - radius + 13}l10 ${radius - 2}-10-9-10 9Z" />
+      ${voyagerUiIcon("compass-arrow", {
+        x: cx - radius,
+        y: cy - radius,
+        width: radius * 2,
+        height: radius * 2,
+        viewBox: VOYAGER_COMPASS_VIEW_BOX,
+      })}
     </g>`;
 }
 
@@ -305,7 +318,7 @@ function mainMarkup(screen, variant) {
       <rect class="voyager-live__surface" width="504" height="303" />
       ${screenChromeMarkup(screen, variant)}
       <g transform="translate(${hiddenOffset} 0)">
-        <text class="voyager-live__text voyager-live__text--medium" x="79" y="29">2</text>
+        ${screenIndicatorMarkup(2)}
         <text class="voyager-live__text voyager-live__text--medium" x="283" y="35" text-anchor="middle">ODOMETER KM</text>
         <text class="voyager-live__text voyager-live__text--readout" x="283" y="98" text-anchor="middle" data-live-odometer>1200</text>
         <text class="voyager-live__text voyager-live__text--medium" x="173" y="137" text-anchor="middle">MAX SPD KM/H</text>
@@ -320,10 +333,10 @@ function mainMarkup(screen, variant) {
     <rect class="voyager-live__surface" width="504" height="303" />
     ${screenChromeMarkup(screen, variant)}
     <g transform="translate(${hiddenOffset} 0)">
-      <text class="voyager-live__text voyager-live__text--medium" x="79" y="29">1</text>
+      ${screenIndicatorMarkup(1)}
       <text class="voyager-live__text voyager-live__text--medium" x="323" y="28" data-live-temperature>75°F</text>
       <text class="voyager-live__text voyager-live__text--medium" x="393" y="28" data-live-time>12:30</text>
-      <path class="voyager-live__ink" d="M488 14h5v18h-5zm9 0h5v18h-5z" />
+      ${voyagerUiIcon("icon-16pt-pause", { x: 486, y: 13, width: 17, height: 20 })}
       <text class="voyager-live__text voyager-live__text--medium" x="454" y="64" data-live-heading-label>NE</text>
       <text class="voyager-live__text" x="156" y="71">SPD MPH</text>
       <text class="voyager-live__text voyager-live__text--large" x="151" y="160" data-live-speed>28</text>
@@ -340,24 +353,14 @@ function mainMarkup(screen, variant) {
 
 function controlHintMarkup(interaction) {
   if (!interaction) return "";
-  const mode = interaction === "pan" ? "P" : "Z";
+  const dpadIcon = interaction === "pan" ? "dpad-pan" : "dpad-zoom";
   return `
-    <g transform="translate(440 16)" aria-hidden="true">
-      <rect class="voyager-live__hint-frame" x="17" y="0" width="18" height="18" />
-      <rect class="voyager-live__hint-frame" x="0" y="19" width="18" height="18" />
-      <rect class="voyager-live__hint-frame" x="17" y="19" width="18" height="18" />
-      <rect class="voyager-live__hint-frame" x="34" y="19" width="18" height="18" />
-      <rect class="voyager-live__hint-frame" x="17" y="38" width="18" height="18" />
-      <path class="voyager-live__hint-key" data-live-hint="up" d="M26 4l6 8H20Z" />
-      <path class="voyager-live__hint-key" data-live-hint="left" d="M4 28l8-6v12Z" />
-      <text class="voyager-live__text voyager-live__text--small voyager-live__text--inverse" x="26" y="33" text-anchor="middle">${mode}</text>
-      <path class="voyager-live__hint-key" data-live-hint="right" d="M48 28l-8-6v12Z" />
-      <path class="voyager-live__hint-key" data-live-hint="down" d="M26 52l6-8H20Z" />
-    </g>
-    <g transform="translate(442 230)">
-      <rect class="voyager-live__ink" width="62" height="42" rx="20" />
-      <text class="voyager-live__text voyager-live__text--medium voyager-live__text--inverse" x="31" y="28" text-anchor="middle">P/Z</text>
-    </g>`;
+    ${voyagerUiIcon(dpadIcon, { x: 440, y: 16, width: 54, height: 54 })}
+    <path class="voyager-live__hint-pulse" data-live-hint="up" d="M458 16h18v18h-18Z" />
+    <path class="voyager-live__hint-pulse" data-live-hint="left" d="M440 34h18v18h-18Z" />
+    <path class="voyager-live__hint-pulse" data-live-hint="right" d="M476 34h18v18h-18Z" />
+    <path class="voyager-live__hint-pulse" data-live-hint="down" d="M458 52h18v18h-18Z" />
+    ${voyagerUiIcon("panzoom-pill", { x: 442, y: 230, width: 62, height: 42 })}`;
 }
 
 function mapMarkup(screen, variant) {
@@ -380,10 +383,10 @@ function mapMarkup(screen, variant) {
     <path class="voyager-live__scale-line" d="M${variant.tabsVisible ? 80 : 20} 279v13h142v-13" />
     <text class="voyager-live__text voyager-live__text--medium" x="${variant.tabsVisible ? 126 : 66}" y="286">2 mi</text>
     <text class="voyager-live__text voyager-live__text--medium" x="${variant.tabsVisible ? 244 : 184}" y="286">N</text>
-    <path class="voyager-live__ink" d="M${variant.tabsVisible ? 268 : 208} 278l9 7-9 7Z" />
+    ${voyagerUiIcon("compass-indicator-24pt", { x: variant.tabsVisible ? 266 : 206, y: 273, width: 14, height: 19 })}
     <text class="voyager-live__text voyager-live__text--medium" x="${variant.tabsVisible ? 307 : 247}" y="286" data-live-temperature>75°F</text>
     <text class="voyager-live__text voyager-live__text--medium" x="${variant.tabsVisible ? 385 : 325}" y="286" data-live-time>12:30</text>
-    <path class="voyager-live__ink" d="M478 270h5v18h-5zm9 0h5v18h-5z" />`;
+    ${voyagerUiIcon("icon-16pt-pause", { x: 477, y: 269, width: 17, height: 20 })}`;
 }
 
 function graphGridMarkup(left, right, top, bottom) {
@@ -446,7 +449,7 @@ function userMarkup(screen, variant) {
       <rect class="voyager-live__surface" width="504" height="303" />
       ${screenChromeMarkup(screen, variant)}
       <g transform="translate(${hiddenOffset} 0)">
-        <text class="voyager-live__text voyager-live__text--medium" x="79" y="29">2</text>
+        ${screenIndicatorMarkup(2)}
         <text class="voyager-live__text voyager-live__text--medium" x="283" y="31" text-anchor="middle">GEOFF'S SCREEN</text>
         <text class="voyager-live__text voyager-live__text--medium" x="283" y="88" text-anchor="middle">ACCUMULATED RUN TIME</text>
         <text class="voyager-live__text voyager-live__text--large voyager-live__text--clock" x="283" y="143" text-anchor="middle" data-live-elapsed>00:00:00</text>
@@ -458,7 +461,7 @@ function userMarkup(screen, variant) {
     <rect class="voyager-live__surface" width="504" height="303" />
     ${screenChromeMarkup(screen, variant)}
     <g transform="translate(${hiddenOffset} 0)">
-      <text class="voyager-live__text voyager-live__text--medium" x="79" y="29">1</text>
+      ${screenIndicatorMarkup(1)}
       <text class="voyager-live__text voyager-live__text--medium" x="283" y="31" text-anchor="middle">KELLY'S SCREEN</text>
       ${metricBlock(173, 83, "WHEEL SPD", "data-live-speed", "25")}
       ${metricBlock(397, 83, "GPS SPD", "data-live-gps-speed", "22")}
@@ -480,13 +483,11 @@ function navigationMarkup(screen, variant) {
       <text class="voyager-live__text voyager-live__text--readout" x="171" y="189" text-anchor="middle" data-live-destination>700</text>
       ${compassMarkup({ cx: 365, cy: 102, radius: 83, pointerAttribute: "data-live-nav-pointer" })}
       <text class="voyager-live__text voyager-live__text--medium" x="284" y="231" text-anchor="middle">STOP WATCH</text>
-      ${running ? '<path class="voyager-live__ink" d="M326 214l11 10-11 10Z" />' : '<path class="voyager-live__ink" d="M325 214h5v18h-5zm9 0h5v18h-5z" />'}
+      ${running
+        ? voyagerUiIcon("icon-16pt-play", { x: 326, y: 213, width: 12, height: 21 })
+        : voyagerUiIcon("icon-16pt-pause", { x: 325, y: 213, width: 18, height: 21 })}
       <text class="voyager-live__text voyager-live__text--large voyager-live__text--clock" x="284" y="287" text-anchor="middle" data-live-stopwatch>00:00:00</text>
-      ${running ? `
-        <g transform="translate(443 231)">
-          <rect class="voyager-live__ink" width="61" height="42" rx="20" />
-          <path class="voyager-live__paper" d="M16 12h5v18h-5zm9 0h5v18h-5zm11 0 13 9-13 9Z" />
-        </g>` : ""}
+      ${running ? voyagerUiIcon("pauseplay-pill", { x: 443, y: 231, width: 61, height: 42 }) : ""}
     </g>`;
 }
 
@@ -510,7 +511,7 @@ function satelliteMarkup(screen, variant) {
     ${screenChromeMarkup(screen, variant)}
     <g transform="translate(${offset} 0)">
       <text class="voyager-live__text voyager-live__text--medium" x="81" y="33">N</text>
-      <path class="voyager-live__ink" d="M98 33l8-17 8 17Z" />
+      ${voyagerUiIcon("compass-indicator-24pt", { x: 98, y: 15, width: 16, height: 22 })}
       <circle class="voyager-live__compass-line" cx="179" cy="113" r="88" />
       <circle class="voyager-live__compass-line" cx="179" cy="113" r="47" />
       <circle class="voyager-live__ink" cx="179" cy="113" r="4" />
@@ -536,6 +537,7 @@ function satelliteMarkup(screen, variant) {
 
 function renderScreenMarkup(screen, variant) {
   const renderers = {
+    startup: startupMarkup,
     main: mainMarkup,
     map: mapMarkup,
     graph: graphMarkup,
@@ -573,7 +575,6 @@ function coordinateLabel(value, positive, negative) {
 
 export class VoyagerLiveRuntime {
   #mount;
-  #legacyImage;
   #stage;
   #appBase;
   #ride = new VoyagerRideEngine();
@@ -592,9 +593,8 @@ export class VoyagerLiveRuntime {
   #available = false;
   #waypoints = [];
 
-  constructor({ mount, legacyImage, stage, appBase }) {
+  constructor({ mount, stage, appBase }) {
     this.#mount = mount;
-    this.#legacyImage = legacyImage;
     this.#stage = stage;
     this.#appBase = appBase;
   }
@@ -653,14 +653,10 @@ export class VoyagerLiveRuntime {
     this.#screenState = voyagerScreenState(state.id);
     this.#menuState = voyagerMenuState(state.id);
     if (!this.supports(state.id) || (!this.#screenState && !this.#menuState)) {
-      this.#mount.hidden = true;
-      this.#legacyImage.hidden = false;
-      this.#stage.dataset.renderer = "legacy";
-      return;
+      throw new Error(`Voyager state ${state.id} does not have a live renderer.`);
     }
 
     this.#mount.hidden = false;
-    this.#legacyImage.hidden = true;
     this.#stage.dataset.renderer = "live";
     this.#stage.dataset.liveState = state.id;
     this.#applyInteractiveInput(event);

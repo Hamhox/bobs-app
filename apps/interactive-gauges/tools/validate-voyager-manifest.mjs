@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { readFile, stat } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
@@ -9,15 +9,6 @@ const EXPECTED_ACTIONS = ["menu", "up", "left", "center", "right", "down", "back
 const toolDirectory = path.dirname(fileURLToPath(import.meta.url));
 const appDirectory = path.resolve(toolDirectory, "..");
 const manifestPath = path.join(appDirectory, "data", "voyager-states.json");
-
-async function gifDimensions(filename) {
-  const bytes = await readFile(filename);
-  const signature = bytes.subarray(0, 6).toString("ascii");
-  if (signature !== "GIF87a" && signature !== "GIF89a") {
-    throw new Error(`${filename} is not a GIF`);
-  }
-  return { width: bytes.readUInt16LE(6), height: bytes.readUInt16LE(8) };
-}
 
 function collectReachable(states, initialState, includeArchiveLinks = false) {
   const visited = new Set();
@@ -55,6 +46,7 @@ async function main() {
   let activeAutoTransitions = 0;
 
   if (ids.length !== 146) throw new Error(`Expected 146 states, found ${ids.length}`);
+  if (manifest.version !== 2) throw new Error(`Expected manifest version 2, found ${manifest.version}`);
   if (manifest.initialState !== "index") throw new Error("Initial state must be index");
 
   for (const [id, state] of Object.entries(states)) {
@@ -79,21 +71,17 @@ async function main() {
       if (!states[target]) throw new Error(`${id} archive link points to missing state ${target}`);
     }
 
-    const screenPath = path.join(appDirectory, ...state.screen.split("/"));
-    const screenInfo = await stat(screenPath).catch(() => null);
-    if (!screenInfo?.isFile()) throw new Error(`${id} is missing ${state.screen}`);
-    const dimensions = await gifDimensions(screenPath);
-    if (dimensions.width !== 504 || dimensions.height !== 303) {
-      throw new Error(`${state.screen} is ${dimensions.width}x${dimensions.height}`);
+    if (!/^[^/\\]+\.gif$/i.test(state.referenceScreen ?? "")) {
+      throw new Error(`${id} has an invalid reference screen: ${state.referenceScreen}`);
     }
-    screens.add(state.screen);
+    screens.add(state.referenceScreen);
   }
 
   const actionReachable = collectReachable(states, manifest.initialState);
   const archiveReachable = collectReachable(states, manifest.initialState, true);
   const report = {
     states: ids.length,
-    screens: screens.size,
+    screenReferences: screens.size,
     noOps,
     autoTransitions,
     activeAutoTransitions,
@@ -103,7 +91,7 @@ async function main() {
 
   const expected = {
     states: 146,
-    screens: 146,
+    screenReferences: 146,
     noOps: 330,
     autoTransitions: 15,
     activeAutoTransitions: 14,

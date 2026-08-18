@@ -143,6 +143,19 @@ export function initializeVoyagerManual(root) {
     return preloadCache.get(page.id);
   }
 
+  function preloadNeighbors(index) {
+    const neighborIndexes = [
+      (index - 1 + MANUAL_PAGES.length) % MANUAL_PAGES.length,
+      (index + 1) % MANUAL_PAGES.length,
+    ];
+    const scheduleIdle = window.requestIdleCallback ?? ((callback) => window.setTimeout(callback, 0));
+    scheduleIdle(() => {
+      for (const neighborIndex of neighborIndexes) {
+        cachedPreload(MANUAL_PAGES[neighborIndex]).catch(() => {});
+      }
+    });
+  }
+
   function updateSyncState(page) {
     const synchronized = page.stateId === latestStableState || pageForVoyagerState(latestVoyagerState) === page.id;
     root.toggleAttribute("data-manual-synced", synchronized);
@@ -176,6 +189,7 @@ export function initializeVoyagerManual(root) {
       openGauge.setAttribute("aria-label", `${page.gaugeLabel} from manual page ${page.pageNumber}`);
       openGaugeLabel.textContent = page.gaugeLabel;
       updateSyncState(page);
+      preloadNeighbors(currentIndex);
 
       for (const [tabIndex, tab] of tabs.entries()) {
         const selected = tabIndex === currentIndex;
@@ -227,8 +241,4 @@ export function initializeVoyagerManual(root) {
   });
 
   selectPage(0, { announce: false });
-  const scheduleIdle = window.requestIdleCallback ?? ((callback) => window.setTimeout(callback, 0));
-  scheduleIdle(() => {
-    for (const page of MANUAL_PAGES) cachedPreload(page).catch(() => {});
-  });
 }

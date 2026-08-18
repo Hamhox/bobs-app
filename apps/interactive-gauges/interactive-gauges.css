@@ -76,6 +76,11 @@
   position: relative;
   z-index: 3;
   max-width: 34rem;
+  pointer-events: none;
+}
+
+.gauges-actions {
+  pointer-events: auto;
 }
 
 .gauges-eyebrow {
@@ -277,7 +282,6 @@
   background: #f3f2ed;
 }
 
-.voyager-screen,
 .voyager-live-screen {
   position: absolute;
   top: 0;
@@ -289,12 +293,7 @@
   transform: translateX(-50%);
 }
 
-.voyager-screen {
-  image-rendering: auto;
-}
-
-.voyager-live-screen[hidden],
-.voyager-screen[hidden] {
+.voyager-live-screen[hidden] {
   display: none;
 }
 
@@ -636,6 +635,24 @@
 
 .voyager-live__hint-key.is-pressed {
   fill: #9e9993;
+}
+
+.voyager-ui-icon {
+  overflow: visible;
+}
+
+.voyager-ui-icon--inverse {
+  filter: invert(1);
+}
+
+.voyager-live__hint-pulse {
+  fill: #f5f4ef;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.voyager-live__hint-pulse.is-pressed {
+  opacity: 0.52;
 }
 
 .voyager-menu__rail,

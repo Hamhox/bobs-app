@@ -1,3 +1,5 @@
+import { voyagerUiIcon } from "./voyager-ui-icons.js";
+
 const escapeMarkup = (value) => String(value ?? "")
   .replaceAll("&", "&amp;")
   .replaceAll("<", "&lt;")
@@ -88,23 +90,27 @@ function noteLines(lines, startY, className = "voyager-menu__note") {
   ).join("");
 }
 
+function pairedConfirmationButtons(y) {
+  return `
+    ${voyagerUiIcon("btn-cancel-selected", { x: 143, y, width: 100, height: 42 })}
+    ${voyagerUiIcon("btn-ok-disabled", { x: 263, y: y + 11, width: 100, height: 32 })}`;
+}
+
+function selectedOkButton(x, y) {
+  return voyagerUiIcon("btn-ok-selected", { x, y, width: 100, height: 42 });
+}
+
 function confirmModal(definition) {
   const startY = definition.lines.length > 2 ? 124 : 136;
   return modalFrame(definition, `
     ${noteLines(definition.lines, startY, "voyager-menu__confirm-copy")}
-    <path class="voyager-menu__choice-arrow" d="M178 215l14 10h-28Z" />
-    <rect class="voyager-menu__button voyager-menu__button--active" x="143" y="228" width="100" height="34" />
-    <text class="voyager-live__text voyager-menu__button-text voyager-live__text--inverse" x="193" y="251" text-anchor="middle">CANCEL</text>
-    <rect class="voyager-menu__button" x="263" y="228" width="100" height="34" />
-    <text class="voyager-live__text voyager-menu__button-text" x="313" y="251" text-anchor="middle">OK</text>`);
+    ${pairedConfirmationButtons(216)}`);
 }
 
 function noticeModal(definition) {
   return modalFrame(definition, `
     ${noteLines(definition.lines, 128, "voyager-menu__confirm-copy")}
-    <path class="voyager-menu__choice-arrow" d="M252 218l14 10h-28Z" />
-    <rect class="voyager-menu__button voyager-menu__button--active" x="202" y="231" width="100" height="34" />
-    <text class="voyager-live__text voyager-menu__button-text voyager-live__text--inverse" x="252" y="254" text-anchor="middle">OK</text>`);
+    ${selectedOkButton(202, 219)}`);
 }
 
 function settingsModal(definition) {
@@ -115,8 +121,8 @@ function settingsModal(definition) {
     const y = top + index * lineHeight;
     const selected = index === definition.selectedIndex;
     return `
-      ${selected ? `<rect class="voyager-menu__selection" x="99" y="${y - 18}" width="306" height="22" />` : ""}
-      <text class="voyager-live__text voyager-menu__row${selected ? " voyager-live__text--inverse" : ""}" x="252" y="${y}" text-anchor="middle">${escapeMarkup(option)}</text>`;
+      ${voyagerUiIcon(selected ? "radio-16pt-checked" : "radio-16pt-unchecked", { x: 113, y: y - 18, width: 18, height: 18 })}
+      <text class="voyager-live__text voyager-menu__row" x="143" y="${y}">${escapeMarkup(option)}</text>`;
   }).join("");
   const noteY = definition.scroll ? 247 : Math.min(250, top + visibleOptions.length * lineHeight + 18);
   return modalFrame(definition, `
@@ -151,12 +157,14 @@ function keyboardModal(definition) {
     <text class="voyager-live__text voyager-menu__keyboard" x="68" y="162">1 2 3 4 5 6 7 8 9 0 - +</text>
     <text class="voyager-live__text voyager-menu__keyboard" x="68" y="184">Q W E R T Y U I O P ! °</text>
     <text class="voyager-live__text voyager-menu__keyboard" x="68" y="206">A S D F G H J K L : “ ’</text>
-    <text class="voyager-live__text voyager-menu__keyboard" x="68" y="228">Z X C V B N M _ ◀ ▶ DEL</text>
-    <path class="voyager-menu__choice-arrow" d="M178 235l14 10h-28Z" />
-    <rect class="voyager-menu__button voyager-menu__button--active" x="143" y="248" width="100" height="34" />
-    <text class="voyager-live__text voyager-menu__button-text voyager-live__text--inverse" x="193" y="271" text-anchor="middle">CANCEL</text>
-    <rect class="voyager-menu__button" x="263" y="248" width="100" height="34" />
-    <text class="voyager-live__text voyager-menu__button-text" x="313" y="271" text-anchor="middle">OK</text>`, { x: 39, y: 39, width: 426, height: 250 });
+    <text class="voyager-live__text voyager-menu__keyboard" x="68" y="228">Z X C V B N M _</text>
+    ${voyagerUiIcon("keyboard-16pt-backspace", { x: 248, y: 210, width: 24, height: 20 })}
+    ${voyagerUiIcon("keyboard-16pt-delete", { x: 278, y: 210, width: 29, height: 20 })}
+    ${voyagerUiIcon("keyboard-16pt-back", { x: 313, y: 210, width: 23, height: 20 })}
+    ${voyagerUiIcon("keyboard-16pt-forward", { x: 342, y: 210, width: 23, height: 20 })}
+    ${voyagerUiIcon("keyboard-16pt-checkmark", { x: 371, y: 210, width: 23, height: 20 })}
+    ${voyagerUiIcon("keyboard-16pt-space", { x: 400, y: 210, width: 23, height: 20 })}
+    ${pairedConfirmationButtons(236)}`, { x: 39, y: 39, width: 426, height: 250 });
 }
 
 function waypointMapModal(definition) {
@@ -175,13 +183,9 @@ function waypointMapModal(definition) {
       <path class="voyager-menu__map-position" data-menu-position d="M0-10 8 9 0 4-8 9Z" />
       <g data-menu-pending-waypoint></g>
     </g>
-    ${crosshair ? `<path class="voyager-menu__crosshair" d="M232 147h40M252 127v40" />` : ""}
+    ${crosshair ? voyagerUiIcon("crosshair-center", { x: 232, y: 127, width: 40, height: 40 }) : ""}
     ${confirm ? `
-      <path class="voyager-menu__choice-arrow" d="M178 245l14 10h-28Z" />
-      <rect class="voyager-menu__button voyager-menu__button--active" x="143" y="258" width="100" height="34" />
-      <text class="voyager-live__text voyager-menu__button-text voyager-live__text--inverse" x="193" y="281" text-anchor="middle">CANCEL</text>
-      <rect class="voyager-menu__button" x="263" y="258" width="100" height="34" />
-      <text class="voyager-live__text voyager-menu__button-text" x="313" y="281" text-anchor="middle">OK</text>` : `
+      ${pairedConfirmationButtons(246)}` : `
       <text class="voyager-live__text voyager-menu__note" x="252" y="271" text-anchor="middle">${definition.mode === "select-delete" ? "SELECT WAYPOINT · ENTER TO DELETE" : crosshair ? "MOVE CROSSHAIRS · ENTER TO CONFIRM" : "SELECT WAYPOINT · ENTER TO CONFIRM"}</text>`}`;
 }
 
