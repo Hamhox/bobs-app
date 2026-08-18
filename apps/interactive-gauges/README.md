@@ -27,11 +27,19 @@ The runtime manifest is `data/voyager-states.json`. Presentation code does not c
 
 ## Live UI conversion
 
-The live renderer preserves the manifest as the navigation authority and replaces all 28 states in the seven gauge
-families—Main, Map, Temperature, Altitude, User, Navigation, and Satellite—with a reusable `504 x 303` SVG stage in
-`voyager-live-runtime.js`. `voyager-live-screens.js` is the screen registry for tab chrome, primary and secondary views,
-captured map controls, graph interactions, and stable public IDs. Menu, settings, and modal states continue to use their
-approved image captures as a comparison fallback until their data-driven conversion pass.
+The live renderer preserves the manifest as the navigation authority and replaces 145 of the 146 archived states with a
+reusable `504 x 303` SVG stage in `voyager-live-runtime.js`. `voyager-live-screens.js` is the screen registry for the 28
+states in the seven gauge families—Main, Map, Temperature, Altitude, User, Navigation, and Satellite—including tab
+chrome, primary and secondary views, captured map controls, graph interactions, and stable public IDs. The data-driven
+`voyager-menu-registry.js` and
+`voyager-menu-renderer.js` cover all 117 Main Menu, Ride Menu, Settings, and modal states with shared menu shells,
+confirmation, waypoint-map, keyboard, digit-input, settings-list, and brightness renderers. Only the timed startup frame
+retains its approved image as a comparison fallback.
+
+The three Add Waypoint paths now produce persistent local waypoint records: current position samples the shared ride
+engine, latitude/longitude uses the entered archive coordinate, and crosshairs samples the displayed track position.
+Saved waypoints appear in both the menu map flows and the live gauge map. Delete Waypoint and New Ride update the same
+local record, so none of the waypoint workflows end at a visual-only confirmation.
 
 `data/voyager-live-coverage.json` inventories all 146 known states, their input coverage, composition family, renderer,
 and conversion status; regenerate it with `node tools/build-voyager-live-coverage.mjs` from this app directory.

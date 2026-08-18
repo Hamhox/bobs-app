@@ -5,8 +5,15 @@ import {
   VOYAGER_TAB_ORDER,
   voyagerScreenState,
 } from "./voyager-live-screens.js";
+import {
+  VOYAGER_MENU_STABLE_STATE_ALIASES,
+  VOYAGER_MENU_STATE_IDS,
+  voyagerMenuState,
+} from "./voyager-menu-registry.js";
+import { renderVoyagerMenuMarkup, voyagerMenuAriaLabel } from "./voyager-menu-renderer.js";
 
 const DIRECTION_INPUTS = new Set(["up", "down", "left", "right"]);
+const WAYPOINT_STORAGE_KEY = "bobs-app:voyager-waypoints:v1";
 const clamp = (value, minimum, maximum) => Math.min(maximum, Math.max(minimum, value));
 const radians = (degrees) => (degrees * Math.PI) / 180;
 
@@ -570,14 +577,18 @@ export class VoyagerLiveRuntime {
   #ride = new VoyagerRideEngine();
   #state = null;
   #screenState = null;
+  #menuState = null;
   #layoutKey = "";
   #telemetry = null;
   #projectedTrack = [];
   #projectedTrackId = "";
+  #menuProjectedTrack = [];
+  #menuProjectedTrackId = "";
   #mapPan = { x: 0, y: 0 };
   #mapScale = 1;
   #pulseTimer = 0;
   #available = false;
+  #waypoints = [];
 
   constructor({ mount, legacyImage, stage, appBase }) {
     this.#mount = mount;
@@ -597,6 +608,7 @@ export class VoyagerLiveRuntime {
         { id: "mountain-run", label: "MOUNTAIN RUN", url: `${this.#appBase}/assets/rides/mountain-run.gpx` },
       ]),
     ]);
+    this.#loadWaypoints();
     this.#available = true;
     this.#ride.subscribe((telemetry) => {
       if (this.#telemetry?.trackId !== telemetry.trackId) {
@@ -609,7 +621,7 @@ export class VoyagerLiveRuntime {
   }
 
   supports(stateId) {
-    return this.#available && VOYAGER_LIVE_STATE_IDS.has(stateId);
+    return this.#available && (VOYAGER_LIVE_STATE_IDS.has(stateId) || VOYAGER_MENU_STATE_IDS.has(stateId));
   }
 
   getInputPolicyStateId(stateId) {
@@ -617,7 +629,7 @@ export class VoyagerLiveRuntime {
   }
 
   resolveStateId(screenId) {
-    return VOYAGER_STABLE_STATE_ALIASES[screenId] ?? screenId;
+    return VOYAGER_STABLE_STATE_ALIASES[screenId] ?? VOYAGER_MENU_STABLE_STATE_ALIASES[screenId] ?? screenId;
   }
 
   applyNavigationParameters(parameters = {}) {
@@ -633,7 +645,8 @@ export class VoyagerLiveRuntime {
   render(state, event = {}) {
     this.#state = state;
     this.#screenState = voyagerScreenState(state.id);
-    if (!this.supports(state.id) || !this.#screenState) {
+    this.#menuState = voyagerMenuState(state.id);
+    if (!this.supports(state.id) || (!this.#screenState && !this.#menuState)) {
       this.#mount.hidden = true;
       this.#legacyImage.hidden = false;
       this.#stage.dataset.renderer = "legacy";
@@ -645,6 +658,21 @@ export class VoyagerLiveRuntime {
     this.#stage.dataset.renderer = "live";
     this.#stage.dataset.liveState = state.id;
     this.#applyInteractiveInput(event);
+
+    if (this.#menuState) {
+      const layoutKey = `menu:${state.id}:${this.#waypoints.length}`;
+      if (layoutKey !== this.#layoutKey) {
+        this.#mount.innerHTML = `
+          <svg class="voyager-live voyager-menu" viewBox="0 0 504 303" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${voyagerMenuAriaLabel(this.#menuState)}">
+            ${renderVoyagerMenuMarkup(this.#menuState)}
+          </svg>`;
+        this.#layoutKey = layoutKey;
+        this.#menuProjectedTrack = [];
+      }
+      this.#mount.querySelector("svg")?.setAttribute("data-voyager-screen-id", state.id);
+      this.#updateDynamicFields();
+      return;
+    }
 
     const { screen, variant } = this.#screenState;
     const layoutKey = `${screen.id}:${variant.view}:${variant.tabsVisible}:${variant.interaction ?? "browse"}`;
@@ -670,6 +698,7 @@ export class VoyagerLiveRuntime {
 
   #applyInteractiveInput(event) {
     if (event.type !== "dispatch") return;
+    this.#applyMenuOutcome(event);
     const fromState = voyagerScreenState(event.from);
     if (!fromState) return;
     if (fromState.screen.id === "map" && DIRECTION_INPUTS.has(event.action)) {
@@ -692,7 +721,7 @@ export class VoyagerLiveRuntime {
   }
 
   #updateDynamicFields() {
-    if (!this.#telemetry || !this.#state || !this.#screenState || this.#mount.hidden) return;
+    if (!this.#telemetry || !this.#state || this.#mount.hidden) return;
     const setText = (selector, value) => {
       for (const element of this.#mount.querySelectorAll(selector)) element.textContent = value;
     };
@@ -716,6 +745,13 @@ export class VoyagerLiveRuntime {
     setText("[data-live-longitude]", coordinateLabel(telemetry.longitude, "E", "W"));
     setText("[data-live-ride-label]", telemetry.trackLabel);
 
+    if (this.#menuState) {
+      this.#updateMenuMap();
+      return;
+    }
+
+    if (!this.#screenState) return;
+
     for (const pointer of this.#mount.querySelectorAll("[data-live-compass-pointer], [data-live-nav-pointer]")) {
       const cx = pointer.dataset.cx;
       const cy = pointer.dataset.cy;
@@ -724,6 +760,134 @@ export class VoyagerLiveRuntime {
 
     if (this.#screenState.screen.renderer === "map") this.#updateMap();
     if (this.#screenState.screen.renderer === "graph") this.#updateGraph();
+  }
+
+  #applyMenuOutcome(event) {
+    if (event.action !== "enter") return;
+    const telemetry = this.#telemetry;
+    if (event.from === "m-ride2-2-1" && telemetry) {
+      this.#addWaypoint("CURRENT POSITION", telemetry.latitude, telemetry.longitude);
+    }
+    if (event.from === "m-ride2-3-1-1-1") {
+      this.#addWaypoint("LAT/LON", 45.768892, -122.519284);
+    }
+    if (event.from === "m-ride2-4-1-1" && telemetry) {
+      this.#addWaypoint("CROSSHAIRS", telemetry.latitude + 0.0012, telemetry.longitude + 0.0017);
+    }
+    if (event.from === "m-ride2-5-1-1" && this.#waypoints.length) {
+      this.#waypoints.pop();
+      this.#saveWaypoints();
+      this.#invalidateMapProjection();
+    }
+    if (event.from === "m-ride2-6-1-1") {
+      this.#waypoints = [];
+      this.#saveWaypoints();
+      this.#invalidateMapProjection();
+      this.#ride.reset();
+    }
+    if (event.from === "m-main1-3-1" || event.from === "m-main1-2-1") this.#ride.reset();
+  }
+
+  #addWaypoint(source, latitude, longitude) {
+    this.#waypoints.push({
+      id: `WP-${Date.now().toString(36).toUpperCase()}`,
+      label: String(this.#waypoints.length + 5),
+      source,
+      latitude,
+      longitude,
+    });
+    this.#saveWaypoints();
+    this.#invalidateMapProjection();
+  }
+
+  #invalidateMapProjection() {
+    this.#projectedTrack = [];
+    this.#projectedTrackId = "";
+    this.#menuProjectedTrack = [];
+    this.#menuProjectedTrackId = "";
+  }
+
+  #loadWaypoints() {
+    try {
+      const stored = JSON.parse(window.localStorage.getItem(WAYPOINT_STORAGE_KEY) ?? "[]");
+      this.#waypoints = Array.isArray(stored)
+        ? stored.filter((waypoint) => Number.isFinite(waypoint?.latitude) && Number.isFinite(waypoint?.longitude)).slice(-24)
+        : [];
+    } catch {
+      this.#waypoints = [];
+    }
+  }
+
+  #saveWaypoints() {
+    try {
+      window.localStorage.setItem(WAYPOINT_STORAGE_KEY, JSON.stringify(this.#waypoints));
+    } catch {
+      // The prototype remains usable if storage is unavailable.
+    }
+  }
+
+  #updateMenuMap() {
+    if (!this.#menuState || this.#menuState.kind !== "waypoint-map" || !this.#ride.points.length) return;
+    if (!this.#menuProjectedTrack.length || this.#menuProjectedTrackId !== this.#telemetry.trackId) {
+      this.#menuProjectedTrack = projectTrack(this.#ride.points, { left: 82, right: 422, top: 72, bottom: 222 });
+      this.#menuProjectedTrackId = this.#telemetry.trackId;
+    }
+    const projected = this.#menuProjectedTrack;
+    this.#mount.querySelector("[data-menu-route]")?.setAttribute("d", pathFromPoints(projected));
+    const current = this.#pointAtProgress(projected, this.#telemetry.progress);
+    const currentIndex = Math.min(projected.length - 2, Math.floor(this.#telemetry.progress * (projected.length - 1)));
+    this.#mount.querySelector("[data-menu-recorded]")?.setAttribute("d", pathFromPoints([...projected.slice(0, currentIndex + 1), current]));
+    this.#mount.querySelector("[data-menu-position]")?.setAttribute(
+      "transform",
+      `translate(${current.x.toFixed(2)} ${current.y.toFixed(2)}) rotate(${this.#telemetry.heading.toFixed(2)})`,
+    );
+
+    const authoredPositions = [0.08, 0.34, 0.62, 0.88].map((progress, index) => ({
+      point: this.#pointAtProgress(projected, progress),
+      label: String(index + 1),
+      saved: false,
+    }));
+    const savedPositions = this.#waypoints.map((waypoint) => ({
+      point: projected[this.#nearestRidePointIndex(waypoint)] ?? current,
+      label: waypoint.label,
+      saved: true,
+    }));
+    const waypointLayer = this.#mount.querySelector("[data-menu-waypoints]");
+    if (waypointLayer) {
+      waypointLayer.innerHTML = [...authoredPositions, ...savedPositions].map(({ point, label, saved }) => `
+        <g transform="translate(${point.x.toFixed(2)} ${point.y.toFixed(2)})">
+          <circle class="voyager-menu__map-waypoint" r="${saved ? 13 : 11}" />
+          <text class="voyager-live__text voyager-live__text--small" x="0" y="5" text-anchor="middle">${label}</text>
+        </g>`).join("");
+    }
+
+    let pendingPoint = current;
+    if (this.#menuState.pending === "coordinates") {
+      pendingPoint = projected[this.#nearestRidePointIndex({ latitude: 45.768892, longitude: -122.519284 })] ?? current;
+    } else if (this.#menuState.mode.includes("delete") && savedPositions.length) {
+      pendingPoint = savedPositions.at(-1).point;
+    }
+    const pendingLayer = this.#mount.querySelector("[data-menu-pending-waypoint]");
+    if (pendingLayer) {
+      pendingLayer.innerHTML = `
+        <g transform="translate(${pendingPoint.x.toFixed(2)} ${pendingPoint.y.toFixed(2)})">
+          <circle class="voyager-menu__map-pending" r="16" />
+          <text class="voyager-live__text" x="0" y="6" text-anchor="middle">${this.#menuState.mode.includes("delete") ? "−" : this.#waypoints.length + 5}</text>
+        </g>`;
+    }
+  }
+
+  #nearestRidePointIndex(coordinate) {
+    let nearestIndex = 0;
+    let nearestDistance = Number.POSITIVE_INFINITY;
+    this.#ride.points.forEach((point, index) => {
+      const distance = haversineMeters(point, coordinate);
+      if (distance < nearestDistance) {
+        nearestDistance = distance;
+        nearestIndex = index;
+      }
+    });
+    return nearestIndex;
   }
 
   #updateMap() {
@@ -740,14 +904,20 @@ export class VoyagerLiveRuntime {
       this.#mount.querySelector("[data-live-route]")?.setAttribute("d", pathFromPoints(this.#projectedTrack));
       const waypointLayer = this.#mount.querySelector("[data-live-waypoints]");
       if (waypointLayer) {
-        waypointLayer.innerHTML = [0.15, 0.5, 0.83].map((position, index) => {
+        const authoredWaypoints = [0.08, 0.34, 0.62, 0.88].map((position, index) => {
           const point = this.#projectedTrack[Math.round(position * (this.#projectedTrack.length - 1))];
-          return `
+          return { point, label: String(index + 1), saved: false };
+        });
+        const savedWaypoints = this.#waypoints.map((waypoint) => ({
+          point: this.#projectedTrack[this.#nearestRidePointIndex(waypoint)],
+          label: waypoint.label,
+          saved: true,
+        }));
+        waypointLayer.innerHTML = [...authoredWaypoints, ...savedWaypoints].map(({ point, label, saved }) => `
             <g transform="translate(${point.x.toFixed(2)} ${point.y.toFixed(2)})">
-              <circle class="voyager-live__waypoint" r="12" />
-              <text class="voyager-live__text" x="0" y="6" text-anchor="middle">${index + 1}</text>
-            </g>`;
-        }).join("");
+              <circle class="voyager-live__waypoint" r="${saved ? 14 : 12}" />
+              <text class="voyager-live__text" x="0" y="6" text-anchor="middle">${label}</text>
+            </g>`).join("");
       }
     }
     const position = this.#pointAtProgress(this.#projectedTrack, this.#telemetry.progress);

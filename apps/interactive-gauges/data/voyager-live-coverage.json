@@ -5,8 +5,8 @@
   "mapScope": "Track-only: current recording and loaded GPX tracks/routes. No basemap, terrain, tiles, roads, or place labels.",
   "totals": {
     "knownStates": 146,
-    "liveStates": 28,
-    "comparisonFallbackStates": 118
+    "liveStates": 145,
+    "comparisonFallbackStates": 1
   },
   "states": [
     {
@@ -447,8 +447,8 @@
     {
       "id": "m-main1-1",
       "family": "main-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-main1-1.gif",
       "reachableInputs": [
         "menu",
@@ -467,8 +467,8 @@
     {
       "id": "m-main1-2",
       "family": "main-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-main1-2.gif",
       "reachableInputs": [
         "menu",
@@ -487,8 +487,8 @@
     {
       "id": "m-main1-2-1",
       "family": "main-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-main1-2-1.gif",
       "reachableInputs": [
         "menu",
@@ -507,8 +507,8 @@
     {
       "id": "m-main1-3",
       "family": "main-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-main1-3.gif",
       "reachableInputs": [
         "menu",
@@ -527,8 +527,8 @@
     {
       "id": "m-main1-3-1",
       "family": "main-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-main1-3-1.gif",
       "reachableInputs": [
         "menu",
@@ -547,8 +547,8 @@
     {
       "id": "m-main1-4",
       "family": "main-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-main1-4.gif",
       "reachableInputs": [
         "menu",
@@ -567,8 +567,8 @@
     {
       "id": "m-main1-5",
       "family": "main-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-main1-5.gif",
       "reachableInputs": [
         "menu",
@@ -587,8 +587,8 @@
     {
       "id": "m-main1-5-1",
       "family": "main-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-main1-5-1.gif",
       "reachableInputs": [
         "menu",
@@ -607,8 +607,8 @@
     {
       "id": "m-main1-5-1-1",
       "family": "main-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-main1-5-1-1.gif",
       "reachableInputs": [
         "menu",
@@ -627,8 +627,8 @@
     {
       "id": "m-main1-6",
       "family": "main-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-main1-6.gif",
       "reachableInputs": [
         "menu",
@@ -647,8 +647,8 @@
     {
       "id": "m-main1-6-1",
       "family": "main-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-main1-6-1.gif",
       "reachableInputs": [
         "menu",
@@ -667,8 +667,8 @@
     {
       "id": "m-main1-7",
       "family": "main-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-main1-7.gif",
       "reachableInputs": [
         "menu",
@@ -687,8 +687,8 @@
     {
       "id": "m-main1-7-1",
       "family": "main-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-main1-7-1.gif",
       "reachableInputs": [
         "menu",
@@ -707,8 +707,8 @@
     {
       "id": "m-ride2-1",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-1.gif",
       "reachableInputs": [
         "menu",
@@ -727,8 +727,8 @@
     {
       "id": "m-ride2-2",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-2.gif",
       "reachableInputs": [
         "menu",
@@ -747,8 +747,8 @@
     {
       "id": "m-ride2-2-1",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-2-1.gif",
       "reachableInputs": [
         "menu",
@@ -767,8 +767,8 @@
     {
       "id": "m-ride2-3",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-3.gif",
       "reachableInputs": [
         "menu",
@@ -787,8 +787,8 @@
     {
       "id": "m-ride2-3-1",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-3-1.gif",
       "reachableInputs": [
         "menu",
@@ -807,8 +807,8 @@
     {
       "id": "m-ride2-3-1-1",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-3-1-1.gif",
       "reachableInputs": [
         "menu",
@@ -827,8 +827,8 @@
     {
       "id": "m-ride2-3-1-1-1",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-3-1-1-1.gif",
       "reachableInputs": [
         "menu",
@@ -847,8 +847,8 @@
     {
       "id": "m-ride2-4",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-4.gif",
       "reachableInputs": [
         "menu",
@@ -867,8 +867,8 @@
     {
       "id": "m-ride2-4-1",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-4-1.gif",
       "reachableInputs": [
         "menu",
@@ -887,8 +887,8 @@
     {
       "id": "m-ride2-4-1-1",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-4-1-1.gif",
       "reachableInputs": [
         "menu",
@@ -907,8 +907,8 @@
     {
       "id": "m-ride2-5",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-5.gif",
       "reachableInputs": [
         "menu",
@@ -927,8 +927,8 @@
     {
       "id": "m-ride2-5-1",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-5-1.gif",
       "reachableInputs": [
         "menu",
@@ -947,8 +947,8 @@
     {
       "id": "m-ride2-5-1-1",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-5-1-1.gif",
       "reachableInputs": [
         "menu",
@@ -967,8 +967,8 @@
     {
       "id": "m-ride2-6",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-6.gif",
       "reachableInputs": [
         "menu",
@@ -987,8 +987,8 @@
     {
       "id": "m-ride2-6-1",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-6-1.gif",
       "reachableInputs": [
         "menu",
@@ -1007,8 +1007,8 @@
     {
       "id": "m-ride2-6-1-1",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-6-1-1.gif",
       "reachableInputs": [
         "menu",
@@ -1027,8 +1027,8 @@
     {
       "id": "m-ride2-6-2",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-6-2.gif",
       "reachableInputs": [
         "menu",
@@ -1047,8 +1047,8 @@
     {
       "id": "m-ride2-6-2-1",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-6-2-1.gif",
       "reachableInputs": [
         "menu",
@@ -1067,8 +1067,8 @@
     {
       "id": "m-ride2-6-2-1-1",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-6-2-1-1.gif",
       "reachableInputs": [
         "menu",
@@ -1087,8 +1087,8 @@
     {
       "id": "m-ride2-6-2-1-1-1",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-6-2-1-1-1.gif",
       "reachableInputs": [
         "menu",
@@ -1107,8 +1107,8 @@
     {
       "id": "m-ride2-6-3",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-6-3.gif",
       "reachableInputs": [
         "menu",
@@ -1127,8 +1127,8 @@
     {
       "id": "m-ride2-6-3-1",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-6-3-1.gif",
       "reachableInputs": [
         "menu",
@@ -1147,8 +1147,8 @@
     {
       "id": "m-ride2-6-4",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-6-4.gif",
       "reachableInputs": [
         "menu",
@@ -1167,8 +1167,8 @@
     {
       "id": "m-ride2-6-4-1",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-6-4-1.gif",
       "reachableInputs": [
         "menu",
@@ -1187,8 +1187,8 @@
     {
       "id": "m-ride2-6-4-1-1",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-6-4-1-1.gif",
       "reachableInputs": [
         "menu",
@@ -1207,8 +1207,8 @@
     {
       "id": "m-ride2-6-4-1-1-1",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-6-4-1-1-1.gif",
       "reachableInputs": [
         "menu",
@@ -1227,8 +1227,8 @@
     {
       "id": "m-ride2-6-4-1-2",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-6-4-1-2.gif",
       "reachableInputs": [
         "menu",
@@ -1247,8 +1247,8 @@
     {
       "id": "m-ride2-6-4-1-2-1",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-6-4-1-2-1.gif",
       "reachableInputs": [
         "menu",
@@ -1267,8 +1267,8 @@
     {
       "id": "m-ride2-6-4-1-3",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-6-4-1-3.gif",
       "reachableInputs": [
         "menu",
@@ -1287,8 +1287,8 @@
     {
       "id": "m-ride2-6-4-1-3-1",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-6-4-1-3-1.gif",
       "reachableInputs": [
         "menu",
@@ -1307,8 +1307,8 @@
     {
       "id": "m-ride2-6-4-1-4",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-6-4-1-4.gif",
       "reachableInputs": [
         "menu",
@@ -1327,8 +1327,8 @@
     {
       "id": "m-ride2-6-4-1-4-1",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-6-4-1-4-1.gif",
       "reachableInputs": [
         "menu",
@@ -1347,8 +1347,8 @@
     {
       "id": "m-ride2-6-4-2",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-6-4-2.gif",
       "reachableInputs": [
         "menu",
@@ -1367,8 +1367,8 @@
     {
       "id": "m-ride2-6-4-3",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-6-4-3.gif",
       "reachableInputs": [
         "menu",
@@ -1387,8 +1387,8 @@
     {
       "id": "m-ride2-6-4-4",
       "family": "ride-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-ride2-6-4-4.gif",
       "reachableInputs": [
         "menu",
@@ -1407,8 +1407,8 @@
     {
       "id": "m-set3-1",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-1.gif",
       "reachableInputs": [
         "menu",
@@ -1427,8 +1427,8 @@
     {
       "id": "m-set3-2",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-2.gif",
       "reachableInputs": [
         "menu",
@@ -1447,8 +1447,8 @@
     {
       "id": "m-set3-2-1",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-2-1.gif",
       "reachableInputs": [
         "menu",
@@ -1467,8 +1467,8 @@
     {
       "id": "m-set3-2-1-1",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-2-1-1.gif",
       "reachableInputs": [
         "menu",
@@ -1487,8 +1487,8 @@
     {
       "id": "m-set3-2-2",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-2-2.gif",
       "reachableInputs": [
         "menu",
@@ -1507,8 +1507,8 @@
     {
       "id": "m-set3-2-2-1",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-2-2-1.gif",
       "reachableInputs": [
         "menu",
@@ -1527,8 +1527,8 @@
     {
       "id": "m-set3-2-3",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-2-3.gif",
       "reachableInputs": [
         "menu",
@@ -1547,8 +1547,8 @@
     {
       "id": "m-set3-2-3-1",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-2-3-1.gif",
       "reachableInputs": [
         "menu",
@@ -1567,8 +1567,8 @@
     {
       "id": "m-set3-2-4",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-2-4.gif",
       "reachableInputs": [
         "menu",
@@ -1587,8 +1587,8 @@
     {
       "id": "m-set3-2-4-1",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-2-4-1.gif",
       "reachableInputs": [
         "menu",
@@ -1607,8 +1607,8 @@
     {
       "id": "m-set3-2-5",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-2-5.gif",
       "reachableInputs": [
         "menu",
@@ -1627,8 +1627,8 @@
     {
       "id": "m-set3-2-5-1",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-2-5-1.gif",
       "reachableInputs": [
         "menu",
@@ -1647,8 +1647,8 @@
     {
       "id": "m-set3-2-6",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-2-6.gif",
       "reachableInputs": [
         "menu",
@@ -1667,8 +1667,8 @@
     {
       "id": "m-set3-2-6-1",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-2-6-1.gif",
       "reachableInputs": [
         "menu",
@@ -1687,8 +1687,8 @@
     {
       "id": "m-set3-2-7",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-2-7.gif",
       "reachableInputs": [
         "menu",
@@ -1707,8 +1707,8 @@
     {
       "id": "m-set3-3",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-3.gif",
       "reachableInputs": [
         "menu",
@@ -1727,8 +1727,8 @@
     {
       "id": "m-set3-3-1",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-3-1.gif",
       "reachableInputs": [
         "menu",
@@ -1747,8 +1747,8 @@
     {
       "id": "m-set3-3-1-1",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-3-1-1.gif",
       "reachableInputs": [
         "menu",
@@ -1767,8 +1767,8 @@
     {
       "id": "m-set3-3-2",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-3-2.gif",
       "reachableInputs": [
         "menu",
@@ -1787,8 +1787,8 @@
     {
       "id": "m-set3-3-2-1",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-3-2-1.gif",
       "reachableInputs": [
         "menu",
@@ -1807,8 +1807,8 @@
     {
       "id": "m-set3-3-3",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-3-3.gif",
       "reachableInputs": [
         "menu",
@@ -1827,8 +1827,8 @@
     {
       "id": "m-set3-3-3-1",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-3-3-1.gif",
       "reachableInputs": [
         "menu",
@@ -1847,8 +1847,8 @@
     {
       "id": "m-set3-3-4",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-3-4.gif",
       "reachableInputs": [
         "menu",
@@ -1867,8 +1867,8 @@
     {
       "id": "m-set3-3-4-1",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-3-4-1.gif",
       "reachableInputs": [
         "menu",
@@ -1887,8 +1887,8 @@
     {
       "id": "m-set3-3-5",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-3-5.gif",
       "reachableInputs": [
         "menu",
@@ -1907,8 +1907,8 @@
     {
       "id": "m-set3-3-5-1",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-3-5-1.gif",
       "reachableInputs": [
         "menu",
@@ -1927,8 +1927,8 @@
     {
       "id": "m-set3-3-6",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-3-6.gif",
       "reachableInputs": [
         "menu",
@@ -1947,8 +1947,8 @@
     {
       "id": "m-set3-3-6-1",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-3-6-1.gif",
       "reachableInputs": [
         "menu",
@@ -1967,8 +1967,8 @@
     {
       "id": "m-set3-3-7",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-3-7.gif",
       "reachableInputs": [
         "menu",
@@ -1987,8 +1987,8 @@
     {
       "id": "m-set3-3-7-1",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-3-7-1.gif",
       "reachableInputs": [
         "menu",
@@ -2007,8 +2007,8 @@
     {
       "id": "m-set3-3-8",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-3-8.gif",
       "reachableInputs": [
         "menu",
@@ -2027,8 +2027,8 @@
     {
       "id": "m-set3-4",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-4.gif",
       "reachableInputs": [
         "menu",
@@ -2047,8 +2047,8 @@
     {
       "id": "m-set3-4-1",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-4-1.gif",
       "reachableInputs": [
         "menu",
@@ -2067,8 +2067,8 @@
     {
       "id": "m-set3-4-1-1",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-4-1-1.gif",
       "reachableInputs": [
         "menu",
@@ -2087,8 +2087,8 @@
     {
       "id": "m-set3-4-2",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-4-2.gif",
       "reachableInputs": [
         "menu",
@@ -2107,8 +2107,8 @@
     {
       "id": "m-set3-4-2-1",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-4-2-1.gif",
       "reachableInputs": [
         "menu",
@@ -2127,8 +2127,8 @@
     {
       "id": "m-set3-4-3",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-4-3.gif",
       "reachableInputs": [
         "menu",
@@ -2147,8 +2147,8 @@
     {
       "id": "m-set3-4-3-1",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-4-3-1.gif",
       "reachableInputs": [
         "menu",
@@ -2167,8 +2167,8 @@
     {
       "id": "m-set3-4-4",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-4-4.gif",
       "reachableInputs": [
         "menu",
@@ -2187,8 +2187,8 @@
     {
       "id": "m-set3-4-4-1",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-4-4-1.gif",
       "reachableInputs": [
         "menu",
@@ -2207,8 +2207,8 @@
     {
       "id": "m-set3-4-5",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-4-5.gif",
       "reachableInputs": [
         "menu",
@@ -2227,8 +2227,8 @@
     {
       "id": "m-set3-4-5-1",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-4-5-1.gif",
       "reachableInputs": [
         "menu",
@@ -2247,8 +2247,8 @@
     {
       "id": "m-set3-4-6",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-4-6.gif",
       "reachableInputs": [
         "menu",
@@ -2267,8 +2267,8 @@
     {
       "id": "m-set3-4-6-1",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-4-6-1.gif",
       "reachableInputs": [
         "menu",
@@ -2287,8 +2287,8 @@
     {
       "id": "m-set3-4-7",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-4-7.gif",
       "reachableInputs": [
         "menu",
@@ -2307,8 +2307,8 @@
     {
       "id": "m-set3-5",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-5.gif",
       "reachableInputs": [
         "menu",
@@ -2327,8 +2327,8 @@
     {
       "id": "m-set3-5-1",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-5-1.gif",
       "reachableInputs": [
         "menu",
@@ -2347,8 +2347,8 @@
     {
       "id": "m-set3-5-1-1",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-5-1-1.gif",
       "reachableInputs": [
         "menu",
@@ -2367,8 +2367,8 @@
     {
       "id": "m-set3-5-1-1-1",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-5-1-1-1.gif",
       "reachableInputs": [
         "menu",
@@ -2387,8 +2387,8 @@
     {
       "id": "m-set3-5-1-2",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-5-1-2.gif",
       "reachableInputs": [
         "menu",
@@ -2407,8 +2407,8 @@
     {
       "id": "m-set3-5-1-2-1",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-5-1-2-1.gif",
       "reachableInputs": [
         "menu",
@@ -2427,8 +2427,8 @@
     {
       "id": "m-set3-5-1-3",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-5-1-3.gif",
       "reachableInputs": [
         "menu",
@@ -2447,8 +2447,8 @@
     {
       "id": "m-set3-5-1-3-1",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-5-1-3-1.gif",
       "reachableInputs": [
         "menu",
@@ -2467,8 +2467,8 @@
     {
       "id": "m-set3-5-1-4",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-5-1-4.gif",
       "reachableInputs": [
         "menu",
@@ -2487,8 +2487,8 @@
     {
       "id": "m-set3-5-1-5",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-5-1-5.gif",
       "reachableInputs": [
         "menu",
@@ -2507,8 +2507,8 @@
     {
       "id": "m-set3-5-1-6",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-5-1-6.gif",
       "reachableInputs": [
         "menu",
@@ -2527,8 +2527,8 @@
     {
       "id": "m-set3-5-1-7",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-5-1-7.gif",
       "reachableInputs": [
         "menu",
@@ -2547,8 +2547,8 @@
     {
       "id": "m-set3-5-2",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-5-2.gif",
       "reachableInputs": [
         "menu",
@@ -2567,8 +2567,8 @@
     {
       "id": "m-set3-5-3",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-5-3.gif",
       "reachableInputs": [
         "menu",
@@ -2587,8 +2587,8 @@
     {
       "id": "m-set3-6",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-6.gif",
       "reachableInputs": [
         "menu",
@@ -2607,8 +2607,8 @@
     {
       "id": "m-set3-6-1",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-6-1.gif",
       "reachableInputs": [
         "menu",
@@ -2627,8 +2627,8 @@
     {
       "id": "m-set3-6-1-1",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-6-1-1.gif",
       "reachableInputs": [
         "menu",
@@ -2647,8 +2647,8 @@
     {
       "id": "m-set3-6-2",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-6-2.gif",
       "reachableInputs": [
         "menu",
@@ -2667,8 +2667,8 @@
     {
       "id": "m-set3-6-2-1",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-6-2-1.gif",
       "reachableInputs": [
         "menu",
@@ -2687,8 +2687,8 @@
     {
       "id": "m-set3-6-3",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-6-3.gif",
       "reachableInputs": [
         "menu",
@@ -2707,8 +2707,8 @@
     {
       "id": "m-set3-6-3-1",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-6-3-1.gif",
       "reachableInputs": [
         "menu",
@@ -2727,8 +2727,8 @@
     {
       "id": "m-set3-6-4",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-6-4.gif",
       "reachableInputs": [
         "menu",
@@ -2747,8 +2747,8 @@
     {
       "id": "m-set3-6-4-1",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-6-4-1.gif",
       "reachableInputs": [
         "menu",
@@ -2767,8 +2767,8 @@
     {
       "id": "m-set3-6-5",
       "family": "settings-menu",
-      "renderer": "legacy-image",
-      "status": "comparison-fallback",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
       "legacyScreen": "assets/screens/m-set3-6-5.gif",
       "reachableInputs": [
         "menu",

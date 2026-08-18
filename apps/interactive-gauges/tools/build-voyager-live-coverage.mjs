@@ -2,6 +2,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { VOYAGER_LIVE_STATE_IDS } from "../voyager-live-screens.js";
+import { VOYAGER_MENU_STATE_IDS } from "../voyager-menu-registry.js";
 
 const toolDirectory = dirname(fileURLToPath(import.meta.url));
 const appDirectory = join(toolDirectory, "..");
@@ -25,13 +26,19 @@ function familyFor(state) {
   return "unclassified-legacy";
 }
 
+const liveStateIds = new Set([...VOYAGER_LIVE_STATE_IDS, ...VOYAGER_MENU_STATE_IDS]);
+
 const states = Object.values(manifest.states)
   .sort((a, b) => a.id.localeCompare(b.id))
   .map((state) => ({
     id: state.id,
     family: familyFor(state),
-    renderer: VOYAGER_LIVE_STATE_IDS.has(state.id) ? "live-svg" : "legacy-image",
-    status: VOYAGER_LIVE_STATE_IDS.has(state.id) ? "pass-2-live" : "comparison-fallback",
+    renderer: liveStateIds.has(state.id) ? "live-svg" : "legacy-image",
+    status: VOYAGER_LIVE_STATE_IDS.has(state.id)
+      ? "pass-2-live"
+      : VOYAGER_MENU_STATE_IDS.has(state.id)
+        ? "pass-3-live"
+        : "comparison-fallback",
     legacyScreen: state.screen,
     reachableInputs: Object.entries(state.transitions)
       .filter(([, target]) => target !== null)

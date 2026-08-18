@@ -1,0 +1,205 @@
+const escapeMarkup = (value) => String(value ?? "")
+  .replaceAll("&", "&amp;")
+  .replaceAll("<", "&lt;")
+  .replaceAll(">", "&gt;")
+  .replaceAll('"', "&quot;");
+
+function sectionChrome(section) {
+  const tabs = [
+    { id: "main", label: "MAIN", y: 0 },
+    { id: "ride", label: "RIDE", y: 43 },
+    { id: "set", label: "SET", y: 260 },
+  ];
+  const dividers = [86, 129, 172, 215];
+  return `
+    <g aria-hidden="true">
+      <path class="voyager-menu__rail" d="M0 0H67V303H0Z" />
+      ${dividers.map((y) => `<path class="voyager-menu__rail-line" d="M0 ${y}H67" />`).join("")}
+      ${tabs.map((tab) => `
+        <g>
+          ${tab.id === section ? `<path class="voyager-menu__rail-active" d="M0 ${tab.y}H67V${tab.y + 43}H0Z" />` : ""}
+          <text class="voyager-live__text voyager-live__text--medium${tab.id === section ? " voyager-live__text--inverse" : ""}" x="33" y="${tab.y + 29}" text-anchor="middle">${tab.label}</text>
+        </g>`).join("")}
+      <path class="voyager-menu__rail-notch" d="M67 20l12 13-12 13M67 63l12 13-12 13M67 240l12 13-12 13" />
+    </g>`;
+}
+
+function titleMarkup(title, x = 285, y = 31) {
+  return `
+    <text class="voyager-live__text voyager-menu__title" x="${x}" y="${y}" text-anchor="middle">${escapeMarkup(title)}</text>
+    <path class="voyager-menu__rule" d="M78 ${y + 10}H454" />`;
+}
+
+function rowsMarkup(definition, { left = 70, top = 57, width = 376, lineHeight = 25 } = {}) {
+  let visualRow = 0;
+  return definition.rows.map((row, sourceIndex) => {
+    if (row.spacer) {
+      visualRow += 0.62;
+      return "";
+    }
+    const y = top + visualRow * lineHeight;
+    const selected = sourceIndex === definition.selectedIndex;
+    visualRow += 1;
+    return `
+      <g data-menu-row="${sourceIndex}">
+        ${selected ? `<rect class="voyager-menu__selection" x="${left - 12}" y="${y - 17}" width="${width + 4}" height="22" />` : ""}
+        <text class="voyager-live__text voyager-menu__row${selected ? " voyager-live__text--inverse" : ""}" x="${left}" y="${y}">${escapeMarkup(row.label)}</text>
+        ${row.value ? `<text class="voyager-live__text voyager-menu__row${selected ? " voyager-live__text--inverse" : ""}" x="${left + width}" y="${y}" text-anchor="end">${escapeMarkup(row.value)}</text>` : ""}
+        ${row.meter ? `
+          <rect class="voyager-menu__meter" x="${left + 202}" y="${y - 15}" width="${width - 205}" height="17" />
+          <rect class="voyager-menu__meter-fill" x="${left + 204}" y="${y - 13}" width="${Math.round((width - 209) * row.meter)}" height="13" />` : ""}
+      </g>`;
+  }).join("");
+}
+
+function menuScreen(definition) {
+  return `
+    <rect class="voyager-live__surface" width="504" height="303" />
+    ${sectionChrome(definition.section)}
+    ${titleMarkup(definition.title, 285, 31)}
+    ${rowsMarkup(definition, { left: 91, top: 67, width: 342, lineHeight: 25 })}`;
+}
+
+function panelScreen(definition) {
+  const lineHeight = definition.compact ? 20 : 24;
+  return `
+    <rect class="voyager-live__surface" width="504" height="303" />
+    ${sectionChrome(definition.section)}
+    <rect class="voyager-menu__panel" x="39" y="18" width="426" height="278" />
+    ${titleMarkup(definition.title, 252, 43)}
+    ${rowsMarkup(definition, { left: 70, top: definition.compact ? 78 : 81, width: 344, lineHeight })}`;
+}
+
+function modalFrame(definition, innerMarkup, { x = 77, y = 49, width = 350, height = 225 } = {}) {
+  return `
+    <rect class="voyager-live__surface" width="504" height="303" />
+    ${sectionChrome(definition.section)}
+    <rect class="voyager-menu__modal-shadow" x="39" y="20" width="426" height="276" />
+    <rect class="voyager-menu__modal" x="${x}" y="${y}" width="${width}" height="${height}" />
+    <text class="voyager-live__text voyager-menu__title" x="252" y="${y + 34}" text-anchor="middle">${escapeMarkup(definition.title)}</text>
+    <path class="voyager-menu__rule" d="M${x + 37} ${y + 48}H${x + width - 37}" />
+    ${innerMarkup}`;
+}
+
+function noteLines(lines, startY, className = "voyager-menu__note") {
+  const normalized = Array.isArray(lines) ? lines : [lines];
+  return normalized.filter(Boolean).map((line, index) =>
+    `<text class="voyager-live__text ${className}" x="252" y="${startY + index * 20}" text-anchor="middle">${escapeMarkup(line)}</text>`,
+  ).join("");
+}
+
+function confirmModal(definition) {
+  const startY = definition.lines.length > 2 ? 124 : 136;
+  return modalFrame(definition, `
+    ${noteLines(definition.lines, startY, "voyager-menu__confirm-copy")}
+    <path class="voyager-menu__choice-arrow" d="M178 215l14 10h-28Z" />
+    <rect class="voyager-menu__button voyager-menu__button--active" x="143" y="228" width="100" height="34" />
+    <text class="voyager-live__text voyager-menu__button-text voyager-live__text--inverse" x="193" y="251" text-anchor="middle">CANCEL</text>
+    <rect class="voyager-menu__button" x="263" y="228" width="100" height="34" />
+    <text class="voyager-live__text voyager-menu__button-text" x="313" y="251" text-anchor="middle">OK</text>`);
+}
+
+function noticeModal(definition) {
+  return modalFrame(definition, `
+    ${noteLines(definition.lines, 128, "voyager-menu__confirm-copy")}
+    <path class="voyager-menu__choice-arrow" d="M252 218l14 10h-28Z" />
+    <rect class="voyager-menu__button voyager-menu__button--active" x="202" y="231" width="100" height="34" />
+    <text class="voyager-live__text voyager-menu__button-text voyager-live__text--inverse" x="252" y="254" text-anchor="middle">OK</text>`);
+}
+
+function settingsModal(definition) {
+  const top = 109;
+  const lineHeight = definition.scroll ? 24 : 28;
+  const visibleOptions = definition.scroll ? definition.options.slice(0, 5) : definition.options;
+  const options = visibleOptions.map((option, index) => {
+    const y = top + index * lineHeight;
+    const selected = index === definition.selectedIndex;
+    return `
+      ${selected ? `<rect class="voyager-menu__selection" x="99" y="${y - 18}" width="306" height="22" />` : ""}
+      <text class="voyager-live__text voyager-menu__row${selected ? " voyager-live__text--inverse" : ""}" x="252" y="${y}" text-anchor="middle">${escapeMarkup(option)}</text>`;
+  }).join("");
+  const noteY = definition.scroll ? 247 : Math.min(250, top + visibleOptions.length * lineHeight + 18);
+  return modalFrame(definition, `
+    ${options}
+    ${definition.scroll ? `<rect class="voyager-menu__scroll-track" x="399" y="102" width="12" height="116" /><rect class="voyager-menu__scroll-thumb" x="401" y="105" width="8" height="35" />` : ""}
+    ${definition.note ? noteLines(definition.note, noteY) : ""}`);
+}
+
+function slotInputModal(definition) {
+  const value = escapeMarkup(definition.value);
+  return modalFrame(definition, `
+    <text class="voyager-live__text voyager-menu__slot-value" x="252" y="151" text-anchor="middle">${value}</text>
+    <path class="voyager-menu__slot-underline" d="M181 161H323" />
+    <path class="voyager-menu__slot-cursor" d="M${214 + definition.activeDigit * 12} 117h18v43h-18Z" />
+    ${definition.note ? noteLines(definition.note, 196) : ""}`);
+}
+
+function brightnessModal(definition) {
+  const barWidth = 280;
+  const fill = barWidth * definition.value / 100;
+  return modalFrame(definition, `
+    <rect class="voyager-menu__brightness-track" x="112" y="111" width="${barWidth}" height="43" />
+    <rect class="voyager-menu__brightness-fill" x="115" y="114" width="${fill - 3}" height="37" />
+    <line class="voyager-menu__brightness-thumb" x1="${112 + fill}" y1="111" x2="${112 + fill}" y2="154" />
+    <text class="voyager-live__text voyager-menu__slot-value" x="252" y="222" text-anchor="middle">${definition.value}%</text>`);
+}
+
+function keyboardModal(definition) {
+  return modalFrame(definition, `
+    <rect class="voyager-menu__input" x="58" y="101" width="388" height="34" />
+    <text class="voyager-live__text voyager-menu__keyboard-value" x="70" y="125">${escapeMarkup(definition.value)}|</text>
+    <text class="voyager-live__text voyager-menu__keyboard" x="68" y="162">1 2 3 4 5 6 7 8 9 0 - +</text>
+    <text class="voyager-live__text voyager-menu__keyboard" x="68" y="184">Q W E R T Y U I O P ! °</text>
+    <text class="voyager-live__text voyager-menu__keyboard" x="68" y="206">A S D F G H J K L : “ ’</text>
+    <text class="voyager-live__text voyager-menu__keyboard" x="68" y="228">Z X C V B N M _ ◀ ▶ DEL</text>
+    <path class="voyager-menu__choice-arrow" d="M178 235l14 10h-28Z" />
+    <rect class="voyager-menu__button voyager-menu__button--active" x="143" y="248" width="100" height="34" />
+    <text class="voyager-live__text voyager-menu__button-text voyager-live__text--inverse" x="193" y="271" text-anchor="middle">CANCEL</text>
+    <rect class="voyager-menu__button" x="263" y="248" width="100" height="34" />
+    <text class="voyager-live__text voyager-menu__button-text" x="313" y="271" text-anchor="middle">OK</text>`, { x: 39, y: 39, width: 426, height: 250 });
+}
+
+function waypointMapModal(definition) {
+  const confirm = definition.mode.includes("confirm");
+  const crosshair = definition.mode === "crosshair";
+  return `
+    <rect class="voyager-live__surface" width="504" height="303" />
+    ${sectionChrome(definition.section)}
+    <rect class="voyager-menu__panel" x="39" y="18" width="426" height="278" />
+    ${titleMarkup(definition.title, 252, 43)}
+    <clipPath id="voyager-menu-map-clip"><rect x="60" y="60" width="384" height="174" /></clipPath>
+    <g clip-path="url(#voyager-menu-map-clip)">
+      <path class="voyager-menu__map-route" data-menu-route />
+      <path class="voyager-menu__map-recorded" data-menu-recorded />
+      <g data-menu-waypoints></g>
+      <path class="voyager-menu__map-position" data-menu-position d="M0-10 8 9 0 4-8 9Z" />
+      <g data-menu-pending-waypoint></g>
+    </g>
+    ${crosshair ? `<path class="voyager-menu__crosshair" d="M232 147h40M252 127v40" />` : ""}
+    ${confirm ? `
+      <path class="voyager-menu__choice-arrow" d="M178 245l14 10h-28Z" />
+      <rect class="voyager-menu__button voyager-menu__button--active" x="143" y="258" width="100" height="34" />
+      <text class="voyager-live__text voyager-menu__button-text voyager-live__text--inverse" x="193" y="281" text-anchor="middle">CANCEL</text>
+      <rect class="voyager-menu__button" x="263" y="258" width="100" height="34" />
+      <text class="voyager-live__text voyager-menu__button-text" x="313" y="281" text-anchor="middle">OK</text>` : `
+      <text class="voyager-live__text voyager-menu__note" x="252" y="271" text-anchor="middle">${definition.mode === "select-delete" ? "SELECT WAYPOINT · ENTER TO DELETE" : crosshair ? "MOVE CROSSHAIRS · ENTER TO CONFIRM" : "SELECT WAYPOINT · ENTER TO CONFIRM"}</text>`}`;
+}
+
+export function renderVoyagerMenuMarkup(definition) {
+  const renderers = {
+    menu: menuScreen,
+    panel: panelScreen,
+    confirm: confirmModal,
+    notice: noticeModal,
+    "settings-modal": settingsModal,
+    "slot-input": slotInputModal,
+    brightness: brightnessModal,
+    keyboard: keyboardModal,
+    "waypoint-map": waypointMapModal,
+  };
+  return renderers[definition.kind](definition);
+}
+
+export function voyagerMenuAriaLabel(definition) {
+  return `Live Voyager ${definition.title.toLowerCase()} ${definition.kind.replaceAll("-", " ")}`;
+}
