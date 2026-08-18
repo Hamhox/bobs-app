@@ -2,6 +2,7 @@ const VOYAGER_UI_ICON_SPRITE = "/apps/interactive-gauges/assets/ui/voyager-ui-ic
 
 const ICON_VIEW_BOXES = Object.freeze({
   "battery-24pt-empty": [83.676, 108.862, 10.483, 5.615],
+  "battery-24pt-full": [129.728, 108.862, 10.483, 5.615],
   "btn-cancel-disabled": [137.94, 51.285, 32.947, 10.483],
   "btn-cancel-selected": [209.825, 47.914, 32.947, 13.854],
   "btn-ok-disabled": [103.495, 51.285, 32.948, 10.483],
@@ -32,6 +33,8 @@ const ICON_VIEW_BOXES = Object.freeze({
   "screen-indicator-16pt-1-narrow": [174.431, 95.539, 4.119, 5.241],
   "screen-indicator-16pt-2": [151.219, 95.539, 4.492, 5.242],
   "screen-indicator-16pt-2-narrow": [166.943, 95.539, 4.118, 5.242],
+  "signal-24pt-4bars": [191.504, 108.862, 10.483, 5.614],
+  "throbber-24pt": [61.868, 107.738, 5.99, 7.113],
 });
 
 function numericAttribute(value) {

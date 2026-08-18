@@ -142,6 +142,10 @@ class VoyagerRideEngine {
     return this.#telemetry;
   }
 
+  get playing() {
+    return this.#playing;
+  }
+
   selectRide(trackId, { reset = true } = {}) {
     const nextTrack = this.#tracks.get(trackId);
     if (!nextTrack) throw new Error(`Unknown Voyager GPX ride: ${trackId}`);
@@ -270,7 +274,7 @@ function tabsMarkup(activeTab) {
       : `<text class="voyager-live__text voyager-live__text--medium${active ? " voyager-live__text--inverse" : ""}" x="33" y="${y + 29}" text-anchor="middle">${tab.label}</text>`;
     return `
       <g data-tab="${tab.id}">
-        <rect class="voyager-live__tab${active ? " voyager-live__tab--active" : ""}" x="0" y="${y}" width="67" height="43" />
+        <path class="voyager-live__tab${active ? " voyager-live__tab--active" : ""}" d="M0 ${y + 8} 8 ${y}H67V${y + 43}H0Z" />
         ${content}
       </g>`;
   }).join("");
@@ -284,6 +288,38 @@ function sideArrowsMarkup(tabsVisible) {
 
 function screenChromeMarkup(screen, variant) {
   return `${variant.tabsVisible ? tabsMarkup(screen.id) : ""}${variant.sideArrows ? sideArrowsMarkup(variant.tabsVisible) : ""}`;
+}
+
+function statusBarMarkup(variant) {
+  const contentLeft = variant.tabsVisible ? 67 : 0;
+  return `
+    <g class="voyager-live__status-bar">
+      ${voyagerUiIcon("icon-16pt-record", {
+        x: contentLeft + 11,
+        y: 8,
+        width: 21,
+        height: 21,
+        attributes: 'data-live-logging-record=""',
+      })}
+      ${voyagerUiIcon("icon-16pt-pause", {
+        x: contentLeft + 13,
+        y: 9,
+        width: 18,
+        height: 19,
+        attributes: 'data-live-logging-pause=""',
+      })}
+      ${voyagerUiIcon("throbber-24pt", {
+        x: contentLeft + 38,
+        y: 7,
+        width: 23,
+        height: 25,
+        className: "voyager-live__status-throbber",
+      })}
+      ${voyagerUiIcon("battery-24pt-full", { x: contentLeft + 70, y: 10, width: 34, height: 19 })}
+      ${voyagerUiIcon("signal-24pt-4bars", { x: contentLeft + 112, y: 10, width: 31, height: 19 })}
+      <text class="voyager-live__text voyager-live__text--status" x="${contentLeft + 242}" y="34" text-anchor="middle" data-live-time>12:30</text>
+      <text class="voyager-live__text voyager-live__text--status" x="493" y="34" text-anchor="end" data-live-temperature>75°F</text>
+    </g>`;
 }
 
 function startupMarkup() {
@@ -318,13 +354,13 @@ function mainMarkup(screen, variant) {
       <rect class="voyager-live__surface" width="504" height="303" />
       ${screenChromeMarkup(screen, variant)}
       <g transform="translate(${hiddenOffset} 0)">
-        ${screenIndicatorMarkup(2)}
-        <text class="voyager-live__text voyager-live__text--medium" x="283" y="35" text-anchor="middle">ODOMETER KM</text>
-        <text class="voyager-live__text voyager-live__text--readout" x="283" y="98" text-anchor="middle" data-live-odometer>1200</text>
-        <text class="voyager-live__text voyager-live__text--medium" x="173" y="137" text-anchor="middle">MAX SPD KM/H</text>
-        <text class="voyager-live__text voyager-live__text--readout" x="173" y="191" text-anchor="middle" data-live-max-kph>25</text>
-        <text class="voyager-live__text voyager-live__text--medium" x="397" y="137" text-anchor="middle">AVG SPD KM/H</text>
-        <text class="voyager-live__text voyager-live__text--readout" x="397" y="191" text-anchor="middle" data-live-avg-kph>12</text>
+        <text class="voyager-live__text voyager-live__text--medium" x="283" y="27" text-anchor="middle">ODOMETER MI</text>
+        <text class="voyager-live__text voyager-live__text--readout" x="283" y="99" text-anchor="middle" data-live-odometer-miles>523.7</text>
+        <text class="voyager-live__text voyager-live__text--medium" x="173" y="137" text-anchor="middle">MAX SPD MPH</text>
+        <text class="voyager-live__text voyager-live__text--readout" x="173" y="191" text-anchor="middle" data-live-max-speed>25</text>
+        <path class="voyager-live__line" d="M316 116V185" />
+        <text class="voyager-live__text voyager-live__text--medium" x="397" y="137" text-anchor="middle">AVG SPD MPH</text>
+        <text class="voyager-live__text voyager-live__text--readout" x="397" y="191" text-anchor="middle" data-live-avg-speed>12</text>
         <text class="voyager-live__text voyager-live__text--medium" x="283" y="235" text-anchor="middle">ACCUMULATED RUN TIME</text>
         <text class="voyager-live__text voyager-live__text--large voyager-live__text--clock" x="283" y="291" text-anchor="middle" data-live-elapsed>00:00:00</text>
       </g>`;
@@ -332,22 +368,19 @@ function mainMarkup(screen, variant) {
   return `
     <rect class="voyager-live__surface" width="504" height="303" />
     ${screenChromeMarkup(screen, variant)}
+    ${statusBarMarkup(variant)}
     <g transform="translate(${hiddenOffset} 0)">
-      ${screenIndicatorMarkup(1)}
-      <text class="voyager-live__text voyager-live__text--medium" x="323" y="28" data-live-temperature>75°F</text>
-      <text class="voyager-live__text voyager-live__text--medium" x="393" y="28" data-live-time>12:30</text>
-      ${voyagerUiIcon("icon-16pt-pause", { x: 486, y: 13, width: 17, height: 20 })}
-      <text class="voyager-live__text voyager-live__text--medium" x="454" y="64" data-live-heading-label>NE</text>
-      <text class="voyager-live__text" x="156" y="71">SPD MPH</text>
-      <text class="voyager-live__text voyager-live__text--large" x="151" y="160" data-live-speed>28</text>
-      ${compassMarkup({ cx: 382, cy: 130, radius: 69 })}
+      <text class="voyager-live__text voyager-live__text--medium" x="198" y="67" text-anchor="middle">MPH</text>
+      <rect class="voyager-live__speed-window" x="160" y="76" width="78" height="108" rx="13" />
+      <text class="voyager-live__text voyager-live__text--speed voyager-live__text--inverse" x="199" y="169" text-anchor="middle" data-live-speed>28</text>
+      ${compassMarkup({ cx: 399, cy: 133, radius: 73 })}
       <text class="voyager-live__text" x="100" y="236">ALT FT</text>
       <text class="voyager-live__text voyager-live__text--metric" x="91" y="286" data-live-altitude>1089</text>
-      <text class="voyager-live__text" x="261" y="236">DST KM</text>
+      <text class="voyager-live__text" x="261" y="236">DST MI</text>
       <text class="voyager-live__text voyager-live__text--metric" x="254" y="286" data-live-distance>12.0</text>
-      ${temperatureIcon(406, 218, 0.72)}
-      <text class="voyager-live__text" x="447" y="239">°C</text>
-      <text class="voyager-live__text voyager-live__text--metric" x="407" y="286" data-live-celsius>24</text>
+      ${temperatureIcon(408, 213, 0.84)}
+      <text class="voyager-live__text" x="449" y="236">°F</text>
+      <text class="voyager-live__text voyager-live__text--metric" x="407" y="286" data-live-engine-temperature>168</text>
     </g>`;
 }
 
@@ -366,10 +399,11 @@ function controlHintMarkup(interaction) {
 function mapMarkup(screen, variant) {
   const mapLeft = variant.tabsVisible ? 83 : 28;
   const mapRight = variant.interaction ? 446 : 486;
+  const status = variant.interaction ? "" : statusBarMarkup(variant);
   return `
     <rect class="voyager-live__surface" width="504" height="303" />
     ${screenChromeMarkup(screen, variant)}
-    <text class="voyager-live__text voyager-live__text--medium" x="${variant.tabsVisible ? 82 : 12}" y="27" data-live-ride-label>FOREST LOOP</text>
+    ${status}
     <clipPath id="voyager-live-map-clip"><rect x="${mapLeft}" y="40" width="${mapRight - mapLeft}" height="207" /></clipPath>
     <g clip-path="url(#voyager-live-map-clip)">
       <g data-live-map-transform>
@@ -382,11 +416,8 @@ function mapMarkup(screen, variant) {
     ${controlHintMarkup(variant.interaction)}
     <path class="voyager-live__scale-line" d="M${variant.tabsVisible ? 80 : 20} 279v13h142v-13" />
     <text class="voyager-live__text voyager-live__text--medium" x="${variant.tabsVisible ? 126 : 66}" y="286">2 mi</text>
-    <text class="voyager-live__text voyager-live__text--medium" x="${variant.tabsVisible ? 244 : 184}" y="286">N</text>
-    ${voyagerUiIcon("compass-indicator-24pt", { x: variant.tabsVisible ? 266 : 206, y: 273, width: 14, height: 19 })}
-    <text class="voyager-live__text voyager-live__text--medium" x="${variant.tabsVisible ? 307 : 247}" y="286" data-live-temperature>75°F</text>
-    <text class="voyager-live__text voyager-live__text--medium" x="${variant.tabsVisible ? 385 : 325}" y="286" data-live-time>12:30</text>
-    ${voyagerUiIcon("icon-16pt-pause", { x: 477, y: 269, width: 17, height: 20 })}`;
+    <text class="voyager-live__text voyager-live__text--medium" x="${variant.interaction ? 405 : 455}" y="289">N</text>
+    ${voyagerUiIcon("compass-indicator-24pt", { x: variant.interaction ? 427 : 477, y: 274, width: 14, height: 19 })}`;
 }
 
 function graphGridMarkup(left, right, top, bottom) {
@@ -731,21 +762,25 @@ export class VoyagerLiveRuntime {
     setText("[data-live-speed]", String(telemetry.speedMph));
     setText("[data-live-gps-speed]", String(Math.max(0, telemetry.speedMph - 2)));
     setText("[data-live-altitude]", String(telemetry.elevationFeet));
-    setText("[data-live-distance]", telemetry.distanceKm.toFixed(1));
+    setText("[data-live-distance]", (telemetry.distanceKm * 0.621371).toFixed(1));
     setText("[data-live-trip-distance]", String(Math.round(telemetry.distanceKm * 10)));
     setText("[data-live-odometer]", String(Math.round(1200 + telemetry.distanceKm)));
     setText("[data-live-temperature]", `${telemetry.ambientTemperatureF}°F`);
-    setText("[data-live-celsius]", String(Math.round((telemetry.ambientTemperatureF - 32) * 5 / 9)));
+    setText("[data-live-engine-temperature]", String(telemetry.engineTemperatureF));
     setText("[data-live-time]", telemetry.timeLabel);
     setText("[data-live-heading-label]", this.#headingLabel(telemetry.heading));
     setText("[data-live-max-kph]", String(Math.round(telemetry.maxSpeedMph * 1.60934)));
     setText("[data-live-avg-kph]", String(Math.round(telemetry.averageSpeedMph * 1.60934)));
+    setText("[data-live-odometer-miles]", (523.7 + telemetry.distanceKm * 0.621371).toFixed(1));
+    setText("[data-live-max-speed]", String(telemetry.maxSpeedMph));
+    setText("[data-live-avg-speed]", String(telemetry.averageSpeedMph));
     setText("[data-live-elapsed]", telemetry.elapsedLabel);
     setText("[data-live-stopwatch]", telemetry.elapsedLabel);
     setText("[data-live-destination]", String(telemetry.destinationMeters));
     setText("[data-live-latitude]", coordinateLabel(telemetry.latitude, "N", "S"));
     setText("[data-live-longitude]", coordinateLabel(telemetry.longitude, "E", "W"));
     setText("[data-live-ride-label]", telemetry.trackLabel);
+    this.#mount.dataset.logging = this.#ride.playing ? "recording" : "paused";
 
     if (this.#menuState) {
       this.#updateMenuMap();
