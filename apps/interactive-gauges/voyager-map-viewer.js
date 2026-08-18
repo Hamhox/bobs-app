@@ -1,7 +1,8 @@
 const clamp = (value, minimum, maximum) => Math.min(maximum, Math.max(minimum, value));
-const IMAGE_WIDTH = 4195.24;
-const IMAGE_HEIGHT = 6483.58;
+const IMAGE_WIDTH = 4174.02;
+const IMAGE_HEIGHT = 6473.74;
 const POINTER_DRAG_THRESHOLD = 10;
+const MAP_FONT = '8px "Bobs Font 8 Pixel"';
 const PRESETS = {
   overview: { groupId: "regions", label: "Overview" },
   "screen-layout": { groupId: "screen-layout-screens", label: "Screen layout" },
@@ -395,8 +396,13 @@ export class VoyagerMapViewer {
         map.setAttribute("aria-label", "Selectable Voyager screen groups");
         this.#image.replaceChildren(map);
         this.#mapRoot = map;
-        this.#prepareScreenTargets();
-        return map;
+        const fontReady = document.fonts?.load
+          ? document.fonts.load(MAP_FONT, "VOYAGER 184").catch(() => [])
+          : Promise.resolve();
+        return fontReady.then(() => {
+          this.#prepareScreenTargets();
+          return map;
+        });
       })
       .catch(() => {
         this.#loadPromise = null;

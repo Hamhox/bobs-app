@@ -226,7 +226,7 @@ const mapViewer = new VoyagerMapViewer({
   viewport: document.querySelector("#system-map-viewport"),
   image: document.querySelector("#system-map-image"),
   status: document.querySelector("#system-map-status"),
-  source: `${APP_BASE}/assets/system/voyager-screens-b2.svg`,
+  source: `${APP_BASE}/assets/system/voyager-screens-b3.svg`,
 });
 
 for (const opener of document.querySelectorAll("#open-system-map, #open-system-map-preview")) {

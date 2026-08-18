@@ -25,8 +25,9 @@ The checked-in audit currently verifies:
 
 The runtime manifest is `data/voyager-states.json`. Presentation code does not contain historical transition rules.
 
-The architecture viewer uses `assets/system/voyager-screens-b2.svg`, a publication-approved export with named screen,
-menu, flowchart, connector, and region groups. The viewer frames the authored `screen-layout-screens`, `menu-screens`,
+The architecture viewer uses `assets/system/voyager-screens-b3.svg`, a publication-approved, font-backed export with
+named screen, menu, flowchart, connector, and region groups. Its embedded Bob's Font 3.110 web face preserves the artwork
+in both the standalone preview and injected viewer. The viewer frames the authored `screen-layout-screens`, `menu-screens`,
 and `flowchart-screens` groups from their live SVG `getBBox()` measurements. Individual named screen groups are selectable;
 groups that resolve to a manifest state can open that state in the working gauge, while unmatched groups are identified as
 design-only rather than being assigned an uncertain prototype route.
