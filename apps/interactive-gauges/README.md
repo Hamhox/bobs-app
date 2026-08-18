@@ -25,6 +25,32 @@ The checked-in audit currently verifies:
 
 The runtime manifest is `data/voyager-states.json`. Presentation code does not contain historical transition rules.
 
+## Live UI conversion
+
+The live renderer preserves the manifest as the navigation authority and replaces all 28 states in the seven gauge
+families—Main, Map, Temperature, Altitude, User, Navigation, and Satellite—with a reusable `504 x 303` SVG stage in
+`voyager-live-runtime.js`. `voyager-live-screens.js` is the screen registry for tab chrome, primary and secondary views,
+captured map controls, graph interactions, and stable public IDs. Menu, settings, and modal states continue to use their
+approved image captures as a comparison fallback until their data-driven conversion pass.
+
+`data/voyager-live-coverage.json` inventories all 146 known states, their input coverage, composition family, renderer,
+and conversion status; regenerate it with `node tools/build-voyager-live-coverage.mjs` from this app directory.
+
+The live slice uses the publication-approved `voyager-straight-photo.png`. Its measured transparent LCD opening and the
+recalibrated physical-control coordinates are recorded in `assets/device/voyager-screen-placement.json`. The UI always
+retains the historical `504:303` display ratio inside that opening.
+
+The map renderer is deliberately track-only. It draws the current recording and loaded local GPX track/route geometry,
+position, heading, waypoints, scale, and pan/zoom state. It contains no basemap, terrain, tiles, roads, place labels, route
+planning, or third-party map service. The ride engine loads `assets/rides/forest-loop.gpx` and
+`assets/rides/mountain-run.gpx` locally and keeps ride-derived speed, heading, distance, elevation, temperature, graphs,
+and map position synchronized. It supports play, pause, reset, seek, playback speed, and loop behavior. Graph cursor input
+seeks that shared timeline rather than maintaining a disconnected display-only cursor.
+
+The public command accepts stable state IDs and optional ride parameters. For example,
+`navigateToVoyagerState("gauge.altitude.graph", { rideId: "mountain-run", progress: 0.4 })` selects the second local GPX
+and opens its synchronized altitude graph.
+
 The architecture viewer uses `assets/system/voyager-screens-b3.svg`, a publication-approved, font-backed export with
 named screen, menu, flowchart, connector, and region groups. Its embedded Bob's Font 3.110 web face preserves the artwork
 in both the standalone preview and injected viewer. The viewer frames the authored `screen-layout-screens`, `menu-screens`,

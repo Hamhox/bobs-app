@@ -243,7 +243,7 @@
 .voyager-stage {
   position: relative;
   width: 100%;
-  aspect-ratio: 1592 / 889;
+  aspect-ratio: 3750 / 2063;
   margin-inline: auto;
   filter:
     drop-shadow(0 2.5rem 2.5rem rgb(0 0 0 / 0.55))
@@ -268,24 +268,39 @@
 .voyager-screen-opening {
   position: absolute;
   z-index: 1;
-  top: 22.272%;
-  left: 22.99%;
-  width: 53.957%;
-  height: 60.18%;
+  top: 22.055%;
+  left: 24.027%;
+  width: 52.16%;
+  height: 56.665%;
   overflow: hidden;
-  background: #1b1b1b;
+  background: #f3f2ed;
+}
+
+.voyager-screen,
+.voyager-live-screen {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  display: block;
+  width: auto;
+  height: 100%;
+  aspect-ratio: 504 / 303;
+  transform: translateX(-50%);
 }
 
 .voyager-screen {
-  position: absolute;
-  top: 50%;
-  left: 0;
+  image-rendering: auto;
+}
+
+.voyager-live-screen[hidden],
+.voyager-screen[hidden] {
+  display: none;
+}
+
+.voyager-live-screen svg {
   display: block;
   width: 100%;
-  height: auto;
-  aspect-ratio: 504 / 303;
-  transform: translateY(-50%);
-  image-rendering: auto;
+  height: 100%;
 }
 
 .voyager-shell {
@@ -365,24 +380,24 @@
 }
 
 .voyager-control--menu {
-  top: 22.2%;
-  left: 8.55%;
-  width: 8.7%;
-  height: 15.3%;
+  top: 20.7%;
+  left: 7.6%;
+  width: 8.8%;
+  height: 16%;
 }
 
 .voyager-control--back {
-  top: 55.45%;
-  left: 8.55%;
-  width: 8.7%;
-  height: 15.3%;
+  top: 55.35%;
+  left: 7.8%;
+  width: 8.4%;
+  height: 15%;
 }
 
 .voyager-control--up {
-  top: 16.99%;
-  left: 85.68%;
-  width: 5.65%;
-  height: 10.8%;
+  top: 15.2%;
+  left: 86.1%;
+  width: 5.35%;
+  height: 10.4%;
   border-radius: 0.6rem 0.6rem 1rem 1rem;
 }
 
@@ -392,10 +407,10 @@
 }
 
 .voyager-control--left {
-  top: 24.65%;
-  left: 81.47%;
-  width: 5.9%;
-  height: 10.7%;
+  top: 23%;
+  left: 81.4%;
+  width: 5.65%;
+  height: 10.6%;
   border-radius: 0.6rem 1rem 1rem 0.6rem;
 }
 
@@ -406,10 +421,10 @@
 
 .voyager-control--center {
   z-index: 4;
-  top: 24.5%;
-  left: 85.63%;
-  width: 5.75%;
-  height: 10.95%;
+  top: 22.9%;
+  left: 86.15%;
+  width: 5.25%;
+  height: 10.8%;
 }
 
 .voyager-control--center::after {
@@ -417,10 +432,10 @@
 }
 
 .voyager-control--right {
-  top: 24.65%;
-  left: 89.76%;
-  width: 5.9%;
-  height: 10.7%;
+  top: 23%;
+  left: 90.6%;
+  width: 5.65%;
+  height: 10.6%;
   border-radius: 1rem 0.6rem 0.6rem 1rem;
 }
 
@@ -430,10 +445,10 @@
 }
 
 .voyager-control--down {
-  top: 35.32%;
-  left: 85.68%;
-  width: 5.65%;
-  height: 10.8%;
+  top: 31.4%;
+  left: 86.1%;
+  width: 5.35%;
+  height: 10.4%;
   border-radius: 1rem 1rem 0.6rem 0.6rem;
 }
 
@@ -443,10 +458,187 @@
 }
 
 .voyager-control--enter {
-  top: 55.45%;
-  left: 83.03%;
-  width: 8.7%;
-  height: 15.3%;
+  top: 54.75%;
+  left: 83.1%;
+  width: 9%;
+  height: 16%;
+}
+
+.voyager-live__surface {
+  fill: #f5f4ef;
+}
+
+.voyager-live__ink {
+  fill: #242021;
+}
+
+.voyager-live__paper {
+  fill: #f5f4ef;
+}
+
+.voyager-live__line,
+.voyager-live__route,
+.voyager-live__recorded,
+.voyager-live__compass-line,
+.voyager-live__scale-line {
+  fill: none;
+  stroke: #242021;
+  vector-effect: non-scaling-stroke;
+}
+
+.voyager-live__line {
+  stroke-width: 2;
+}
+
+.voyager-live__line--inverse {
+  stroke: #f5f4ef;
+}
+
+.voyager-live__route {
+  stroke-width: 3;
+  stroke-dasharray: 3 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.voyager-live__recorded {
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.45;
+}
+
+.voyager-live__scale-line {
+  stroke-width: 3;
+}
+
+.voyager-live__text {
+  fill: #242021;
+  font-family: "Bobs Font 8 Pixel", monospace;
+  font-size: 16px;
+  font-weight: 400;
+  text-rendering: geometricPrecision;
+}
+
+.voyager-live__text--small {
+  font-size: 12px;
+}
+
+.voyager-live__text--medium {
+  font-size: 20px;
+}
+
+.voyager-live__text--large {
+  font-size: 80px;
+  letter-spacing: -0.04em;
+}
+
+.voyager-live__text--readout {
+  font-size: 58px;
+  letter-spacing: -0.04em;
+}
+
+.voyager-live__text--metric {
+  font-size: 42px;
+  letter-spacing: -0.04em;
+}
+
+.voyager-live__text--inverse {
+  fill: #f5f4ef;
+}
+
+.voyager-live__text--muted {
+  fill: #b8b7b3;
+}
+
+.voyager-live__text--clock {
+  font-size: 58px;
+}
+
+.voyager-live__tab {
+  fill: #f5f4ef;
+  stroke: #242021;
+  stroke-width: 2;
+}
+
+.voyager-live__tab--active {
+  fill: #242021;
+}
+
+.voyager-live__compass-line {
+  stroke-width: 3;
+}
+
+.voyager-live__compass-tick {
+  stroke: #242021;
+  stroke-width: 2;
+}
+
+.voyager-live__compass-shadow {
+  fill: #b8b7b3;
+}
+
+.voyager-live__graph-grid,
+.voyager-live__signal-grid {
+  fill: none;
+  stroke: #242021;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.voyager-live__graph-fill {
+  fill: #b8b7b3;
+}
+
+.voyager-live__graph-line,
+.voyager-live__graph-cursor-line {
+  fill: none;
+  stroke: #242021;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.voyager-live__graph-cursor {
+  fill: rgb(245 244 239 / 0.55);
+  stroke: #242021;
+  stroke-width: 3;
+  vector-effect: non-scaling-stroke;
+}
+
+.voyager-live__satellite-dot {
+  fill: #242021;
+}
+
+.voyager-live__waypoint {
+  fill: #f5f4ef;
+  stroke: #242021;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.voyager-live__position {
+  fill: #242021;
+  stroke: #f5f4ef;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.voyager-live__hint-frame {
+  fill: #242021;
+}
+
+.voyager-live__hint-key {
+  fill: #f5f4ef;
+}
+
+.voyager-live__hint-key.is-pressed {
+  fill: #9e9993;
+}
+
+.voyager-stage[data-renderer="live"] .voyager-screen-opening {
+  box-shadow: inset 0 0 0 1px rgb(36 32 33 / 0.18);
 }
 
 .system-map-section,

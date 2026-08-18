@@ -1,11 +1,13 @@
 import { initializeFontPlayground } from "./font-playground.js";
 import { VoyagerGuide } from "./voyager-guide.js";
+import { VoyagerLiveRuntime } from "./voyager-live-runtime.js";
 import { VoyagerMapViewer } from "./voyager-map-viewer.js";
 import { VoyagerStateEngine } from "./voyager-state-engine.js";
 
 const APP_BASE = "/apps/interactive-gauges";
 const stage = document.querySelector("#voyager-stage");
 const screen = document.querySelector("#voyager-screen");
+const liveScreen = document.querySelector("#voyager-live-screen");
 const stateCode = document.querySelector("#voyager-state-code");
 const timerStatus = document.querySelector("#voyager-timer-status");
 const interactionLive = document.querySelector("#interaction-live");
@@ -21,6 +23,12 @@ const guideElements = {
   controls,
   stage,
 };
+const liveRuntime = new VoyagerLiveRuntime({
+  mount: liveScreen,
+  legacyImage: screen,
+  stage,
+  appBase: APP_BASE,
+});
 
 const preloadCache = new Map();
 let transitionPending = false;
@@ -70,6 +78,7 @@ function guidedPreloadTargets(manifest) {
 }
 
 function pulseControl(action, moved) {
+  liveRuntime.pulseInput(action);
   for (const control of controls.filter((item) => item.dataset.action === action)) {
     if (stage.dataset.guideActive === "true" && !control.hasAttribute("data-guided")) continue;
     control.dataset.pressed = moved ? "true" : "noop";
@@ -81,13 +90,15 @@ function commitState(engine, state, event) {
   const manifest = engine.getManifest();
   screen.src = screenUrl(state);
   screen.alt = `Voyager interface archive state ${state.id}`;
+  liveRuntime.render(state, event);
   stateCode.textContent = state.id;
   timerStatus.textContent = state.autoTransition?.active
     ? `${Math.round(state.autoTransition.delayMs / 1000)} sec`
     : "None";
 
+  const inputPolicyState = manifest.states[liveRuntime.getInputPolicyStateId(state.id)] ?? state;
   for (const control of controls) {
-    const target = state.transitions[control.dataset.action];
+    const target = inputPolicyState.transitions[control.dataset.action];
     const noOp = target === null;
     control.toggleAttribute("data-noop", noOp);
     control.setAttribute("aria-disabled", String(noOp));
@@ -113,15 +124,17 @@ function commitState(engine, state, event) {
 async function dispatchAfterPreload(action, source, engine) {
   if (transitionPending) return null;
   const currentState = engine.getState();
-  const target = currentState.transitions[action];
+  const policyStateId = liveRuntime.getInputPolicyStateId(currentState.id);
+  const policyState = engine.getManifest().states[policyStateId] ?? currentState;
+  const target = policyState.transitions[action];
 
-  if (!target || target === currentState.id) return engine.dispatch(action, source);
+  if (!target || target === currentState.id) return engine.dispatch(action, source, policyStateId);
 
   transitionPending = true;
   stage.setAttribute("aria-busy", "true");
   try {
-    await preloadState(engine.getManifest(), target);
-    return engine.dispatch(action, source);
+    if (!liveRuntime.supports(target)) await preloadState(engine.getManifest(), target);
+    return engine.dispatch(action, source, policyStateId);
   } catch (error) {
     interactionLive.textContent = error.message;
     return null;
@@ -186,14 +199,28 @@ async function initializeVoyager() {
     const response = await fetch(`${APP_BASE}/data/voyager-states.json`);
     if (!response.ok) throw new Error(`Manifest request failed with ${response.status}`);
     const manifest = await response.json();
+    let liveRuntimeError = null;
+    try {
+      await liveRuntime.initialize();
+    } catch (error) {
+      liveRuntimeError = error;
+    }
     const engine = new VoyagerStateEngine(manifest);
     const guide = new VoyagerGuide(engine, guideElements);
+    const navigateToState = async (screenId, source = "public-api", parameters = {}) => {
+      const stateId = liveRuntime.resolveStateId(screenId);
+      if (!manifest.states[stateId]) throw new Error(`Unknown Voyager state: ${screenId}`);
+      if (!liveRuntime.supports(stateId)) await preloadState(manifest, stateId);
+      guide.exit();
+      liveRuntime.applyNavigationParameters(parameters);
+      return engine.reset(stateId, source);
+    };
+    window.navigateToVoyagerState = (screenId, parameters = {}) =>
+      navigateToState(screenId, parameters.source ?? "public-api", parameters);
     mapViewer.connectPrototype(manifest, async (stateId) => {
       stage.setAttribute("aria-busy", "true");
       try {
-        await preloadState(manifest, stateId);
-        guide.exit();
-        engine.reset(stateId, "map-viewer");
+        await navigateToState(stateId, "map-viewer");
         interactionLive.textContent = `Interface map opened archive state ${stateId}.`;
         stage.focus({ preventScroll: true });
         stage.scrollIntoView({
@@ -214,6 +241,10 @@ async function initializeVoyager() {
     await Promise.all(guidedPreloadTargets(manifest).map((stateId) => preloadState(manifest, stateId)));
     document.querySelector("#voyager-load-status").textContent = "Ready";
     enableInterface(engine, guide);
+    if (liveRuntimeError) {
+      stage.dataset.liveError = "true";
+      interactionLive.textContent = `${liveRuntimeError.message} The original Voyager screen captures remain available.`;
+    }
   } catch (error) {
     document.querySelector("#voyager-load-status").textContent = "Unavailable";
     interactionLive.textContent = error.message;

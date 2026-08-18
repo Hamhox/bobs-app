@@ -28,13 +28,14 @@ export class VoyagerStateEngine {
     return () => this.#listeners.delete(listener);
   }
 
-  dispatch(action, source = "control") {
+  dispatch(action, source = "control", policyStateId = null) {
     const state = this.getState();
-    if (!Object.hasOwn(state.transitions, action)) {
+    const policyState = policyStateId ? this.#manifest.states[policyStateId] : state;
+    if (!policyState || !Object.hasOwn(policyState.transitions, action)) {
       return { action, moved: false, reason: "unknown-action", state };
     }
 
-    const target = state.transitions[action];
+    const target = policyState.transitions[action];
     if (!target) {
       const event = { type: "dispatch", action, source, moved: false, from: state.id, to: null };
       this.#notify(event);
