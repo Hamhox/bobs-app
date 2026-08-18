@@ -34,6 +34,7 @@
       <p class="index-position"><span>Interactive</span> / Gauge Archive</p>
       <nav aria-label="Primary navigation">
         <a href="#system-map">Interface map</a>
+        <a href="#field-manual">Field manual</a>
         <a href="#font-lab">Font lab</a>
         <a href="/projects/gauge-evolution">Gauge story</a>
       </nav>
@@ -167,11 +168,99 @@
         </button>
       </section>
 
+      <section class="manual-section" id="field-manual" aria-labelledby="manual-section-title">
+        <header class="manual-section__header">
+          <div>
+            <p class="gauges-eyebrow">03 / Field manual</p>
+            <h2 id="manual-section-title">Eight pages that open the device.</h2>
+          </div>
+          <p>
+            The original 41-page Voyager manual documented the same controls, screens and menus.
+            This compact deck keeps the eight vector pages that connect directly to the live prototype.
+          </p>
+        </header>
+
+        <div class="manual-deck" id="voyager-manual" data-manual-page="controls">
+          <div class="manual-deck__tabs" role="tablist" aria-label="Voyager field manual pages">
+            <button id="manual-tab-controls" data-manual-page="controls" type="button" role="tab" aria-controls="manual-page-panel" aria-selected="true">
+              <span>01</span> Controls
+            </button>
+            <button id="manual-tab-main" data-manual-page="main" type="button" role="tab" aria-controls="manual-page-panel" aria-selected="false" tabindex="-1">
+              <span>02</span> Main
+            </button>
+            <button id="manual-tab-map" data-manual-page="map" type="button" role="tab" aria-controls="manual-page-panel" aria-selected="false" tabindex="-1">
+              <span>03</span> Map
+            </button>
+            <button id="manual-tab-graphs" data-manual-page="graphs" type="button" role="tab" aria-controls="manual-page-panel" aria-selected="false" tabindex="-1">
+              <span>04</span> Graphs
+            </button>
+            <button id="manual-tab-navigation" data-manual-page="navigation" type="button" role="tab" aria-controls="manual-page-panel" aria-selected="false" tabindex="-1">
+              <span>05</span> Navigation
+            </button>
+            <button id="manual-tab-quick-menu" data-manual-page="quick-menu" type="button" role="tab" aria-controls="manual-page-panel" aria-selected="false" tabindex="-1">
+              <span>06</span> Quick menu
+            </button>
+            <button id="manual-tab-waypoints" data-manual-page="waypoints" type="button" role="tab" aria-controls="manual-page-panel" aria-selected="false" tabindex="-1">
+              <span>07</span> Waypoints
+            </button>
+            <button id="manual-tab-settings" data-manual-page="settings" type="button" role="tab" aria-controls="manual-page-panel" aria-selected="false" tabindex="-1">
+              <span>08</span> Settings
+            </button>
+          </div>
+
+          <div class="manual-deck__body">
+            <div class="manual-deck__page-panel" id="manual-page-panel" role="tabpanel" aria-labelledby="manual-tab-controls" tabindex="0">
+              <div class="manual-deck__page-frame" data-manual-frame>
+                <img
+                  id="manual-page-image"
+                  src="/apps/interactive-gauges/assets/manual/manual-controls.svg"
+                  alt="Original Voyager user's manual, page 3: Controls"
+                  width="439"
+                  height="323"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+            </div>
+
+            <aside class="manual-deck__details">
+              <div>
+                <p class="manual-deck__page-number" id="manual-page-number">Page 3 / 41</p>
+                <h3 id="manual-page-title">Hardware, before software.</h3>
+                <p id="manual-page-summary">
+                  The quick-start diagram explains every physical input in one frame, including the five-position navigation switch.
+                </p>
+              </div>
+
+              <div class="manual-deck__handoff">
+                <span id="manual-sync-status">Open the matching live state</span>
+                <button
+                  class="gauges-button gauges-button--primary"
+                  id="manual-open-gauge"
+                  data-voyager-state="gauge.main.primary"
+                  type="button"
+                  disabled
+                ><span id="manual-open-gauge-label">Open Main Gauge</span> <span aria-hidden="true">&#8599;</span></button>
+              </div>
+
+              <footer class="manual-deck__footer">
+                <span id="manual-page-source">Original manual &middot; Controls</span>
+                <div class="manual-deck__paging" aria-label="Manual page navigation">
+                  <button data-manual-previous type="button" aria-label="Previous manual page">&#8592;</button>
+                  <button data-manual-next type="button" aria-label="Next manual page">&#8594;</button>
+                </div>
+              </footer>
+            </aside>
+          </div>
+          <p class="sr-only" id="manual-live" aria-live="polite"></p>
+        </div>
+      </section>
+
       <section class="font-lab-section" id="font-lab" aria-labelledby="font-lab-title">
         <div class="font-playground" id="font-playground">
           <header class="font-playground__header">
             <div>
-              <p class="font-playground__eyebrow">03 / Bob's Typography</p>
+              <p class="font-playground__eyebrow">04 / Bob's Typography</p>
               <h2 id="font-lab-title">Responsive pixel geometry is beautiful,</h2>
               <p class="font-playground__instruction">...engineered for absolute clarity across modern displays and legacy grids alike.</p>
             </div>

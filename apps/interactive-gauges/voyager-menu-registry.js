@@ -259,6 +259,7 @@ export const VOYAGER_MENU_STATE_IDS = new Set(Object.keys(registry));
 export const VOYAGER_MENU_STABLE_STATE_ALIASES = {
   "menu.main": "m-main1-1",
   "menu.ride": "m-ride2-1",
+  "menu.ride.add-waypoint": "m-ride2-2",
   "menu.ride.add-waypoint.current": "m-ride2-2",
   "menu.ride.add-waypoint.coordinates": "m-ride2-3",
   "menu.ride.add-waypoint.crosshair": "m-ride2-4",
@@ -268,8 +269,18 @@ export const VOYAGER_MENU_STABLE_STATE_ALIASES = {
   "menu.settings.gps": "m-set3-4-1",
   "menu.settings.user-screens": "m-set3-5-1",
   "menu.settings.warning-led": "m-set3-6-1",
+  "modal.reset-ride-distance": "m-main1-3-1",
+  "modal.waypoint-select": "m-main1-5-1",
+  "modal.system-brightness": "m-set3-3-1-1",
   "modal.system.brightness": "m-set3-3-1-1",
 };
+
+export const VOYAGER_MENU_CANONICAL_STATE_IDS = Object.entries(
+  VOYAGER_MENU_STABLE_STATE_ALIASES,
+).reduce((canonicalIds, [stableId, stateId]) => {
+  canonicalIds[stateId] ??= stableId;
+  return canonicalIds;
+}, {});
 
 export function voyagerMenuState(stateId) {
   return VOYAGER_MENU_STATE_INDEX[stateId] ?? null;

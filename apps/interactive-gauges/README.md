@@ -59,12 +59,41 @@ The public command accepts stable state IDs and optional ride parameters. For ex
 `navigateToVoyagerState("gauge.altitude.graph", { rideId: "mountain-run", progress: 0.4 })` selects the second local GPX
 and opens its synchronized altitude graph.
 
+The active state is mirrored to the `voyager` URL parameter using the same stable ID, so a copied URL restores the live
+device and browser Back/Forward restores direct map or manual jumps. Physical and keyboard input replace the current URL
+state instead of creating a history entry for every button press. Page-level instructions can opt into the same runtime
+without importing emulator code by using `data-voyager-state` on a link or button and optional JSON in
+`data-voyager-parameters`. The runtime marks matching destinations with `data-voyager-active`, emits a
+`voyager:statechange` document event, and keeps the architecture board's matching SVG groups highlighted. This is the
+shared integration boundary for the architecture map and field manual.
+
+## Field manual
+
+The compact field-manual deck is a selective vector reconstruction of the original 41-page Voyager user's manual. It
+publishes eight interface-relevant pages rather than embedding the source PDF or reproducing the full document:
+
+- page 3, Controls
+- page 20, Main screens
+- page 21, Map screen
+- page 23, Temperature and altitude graphs
+- page 26, Navigation screen
+- page 27, Quick Menu
+- page 30, Waypoints
+- page 33, Settings menu
+
+The reviewed artwork is stored in `assets/manual` as self-contained SVG files with the original text converted to paths.
+The source PDF is not copied into the public app. Each page has one stable `data-voyager-state` handoff; physical,
+keyboard, guide, history and architecture-map navigation emit the same `voyager:statechange` event and bring the nearest
+matching manual page forward. Page images are decoded before the deck swaps them, and the remaining seven are preloaded
+during browser idle time.
+
 The architecture viewer uses `assets/system/voyager-screens-b3.svg`, a publication-approved, font-backed export with
 named screen, menu, flowchart, connector, and region groups. Its embedded Bob's Font 3.110 web face preserves the artwork
 in both the standalone preview and injected viewer. The viewer frames the authored `screen-layout-screens`, `menu-screens`,
 and `flowchart-screens` groups from their live SVG `getBBox()` measurements. Individual named screen groups are selectable;
 groups that resolve to a manifest state can open that state in the working gauge, while unmatched groups are identified as
-design-only rather than being assigned an uncertain prototype route.
+design-only rather than being assigned an uncertain prototype route. When the live device changes through any input path,
+every matching screen group on the board receives the current-state highlight.
 
 The compact display-type lab uses the approved 8-pixel face from Bob's Font 3.110. Its slider scales
 that one face from 8pt through 96pt, while the single download action provides a three-file OTF, TTF,

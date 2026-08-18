@@ -1,10 +1,12 @@
 import { initializeFontPlayground } from "./font-playground.js";
 import { VoyagerGuide } from "./voyager-guide.js";
 import { VoyagerLiveRuntime } from "./voyager-live-runtime.js";
+import { initializeVoyagerManual } from "./voyager-manual.js";
 import { VoyagerMapViewer } from "./voyager-map-viewer.js";
 import { VoyagerStateEngine } from "./voyager-state-engine.js";
 
 const APP_BASE = "/apps/interactive-gauges";
+const VOYAGER_URL_PARAMETER = "voyager";
 const stage = document.querySelector("#voyager-stage");
 const screen = document.querySelector("#voyager-screen");
 const liveScreen = document.querySelector("#voyager-live-screen");
@@ -32,6 +34,28 @@ const liveRuntime = new VoyagerLiveRuntime({
 
 const preloadCache = new Map();
 let transitionPending = false;
+let pendingHistoryMode = null;
+
+function voyagerStateFromUrl() {
+  return new URL(window.location.href).searchParams.get(VOYAGER_URL_PARAMETER);
+}
+
+function writeVoyagerStateToUrl(screenId, mode = "replace") {
+  if (!screenId || mode === "none") return;
+  const url = new URL(window.location.href);
+  url.searchParams.set(VOYAGER_URL_PARAMETER, screenId);
+  if (url.href === window.location.href) return;
+  const state = { ...(window.history.state ?? {}), voyagerScreenId: screenId };
+  window.history[mode === "push" ? "pushState" : "replaceState"](state, "", url);
+}
+
+function focusGauge() {
+  stage.focus({ preventScroll: true });
+  stage.scrollIntoView({
+    behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+    block: "center",
+  });
+}
 
 function screenUrl(state) {
   return `${APP_BASE}/${state.screen}`;
@@ -190,7 +214,11 @@ function enableInterface(engine, guide) {
   bindKeyboard(engine);
   guide.exit();
 
-  startGuideButton.addEventListener("click", () => guide.start());
+  startGuideButton.addEventListener("click", () => {
+    guide.start().catch((error) => {
+      interactionLive.textContent = error.message;
+    });
+  });
   exploreButton.addEventListener("click", () => guide.exit());
 }
 
@@ -206,36 +234,106 @@ async function initializeVoyager() {
       liveRuntimeError = error;
     }
     const engine = new VoyagerStateEngine(manifest);
-    const guide = new VoyagerGuide(engine, guideElements);
-    const navigateToState = async (screenId, source = "public-api", parameters = {}) => {
+    let guide;
+    const syncDestinationHighlights = (stateId) => {
+      for (const destination of document.querySelectorAll("[data-voyager-state]")) {
+        const active = liveRuntime.resolveStateId(destination.dataset.voyagerState) === stateId;
+        destination.toggleAttribute("data-voyager-active", active);
+        if (destination.matches("a, button")) {
+          if (active) destination.setAttribute("aria-current", "true");
+          else destination.removeAttribute("aria-current");
+        }
+      }
+    };
+    const navigateToState = async (screenId, parameters = {}) => {
+      const {
+        focus = false,
+        history = "push",
+        preserveGuide = false,
+        source = "public-api",
+        ...runtimeParameters
+      } = parameters;
       const stateId = liveRuntime.resolveStateId(screenId);
       if (!manifest.states[stateId]) throw new Error(`Unknown Voyager state: ${screenId}`);
       if (!liveRuntime.supports(stateId)) await preloadState(manifest, stateId);
-      guide.exit();
-      liveRuntime.applyNavigationParameters(parameters);
-      return engine.reset(stateId, source);
+      if (!preserveGuide) guide.exit();
+      liveRuntime.applyNavigationParameters(runtimeParameters);
+      pendingHistoryMode = history;
+      const result = engine.reset(stateId, source);
+      if (focus) focusGauge();
+      return result;
     };
-    window.navigateToVoyagerState = (screenId, parameters = {}) =>
-      navigateToState(screenId, parameters.source ?? "public-api", parameters);
+    guide = new VoyagerGuide(engine, guideElements, navigateToState);
+    window.navigateToVoyagerState = navigateToState;
+
+    document.addEventListener("click", (event) => {
+      const destination = event.target.closest?.("a[data-voyager-state], button[data-voyager-state]");
+      if (!destination) return;
+      event.preventDefault();
+      let parameters = {};
+      if (destination.dataset.voyagerParameters) {
+        try {
+          parameters = JSON.parse(destination.dataset.voyagerParameters);
+        } catch {
+          interactionLive.textContent = "This Voyager destination has invalid navigation parameters.";
+          return;
+        }
+      }
+      navigateToState(destination.dataset.voyagerState, {
+        ...parameters,
+        focus: true,
+        history: "push",
+        source: "manual-destination",
+      }).catch((error) => {
+        interactionLive.textContent = error.message;
+      });
+    });
+
     mapViewer.connectPrototype(manifest, async (stateId) => {
       stage.setAttribute("aria-busy", "true");
       try {
-        await navigateToState(stateId, "map-viewer");
+        await navigateToState(stateId, { history: "push", source: "map-viewer" });
         interactionLive.textContent = `Interface map opened archive state ${stateId}.`;
-        stage.focus({ preventScroll: true });
-        stage.scrollIntoView({
-          behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
-          block: "center",
-        });
+        focusGauge();
       } catch (error) {
         interactionLive.textContent = error.message;
       } finally {
         stage.removeAttribute("aria-busy");
       }
     });
+
+    const requestedState = voyagerStateFromUrl();
+    if (requestedState) {
+      try {
+        await navigateToState(requestedState, { history: "none", source: "url-restore" });
+      } catch (error) {
+        interactionLive.textContent = `${error.message} Showing the main Voyager gauge instead.`;
+      }
+    }
+
     engine.subscribe((state, event) => {
       commitState(engine, state, event);
       guide.observe(state, event);
+      mapViewer.setActiveState(state.id);
+      syncDestinationHighlights(state.id);
+      const stableId = liveRuntime.getStableStateId(state.id);
+      const historyMode = pendingHistoryMode ?? (event.source === "url-history" ? "none" : "replace");
+      pendingHistoryMode = null;
+      writeVoyagerStateToUrl(stableId, historyMode);
+      document.dispatchEvent(
+        new CustomEvent("voyager:statechange", {
+          detail: { archiveStateId: state.id, event, screenId: stableId, state },
+        }),
+      );
+    });
+
+    window.addEventListener("popstate", () => {
+      navigateToState(voyagerStateFromUrl() ?? manifest.initialState, {
+        history: "none",
+        source: "url-history",
+      }).catch((error) => {
+        interactionLive.textContent = error.message;
+      });
     });
     document.querySelector("#voyager-load-status").textContent = "Loading";
     await Promise.all(guidedPreloadTargets(manifest).map((stateId) => preloadState(manifest, stateId)));
@@ -264,4 +362,5 @@ for (const opener of document.querySelectorAll("#open-system-map, #open-system-m
   opener.addEventListener("click", () => mapViewer.open("overview"));
 }
 initializeFontPlayground(document.querySelector("#font-playground"));
+initializeVoyagerManual(document.querySelector("#voyager-manual"));
 initializeVoyager();

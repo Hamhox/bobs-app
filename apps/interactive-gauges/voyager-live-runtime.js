@@ -1,4 +1,5 @@
 import {
+  VOYAGER_CANONICAL_STATE_IDS,
   VOYAGER_INPUT_POLICY_ALIASES,
   VOYAGER_LIVE_STATE_IDS,
   VOYAGER_STABLE_STATE_ALIASES,
@@ -6,6 +7,7 @@ import {
   voyagerScreenState,
 } from "./voyager-live-screens.js";
 import {
+  VOYAGER_MENU_CANONICAL_STATE_IDS,
   VOYAGER_MENU_STABLE_STATE_ALIASES,
   VOYAGER_MENU_STATE_IDS,
   voyagerMenuState,
@@ -630,6 +632,10 @@ export class VoyagerLiveRuntime {
 
   resolveStateId(screenId) {
     return VOYAGER_STABLE_STATE_ALIASES[screenId] ?? VOYAGER_MENU_STABLE_STATE_ALIASES[screenId] ?? screenId;
+  }
+
+  getStableStateId(stateId) {
+    return VOYAGER_CANONICAL_STATE_IDS[stateId] ?? VOYAGER_MENU_CANONICAL_STATE_IDS[stateId] ?? stateId;
   }
 
   applyNavigationParameters(parameters = {}) {

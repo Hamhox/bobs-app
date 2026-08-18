@@ -119,6 +119,7 @@ export class VoyagerMapViewer {
   #loadPromise = null;
   #manifest = null;
   #onOpenState = null;
+  #activeStateId = null;
   #screenTargets = [];
   #selectedScreen = null;
   #selectionHighlight = null;
@@ -154,6 +155,11 @@ export class VoyagerMapViewer {
     this.#manifest = manifest;
     this.#onOpenState = onOpenState;
     if (this.#mapRoot) this.#prepareScreenTargets();
+  }
+
+  setActiveState(stateId) {
+    this.#activeStateId = stateId;
+    this.#renderActiveState();
   }
 
   open(preset = "overview") {
@@ -273,6 +279,7 @@ export class VoyagerMapViewer {
     }
 
     if (this.#screenTargets[0]) this.#screenTargets[0].group.setAttribute("tabindex", "0");
+    this.#renderActiveState();
   }
 
   #registerScreen(group, stateId = null) {
@@ -331,6 +338,18 @@ export class VoyagerMapViewer {
     this.#selection.openButton.dataset.stateId = target.state?.id ?? "";
     this.#activePreset = "custom";
     this.#render(`Selected ${selectionId}`);
+  }
+
+  #renderActiveState() {
+    for (const target of this.#screenTargets) {
+      const active = target.state?.id === this.#activeStateId;
+      target.group.toggleAttribute("data-map-active", active);
+      if (active) {
+        target.group.setAttribute("aria-current", "true");
+      } else {
+        target.group.removeAttribute("aria-current");
+      }
+    }
   }
 
   #frameScreen(bounds) {
@@ -392,6 +411,12 @@ export class VoyagerMapViewer {
         template.innerHTML = source.slice(svgStart);
         const map = template.content.querySelector("svg");
         if (!map) throw new Error("Map SVG could not be parsed");
+        const mapStyle = map.querySelector("defs style");
+        if (mapStyle) {
+          // The standalone SVG keeps its embedded WOFF. Once injected, reuse the page's
+          // already-loaded face so Chrome does not re-request the data URL as a document font.
+          mapStyle.textContent = mapStyle.textContent.replace(/@font-face\s*{[\s\S]*?}\s*/, "");
+        }
         map.setAttribute("role", "group");
         map.setAttribute("aria-label", "Selectable Voyager screen groups");
         this.#image.replaceChildren(map);

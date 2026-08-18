@@ -143,6 +143,14 @@ export const VOYAGER_STABLE_STATE_ALIASES = {
   "gauge.satellite.primary": "sat",
 };
 
+export const VOYAGER_CANONICAL_STATE_IDS = Object.entries(VOYAGER_STABLE_STATE_ALIASES).reduce(
+  (canonicalIds, [stableId, stateId]) => {
+    canonicalIds[stateId] ??= stableId;
+    return canonicalIds;
+  },
+  {},
+);
+
 export function voyagerScreenState(stateId) {
   return VOYAGER_LIVE_STATE_INDEX[stateId] ?? null;
 }

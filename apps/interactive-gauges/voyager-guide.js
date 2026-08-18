@@ -2,24 +2,28 @@ const STEPS = [
   {
     number: "01",
     state: "index",
+    destination: "gauge.main.primary",
     actions: ["menu"],
     instruction: "Press MENU to open the main menu.",
   },
   {
     number: "02",
     state: "m-main1-1",
+    destination: "menu.main",
     actions: ["right", "enter"],
     instruction: "Press RIGHT or ENTER to highlight Reset Stop Watch.",
   },
   {
     number: "03",
     state: "m-main1-2",
+    destination: "m-main1-2",
     actions: ["down"],
     instruction: "Press DOWN to highlight Reset Ride DST.",
   },
   {
     number: "04",
     state: "m-main1-3",
+    destination: "m-main1-3",
     actions: ["right", "enter"],
     instruction: "Press RIGHT or ENTER to open the confirmation.",
   },
@@ -28,28 +32,34 @@ const STEPS = [
 export class VoyagerGuide {
   #engine;
   #elements;
+  #navigate;
   #active = false;
   #complete = false;
   #stepIndex = 0;
 
-  constructor(engine, elements) {
+  constructor(engine, elements, navigate) {
     this.#engine = engine;
     this.#elements = elements;
+    this.#navigate = navigate;
   }
 
   get active() {
     return this.#active;
   }
 
-  start() {
+  async start() {
     this.#active = true;
     this.#complete = false;
     this.#stepIndex = 0;
     this.#engine.setAutoTransitionsEnabled(false);
-    this.#engine.reset("index", "guided-start");
     this.#elements.panel.dataset.mode = "active";
     this.#elements.stage.dataset.guideActive = "true";
     this.#render();
+    await this.#navigate(STEPS[0].destination, {
+      history: "push",
+      preserveGuide: true,
+      source: "guided-ride",
+    });
   }
 
   exit() {
@@ -57,6 +67,7 @@ export class VoyagerGuide {
     this.#complete = false;
     this.#engine.setAutoTransitionsEnabled(true);
     this.#clearHighlights();
+    this.#elements.panel.removeAttribute("data-voyager-state");
     delete this.#elements.stage.dataset.guideActive;
     this.#elements.panel.dataset.mode = "idle";
     this.#elements.number.textContent = "01";
@@ -87,6 +98,7 @@ export class VoyagerGuide {
 
   #render() {
     const step = STEPS[this.#stepIndex];
+    this.#elements.panel.dataset.voyagerState = step.destination;
     this.#elements.number.textContent = step.number;
     this.#elements.label.textContent = `Guided ride, step ${this.#stepIndex + 1} of ${STEPS.length}`;
     this.#elements.instruction.textContent = step.instruction;
@@ -104,6 +116,7 @@ export class VoyagerGuide {
     delete this.#elements.stage.dataset.guideActive;
     this.#elements.panel.dataset.mode = "complete";
     this.#elements.number.textContent = "DONE";
+    this.#elements.panel.dataset.voyagerState = "modal.reset-ride-distance";
     this.#elements.label.textContent = "Objective complete";
     this.#elements.instruction.textContent =
       "You opened the archived Reset Ride Distance confirmation. CANCEL is the only recovered selection.";
