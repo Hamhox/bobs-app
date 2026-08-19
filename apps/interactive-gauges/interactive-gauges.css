@@ -661,8 +661,11 @@
   fill: #242021;
 }
 
-.voyager-live__satellite-pill-fill {
+.voyager-live__satellite-pill--weak {
   fill: #f5f4ef;
+  stroke: #242021;
+  stroke-width: 3;
+  vector-effect: non-scaling-stroke;
 }
 
 .voyager-live__signal-bar--weak {

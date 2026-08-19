@@ -560,8 +560,9 @@ function satelliteMarkup(screen, variant) {
   ];
   const satelliteDots = satellites.map(({ x, y, id, active }) => `
     <g transform="translate(${x} ${y})">
-      ${active ? "" : voyagerUiIcon("circle-digit-black", { x: -22, y: -15, width: 44, height: 29, className: "voyager-live__satellite-pill-fill" })}
-      ${voyagerUiIcon(active ? "circle-digit-black" : "circle-digit-white", { x: -22, y: -15, width: 44, height: 29 })}
+      ${active
+        ? voyagerUiIcon("circle-digit-black", { x: -22, y: -15, width: 44, height: 29 })
+        : '<path class="voyager-live__satellite-pill--weak" d="M-14-14H14L20-10H22V10H20L14 14H-14L-20 10H-22V-10H-20Z" />'}
       <text class="voyager-live__text${active ? " voyager-live__text--inverse" : ""}" x="0" y="6" text-anchor="middle">${id}</text>
     </g>`).join("");
   const signalValues = [
@@ -581,14 +582,16 @@ function satelliteMarkup(screen, variant) {
     <rect class="voyager-live__surface" width="504" height="303" />
     ${screenChromeMarkup(screen, variant)}
     <g transform="translate(${offset} 0)">
-      <text class="voyager-live__text voyager-live__text--medium" x="79" y="289">N</text>
-      ${voyagerUiIcon("compass-indicator-24pt", { x: 103, y: 267, width: 18, height: 25 })}
+      <g class="voyager-live__satellite-heading-arrow" transform="rotate(22.5 85 279.5)">
+        ${voyagerUiIcon("compass-indicator-24pt", { x: 76, y: 267, width: 18, height: 25 })}
+      </g>
+      <text class="voyager-live__text voyager-live__text--medium" x="105" y="289">NNE</text>
       <g class="voyager-live__satellite-radar">
-        <circle class="voyager-live__compass-line voyager-live__satellite-radar-line" cx="240" cy="151" r="36" />
-        <circle class="voyager-live__compass-line voyager-live__satellite-radar-line" cx="240" cy="151" r="72" />
-        <circle class="voyager-live__compass-line voyager-live__satellite-radar-line" cx="240" cy="151" r="108" />
-        <circle class="voyager-live__compass-line voyager-live__satellite-radar-line" cx="240" cy="151" r="144" />
-        <path class="voyager-live__compass-line voyager-live__satellite-radar-line" d="M96 151H384M240 7V295" />
+        <circle class="voyager-live__compass-line voyager-live__satellite-radar-line" cx="240" cy="151" r="26.64" />
+        <circle class="voyager-live__compass-line voyager-live__satellite-radar-line" cx="240" cy="151" r="53.28" />
+        <circle class="voyager-live__compass-line voyager-live__satellite-radar-line" cx="240" cy="151" r="79.92" />
+        <circle class="voyager-live__compass-line voyager-live__satellite-radar-line" cx="240" cy="151" r="106.56" />
+        <path class="voyager-live__compass-line voyager-live__satellite-radar-line" d="M133.44 151H346.56M240 44.44V257.56" />
       </g>
       ${satelliteDots}
       <g class="voyager-live__signal-grid">
