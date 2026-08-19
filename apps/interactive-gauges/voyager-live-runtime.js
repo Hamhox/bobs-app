@@ -518,13 +518,13 @@ function navigationMarkup(screen, variant) {
     <rect class="voyager-live__surface" width="504" height="303" />
     ${screenChromeMarkup(screen, variant)}
     <g transform="translate(${hiddenOffset} 0)">
-      <text class="voyager-live__text voyager-live__text--medium" x="496" y="68" text-anchor="end" data-live-heading-label>N</text>
-      ${metricBlock(206, 15, "SPD MPH", "data-live-speed", "21")}
-      <text class="voyager-live__text voyager-live__text--medium" x="206" y="115" text-anchor="middle">DEST DST MI</text>
-      <text class="voyager-live__text voyager-live__text--readout" x="206" y="174" text-anchor="middle" data-live-destination>700</text>
-      ${compassMarkup({ cx: 403, cy: 102, radius: 87.4, pointerAttribute: "data-live-nav-pointer" })}
-      <text class="voyager-live__text voyager-live__text--medium" x="213" y="221" text-anchor="middle">STOP WATCH</text>
-      <text class="voyager-live__text voyager-live__text--large voyager-live__text--clock" x="213" y="277" text-anchor="middle" data-live-stopwatch>00:00:00</text>
+      <text class="voyager-live__text voyager-live__text--medium" x="496" y="47" text-anchor="end" data-live-heading-label>N</text>
+      ${metricBlock(206, 25.5, "SPD MPH", "data-live-speed", "21")}
+      <text class="voyager-live__text voyager-live__text--medium" x="206" y="120.25" text-anchor="middle">DEST DST MI</text>
+      <text class="voyager-live__text voyager-live__text--readout" x="206" y="179.25" text-anchor="middle" data-live-destination>700</text>
+      ${compassMarkup({ cx: 388.75, cy: 102, radius: 87.4, pointerAttribute: "data-live-nav-pointer" })}
+      <text class="voyager-live__text voyager-live__text--medium" x="248" y="221" text-anchor="middle">STOP WATCH</text>
+      <text class="voyager-live__text voyager-live__text--large voyager-live__text--clock" x="248" y="277" text-anchor="middle" data-live-stopwatch>00:00:00</text>
     </g>
     ${voyagerUiIcon("pauseplay-pill", { x: 442, y: 230, width: 62, height: 42, attributes: 'data-live-stopwatch-control=""' })}`;
 }
