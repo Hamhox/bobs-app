@@ -562,7 +562,7 @@ function satelliteMarkup(screen, variant) {
     <g transform="translate(${x} ${y})">
       ${active
         ? voyagerUiIcon("circle-digit-black", { x: -22, y: -15, width: 44, height: 29 })
-        : '<path class="voyager-live__satellite-pill--weak" d="M-14-14H14L20-10H22V10H20L14 14H-14L-20 10H-22V-10H-20Z" />'}
+        : voyagerUiIcon("circle-digit-white", { x: -22, y: -15, width: 44, height: 29, className: "voyager-live__satellite-pill--weak" })}
       <text class="voyager-live__text${active ? " voyager-live__text--inverse" : ""}" x="0" y="6" text-anchor="middle">${id}</text>
     </g>`).join("");
   const signalValues = [

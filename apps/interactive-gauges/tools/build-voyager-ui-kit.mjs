@@ -8,6 +8,8 @@ import { fileURLToPath } from "node:url";
 const toolDirectory = path.dirname(fileURLToPath(import.meta.url));
 const appDirectory = path.resolve(toolDirectory, "..");
 const outputPath = path.join(appDirectory, "assets", "ui", "voyager-ui-icons.svg");
+const screenInk = "#242021";
+const screenSurface = "#f5f3ee";
 
 function parseArguments(argv) {
   const sourceIndex = argv.indexOf("--source");
@@ -48,6 +50,26 @@ function assertSafe(source) {
   }
 }
 
+function normalizeRuntimeArtwork(icons) {
+  const inkNormalized = icons.replace(
+    /<g\b([^>]*\bid=["']ICONS["'][^>]*)>/i,
+    `<g$1 fill="${screenInk}">`,
+  );
+  const weakPill = /<path id="circle-digit-white" d="([\s\S]*?)"\/>/.exec(inkNormalized);
+  if (!weakPill) throw new Error("Could not find the authored weak satellite pill path.");
+
+  const faceStart = weakPill[1].indexOf(" M80.657,78.24");
+  if (faceStart === -1) throw new Error("Could not split the weak satellite pill shell and face.");
+  const shell = weakPill[1].slice(0, faceStart);
+  const face = weakPill[1].slice(faceStart + 1);
+  const reconstructedPill = `<g id="circle-digit-white">
+		<path d="${shell}" stroke="${screenInk}" stroke-width="6" vector-effect="non-scaling-stroke"/>
+		<path d="${face}" fill="${screenSurface}"/>
+	</g>`;
+
+  return inkNormalized.replace(weakPill[0], reconstructedPill);
+}
+
 const { source } = parseArguments(process.argv.slice(2));
 const input = await readFile(source, "utf8");
 assertSafe(input);
@@ -59,7 +81,7 @@ const icons = extractGroup(input, "ICONS").replace(
 if (!icons.includes('id="panzoom-pill"')) {
   throw new Error("Could not name the authored pan/zoom pill group.");
 }
-const normalizedIcons = icons
+const normalizedIcons = normalizeRuntimeArtwork(icons)
   .split(/\r?\n/)
   .map((line) => line.trimEnd())
   .join("\n");
