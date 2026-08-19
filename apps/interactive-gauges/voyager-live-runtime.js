@@ -513,24 +513,20 @@ function userMarkup(screen, variant) {
 }
 
 function navigationMarkup(screen, variant) {
-  const hiddenOffset = variant.tabsVisible ? 0 : -66;
-  const running = variant.view === "secondary";
+  const hiddenOffset = variant.tabsVisible ? 0 : -34;
   return `
     <rect class="voyager-live__surface" width="504" height="303" />
     ${screenChromeMarkup(screen, variant)}
     <g transform="translate(${hiddenOffset} 0)">
-      <text class="voyager-live__text voyager-live__text--medium" x="461" y="45" data-live-heading-label>NE</text>
-      ${metricBlock(171, 37, "SPD", "data-live-speed", "21")}
-      <text class="voyager-live__text voyager-live__text--medium" x="171" y="137" text-anchor="middle">DEST DIST</text>
-      <text class="voyager-live__text voyager-live__text--readout" x="171" y="196" text-anchor="middle" data-live-destination>700</text>
-      ${compassMarkup({ cx: 365, cy: 102, radius: 83, pointerAttribute: "data-live-nav-pointer" })}
-      <text class="voyager-live__text voyager-live__text--medium" x="284" y="231" text-anchor="middle">STOP WATCH</text>
-      ${running
-        ? voyagerUiIcon("icon-16pt-play", { x: 326, y: 213, width: 12, height: 21 })
-        : voyagerUiIcon("icon-16pt-pause", { x: 325, y: 213, width: 18, height: 21 })}
-      <text class="voyager-live__text voyager-live__text--large voyager-live__text--clock" x="284" y="287" text-anchor="middle" data-live-stopwatch>00:00:00</text>
-      ${running ? voyagerUiIcon("pauseplay-pill", { x: 443, y: 231, width: 61, height: 42 }) : ""}
-    </g>`;
+      <text class="voyager-live__text voyager-live__text--medium" x="496" y="68" text-anchor="end" data-live-heading-label>N</text>
+      ${metricBlock(206, 15, "SPD MPH", "data-live-speed", "21")}
+      <text class="voyager-live__text voyager-live__text--medium" x="206" y="115" text-anchor="middle">DEST DST MI</text>
+      <text class="voyager-live__text voyager-live__text--readout" x="206" y="174" text-anchor="middle" data-live-destination>700</text>
+      ${compassMarkup({ cx: 403, cy: 102, radius: 87.4, pointerAttribute: "data-live-nav-pointer" })}
+      <text class="voyager-live__text voyager-live__text--medium" x="213" y="221" text-anchor="middle">STOP WATCH</text>
+      <text class="voyager-live__text voyager-live__text--large voyager-live__text--clock" x="213" y="277" text-anchor="middle" data-live-stopwatch>00:00:00</text>
+    </g>
+    ${voyagerUiIcon("pauseplay-pill", { x: 442, y: 230, width: 62, height: 42, attributes: 'data-live-stopwatch-control=""' })}`;
 }
 
 function satelliteMarkup(screen, variant) {
@@ -657,6 +653,9 @@ export class VoyagerLiveRuntime {
   #mapPan = { x: 0, y: 0 };
   #mapScale = 1;
   #pulseTimer = 0;
+  #stopwatchElapsedMs = 0;
+  #stopwatchStartedAt = 0;
+  #stopwatchRunning = false;
   #available = false;
   #waypoints = [];
 
@@ -787,6 +786,14 @@ export class VoyagerLiveRuntime {
     if (fromState.variant.interaction === "graph" && (event.action === "left" || event.action === "right")) {
       this.#ride.seekBy(event.action === "left" ? -0.055 : 0.055);
     }
+    if (fromState.screen.id === "nav" && event.action === "enter") {
+      const destination = voyagerScreenState(event.to);
+      if (destination?.screen.id === "nav" && destination.variant.view === "secondary") {
+        this.#startStopwatch();
+      } else {
+        this.#pauseStopwatch();
+      }
+    }
   }
 
   #updateDynamicFields() {
@@ -811,12 +818,13 @@ export class VoyagerLiveRuntime {
     setText("[data-live-max-speed]", String(telemetry.maxSpeedMph));
     setText("[data-live-avg-speed]", String(telemetry.averageSpeedMph));
     setText("[data-live-elapsed]", telemetry.elapsedLabel);
-    setText("[data-live-stopwatch]", telemetry.elapsedLabel);
+    setText("[data-live-stopwatch]", formatDuration(this.#stopwatchMilliseconds() / 1000));
     setText("[data-live-destination]", String(telemetry.destinationMeters));
     setText("[data-live-latitude]", coordinateLabel(telemetry.latitude, "N", "S"));
     setText("[data-live-longitude]", coordinateLabel(telemetry.longitude, "E", "W"));
     setText("[data-live-ride-label]", telemetry.trackLabel);
     this.#mount.dataset.logging = this.#ride.playing ? "recording" : "paused";
+    this.#mount.dataset.stopwatch = this.#stopwatchRunning ? "running" : "paused";
 
     if (this.#menuState) {
       this.#updateMenuMap();
@@ -833,6 +841,23 @@ export class VoyagerLiveRuntime {
 
     if (this.#screenState.screen.renderer === "map") this.#updateMap();
     if (this.#screenState.screen.renderer === "graph") this.#updateGraph();
+  }
+
+  #startStopwatch() {
+    if (this.#stopwatchRunning) return;
+    this.#stopwatchStartedAt = performance.now();
+    this.#stopwatchRunning = true;
+  }
+
+  #pauseStopwatch() {
+    if (!this.#stopwatchRunning) return;
+    this.#stopwatchElapsedMs += performance.now() - this.#stopwatchStartedAt;
+    this.#stopwatchStartedAt = 0;
+    this.#stopwatchRunning = false;
+  }
+
+  #stopwatchMilliseconds() {
+    return this.#stopwatchElapsedMs + (this.#stopwatchRunning ? performance.now() - this.#stopwatchStartedAt : 0);
   }
 
   #applyMenuOutcome(event) {
