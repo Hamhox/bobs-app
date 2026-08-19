@@ -285,17 +285,21 @@ function tabsMarkup(activeTab) {
   }).join("");
 }
 
-function sideArrowsMarkup(screen, tabsVisible) {
-  if (screen.id === "main") {
-    return voyagerUiIcon("screen-arrow-right", { x: 492, y: 132, width: 12, height: 35 });
+function sideArrowsMarkup(screen, variant) {
+  if (screen.id === "user") return "";
+  if (screen.id === "main" || screen.id === "map" || screen.renderer === "graph") {
+    const indicator = screen.id === "map" && variant.screenIndicator
+      ? screenIndicatorMarkup(variant.screenIndicator, 490, 106, true)
+      : "";
+    return `${indicator}${voyagerUiIcon("screen-arrow-right", { x: 492, y: 132, width: 12, height: 35 })}`;
   }
   return `
-    ${voyagerUiIcon("screen-arrow-right", { x: tabsVisible ? 67 : 0, y: 132, width: 12, height: 35 })}
+    ${voyagerUiIcon("screen-arrow-right", { x: variant.tabsVisible ? 67 : 0, y: 132, width: 12, height: 35 })}
     ${voyagerUiIcon("screen-arrow-left", { x: 492, y: 132, width: 12, height: 35 })}`;
 }
 
 function screenChromeMarkup(screen, variant) {
-  return `${variant.tabsVisible ? tabsMarkup(screen.id) : ""}${variant.sideArrows ? sideArrowsMarkup(screen, variant.tabsVisible) : ""}`;
+  return `${variant.tabsVisible ? tabsMarkup(screen.id) : ""}${variant.sideArrows ? sideArrowsMarkup(screen, variant) : ""}`;
 }
 
 function statusBarMarkup(variant) {
@@ -366,7 +370,7 @@ function mainMarkup(screen, variant) {
         <text class="voyager-live__text voyager-live__text--readout" x="283" y="99" text-anchor="middle" data-live-odometer-miles>523.7</text>
         <text class="voyager-live__text voyager-live__text--medium" x="173" y="137" text-anchor="middle">MAX SPD MPH</text>
         <text class="voyager-live__text voyager-live__text--readout" x="173" y="191" text-anchor="middle" data-live-max-speed>25</text>
-        <path class="voyager-live__line" d="M316 116V185" />
+        <path class="voyager-live__line" d="M285 116V185" />
         <text class="voyager-live__text voyager-live__text--medium" x="397" y="137" text-anchor="middle">AVG SPD MPH</text>
         <text class="voyager-live__text voyager-live__text--readout" x="397" y="191" text-anchor="middle" data-live-avg-speed>12</text>
         <text class="voyager-live__text voyager-live__text--medium" x="283" y="235" text-anchor="middle">ACCUMULATED RUN TIME</text>
@@ -379,7 +383,7 @@ function mainMarkup(screen, variant) {
     ${statusBarMarkup(variant)}
     <g transform="translate(${hiddenOffset} 0)">
       <text class="voyager-live__text voyager-live__text--medium" x="198" y="67" text-anchor="middle">MPH</text>
-      <text class="voyager-live__text voyager-live__text--speed" x="199" y="169" text-anchor="middle" data-live-speed>28</text>
+      <text class="voyager-live__text voyager-live__text--speed" x="199" y="188" text-anchor="middle" data-live-speed>28</text>
       ${compassMarkup({ cx: 399, cy: 133, radius: 73 })}
       <text class="voyager-live__text" x="100" y="236">ALT FT</text>
       <text class="voyager-live__text voyager-live__text--metric" x="91" y="286" data-live-altitude>1089</text>
@@ -518,7 +522,7 @@ function navigationMarkup(screen, variant) {
       <text class="voyager-live__text voyager-live__text--medium" x="461" y="45" data-live-heading-label>NE</text>
       ${metricBlock(171, 37, "SPD", "data-live-speed", "21")}
       <text class="voyager-live__text voyager-live__text--medium" x="171" y="137" text-anchor="middle">DEST DIST</text>
-      <text class="voyager-live__text voyager-live__text--readout" x="171" y="189" text-anchor="middle" data-live-destination>700</text>
+      <text class="voyager-live__text voyager-live__text--readout" x="171" y="196" text-anchor="middle" data-live-destination>700</text>
       ${compassMarkup({ cx: 365, cy: 102, radius: 83, pointerAttribute: "data-live-nav-pointer" })}
       <text class="voyager-live__text voyager-live__text--medium" x="284" y="231" text-anchor="middle">STOP WATCH</text>
       ${running

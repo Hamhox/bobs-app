@@ -7,6 +7,14 @@ import { VoyagerStateEngine } from "./voyager-state-engine.js";
 
 const APP_BASE = "/apps/interactive-gauges";
 const VOYAGER_URL_PARAMETER = "voyager";
+const VOYAGER_LIVE_TRANSITION_OVERRIDES = {
+  map: { left: null, center: "map2", right: "map2-2", enter: "map2" },
+  "map1-2": { left: null, center: "map2", right: "map2-2", enter: "map2" },
+  map2: { up: "map2", left: "map2", center: "map", right: "map2", down: "map2", enter: "map" },
+  "map2-2": { up: "index", left: null, center: "map3", right: "map", down: "eng", back: "map", enter: "map3" },
+  map3: { up: "map3", left: "map3", center: "map2-2", right: "map3", down: "map3", back: "map2-2", enter: "map2-2" },
+  "map3-2": { up: "map3", left: "map3", center: "map2-2", right: "map3", down: "map3", back: "map2-2", enter: "map2-2" },
+};
 const stage = document.querySelector("#voyager-stage");
 const liveScreen = document.querySelector("#voyager-live-screen");
 const stateCode = document.querySelector("#voyager-state-code");
@@ -43,6 +51,14 @@ function writeVoyagerStateToUrl(screenId, mode = "replace") {
   if (url.href === window.location.href) return;
   const state = { ...(window.history.state ?? {}), voyagerScreenId: screenId };
   window.history[mode === "push" ? "pushState" : "replaceState"](state, "", url);
+}
+
+function applyLiveTransitionOverrides(manifest) {
+  for (const [stateId, transitions] of Object.entries(VOYAGER_LIVE_TRANSITION_OVERRIDES)) {
+    const state = manifest.states[stateId];
+    if (!state) throw new Error(`Voyager live transition override references missing state ${stateId}.`);
+    Object.assign(state.transitions, transitions);
+  }
 }
 
 function focusGauge() {
@@ -156,6 +172,7 @@ async function initializeVoyager() {
     const response = await fetch(`${APP_BASE}/data/voyager-states.json`);
     if (!response.ok) throw new Error(`Manifest request failed with ${response.status}`);
     const manifest = await response.json();
+    applyLiveTransitionOverrides(manifest);
     await liveRuntime.initialize();
     const engine = new VoyagerStateEngine(manifest);
     let guide;

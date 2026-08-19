@@ -495,7 +495,7 @@
 }
 
 .voyager-live__line {
-  stroke-width: 2;
+  stroke-width: 6px;
 }
 
 .voyager-live__line--inverse {
@@ -538,27 +538,22 @@
 
 .voyager-live__text--status {
   font-size: 28px;
-  letter-spacing: -0.025em;
 }
 
 .voyager-live__text--large {
   font-size: 80px;
-  letter-spacing: -0.04em;
 }
 
 .voyager-live__text--speed {
-  font-size: 96px;
-  letter-spacing: -0.06em;
+  font-size: 128px;
 }
 
 .voyager-live__text--readout {
   font-size: 58px;
-  letter-spacing: -0.04em;
 }
 
 .voyager-live__text--metric {
   font-size: 42px;
-  letter-spacing: -0.04em;
 }
 
 .voyager-live__text--inverse {
