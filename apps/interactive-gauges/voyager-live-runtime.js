@@ -639,7 +639,7 @@ export class VoyagerLiveRuntime {
 
   async initialize() {
     const fontReady = document.fonts?.load
-      ? document.fonts.load('16px "Bobs Font 8 Pixel"', "VOYAGER RIDE").catch(() => [])
+      ? document.fonts.load('16px "Bobs Font 6 Pixel"', "VOYAGER RIDE").catch(() => [])
       : Promise.resolve();
     await Promise.all([
       fontReady,

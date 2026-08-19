@@ -6,6 +6,14 @@
   font-display: block;
 }
 
+@font-face {
+  font-family: "Bobs Font 6 Pixel";
+  src: url("assets/fonts/bobs-font-6px/woff/BobsFont6Pixel-Regular.woff") format("woff");
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+}
+
 .gauges-body {
   --gauge-guide: #ff981f;
   --gauge-guide-soft: rgb(255 152 31 / 0.18);
@@ -514,7 +522,7 @@
 
 .voyager-live__text {
   fill: #242021;
-  font-family: "Bobs Font 8 Pixel", monospace;
+  font-family: "Bobs Font 6 Pixel", monospace;
   font-size: 16px;
   font-weight: 400;
   text-rendering: geometricPrecision;
