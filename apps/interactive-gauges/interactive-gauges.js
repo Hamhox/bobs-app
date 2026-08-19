@@ -14,6 +14,8 @@ const VOYAGER_LIVE_TRANSITION_OVERRIDES = {
   "map2-2": { up: "index", left: null, center: "map3", right: "map", down: "eng", back: "map", enter: "map3" },
   map3: { up: "map3", left: "map3", center: "map2-2", right: "map3", down: "map3", back: "map2-2", enter: "map2-2" },
   "map3-2": { up: "map3", left: "map3", center: "map2-2", right: "map3", down: "map3", back: "map2-2", enter: "map2-2" },
+  sat: { left: null, center: "sat2", right: "sat2", enter: "sat2" },
+  sat2: { up: "dir", left: null, center: "sat", right: "sat", down: "index", back: "sat", enter: "sat" },
 };
 const stage = document.querySelector("#voyager-stage");
 const liveScreen = document.querySelector("#voyager-live-screen");
@@ -54,6 +56,13 @@ function writeVoyagerStateToUrl(screenId, mode = "replace") {
 }
 
 function applyLiveTransitionOverrides(manifest) {
+  manifest.states.sat2 = {
+    id: "sat2",
+    transitions: {},
+    autoTransition: null,
+    archiveLinks: ["dir", "index", "sat"],
+    referenceScreen: manifest.states.sat.referenceScreen,
+  };
   for (const [stateId, transitions] of Object.entries(VOYAGER_LIVE_TRANSITION_OVERRIDES)) {
     const state = manifest.states[stateId];
     if (!state) throw new Error(`Voyager live transition override references missing state ${stateId}.`);

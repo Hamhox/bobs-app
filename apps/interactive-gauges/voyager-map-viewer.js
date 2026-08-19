@@ -11,7 +11,7 @@ const PRESETS = {
 };
 
 const SCREEN_LAYOUT_STATE_MAP = {
-  "satellite-screen-2": "sat1-2",
+  "satellite-screen-2": "sat2",
   "satellite-screen": "sat",
   "nav-full-2": "dir3",
   "nav-full": "dir1-2",

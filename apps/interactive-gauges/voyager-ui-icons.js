@@ -10,6 +10,8 @@ const ICON_VIEW_BOXES = Object.freeze({
   "compass-arrow": [223.717, 77.671, 6.365, 28.08],
   "compass-dial": [203.86, 68.692, 45.676, 45.674],
   "compass-indicator-24pt": [51.804, 108.111, 4.867, 6.738],
+  "circle-digit-black": [55.946, 72.997, 11.233, 7.489],
+  "circle-digit-white": [69.8, 72.997, 11.231, 7.489],
   "crosshair-center": [166.395, 72.25, 11.606, 11.606],
   "dpad-pan": [123.339, 67.007, 20.216, 20.218],
   "dpad-zoom": [99.005, 67.007, 20.216, 20.218],

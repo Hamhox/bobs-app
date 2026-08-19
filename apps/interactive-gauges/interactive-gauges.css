@@ -604,7 +604,7 @@
 }
 
 .voyager-live__compass-line {
-  stroke-width: 3;
+  stroke-width: 6;
 }
 
 .voyager-live__compass-tick {
@@ -620,8 +620,16 @@
 .voyager-live__signal-grid {
   fill: none;
   stroke: #242021;
-  stroke-width: 2;
+  stroke-width: 3;
   vector-effect: non-scaling-stroke;
+}
+
+.voyager-live__text--satellite-coordinate {
+  font-size: 28px;
+}
+
+.voyager-live__text--satellite-detail {
+  font-size: 22px;
 }
 
 .voyager-live__graph-fill {

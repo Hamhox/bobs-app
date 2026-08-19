@@ -101,10 +101,11 @@ export const VOYAGER_SCREEN_REGISTRY = {
     id: "sat",
     tabLabel: "SAT",
     renderer: "satellite",
-    showSideArrows: false,
+    showSideArrows: true,
     variants: {
-      sat: { view: "primary", tabsVisible: true, sideArrows: false },
-      "sat1-2": { view: "primary", tabsVisible: false, sideArrows: false },
+      sat: { view: "primary", tabsVisible: true, sideArrows: true },
+      "sat1-2": { view: "primary", tabsVisible: false, sideArrows: true },
+      sat2: { view: "secondary", tabsVisible: false, sideArrows: true },
     },
   },
 };
@@ -150,6 +151,7 @@ export const VOYAGER_STABLE_STATE_ALIASES = {
   "gauge.navigation.primary": "dir",
   "gauge.navigation.stopwatch": "dir2",
   "gauge.satellite.primary": "sat",
+  "gauge.satellite.detail": "sat2",
 };
 
 export const VOYAGER_CANONICAL_STATE_IDS = Object.entries(VOYAGER_STABLE_STATE_ALIASES).reduce(
