@@ -664,14 +664,14 @@
 .voyager-live__satellite-pill--weak {
   fill: #f5f4ef;
   stroke: #242021;
-  stroke-width: 3;
+  stroke-width: 6;
   vector-effect: non-scaling-stroke;
 }
 
 .voyager-live__signal-bar--weak {
   fill: #f5f4ef;
   stroke: #242021;
-  stroke-width: 3;
+  stroke-width: 6;
   vector-effect: non-scaling-stroke;
 }
 

@@ -594,10 +594,10 @@ function satelliteMarkup(screen, variant) {
         <path class="voyager-live__compass-line voyager-live__satellite-radar-line" d="M133.44 151H346.56M240 44.44V257.56" />
       </g>
       ${satelliteDots}
+      ${bars}
       <g class="voyager-live__signal-grid">
         <line x1="396" y1="47" x2="396" y2="250" />
       </g>
-      ${bars}
       ${signalLabels}
     </g>`;
 }
