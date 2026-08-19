@@ -607,6 +607,10 @@
   stroke-width: 6;
 }
 
+.voyager-live__satellite-radar-line {
+  stroke-width: 3;
+}
+
 .voyager-live__compass-tick {
   stroke: #242021;
   stroke-width: 2;
@@ -655,6 +659,17 @@
 
 .voyager-live__satellite-dot {
   fill: #242021;
+}
+
+.voyager-live__satellite-pill-fill {
+  fill: #f5f4ef;
+}
+
+.voyager-live__signal-bar--weak {
+  fill: #f5f4ef;
+  stroke: #242021;
+  stroke-width: 3;
+  vector-effect: non-scaling-stroke;
 }
 
 .voyager-live__waypoint {

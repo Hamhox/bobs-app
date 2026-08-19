@@ -17,7 +17,7 @@ import { VOYAGER_COMPASS_VIEW_BOX, voyagerUiIcon } from "./voyager-ui-icons.js";
 
 const DIRECTION_INPUTS = new Set(["up", "down", "left", "right"]);
 const WAYPOINT_STORAGE_KEY = "bobs-app:voyager-waypoints:v1";
-const VOYAGER_SCREEN_REFRESH_MS = 500;
+const VOYAGER_SCREEN_REFRESH_MS = 2000;
 const clamp = (value, minimum, maximum) => Math.min(maximum, Math.max(minimum, value));
 const radians = (degrees) => (degrees * Math.PI) / 180;
 
@@ -539,40 +539,43 @@ function satelliteMarkup(screen, variant) {
       <rect class="voyager-live__surface" width="504" height="303" />
       ${screenChromeMarkup(screen, variant)}
       <g class="voyager-live__satellite-details">
-        <text class="voyager-live__text voyager-live__text--satellite-detail" x="252" y="38" text-anchor="middle">LAT: <tspan class="voyager-live__text--satellite-coordinate">N 45.774051°</tspan></text>
-        <text class="voyager-live__text voyager-live__text--satellite-detail" x="252" y="78" text-anchor="middle">LON: <tspan class="voyager-live__text--satellite-coordinate">W 122.527241°</tspan></text>
-        <text class="voyager-live__text voyager-live__text--satellite-detail" x="252" y="124" text-anchor="middle">TYPE: 3D</text>
-        <text class="voyager-live__text voyager-live__text--satellite-detail" x="252" y="158" text-anchor="middle">QUALITY: DGPS</text>
-        <text class="voyager-live__text voyager-live__text--satellite-detail" x="252" y="202" text-anchor="middle">PDOP: 1.45</text>
-        <text class="voyager-live__text voyager-live__text--satellite-detail" x="252" y="236" text-anchor="middle">HDOP: 0.85</text>
-        <text class="voyager-live__text voyager-live__text--satellite-detail" x="252" y="270" text-anchor="middle">VDOP: 1.16</text>
+        <text class="voyager-live__text voyager-live__text--satellite-detail" x="252" y="48" text-anchor="middle">LAT: <tspan class="voyager-live__text--satellite-coordinate">N 45.774051°</tspan></text>
+        <text class="voyager-live__text voyager-live__text--satellite-detail" x="252" y="88" text-anchor="middle">LON: <tspan class="voyager-live__text--satellite-coordinate">W 122.527241°</tspan></text>
+        <text class="voyager-live__text voyager-live__text--satellite-detail" x="252" y="134" text-anchor="middle">TYPE: 3D</text>
+        <text class="voyager-live__text voyager-live__text--satellite-detail" x="252" y="168" text-anchor="middle">QUALITY: DGPS</text>
+        <text class="voyager-live__text voyager-live__text--satellite-detail" x="252" y="212" text-anchor="middle">PDOP: 1.45</text>
+        <text class="voyager-live__text voyager-live__text--satellite-detail" x="252" y="246" text-anchor="middle">HDOP: 0.85</text>
+        <text class="voyager-live__text voyager-live__text--satellite-detail" x="252" y="280" text-anchor="middle">VDOP: 1.16</text>
       </g>`;
   }
-  const offset = variant.tabsVisible ? 0 : -22;
+  const offset = variant.tabsVisible ? 0 : -34;
   const satellites = [
-    { x: 171, y: 82, id: 1, active: true },
-    { x: 242, y: 103, id: 23, active: true },
-    { x: 137, y: 120, id: 8, active: true },
-    { x: 211, y: 141, id: 7, active: true },
-    { x: 130, y: 184, id: 2, active: false },
-    { x: 172, y: 164, id: 28, active: true },
-    { x: 243, y: 196, id: 4, active: false },
+    { x: 200, y: 43, id: 1, active: true },
+    { x: 314, y: 72, id: 23, active: true },
+    { x: 159, y: 105, id: 8, active: true },
+    { x: 284, y: 136, id: 7, active: true },
+    { x: 146, y: 203, id: 2, active: false },
+    { x: 203, y: 165, id: 28, active: true },
+    { x: 325, y: 217, id: 4, active: false },
   ];
   const satelliteDots = satellites.map(({ x, y, id, active }) => `
     <g transform="translate(${x} ${y})">
-      ${voyagerUiIcon(active ? "circle-digit-black" : "circle-digit-white", { x: -18, y: -12, width: 36, height: 24 })}
-      <text class="voyager-live__text voyager-live__text--small${active ? " voyager-live__text--inverse" : ""}" x="0" y="5" text-anchor="middle">${id}</text>
+      ${active ? "" : voyagerUiIcon("circle-digit-black", { x: -22, y: -15, width: 44, height: 29, className: "voyager-live__satellite-pill-fill" })}
+      ${voyagerUiIcon(active ? "circle-digit-black" : "circle-digit-white", { x: -22, y: -15, width: 44, height: 29 })}
+      <text class="voyager-live__text${active ? " voyager-live__text--inverse" : ""}" x="0" y="6" text-anchor="middle">${id}</text>
     </g>`).join("");
   const signalValues = [
-    { id: 1, width: 88 }, { id: 8, width: 20 }, { id: 28, width: 96 }, { id: 2, width: 58 },
-    { id: 23, width: 112 }, { id: 4, width: 12 }, { id: 7, width: 38 },
+    { id: 1, width: 66, active: true }, { id: 8, width: 18, active: true },
+    { id: 28, width: 72, active: true }, { id: 2, width: 42, active: false },
+    { id: 23, width: 84, active: true }, { id: 4, width: 24, active: false },
+    { id: 7, width: 32, active: true },
   ];
-  const bars = signalValues.map(({ width }, index) => {
-    const y = 60 + index * 28;
-    return `<rect class="voyager-live__ink" x="318" y="${y}" width="${width}" height="12" />`;
+  const bars = signalValues.map(({ width, active }, index) => {
+    const y = 52 + index * 30;
+    return `<rect class="${active ? "voyager-live__ink" : "voyager-live__signal-bar--weak"}" x="396" y="${y}" width="${width}" height="15" />`;
   }).join("");
   const signalLabels = signalValues.map(({ id }, index) =>
-    `<text class="voyager-live__text voyager-live__text--small" x="310" y="${71 + index * 28}" text-anchor="end">${id}</text>`,
+    `<text class="voyager-live__text" x="388" y="${66 + index * 30}" text-anchor="end">${id}</text>`,
   ).join("");
   return `
     <rect class="voyager-live__surface" width="504" height="303" />
@@ -580,14 +583,16 @@ function satelliteMarkup(screen, variant) {
     <g transform="translate(${offset} 0)">
       <text class="voyager-live__text voyager-live__text--medium" x="79" y="289">N</text>
       ${voyagerUiIcon("compass-indicator-24pt", { x: 103, y: 267, width: 18, height: 25 })}
-      <circle class="voyager-live__compass-line" cx="190" cy="151" r="82" />
-      <circle class="voyager-live__compass-line" cx="190" cy="151" r="43" />
-      <circle class="voyager-live__ink" cx="190" cy="151" r="4" />
+      <g class="voyager-live__satellite-radar">
+        <circle class="voyager-live__compass-line voyager-live__satellite-radar-line" cx="240" cy="151" r="36" />
+        <circle class="voyager-live__compass-line voyager-live__satellite-radar-line" cx="240" cy="151" r="72" />
+        <circle class="voyager-live__compass-line voyager-live__satellite-radar-line" cx="240" cy="151" r="108" />
+        <circle class="voyager-live__compass-line voyager-live__satellite-radar-line" cx="240" cy="151" r="144" />
+        <path class="voyager-live__compass-line voyager-live__satellite-radar-line" d="M96 151H384M240 7V295" />
+      </g>
       ${satelliteDots}
       <g class="voyager-live__signal-grid">
-        <line x1="318" y1="54" x2="318" y2="248" /><line x1="357" y1="54" x2="357" y2="248" />
-        <line x1="396" y1="54" x2="396" y2="248" /><line x1="435" y1="54" x2="435" y2="248" />
-        <line x1="474" y1="54" x2="474" y2="248" />
+        <line x1="396" y1="47" x2="396" y2="250" />
       </g>
       ${bars}
       ${signalLabels}
