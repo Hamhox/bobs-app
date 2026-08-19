@@ -539,8 +539,8 @@ function satelliteMarkup(screen, variant) {
       <rect class="voyager-live__surface" width="504" height="303" />
       ${screenChromeMarkup(screen, variant)}
       <g class="voyager-live__satellite-details">
-        <text class="voyager-live__text voyager-live__text--satellite-coordinate" x="252" y="38" text-anchor="middle">LAT: N 45.774051°</text>
-        <text class="voyager-live__text voyager-live__text--satellite-coordinate" x="252" y="78" text-anchor="middle">LON: W 122.527241°</text>
+        <text class="voyager-live__text voyager-live__text--satellite-detail" x="252" y="38" text-anchor="middle">LAT: <tspan class="voyager-live__text--satellite-coordinate">N 45.774051°</tspan></text>
+        <text class="voyager-live__text voyager-live__text--satellite-detail" x="252" y="78" text-anchor="middle">LON: <tspan class="voyager-live__text--satellite-coordinate">W 122.527241°</tspan></text>
         <text class="voyager-live__text voyager-live__text--satellite-detail" x="252" y="124" text-anchor="middle">TYPE: 3D</text>
         <text class="voyager-live__text voyager-live__text--satellite-detail" x="252" y="158" text-anchor="middle">QUALITY: DGPS</text>
         <text class="voyager-live__text voyager-live__text--satellite-detail" x="252" y="202" text-anchor="middle">PDOP: 1.45</text>
@@ -550,13 +550,13 @@ function satelliteMarkup(screen, variant) {
   }
   const offset = variant.tabsVisible ? 0 : -22;
   const satellites = [
-    { x: 171, y: 105, id: 1, active: true },
-    { x: 242, y: 126, id: 23, active: true },
-    { x: 137, y: 143, id: 8, active: true },
-    { x: 211, y: 164, id: 7, active: true },
-    { x: 130, y: 207, id: 2, active: false },
-    { x: 172, y: 187, id: 28, active: true },
-    { x: 243, y: 219, id: 4, active: false },
+    { x: 171, y: 82, id: 1, active: true },
+    { x: 242, y: 103, id: 23, active: true },
+    { x: 137, y: 120, id: 8, active: true },
+    { x: 211, y: 141, id: 7, active: true },
+    { x: 130, y: 184, id: 2, active: false },
+    { x: 172, y: 164, id: 28, active: true },
+    { x: 243, y: 196, id: 4, active: false },
   ];
   const satelliteDots = satellites.map(({ x, y, id, active }) => `
     <g transform="translate(${x} ${y})">
@@ -568,31 +568,29 @@ function satelliteMarkup(screen, variant) {
     { id: 23, width: 112 }, { id: 4, width: 12 }, { id: 7, width: 38 },
   ];
   const bars = signalValues.map(({ width }, index) => {
-    const y = 49 + index * 28;
-    return `<rect class="voyager-live__ink" x="315" y="${y}" width="${width}" height="12" />`;
+    const y = 60 + index * 28;
+    return `<rect class="voyager-live__ink" x="318" y="${y}" width="${width}" height="12" />`;
   }).join("");
   const signalLabels = signalValues.map(({ id }, index) =>
-    `<text class="voyager-live__text voyager-live__text--small" x="296" y="${60 + index * 28}" text-anchor="end">${id}</text>`,
+    `<text class="voyager-live__text voyager-live__text--small" x="310" y="${71 + index * 28}" text-anchor="end">${id}</text>`,
   ).join("");
   return `
     <rect class="voyager-live__surface" width="504" height="303" />
     ${screenChromeMarkup(screen, variant)}
     <g transform="translate(${offset} 0)">
-      <text class="voyager-live__text voyager-live__text--medium" x="112" y="62">N</text>
-      ${voyagerUiIcon("compass-indicator-24pt", { x: 135, y: 40, width: 18, height: 25 })}
-      <circle class="voyager-live__compass-line" cx="190" cy="174" r="82" />
-      <circle class="voyager-live__compass-line" cx="190" cy="174" r="43" />
-      <circle class="voyager-live__ink" cx="190" cy="174" r="4" />
+      <text class="voyager-live__text voyager-live__text--medium" x="79" y="289">N</text>
+      ${voyagerUiIcon("compass-indicator-24pt", { x: 103, y: 267, width: 18, height: 25 })}
+      <circle class="voyager-live__compass-line" cx="190" cy="151" r="82" />
+      <circle class="voyager-live__compass-line" cx="190" cy="151" r="43" />
+      <circle class="voyager-live__ink" cx="190" cy="151" r="4" />
       ${satelliteDots}
       <g class="voyager-live__signal-grid">
-        <line x1="315" y1="43" x2="315" y2="237" /><line x1="354" y1="43" x2="354" y2="237" />
-        <line x1="393" y1="43" x2="393" y2="237" /><line x1="432" y1="43" x2="432" y2="237" />
-        <line x1="471" y1="43" x2="471" y2="237" />
+        <line x1="318" y1="54" x2="318" y2="248" /><line x1="357" y1="54" x2="357" y2="248" />
+        <line x1="396" y1="54" x2="396" y2="248" /><line x1="435" y1="54" x2="435" y2="248" />
+        <line x1="474" y1="54" x2="474" y2="248" />
       </g>
       ${bars}
       ${signalLabels}
-      <text class="voyager-live__text" x="114" y="286">TYPE: 3D</text>
-      <text class="voyager-live__text" x="239" y="286">QUALITY: DGPS</text>
     </g>`;
 }
 
