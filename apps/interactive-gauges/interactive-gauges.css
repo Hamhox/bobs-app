@@ -509,7 +509,7 @@
 }
 
 .voyager-live__scale-line {
-  stroke-width: 3;
+  stroke-width: 6;
 }
 
 .voyager-live__text {
@@ -567,17 +567,25 @@
 
 .voyager-live__tab {
   fill: #f5f4ef;
+}
+
+.voyager-live__tab-top,
+.voyager-live__tab-right {
+  fill: none;
   stroke: #242021;
-  stroke-width: 1.5;
-  stroke-linejoin: miter;
   vector-effect: non-scaling-stroke;
 }
 
-.voyager-live__tab--active {
-  fill: #242021;
+.voyager-live__tab-top {
+  stroke-width: 1.5;
+  stroke-linejoin: miter;
 }
 
-.voyager-live__speed-window {
+.voyager-live__tab-right {
+  stroke-width: 6;
+}
+
+.voyager-live__tab--active {
   fill: #242021;
 }
 
@@ -586,10 +594,10 @@
   display: none;
 }
 
-.voyager-live__status-throbber {
+.voyager-live__status-throbber use {
   transform-box: fill-box;
   transform-origin: center;
-  animation: voyager-status-throbber 1.1s steps(8, end) infinite;
+  animation: voyager-status-throbber 4s steps(8, end) infinite;
 }
 
 .voyager-live__compass-line {
@@ -1854,7 +1862,7 @@
     animation: none;
   }
 
-  .voyager-live__status-throbber {
+  .voyager-live__status-throbber use {
     animation: none;
   }
 

@@ -17,6 +17,7 @@ import { VOYAGER_COMPASS_VIEW_BOX, voyagerUiIcon } from "./voyager-ui-icons.js";
 
 const DIRECTION_INPUTS = new Set(["up", "down", "left", "right"]);
 const WAYPOINT_STORAGE_KEY = "bobs-app:voyager-waypoints:v1";
+const VOYAGER_SCREEN_REFRESH_MS = 500;
 const clamp = (value, minimum, maximum) => Math.min(maximum, Math.max(minimum, value));
 const radians = (degrees) => (degrees * Math.PI) / 180;
 
@@ -100,7 +101,7 @@ class VoyagerRideEngine {
   #tracks = new Map();
   #currentTrack = null;
   #listeners = new Set();
-  #animationFrame = 0;
+  #refreshTimer = 0;
   #lastTimestamp = 0;
   #durationMs = 95000;
   #progress = 0;
@@ -120,7 +121,8 @@ class VoyagerRideEngine {
     for (const track of loaded) this.#tracks.set(track.id, track);
     this.#currentTrack = loaded[0];
     this.#emit();
-    this.#animationFrame = requestAnimationFrame(this.#tick);
+    this.#lastTimestamp = performance.now();
+    this.#refreshTimer = window.setInterval(this.#tick, VOYAGER_SCREEN_REFRESH_MS);
     return this;
   }
 
@@ -184,7 +186,8 @@ class VoyagerRideEngine {
     this.#loop = Boolean(loop);
   }
 
-  #tick = (timestamp) => {
+  #tick = () => {
+    const timestamp = performance.now();
     if (this.#lastTimestamp && this.#playing && this.#currentTrack) {
       this.#progress += (timestamp - this.#lastTimestamp) / this.#durationMs * this.#playbackSpeed;
       if (this.#progress >= 1) {
@@ -194,7 +197,6 @@ class VoyagerRideEngine {
       this.#emit();
     }
     this.#lastTimestamp = timestamp;
-    this.#animationFrame = requestAnimationFrame(this.#tick);
   };
 
   #emit() {
@@ -268,26 +270,32 @@ function screenIndicatorMarkup(value, x = 73, y = 9, narrow = false) {
 function tabsMarkup(activeTab) {
   return VOYAGER_TAB_ORDER.map((tab, index) => {
     const y = index * 43;
+    const bottom = index === VOYAGER_TAB_ORDER.length - 1 ? 303 : y + 43;
     const active = tab.id === activeTab;
     const content = tab.icon
       ? temperatureIcon(18, y + 5, 0.78, active)
       : `<text class="voyager-live__text voyager-live__text--medium${active ? " voyager-live__text--inverse" : ""}" x="33" y="${y + 29}" text-anchor="middle">${tab.label}</text>`;
     return `
       <g data-tab="${tab.id}">
-        <path class="voyager-live__tab${active ? " voyager-live__tab--active" : ""}" d="M0 ${y + 8} 8 ${y}H67V${y + 43}H0Z" />
+        <path class="voyager-live__tab${active ? " voyager-live__tab--active" : ""}" d="M-3 ${y + 8} 8 ${y}H67V${bottom}H-3Z" />
+        <path class="voyager-live__tab-top" d="M-3 ${y + 8} 8 ${y}H67" />
+        <path class="voyager-live__tab-right" d="M67 ${y}V${bottom}" />
         ${content}
       </g>`;
   }).join("");
 }
 
-function sideArrowsMarkup(tabsVisible) {
+function sideArrowsMarkup(screen, tabsVisible) {
+  if (screen.id === "main") {
+    return voyagerUiIcon("screen-arrow-right", { x: 492, y: 132, width: 12, height: 35 });
+  }
   return `
     ${voyagerUiIcon("screen-arrow-right", { x: tabsVisible ? 67 : 0, y: 132, width: 12, height: 35 })}
     ${voyagerUiIcon("screen-arrow-left", { x: 492, y: 132, width: 12, height: 35 })}`;
 }
 
 function screenChromeMarkup(screen, variant) {
-  return `${variant.tabsVisible ? tabsMarkup(screen.id) : ""}${variant.sideArrows ? sideArrowsMarkup(variant.tabsVisible) : ""}`;
+  return `${variant.tabsVisible ? tabsMarkup(screen.id) : ""}${variant.sideArrows ? sideArrowsMarkup(screen, variant.tabsVisible) : ""}`;
 }
 
 function statusBarMarkup(variant) {
@@ -371,8 +379,7 @@ function mainMarkup(screen, variant) {
     ${statusBarMarkup(variant)}
     <g transform="translate(${hiddenOffset} 0)">
       <text class="voyager-live__text voyager-live__text--medium" x="198" y="67" text-anchor="middle">MPH</text>
-      <rect class="voyager-live__speed-window" x="160" y="76" width="78" height="108" rx="13" />
-      <text class="voyager-live__text voyager-live__text--speed voyager-live__text--inverse" x="199" y="169" text-anchor="middle" data-live-speed>28</text>
+      <text class="voyager-live__text voyager-live__text--speed" x="199" y="169" text-anchor="middle" data-live-speed>28</text>
       ${compassMarkup({ cx: 399, cy: 133, radius: 73 })}
       <text class="voyager-live__text" x="100" y="236">ALT FT</text>
       <text class="voyager-live__text voyager-live__text--metric" x="91" y="286" data-live-altitude>1089</text>
