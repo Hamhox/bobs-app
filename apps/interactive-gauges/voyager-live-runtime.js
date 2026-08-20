@@ -272,11 +272,13 @@ function tabsMarkup(activeTab) {
     const y = index * 43;
     const bottom = index === VOYAGER_TAB_ORDER.length - 1 ? 303 : y + 43;
     const active = tab.id === activeTab;
+    const followsActiveTab = index > 0 && VOYAGER_TAB_ORDER[index - 1].id === activeTab;
     const content = tab.icon
-      ? temperatureIcon(18, y + 5, 0.78, active)
+      ? temperatureIcon(18, y + 5, 1.15, active)
       : `<text class="voyager-live__text voyager-live__text--medium${active ? " voyager-live__text--inverse" : ""}" x="33" y="${y + 29}" text-anchor="middle">${tab.label}</text>`;
     return `
       <g data-tab="${tab.id}">
+        ${followsActiveTab ? `<path class="voyager-live__tab-active-tail" d="M-3 ${y}H8L-3 ${y + 8}Z" />` : ""}
         <path class="voyager-live__tab${active ? " voyager-live__tab--active" : ""}" d="M-3 ${y + 8} 8 ${y}H67V${bottom}H-3Z" />
         <path class="voyager-live__tab-top" d="M-3 ${y + 8} 8 ${y}H67" />
         <path class="voyager-live__tab-right" d="M67 ${y}V${bottom}" />

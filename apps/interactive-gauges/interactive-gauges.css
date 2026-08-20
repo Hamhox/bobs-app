@@ -292,13 +292,13 @@
 
 .voyager-live-screen {
   position: absolute;
-  top: 0;
-  left: 50%;
+  top: 50%;
+  left: 0;
   display: block;
-  width: auto;
-  height: 100%;
+  width: 100%;
+  height: auto;
   aspect-ratio: 504 / 303;
-  transform: translateX(-50%);
+  transform: translateY(-50%);
 }
 
 .voyager-live-screen[hidden] {
@@ -586,6 +586,10 @@
 
 .voyager-live__tab {
   fill: #f5f4ef;
+}
+
+.voyager-live__tab-active-tail {
+  fill: #242021;
 }
 
 .voyager-live__tab-top,
