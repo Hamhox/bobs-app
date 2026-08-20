@@ -421,8 +421,8 @@ function mapMarkup(screen, variant) {
     <clipPath id="voyager-live-map-clip"><rect x="${mapLeft}" y="40" width="${mapRight - mapLeft}" height="207" /></clipPath>
     <g clip-path="url(#voyager-live-map-clip)">
       <g data-live-map-transform>
-        <path class="voyager-live__route" data-live-route />
         <path class="voyager-live__recorded" data-live-recorded />
+        <path class="voyager-live__route" data-live-route />
         <g data-live-waypoints></g>
         <path class="voyager-live__position" data-live-position d="M0-12 9 10 0 5-9 10Z" />
       </g>
