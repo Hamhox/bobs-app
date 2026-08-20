@@ -769,7 +769,6 @@
   opacity: 0.52;
 }
 
-.voyager-menu__rail,
 .voyager-menu__panel,
 .voyager-menu__modal,
 .voyager-menu__modal-shadow {
@@ -779,8 +778,6 @@
   vector-effect: non-scaling-stroke;
 }
 
-.voyager-menu__rail-line,
-.voyager-menu__rail-notch,
 .voyager-menu__rule,
 .voyager-menu__slot-underline,
 .voyager-menu__crosshair {
@@ -790,7 +787,6 @@
   vector-effect: non-scaling-stroke;
 }
 
-.voyager-menu__rail-active,
 .voyager-menu__selection,
 .voyager-menu__button--active,
 .voyager-menu__meter-fill,

@@ -7,22 +7,32 @@ const escapeMarkup = (value) => String(value ?? "")
   .replaceAll('"', "&quot;");
 
 function sectionChrome(section) {
-  const tabs = [
-    { id: "main", label: "MAIN", y: 0 },
-    { id: "ride", label: "RIDE", y: 43 },
-    { id: "set", label: "SET", y: 260 },
+  const slots = [
+    { id: "main", label: "MAIN" },
+    { id: "ride", label: "RIDE" },
+    {},
+    {},
+    {},
+    {},
+    { id: "set", label: "SET" },
   ];
-  const dividers = [86, 129, 172, 215];
+  const activeIndex = slots.findIndex((slot) => slot.id === section);
   return `
-    <g aria-hidden="true">
-      <path class="voyager-menu__rail" d="M0 0H67V303H0Z" />
-      ${dividers.map((y) => `<path class="voyager-menu__rail-line" d="M0 ${y}H67" />`).join("")}
-      ${tabs.map((tab) => `
-        <g>
-          ${tab.id === section ? `<path class="voyager-menu__rail-active" d="M0 ${tab.y}H67V${tab.y + 43}H0Z" />` : ""}
-          <text class="voyager-live__text voyager-live__text--medium${tab.id === section ? " voyager-live__text--inverse" : ""}" x="33" y="${tab.y + 29}" text-anchor="middle">${tab.label}</text>
-        </g>`).join("")}
-      <path class="voyager-menu__rail-notch" d="M67 20l12 13-12 13M67 63l12 13-12 13M67 240l12 13-12 13" />
+    <g data-menu-sidebar="persistent" aria-hidden="true">
+      ${slots.map((slot, index) => {
+        const y = index * 43;
+        const bottom = index === slots.length - 1 ? 303 : y + 43;
+        const active = index === activeIndex;
+        const followsActiveTab = index === activeIndex + 1;
+        return `
+          <g${slot.id ? ` data-menu-tab="${slot.id}"` : ""}>
+            ${followsActiveTab ? `<path class="voyager-live__tab-active-tail" d="M-3 ${y - 1}H8L-3 ${y + 8}Z" />` : ""}
+            <path class="voyager-live__tab${active ? " voyager-live__tab--active" : ""}" d="M-3 ${y + 8} 8 ${y}H67V${bottom}H-3Z" />
+            <path class="voyager-live__tab-top" d="M-3 ${y + 8} 8 ${y}H67" />
+            <path class="voyager-live__tab-right" d="M67 ${y}V${bottom}" />
+            ${slot.label ? `<text class="voyager-live__text voyager-live__text--medium${active ? " voyager-live__text--inverse" : ""}" x="33" y="${y + 29}" text-anchor="middle">${slot.label}</text>` : ""}
+          </g>`;
+      }).join("")}
     </g>`;
 }
 
