@@ -291,6 +291,8 @@
 }
 
 .voyager-live-screen {
+  --voyager-backlight-color: #f5f4ef;
+
   position: absolute;
   top: 50%;
   left: 0;
@@ -756,7 +758,7 @@
   overflow: visible;
 }
 
-.voyager-ui-icon--inverse {
+.voyager-ui-icon--inverse use {
   filter: invert(1);
 }
 
@@ -782,6 +784,13 @@
 .voyager-menu__modal-shadow {
   fill: #9e9993;
   stroke: none;
+}
+
+.voyager-menu__underlay-wash {
+  fill: var(--voyager-backlight-color);
+  opacity: 0.52;
+  pointer-events: none;
+  shape-rendering: crispEdges;
 }
 
 .voyager-menu__title-band {

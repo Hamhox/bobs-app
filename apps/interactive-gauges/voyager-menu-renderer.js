@@ -271,7 +271,9 @@ export function renderVoyagerMenuMarkup(definition, { underlayMarkup = "" } = {}
   };
   const markup = renderers[definition.kind](definition);
   if (definition.presentation !== "overlay") return markup;
-  return `${underlayMarkup || `<rect class="voyager-live__surface" width="504" height="303" />${sectionChrome(definition.section)}`}${markup}`;
+  const underlay = underlayMarkup
+    || `<rect class="voyager-live__surface" width="504" height="303" />${sectionChrome(definition.section)}`;
+  return `${underlay}<rect class="voyager-menu__underlay-wash" width="504" height="303" />${markup}`;
 }
 
 export function voyagerMenuAriaLabel(definition) {

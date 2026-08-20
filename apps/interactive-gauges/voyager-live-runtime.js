@@ -756,6 +756,10 @@ export class VoyagerLiveRuntime {
     return this.#menuModel.prepareInput(voyagerMenuState(stateId), action);
   }
 
+  resolveInputAction(stateId, action) {
+    return this.#menuModel.resolveInputAction(voyagerMenuState(stateId), action);
+  }
+
   render(state, event = {}) {
     this.#state = state;
     this.#screenState = voyagerScreenState(state.id);
@@ -872,6 +876,9 @@ export class VoyagerLiveRuntime {
     };
     const telemetry = this.#telemetry;
     const menuValues = this.#menuModel.values;
+    const brightnessValue = this.#menuState?.kind === "brightness"
+      ? this.#menuModel.resolve(this.#menuState).value
+      : menuValues.brightness;
     const metricSpeed = menuValues.speedUnits === "KM/H";
     const metricDistance = menuValues.distanceUnits === "KILOMETERS / METERS";
     const fahrenheit = menuValues.temperatureUnits === "FAHRENHEIT";
@@ -914,7 +921,7 @@ export class VoyagerLiveRuntime {
     this.#mount.dataset.gps = menuValues.gpsMode === "DISABLED (POWER SAVE)" ? "disabled" : "enabled";
     this.#mount.dataset.stopwatch = this.#stopwatchRunning ? "running" : "paused";
     this.#mount.dataset.mapOrientation = menuValues.mapOrientation === "NORTH UP" ? "north-up" : "track-up";
-    this.#mount.style.setProperty("--voyager-screen-brightness", String(clamp(Number(menuValues.brightness) / 50, 0.35, 2)));
+    this.#mount.style.setProperty("--voyager-screen-brightness", String(clamp(Number(brightnessValue) / 50, 0.35, 2)));
 
     if (this.#menuState) {
       this.#updateMenuMap();

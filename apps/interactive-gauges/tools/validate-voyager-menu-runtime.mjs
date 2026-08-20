@@ -92,8 +92,33 @@ function main() {
   if (!modalMarkup.includes("voyager-menu__modal-shadow") || !modalMarkup.includes("voyager-menu__title-band")) {
     throw new Error("settings modal is missing its device frame primitives");
   }
+  if (!modalMarkup.includes("voyager-menu__underlay-wash")) {
+    throw new Error("settings modal is missing its flat backlight wash");
+  }
   if (!modalMarkup.includes('class="voyager-menu__selection" x="83"')) {
     throw new Error("settings selection does not span the inner modal");
+  }
+
+  const pageCenterAction = new VoyagerMenuModel().prepareInput(
+    VOYAGER_MENU_STATE_INDEX["m-set3-2"],
+    "center",
+  );
+  if (pageCenterAction.action !== "enter") {
+    throw new Error("center does not activate the selected menu row");
+  }
+  const radioCenterAction = new VoyagerMenuModel().prepareInput(
+    VOYAGER_MENU_STATE_INDEX["m-set3-2-1-1"],
+    "center",
+  );
+  if (radioCenterAction.action !== "enter") {
+    throw new Error("center does not commit the selected radio option");
+  }
+  const editorCenterAction = new VoyagerMenuModel().prepareInput(
+    VOYAGER_MENU_STATE_INDEX["m-set3-2-3-1"],
+    "center",
+  );
+  if (editorCenterAction.action !== "center") {
+    throw new Error("center no longer retains its digit-editor behavior");
   }
 
   console.log(JSON.stringify(report, null, 2));

@@ -177,50 +177,58 @@ export class VoyagerMenuModel {
     return resolved;
   }
 
+  resolveInputAction(definition, action) {
+    if (!definition || action !== "center") return action;
+    const centerActivatesSelection = definition.presentation === "page"
+      || ["brightness", "confirm", "notice", "settings-modal"].includes(definition.kind);
+    return centerActivatesSelection ? "enter" : action;
+  }
+
   prepareInput(definition, action) {
     if (!definition) return { action };
     if (action === "back" || action === "menu") {
       this.#discard(definition.id);
       return { action };
     }
+    const preparedAction = this.resolveInputAction(definition, action);
     if (definition.presentation !== "overlay") {
-      if (action === "enter") this.#applyPageAction(definition);
-      return { action };
+      if (preparedAction === "enter") this.#applyPageAction(definition);
+      return { action: preparedAction };
     }
 
     const draft = this.#draftFor(definition);
-    if (action === "left" && ["brightness", "settings-modal", "slot-input"].includes(definition.kind)) {
+    if (preparedAction === "left" && ["brightness", "settings-modal", "slot-input"].includes(definition.kind)) {
       this.#discard(definition.id);
-      return { action };
+      return { action: preparedAction };
     }
     if (definition.kind === "confirm") {
-      if (["left", "right", "up", "down"].includes(action)) {
+      if (["left", "right", "up", "down"].includes(preparedAction)) {
         draft.selectedConfirmation = draft.selectedConfirmation === 0 ? 1 : 0;
         this.#touch();
       }
-      if (action === "enter" && draft.selectedConfirmation === 0) {
+      if (preparedAction === "enter" && draft.selectedConfirmation === 0) {
         this.#discard(definition.id);
         return { action: "back" };
       }
     }
 
-    if (definition.kind === "settings-modal" && (action === "up" || action === "down")) {
+    if (definition.kind === "settings-modal" && (preparedAction === "up" || preparedAction === "down")) {
       const count = definition.options.length;
-      draft.selectedIndex = (draft.selectedIndex + (action === "up" ? -1 : 1) + count) % count;
+      draft.selectedIndex = (draft.selectedIndex + (preparedAction === "up" ? -1 : 1) + count) % count;
       this.#touch();
     }
 
-    if (definition.kind === "slot-input") this.#editSlot(draft, action);
-    if (definition.kind === "brightness") this.#editBrightness(draft, action);
-    if (definition.kind === "keyboard") this.#editKeyboard(draft, action);
+    if (definition.kind === "slot-input") this.#editSlot(draft, preparedAction);
+    if (definition.kind === "brightness") this.#editBrightness(draft, preparedAction);
+    if (definition.kind === "keyboard") this.#editKeyboard(draft, preparedAction);
 
-    if (action === "enter") {
+    if (preparedAction === "enter") {
       this.#commit(definition, draft);
       if (definition.id === "m-graph-temp-display" || definition.id === "m-graph-alt-display") {
-        return { action, targetStateId: draft.selectedIndex === 0 ? "eng2" : "alt2" };
+        return { action: preparedAction, targetStateId: draft.selectedIndex === 0 ? "eng2" : "alt2" };
       }
     }
-    return { action };
+    return { action: preparedAction };
   }
 
   #draftFor(definition) {

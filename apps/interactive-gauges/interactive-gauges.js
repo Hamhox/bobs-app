@@ -123,7 +123,8 @@ function commitState(engine, state, event) {
 
   const inputPolicyState = manifest.states[liveRuntime.getInputPolicyStateId(state.id)] ?? state;
   for (const control of controls) {
-    const target = inputPolicyState.transitions[control.dataset.action];
+    const policyAction = liveRuntime.resolveInputAction(state.id, control.dataset.action);
+    const target = inputPolicyState.transitions[policyAction];
     const noOp = target === null;
     control.toggleAttribute("data-noop", noOp);
     control.setAttribute("aria-disabled", String(noOp));
