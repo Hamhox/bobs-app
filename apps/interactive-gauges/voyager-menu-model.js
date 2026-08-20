@@ -62,7 +62,6 @@ const FIELD_BINDINGS = Object.freeze({
   "m-set3-6-3-1": "yellowLedFlash",
   "m-set3-6-4-1": "redLedFlash",
   "m-ride2-6-2-1-1": "rideName",
-  "m-ride2-6-4-1-1-1": "rideName",
 });
 
 const ROW_BINDINGS = Object.freeze({

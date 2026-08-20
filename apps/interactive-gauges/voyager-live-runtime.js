@@ -20,6 +20,12 @@ const DIRECTION_INPUTS = new Set(["up", "down", "left", "right"]);
 const WAYPOINT_STORAGE_KEY = "bobs-app:voyager-waypoints:v1";
 const SAVED_RIDE_STORAGE_KEY = "bobs-app:voyager-saved-rides:v1";
 const VOYAGER_SCREEN_REFRESH_MS = 2000;
+const SD_CARD_DEFAULT_RIDES = Object.freeze([
+  { id: "SD-CMRA-T2", name: "CMRA TRAIL 2", progress: 0, trackId: "cmra-trail-2" },
+  { id: "SD-BLACKDOG", name: "2016 BLACKDOG", progress: 0, trackId: "blackdog-2016" },
+  { id: "SD-FOREST", name: "DEMO FOREST", progress: 0, trackId: "forest-loop" },
+  { id: "SD-MOUNTAIN", name: "DEMO MOUNTAIN", progress: 0, trackId: "mountain-run" },
+]);
 const clamp = (value, minimum, maximum) => Math.min(maximum, Math.max(minimum, value));
 const radians = (degrees) => (degrees * Math.PI) / 180;
 
@@ -49,12 +55,23 @@ function bearingDegrees(a, b) {
 function parseGpx(xmlText) {
   const documentNode = new DOMParser().parseFromString(xmlText, "application/xml");
   if (documentNode.querySelector("parsererror")) throw new Error("Voyager GPX could not be parsed.");
-  const points = [...documentNode.querySelectorAll("trkpt")].map((point) => ({
-    latitude: Number(point.getAttribute("lat")),
-    longitude: Number(point.getAttribute("lon")),
-    elevation: Number(point.querySelector("ele")?.textContent ?? 0),
-    time: Date.parse(point.querySelector("time")?.textContent ?? ""),
-  }));
+  const points = [...documentNode.querySelectorAll("trkpt")].map((point) => {
+    const rideData = point.getElementsByTagNameNS("*", "RideData")[0];
+    const sensorValue = (name) => {
+      const value = Number(rideData?.getAttribute(name));
+      return Number.isFinite(value) ? value : Number.NaN;
+    };
+    return {
+      latitude: Number(point.getAttribute("lat")),
+      longitude: Number(point.getAttribute("lon")),
+      elevation: Number(point.querySelector("ele")?.textContent ?? 0),
+      time: Date.parse(point.querySelector("time")?.textContent ?? ""),
+      engineTemperatureC: sensorValue("eng"),
+      airTemperatureC: sensorValue("air"),
+      speedKph: sensorValue("spd"),
+      rpm: sensorValue("rpm"),
+    };
+  });
   if (points.length < 2 || points.some((point) => !Number.isFinite(point.latitude + point.longitude))) {
     throw new Error("Voyager GPX does not contain a usable track.");
   }
@@ -76,13 +93,18 @@ function buildTrack(definition, points) {
       : 5;
     segmentSpeeds.push(meters / elapsedSeconds * 2.23694);
   }
+  const sensorSpeedsMph = points
+    .map((point) => point.speedKph * 0.621371)
+    .filter(Number.isFinite);
   return {
     ...definition,
     points,
     distances,
     totalMeters: distances.at(-1) || 1,
-    averageSpeedMph: segmentSpeeds.reduce((sum, speed) => sum + speed, 0) / segmentSpeeds.length,
-    maxSpeedMph: Math.max(...segmentSpeeds),
+    averageSpeedMph: sensorSpeedsMph.length
+      ? sensorSpeedsMph.reduce((sum, speed) => sum + speed, 0) / sensorSpeedsMph.length
+      : segmentSpeeds.reduce((sum, speed) => sum + speed, 0) / segmentSpeeds.length,
+    maxSpeedMph: sensorSpeedsMph.length ? Math.max(...sensorSpeedsMph) : Math.max(...segmentSpeeds),
   };
 }
 
@@ -219,13 +241,18 @@ class VoyagerRideEngine {
     const start = track.points[index];
     const end = track.points[index + 1];
     const interpolate = (key) => start[key] + (end[key] - start[key]) * amount;
+    const interpolateSensor = (key) => Number.isFinite(start[key]) && Number.isFinite(end[key])
+      ? interpolate(key)
+      : Number.NaN;
     const segmentStart = Math.max(0, index - 1);
     const segmentEnd = Math.min(track.points.length - 1, index + 2);
     const speedDistance = haversineMeters(track.points[segmentStart], track.points[segmentEnd]);
     const speedSeconds = Number.isFinite(track.points[segmentEnd].time - track.points[segmentStart].time)
       ? Math.max(1, (track.points[segmentEnd].time - track.points[segmentStart].time) / 1000)
       : 10;
-    const speedMph = speedDistance / speedSeconds * 2.23694;
+    const calculatedSpeedMph = speedDistance / speedSeconds * 2.23694;
+    const recordedSpeedMph = interpolateSensor("speedKph") * 0.621371;
+    const speedMph = Number.isFinite(recordedSpeedMph) ? recordedSpeedMph : calculatedSpeedMph;
     const completedMeters = track.distances[index] + haversineMeters(start, end) * amount;
     const elevationFeet = Math.round(interpolate("elevation") * 3.28084);
     const interpolatedTime = Number.isFinite(start.time + end.time)
@@ -246,8 +273,13 @@ class VoyagerRideEngine {
       distanceKm: completedMeters / 1000,
       totalDistanceKm: track.totalMeters / 1000,
       destinationMeters: Math.max(0, Math.round(track.totalMeters - completedMeters)),
-      ambientTemperatureF: Math.round(75 + Math.sin(progress * Math.PI * 2) * 3),
-      engineTemperatureF: engineTemperatureAt(progress, elevationFeet),
+      ambientTemperatureF: Number.isFinite(interpolateSensor("airTemperatureC"))
+        ? Math.round(interpolateSensor("airTemperatureC") * 9 / 5 + 32)
+        : Math.round(75 + Math.sin(progress * Math.PI * 2) * 3),
+      engineTemperatureF: Number.isFinite(interpolateSensor("engineTemperatureC"))
+        ? Math.round(interpolateSensor("engineTemperatureC") * 9 / 5 + 32)
+        : engineTemperatureAt(progress, elevationFeet),
+      rpm: Number.isFinite(interpolateSensor("rpm")) ? Math.round(interpolateSensor("rpm")) : 0,
       timeLabel: formatClock(interpolatedTime),
       elapsedLabel: formatDuration(progress * this.#durationMs / 1000),
     };
@@ -694,6 +726,7 @@ export class VoyagerLiveRuntime {
   #available = false;
   #waypoints = [];
   #savedRides = [];
+  #selectedSavedRideIndex = 0;
   #overlayRideId = null;
   #selectedDestination = null;
 
@@ -712,6 +745,8 @@ export class VoyagerLiveRuntime {
       this.#ride.load([
         { id: "forest-loop", label: "FOREST LOOP", url: `${this.#appBase}/assets/rides/forest-loop.gpx` },
         { id: "mountain-run", label: "MOUNTAIN RUN", url: `${this.#appBase}/assets/rides/mountain-run.gpx` },
+        { id: "cmra-trail-2", label: "CMRA TRAIL 2", url: `${this.#appBase}/assets/rides/cmra-trail-2.gpx` },
+        { id: "blackdog-2016", label: "2016 BLACKDOG", url: `${this.#appBase}/assets/rides/blackdog-2016.gpx` },
       ]),
     ]);
     this.#loadWaypoints();
@@ -724,6 +759,7 @@ export class VoyagerLiveRuntime {
         this.#projectedTrackId = "";
       }
       this.#telemetry = telemetry;
+      this.#stage.dataset.liveRide = telemetry.trackId;
       this.#updateDynamicFields();
     });
   }
@@ -777,7 +813,8 @@ export class VoyagerLiveRuntime {
     this.#applyInteractiveInput(event);
 
     if (this.#menuState) {
-      const layoutKey = `menu:${state.id}:${this.#waypoints.length}:${this.#menuModel.revision}`;
+      const savedRideKey = this.#savedRides.slice(0, 4).map((ride) => `${ride.id}:${ride.name}`).join("|");
+      const layoutKey = `menu:${state.id}:${this.#waypoints.length}:${this.#menuModel.revision}:${savedRideKey}:${this.#selectedSavedRideIndex}`;
       if (layoutKey !== this.#layoutKey) {
         this.#mount.innerHTML = `
           <svg class="voyager-live voyager-menu" viewBox="0 0 504 303" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${voyagerMenuAriaLabel(this.#menuState)}">
@@ -820,7 +857,18 @@ export class VoyagerLiveRuntime {
   #renderMenuMarkup(definition, visited = new Set()) {
     if (visited.has(definition.id)) throw new Error(`Voyager menu underlay cycle at ${definition.id}.`);
     visited.add(definition.id);
-    const resolved = this.#menuModel.resolve(definition);
+    let resolved = this.#menuModel.resolve(definition);
+    if (/^m-ride2-6-4-[1-4]$/.test(resolved.id)) {
+      const cardRows = this.#savedRides.slice(0, 4).map((ride) => ({ label: ride.name }));
+      while (cardRows.length < 4) cardRows.push({ label: "EMPTY SLOT" });
+      resolved = { ...resolved, rows: cardRows };
+    }
+    if (/^m-ride2-6-4-1-[1-4](?:-1)?$/.test(resolved.id)) {
+      resolved = {
+        ...resolved,
+        title: this.#savedRides[this.#selectedSavedRideIndex]?.name ?? "EMPTY SLOT",
+      };
+    }
     if (resolved.presentation !== "overlay") return renderVoyagerMenuMarkup(resolved);
 
     let underlayMarkup = "";
@@ -973,6 +1021,8 @@ export class VoyagerLiveRuntime {
   #applyMenuOutcome(event) {
     if (event.action !== "enter") return;
     const telemetry = this.#telemetry;
+    const savedRideSelection = event.from.match(/^m-ride2-6-4-([1-4])$/);
+    if (savedRideSelection) this.#selectedSavedRideIndex = Number(savedRideSelection[1]) - 1;
     if (event.from === "m-main1-4" && telemetry) {
       this.#addWaypoint("QUICK ADD", telemetry.latitude, telemetry.longitude);
     }
@@ -1003,10 +1053,9 @@ export class VoyagerLiveRuntime {
       this.#overlayRideId = null;
       this.#invalidateMapProjection();
     }
-    if (event.from === "m-ride2-6-4-1-1-1") this.#renameSavedRide();
-    if (event.from === "m-ride2-6-4-1-2-1") this.#continueSavedRide();
-    if (event.from === "m-ride2-6-4-1-3-1") {
-      this.#overlayRideId = this.#savedRides[0]?.trackId ?? null;
+    if (event.from === "m-ride2-6-4-1-1-1") this.#loadSavedRide();
+    if (event.from === "m-ride2-6-4-1-2-1") {
+      this.#overlayRideId = this.#savedRides[this.#selectedSavedRideIndex]?.trackId ?? null;
       this.#invalidateMapProjection();
     }
     if (event.from === "m-ride2-6-4-1-4-1") this.#deleteSavedRide();
@@ -1028,24 +1077,22 @@ export class VoyagerLiveRuntime {
     this.#saveSavedRides();
   }
 
-  #renameSavedRide() {
-    if (!this.#savedRides.length) return;
-    this.#savedRides[0] = { ...this.#savedRides[0], name: this.#menuModel.values.rideName };
-    this.#saveSavedRides();
-  }
-
-  #continueSavedRide() {
-    const ride = this.#savedRides[0];
+  #loadSavedRide() {
+    const ride = this.#savedRides[this.#selectedSavedRideIndex];
     if (!ride || !this.#ride.trackIds.includes(ride.trackId)) return;
     this.#ride.selectRide(ride.trackId);
     this.#ride.seek(ride.progress);
+    this.#ride.play();
     this.#overlayRideId = null;
+    this.#mapViews.overview = { pan: { x: 0, y: 0 }, scale: 1, mode: "pan", followPosition: false };
+    this.#mapViews.detail = { pan: { x: 0, y: 0 }, scale: 2.1, mode: "pan", followPosition: true };
     this.#invalidateMapProjection();
   }
 
   #deleteSavedRide() {
-    if (!this.#savedRides.length) return;
-    const [removed] = this.#savedRides.splice(0, 1);
+    if (!this.#savedRides[this.#selectedSavedRideIndex]) return;
+    const [removed] = this.#savedRides.splice(this.#selectedSavedRideIndex, 1);
+    this.#selectedSavedRideIndex = clamp(this.#selectedSavedRideIndex, 0, Math.max(0, this.#savedRides.length - 1));
     if (this.#overlayRideId === removed.trackId) this.#overlayRideId = null;
     this.#saveSavedRides();
     this.#invalidateMapProjection();
@@ -1092,11 +1139,16 @@ export class VoyagerLiveRuntime {
   #loadSavedRides() {
     try {
       const stored = JSON.parse(window.localStorage.getItem(SAVED_RIDE_STORAGE_KEY) ?? "[]");
-      this.#savedRides = Array.isArray(stored)
-        ? stored.filter((ride) => typeof ride?.name === "string" && typeof ride?.trackId === "string").slice(0, 8)
+      const reviewedStoredRides = Array.isArray(stored)
+        ? stored.filter((ride) => typeof ride?.name === "string" && typeof ride?.trackId === "string")
         : [];
+      const defaultTrackIds = new Set(SD_CARD_DEFAULT_RIDES.map((ride) => ride.trackId));
+      this.#savedRides = [
+        ...SD_CARD_DEFAULT_RIDES.map((ride) => ({ ...ride })),
+        ...reviewedStoredRides.filter((ride) => !defaultTrackIds.has(ride.trackId)),
+      ].slice(0, 8);
     } catch {
-      this.#savedRides = [];
+      this.#savedRides = SD_CARD_DEFAULT_RIDES.map((ride) => ({ ...ride }));
     }
   }
 

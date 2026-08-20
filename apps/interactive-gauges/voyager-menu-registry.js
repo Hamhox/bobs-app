@@ -99,29 +99,32 @@ register("m-ride2-6-3-1", {
   lines: ["REMOVE OVERLAYED RIDE FROM", "MAP SCREEN. UNSAVED DATA", "WILL NOT BE LOST."],
 });
 
-const SAVED_RIDES = ["RIDE-32", "RIDE-33", "MT. ST. HELENS TRIP", "RIDE-35"];
+const SAVED_RIDES = ["CMRA TRAIL 2", "2016 BLACKDOG", "DEMO FOREST", "DEMO MOUNTAIN"];
 registerMenuFamily(
   ["m-ride2-6-4-1", "m-ride2-6-4-2", "m-ride2-6-4-3", "m-ride2-6-4-4"],
-  { kind: "panel", section: "ride", title: "SAVED RIDES", rows: SAVED_RIDES.map((label) => ({ label })) },
+  { kind: "panel", section: "ride", title: "MEMORY CARD RIDES", rows: SAVED_RIDES.map((label) => ({ label })) },
   [0, 1, 2, 3],
 );
-const SAVED_RIDE_ACTIONS = ["RENAME", "CONTINUE", "OVERLAY", "DELETE"];
+const SAVED_RIDE_ACTIONS = ["LOAD", "OVERLAY", "INFO", "EJECT"];
 registerMenuFamily(
   ["m-ride2-6-4-1-1", "m-ride2-6-4-1-2", "m-ride2-6-4-1-3", "m-ride2-6-4-1-4"],
-  { kind: "settings-modal", section: "ride", title: "RIDE-32", options: SAVED_RIDE_ACTIONS },
+  { kind: "settings-modal", section: "ride", title: "MEMORY CARD RIDE", options: SAVED_RIDE_ACTIONS },
   [0, 1, 2, 3],
 );
-register("m-ride2-6-4-1-1-1", { kind: "keyboard", section: "ride", title: "RENAME SAVED RIDE", value: "YACOLT RIDE1" });
-register("m-ride2-6-4-1-2-1", {
-  kind: "confirm", section: "ride", title: "CONTINUE SAVED RIDE",
-  lines: ["LOAD RIDE AND", "CONTINUE LOGGING.", "UNSAVED DATA WILL BE LOST."],
+register("m-ride2-6-4-1-1-1", {
+  kind: "confirm", section: "ride", title: "LOAD MEMORY CARD RIDE",
+  lines: ["LOAD RIDE FROM", "MEMORY CARD?", "CURRENT RIDE WILL BE REPLACED."],
 });
-register("m-ride2-6-4-1-3-1", {
-  kind: "confirm", section: "ride", title: "OVERLAY SAVED RIDE",
+register("m-ride2-6-4-1-2-1", {
+  kind: "confirm", section: "ride", title: "OVERLAY MEMORY CARD RIDE",
   lines: ["LOAD RIDE ON", "TOP OF THE CURRENT RIDE", "FOR REFERENCE."],
 });
+register("m-ride2-6-4-1-3-1", {
+  kind: "notice", section: "ride", title: "MEMORY CARD RIDE INFO",
+  lines: ["REAL GPX RIDE DATA", "TEMPERATURE / SPEED / RPM", "PERFORMANCE REDUCED."],
+});
 register("m-ride2-6-4-1-4-1", {
-  kind: "confirm", section: "ride", title: "DELETE SAVED RIDE", lines: ["RIDE-32", "DELETE SAVED RIDE?"],
+  kind: "confirm", section: "ride", title: "EJECT MEMORY CARD RIDE", lines: ["REMOVE RIDE FROM", "THE MEMORY CARD LIST?"],
 });
 
 const SETTINGS_MENU_ROWS = [

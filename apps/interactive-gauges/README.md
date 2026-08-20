@@ -70,10 +70,23 @@ the supplied assets; the protected source file itself remains outside the reposi
 
 The map renderer is deliberately track-only. It draws the current recording and loaded local GPX track/route geometry,
 position, heading, waypoints, scale, and pan/zoom state. It contains no basemap, terrain, tiles, roads, place labels, route
-planning, or third-party map service. The ride engine loads `assets/rides/forest-loop.gpx` and
-`assets/rides/mountain-run.gpx` locally and keeps ride-derived speed, heading, distance, elevation, temperature, graphs,
-and map position synchronized. It supports play, pause, reset, seek, playback speed, and loop behavior. Graph cursor input
-seeks that shared timeline rather than maintaining a disconnected display-only cursor.
+planning, or third-party map service. The fake memory card exposes two reviewed real rides (`cmra-trail-2.gpx` and
+`blackdog-2016.gpx`) alongside the two synthetic demonstrations. Choosing Ride Menu, Edit Rides, Saved Rides and Load
+selects the highlighted ride and resets both map views around its geometry. The ride engine keeps recorded speed, heading,
+distance, elevation, engine temperature, ambient temperature, graphs, and map position synchronized. It supports play,
+pause, reset, seek, playback speed, and loop behavior. Graph cursor input seeks that shared timeline rather than maintaining
+a disconnected display-only cursor.
+
+The checked-in real-ride files are reduced, publication-safe derivatives rather than copies of the source library. Rebuild
+them from a reviewed local GPX directory with:
+
+```powershell
+node tools/build-voyager-ride-assets.mjs <path-to-reviewed-gpx-library>
+```
+
+The generator extracts CMRA Trail 2 and the first 2016 Blackdog recording, reduces point density, rebases timestamps while
+preserving their intervals, and retains the recorded coordinates, elevation, speed, RPM, engine temperature, and ambient
+temperature needed by the emulator. The original GPX library remains outside the repository.
 
 The public command accepts stable state IDs and optional ride parameters. For example,
 `navigateToVoyagerState("gauge.altitude.graph", { rideId: "mountain-run", progress: 0.4 })` selects the second local GPX
