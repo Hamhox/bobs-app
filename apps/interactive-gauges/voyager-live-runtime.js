@@ -641,9 +641,9 @@ function renderScreenMarkup(screen, variant) {
   return renderers[screen.renderer](screen, variant);
 }
 
-function projectTrack(points, bounds) {
-  const longitudes = points.map((point) => point.longitude);
-  const latitudes = points.map((point) => point.latitude);
+function projectTrack(points, bounds, extentPoints = points) {
+  const longitudes = extentPoints.map((point) => point.longitude);
+  const latitudes = extentPoints.map((point) => point.latitude);
   const minimumLongitude = Math.min(...longitudes);
   const maximumLongitude = Math.max(...longitudes);
   const minimumLatitude = Math.min(...latitudes);
@@ -682,8 +682,10 @@ export class VoyagerLiveRuntime {
   #projectedTrackId = "";
   #menuProjectedTrack = [];
   #menuProjectedTrackId = "";
-  #mapPan = { x: 0, y: 0 };
-  #mapScale = 1;
+  #mapViews = {
+    overview: { pan: { x: 0, y: 0 }, scale: 1, mode: "pan", followPosition: false },
+    detail: { pan: { x: 0, y: 0 }, scale: 2.1, mode: "pan", followPosition: true },
+  };
   #graphScale = 1;
   #pulseTimer = 0;
   #stopwatchElapsedMs = 0;
@@ -790,11 +792,15 @@ export class VoyagerLiveRuntime {
     }
 
     const { screen, variant } = this.#screenState;
-    const layoutKey = `${screen.id}:${variant.view}:${variant.tabsVisible}:${variant.interaction ?? "browse"}`;
+    const mapView = screen.renderer === "map" ? this.#mapViews[variant.mapView] : null;
+    const renderedVariant = mapView && variant.editing
+      ? { ...variant, interaction: mapView.mode }
+      : variant;
+    const layoutKey = `${screen.id}:${variant.view}:${variant.mapView ?? "default"}:${variant.tabsVisible}:${renderedVariant.interaction ?? "browse"}`;
     if (layoutKey !== this.#layoutKey) {
       this.#mount.innerHTML = `
         <svg class="voyager-live" viewBox="0 0 504 303" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Live Voyager ${screen.tabLabel.toLowerCase()} ${variant.view} screen">
-          ${renderScreenMarkup(screen, variant)}
+          ${renderScreenMarkup(screen, renderedVariant)}
         </svg>`;
       this.#layoutKey = layoutKey;
       this.#projectedTrack = [];
@@ -836,18 +842,24 @@ export class VoyagerLiveRuntime {
     this.#applyMenuOutcome(event);
     const fromState = voyagerScreenState(event.from);
     if (!fromState) return;
-    if (fromState.screen.id === "map" && DIRECTION_INPUTS.has(event.action)) {
-      const policyState = VOYAGER_INPUT_POLICY_ALIASES[event.from] ?? event.from;
-      if (policyState === "map2") {
+    if (fromState.screen.id === "map") {
+      const mapView = this.#mapViews[fromState.variant.mapView];
+      if (fromState.variant.editing && event.action === "enter") {
+        mapView.mode = mapView.mode === "pan" ? "zoom" : "pan";
+      } else if (event.action === "center") {
+        mapView.pan = { x: 0, y: 0 };
+        mapView.scale = 1;
+        mapView.followPosition = false;
+      } else if (fromState.variant.editing && DIRECTION_INPUTS.has(event.action) && mapView.mode === "pan") {
         const step = 12;
-        if (event.action === "up") this.#mapPan.y += step;
-        if (event.action === "down") this.#mapPan.y -= step;
-        if (event.action === "left") this.#mapPan.x += step;
-        if (event.action === "right") this.#mapPan.x -= step;
-      }
-      if (policyState === "map3") {
+        if (event.action === "up") mapView.pan.y += step;
+        if (event.action === "down") mapView.pan.y -= step;
+        if (event.action === "left") mapView.pan.x += step;
+        if (event.action === "right") mapView.pan.x -= step;
+        mapView.followPosition = false;
+      } else if (fromState.variant.editing && DIRECTION_INPUTS.has(event.action) && mapView.mode === "zoom") {
         const direction = event.action === "up" || event.action === "right" ? 0.16 : -0.16;
-        this.#mapScale = clamp(this.#mapScale + direction, 0.72, 2.2);
+        mapView.scale = clamp(mapView.scale + direction, 0.72, 4.5);
       }
     }
     if (fromState.variant.interaction === "graph") {
@@ -1163,24 +1175,25 @@ export class VoyagerLiveRuntime {
   #updateMap() {
     if (!this.#ride.points.length) return;
     const { variant } = this.#screenState;
+    const mapView = this.#mapViews[variant.mapView];
     if (!this.#projectedTrack.length || this.#projectedTrackId !== this.#telemetry.trackId) {
-      this.#projectedTrack = projectTrack(this.#ride.points, {
+      const overlayPoints = this.#ride.pointsFor(this.#overlayRideId);
+      const extentPoints = overlayPoints.length > 1
+        ? [...this.#ride.points, ...overlayPoints]
+        : this.#ride.points;
+      const projectionBounds = {
         left: variant.tabsVisible ? 104 : 62,
         right: variant.interaction ? 415 : 462,
         top: 62,
         bottom: 234,
-      });
+      };
+      this.#projectedTrack = projectTrack(this.#ride.points, projectionBounds, extentPoints);
       this.#projectedTrackId = this.#telemetry.trackId;
       this.#mount.querySelector("[data-live-route]")?.setAttribute("d", pathFromPoints(this.#projectedTrack));
-      const overlayPoints = this.#ride.pointsFor(this.#overlayRideId);
       this.#mount.querySelector("[data-live-overlay-route]")?.setAttribute(
-        "d",
-        overlayPoints.length > 1 ? pathFromPoints(projectTrack(overlayPoints, {
-          left: variant.tabsVisible ? 104 : 62,
-          right: variant.interaction ? 415 : 462,
-          top: 62,
-          bottom: 234,
-        })) : "",
+        "d", overlayPoints.length > 1
+          ? pathFromPoints(projectTrack(overlayPoints, projectionBounds, extentPoints))
+          : "",
       );
       const waypointLayer = this.#mount.querySelector("[data-live-waypoints]");
       if (waypointLayer) {
@@ -1201,6 +1214,10 @@ export class VoyagerLiveRuntime {
       }
     }
     const position = this.#pointAtProgress(this.#projectedTrack, this.#telemetry.progress);
+    if (mapView.followPosition) {
+      mapView.pan.x = mapView.scale * (252 - position.x);
+      mapView.pan.y = mapView.scale * (150 - position.y);
+    }
     const index = Math.min(this.#projectedTrack.length - 2, Math.floor(this.#telemetry.progress * (this.#projectedTrack.length - 1)));
     const recordedPoints = [...this.#projectedTrack.slice(0, index + 1), position];
     this.#mount.querySelector("[data-live-recorded]")?.setAttribute("d", pathFromPoints(recordedPoints));
@@ -1211,7 +1228,7 @@ export class VoyagerLiveRuntime {
     const mapRotation = this.#menuModel.values.mapOrientation === "TRACK UP" ? -this.#telemetry.heading : 0;
     this.#mount.querySelector("[data-live-map-transform]")?.setAttribute(
       "transform",
-      `translate(${this.#mapPan.x} ${this.#mapPan.y}) translate(252 150) rotate(${mapRotation.toFixed(2)}) scale(${this.#mapScale}) translate(-252 -150)`,
+      `translate(${mapView.pan.x.toFixed(2)} ${mapView.pan.y.toFixed(2)}) translate(252 150) rotate(${mapRotation.toFixed(2)}) scale(${mapView.scale.toFixed(2)}) translate(-252 -150)`,
     );
   }
 

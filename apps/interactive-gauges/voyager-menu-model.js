@@ -16,7 +16,7 @@ const DEFAULT_VALUES = Object.freeze({
   sleepModeTimer: "05 MIN",
   chargeMode: "ONLY WHEN MOTOR IS ON",
   chargeLevel: "TRICKLE CHARGE",
-  mapOrientation: "TRACK UP",
+  mapOrientation: "NORTH UP",
   mapAutoZoom: "ON",
   logAfterStop: "030 SEC",
   recordMethod: "DISTANCE",

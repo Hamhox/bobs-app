@@ -193,7 +193,7 @@ register("m-set3-3-6-1", { kind: "settings-modal", section: "set", title: "CHARG
 register("m-set3-3-7-1", { kind: "settings-modal", section: "set", title: "CHARGE LEVEL", options: ["TRICKLE CHARGE", "FAST CHARGE"], selectedIndex: 0, note: "USE TRICKLE IF POWER SUPPLY IS LIMITED." });
 
 const GPS_ROWS = [
-  { label: "MAP ORIENTATION", value: "TRACK UP" },
+  { label: "MAP ORIENTATION", value: "NORTH UP" },
   { label: "MAP AUTO-ZOOM", value: "ON" },
   { label: "LOG AFTER STOP", value: "30 SEC" },
   { label: "RECORD METHOD", value: "DISTANCE" },
@@ -207,7 +207,7 @@ registerMenuFamily(
   { kind: "panel", section: "set", title: "GPS SETTINGS", rows: GPS_ROWS },
   [0, 1, 2, 3, 4, 5, 7],
 );
-register("m-set3-4-1-1", { kind: "settings-modal", section: "set", title: "MAP ORIENTATION", options: ["TRACK UP", "NORTH UP"], selectedIndex: 0, note: "TRACK UP ROTATES MAP. NORTH UP ROTATES POSITION." });
+register("m-set3-4-1-1", { kind: "settings-modal", section: "set", title: "MAP ORIENTATION", options: ["TRACK UP", "NORTH UP"], selectedIndex: 1, note: "TRACK UP ROTATES MAP. NORTH UP ROTATES POSITION." });
 register("m-set3-4-2-1", { kind: "settings-modal", section: "set", title: "MAP AUTO-ZOOM", options: ["ON", "OFF"], selectedIndex: 0, note: "AUTO PAN AND ZOOM MAP TO KEEP RIDE ON THE SCREEN." });
 register("m-set3-4-3-1", { kind: "slot-input", section: "set", title: "LOG AFTER STOP", value: "030 SEC", activeDigit: 1, note: ["CONSERVE POWER", "DEFAULT: 30 SEC"] });
 register("m-set3-4-4-1", { kind: "settings-modal", section: "set", title: "RECORD METHOD", options: ["TIME", "DISTANCE"], selectedIndex: 1, note: "METHOD FOR GATHERING LOG POINTS." });

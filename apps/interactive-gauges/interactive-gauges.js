@@ -8,12 +8,12 @@ import { VoyagerStateEngine } from "./voyager-state-engine.js";
 const APP_BASE = "/apps/interactive-gauges";
 const VOYAGER_URL_PARAMETER = "voyager";
 const VOYAGER_LIVE_TRANSITION_OVERRIDES = {
-  map: { left: null, center: "map2", right: "map2-2", enter: "map2" },
-  "map1-2": { left: null, center: "map2", right: "map2-2", enter: "map2" },
-  map2: { up: "map2", left: "map2", center: "map", right: "map2", down: "map2", enter: "map" },
-  "map2-2": { up: "index", left: null, center: "map3", right: "map", down: "eng", back: "map", enter: "map3" },
-  map3: { up: "map3", left: "map3", center: "map2-2", right: "map3", down: "map3", back: "map2-2", enter: "map2-2" },
-  "map3-2": { up: "map3", left: "map3", center: "map2-2", right: "map3", down: "map3", back: "map2-2", enter: "map2-2" },
+  map: { left: null, center: "map", right: "map2-2", enter: "map2" },
+  "map1-2": { left: null, center: "map1-2", right: "map2-2", enter: "map2" },
+  map2: { up: "map2", left: "map2", center: "map2", right: "map2", down: "map2", back: "map", enter: "map2" },
+  "map2-2": { up: "index", left: null, center: "map2-2", right: "map", down: "eng", back: "map", enter: "map3" },
+  map3: { up: "map3", left: "map3", center: "map3", right: "map3", down: "map3", back: "map2-2", enter: "map3" },
+  "map3-2": { up: "map3-2", left: "map3-2", center: "map3-2", right: "map3-2", down: "map3-2", back: "map2-2", enter: "map3-2" },
   eng2: { menu: "m-graph-temp-display", up: "eng2", left: "eng2", center: "eng2", right: "eng2", down: "eng2", back: "eng", enter: "alt2" },
   eng3: { menu: "m-graph-temp-display", up: "eng3", left: "eng3", center: "eng3", right: "eng3", down: "eng3", back: "eng", enter: "alt3" },
   alt2: { menu: "m-graph-alt-display", up: "alt2", left: "alt2", center: "alt2", right: "alt2", down: "alt2", back: "alt", enter: "eng2" },
