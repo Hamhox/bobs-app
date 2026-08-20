@@ -42,7 +42,28 @@ function titleMarkup(title, x = 285, y = 31, showRule = true) {
     ${showRule ? `<path class="voyager-menu__rule" d="M78 ${y + 10}H454" />` : ""}`;
 }
 
-function rowsMarkup(definition, { left = 70, top = 57, width = 376, lineHeight = 25 } = {}) {
+function titleBandMarkup(title, { x, y, width, height = 36 } = {}) {
+  return `
+    <rect class="voyager-menu__title-band" x="${x}" y="${y}" width="${width}" height="${height}" />
+    <text class="voyager-live__text voyager-live__text--inverse voyager-menu__title" x="${x + width / 2}" y="${y + 28}" text-anchor="middle">${escapeMarkup(title)}</text>`;
+}
+
+function panelFrameMarkup({ x = 39, y = 18, width = 426, height = 278 } = {}) {
+  return `
+    <rect class="voyager-menu__panel-shadow" x="${x + 6}" y="${y + 6}" width="${width}" height="${height}" />
+    <rect class="voyager-menu__panel" x="${x}" y="${y}" width="${width}" height="${height}" />`;
+}
+
+function rowsMarkup(definition, {
+  left = 70,
+  top = 57,
+  width = 376,
+  lineHeight = 25,
+  selectionLeft = left - 12,
+  selectionWidth = width + 4,
+  selectionHeight = 24,
+  selectionOffset = 19,
+} = {}) {
   let visualRow = 0;
   return definition.rows.map((row, sourceIndex) => {
     if (row.spacer) {
@@ -54,7 +75,7 @@ function rowsMarkup(definition, { left = 70, top = 57, width = 376, lineHeight =
     visualRow += 1;
     return `
       <g data-menu-row="${sourceIndex}">
-        ${selected ? `<rect class="voyager-menu__selection" x="${left - 12}" y="${y - 17}" width="${width + 4}" height="22" />` : ""}
+        ${selected ? `<rect class="voyager-menu__selection" x="${selectionLeft}" y="${y - selectionOffset}" width="${selectionWidth}" height="${selectionHeight}" />` : ""}
         <text class="voyager-live__text voyager-menu__row${selected ? " voyager-live__text--inverse" : ""}" x="${left}" y="${y}">${escapeMarkup(row.label)}</text>
         ${row.value ? `<text class="voyager-live__text voyager-menu__row${selected ? " voyager-live__text--inverse" : ""}" x="${left + width}" y="${y}" text-anchor="end">${escapeMarkup(row.value)}</text>` : ""}
         ${row.meter ? `
@@ -74,6 +95,10 @@ function menuScreen(definition) {
       top: definition.rowTop ?? 67,
       width: 342,
       lineHeight: definition.rowSpacing ?? 25,
+      selectionLeft: 68,
+      selectionWidth: 436,
+      selectionHeight: definition.rowSpacing ? 32 : 24,
+      selectionOffset: definition.rowSpacing ? 24 : 19,
     })}`;
 }
 
@@ -82,18 +107,24 @@ function panelScreen(definition) {
   return `
     <rect class="voyager-live__surface" width="504" height="303" />
     ${sectionChrome(definition.section)}
-    <rect class="voyager-menu__panel" x="39" y="18" width="426" height="278" />
-    ${titleMarkup(definition.title, 252, 43)}
-    ${rowsMarkup(definition, { left: 70, top: definition.compact ? 78 : 81, width: 344, lineHeight })}`;
+    ${panelFrameMarkup()}
+    ${titleBandMarkup(definition.title, { x: 48, y: 27, width: 408 })}
+    ${rowsMarkup(definition, {
+      left: 70,
+      top: 89,
+      width: 344,
+      lineHeight,
+      selectionLeft: 45,
+      selectionWidth: 414,
+    })}`;
 }
 
 function modalFrame(definition, innerMarkup, { x = 77, y = 49, width = 350, height = 225 } = {}) {
   return `
     <g data-menu-overlay="${definition.id}" data-menu-parent="${definition.parentStateId ?? ""}">
-    <rect class="voyager-menu__modal-shadow" x="${x + 5}" y="${y + 5}" width="${width}" height="${height}" />
+    <rect class="voyager-menu__modal-shadow" x="${x + 6}" y="${y + 6}" width="${width}" height="${height}" />
     <rect class="voyager-menu__modal" x="${x}" y="${y}" width="${width}" height="${height}" />
-    <text class="voyager-live__text voyager-menu__title" x="252" y="${y + 34}" text-anchor="middle">${escapeMarkup(definition.title)}</text>
-    <path class="voyager-menu__rule" d="M${x + 37} ${y + 48}H${x + width - 37}" />
+    ${titleBandMarkup(definition.title, { x: x + 9, y: y + 9, width: width - 18 })}
     ${innerMarkup}
     </g>`;
 }
@@ -129,7 +160,7 @@ function noticeModal(definition) {
 }
 
 function settingsModal(definition) {
-  const top = 109;
+  const top = 118;
   const lineHeight = definition.scroll ? 24 : 28;
   const visibleCount = definition.scroll ? 5 : definition.options.length;
   const maximumStart = Math.max(0, definition.options.length - visibleCount);
@@ -143,11 +174,18 @@ function settingsModal(definition) {
     const selected = sourceIndex === definition.selectedIndex;
     return `
       <g data-menu-option="${sourceIndex}"${selected ? " data-menu-option-selected=\"true\"" : ""}>
-        ${voyagerUiIcon(selected ? "radio-16pt-checked" : "radio-16pt-unchecked", { x: 113, y: y - 18, width: 18, height: 18 })}
-        <text class="voyager-live__text voyager-menu__row voyager-menu__row--option" x="143" y="${y}">${escapeMarkup(option)}</text>
+        ${selected ? `<rect class="voyager-menu__selection" x="83" y="${y - 20}" width="338" height="24" />` : ""}
+        ${voyagerUiIcon(selected ? "radio-16pt-checked" : "radio-16pt-unchecked", {
+          x: 113,
+          y: y - 18,
+          width: 18,
+          height: 18,
+          className: selected ? "voyager-ui-icon--inverse" : "",
+        })}
+        <text class="voyager-live__text voyager-menu__row voyager-menu__row--option${selected ? " voyager-live__text--inverse" : ""}" x="143" y="${y}">${escapeMarkup(option)}</text>
       </g>`;
   }).join("");
-  const noteY = definition.scroll ? 247 : Math.min(250, top + visibleOptions.length * lineHeight + 18);
+  const noteY = definition.scroll ? 251 : Math.min(250, top + visibleOptions.length * lineHeight + 18);
   const trackHeight = 116;
   const thumbHeight = definition.scroll
     ? Math.max(18, Math.round(trackHeight * visibleCount / definition.options.length))
@@ -156,7 +194,7 @@ function settingsModal(definition) {
   const thumbY = 105 + (maximumStart ? Math.round(thumbTravel * windowStart / maximumStart) : 0);
   return modalFrame(definition, `
     ${options}
-    ${definition.scroll ? `<rect class="voyager-menu__scroll-track" x="399" y="102" width="12" height="${trackHeight}" /><rect class="voyager-menu__scroll-thumb" x="401" y="${thumbY}" width="8" height="${thumbHeight}" />` : ""}
+    ${definition.scroll ? `<rect class="voyager-menu__scroll-track" x="399" y="109" width="12" height="${trackHeight}" /><rect class="voyager-menu__scroll-thumb" x="401" y="${thumbY + 7}" width="8" height="${thumbHeight}" />` : ""}
     ${definition.note ? noteLines(definition.note, noteY) : ""}`);
 }
 
@@ -203,9 +241,9 @@ function waypointMapModal(definition) {
   return `
     <rect class="voyager-live__surface" width="504" height="303" />
     ${sectionChrome(definition.section)}
-    <rect class="voyager-menu__panel" x="39" y="18" width="426" height="278" />
-    ${titleMarkup(definition.title, 252, 43)}
-    <clipPath id="voyager-menu-map-clip"><rect x="60" y="60" width="384" height="174" /></clipPath>
+    ${panelFrameMarkup()}
+    ${titleBandMarkup(definition.title, { x: 48, y: 27, width: 408 })}
+    <clipPath id="voyager-menu-map-clip"><rect x="60" y="66" width="384" height="168" /></clipPath>
     <g clip-path="url(#voyager-menu-map-clip)">
       <path class="voyager-menu__map-route" data-menu-route />
       <path class="voyager-menu__map-recorded" data-menu-recorded />

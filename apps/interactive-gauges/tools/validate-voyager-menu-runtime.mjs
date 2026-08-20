@@ -77,6 +77,25 @@ function main() {
     throw new Error("scrolling data-block selector did not keep the active option visible");
   }
 
+  const selectedMenuMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-set3-2"], new VoyagerMenuModel());
+  if (!selectedMenuMarkup.includes('class="voyager-menu__selection" x="68"')) {
+    throw new Error("top-level menu selection does not span the content pane");
+  }
+  const panelMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-set3-2-1"], new VoyagerMenuModel());
+  if (!panelMarkup.includes("voyager-menu__panel-shadow") || !panelMarkup.includes("voyager-menu__title-band")) {
+    throw new Error("nested menu panel is missing its device frame primitives");
+  }
+  if (!panelMarkup.includes('class="voyager-menu__selection" x="45"')) {
+    throw new Error("nested menu selection does not span the inner panel");
+  }
+  const modalMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-set3-2-1-1"], new VoyagerMenuModel());
+  if (!modalMarkup.includes("voyager-menu__modal-shadow") || !modalMarkup.includes("voyager-menu__title-band")) {
+    throw new Error("settings modal is missing its device frame primitives");
+  }
+  if (!modalMarkup.includes('class="voyager-menu__selection" x="83"')) {
+    throw new Error("settings selection does not span the inner modal");
+  }
+
   console.log(JSON.stringify(report, null, 2));
 }
 

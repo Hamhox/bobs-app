@@ -771,12 +771,21 @@
 }
 
 .voyager-menu__panel,
-.voyager-menu__modal,
-.voyager-menu__modal-shadow {
+.voyager-menu__modal {
   fill: #f5f4ef;
   stroke: #242021;
-  stroke-width: 2;
+  stroke-width: 6;
   vector-effect: non-scaling-stroke;
+}
+
+.voyager-menu__panel-shadow,
+.voyager-menu__modal-shadow {
+  fill: #9e9993;
+  stroke: none;
+}
+
+.voyager-menu__title-band {
+  fill: #242021;
 }
 
 .voyager-menu__rule,
@@ -795,6 +804,10 @@
 .voyager-menu__map-position,
 .voyager-menu__choice-arrow {
   fill: #242021;
+}
+
+.voyager-menu__selection {
+  shape-rendering: crispEdges;
 }
 
 .voyager-menu__title {
@@ -816,16 +829,8 @@
 .voyager-menu__scroll-track {
   fill: #f5f4ef;
   stroke: #242021;
-  stroke-width: 2;
+  stroke-width: 3;
   vector-effect: non-scaling-stroke;
-}
-
-.voyager-menu__modal-shadow {
-  stroke-width: 3;
-}
-
-.voyager-menu__modal {
-  stroke-width: 3;
 }
 
 .voyager-menu__confirm-copy,
