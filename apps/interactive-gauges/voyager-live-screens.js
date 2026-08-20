@@ -55,8 +55,8 @@ export const VOYAGER_SCREEN_REGISTRY = {
     variants: {
       eng: { view: "primary", tabsVisible: true, sideArrows: true },
       "eng1-2": { view: "primary", tabsVisible: false, sideArrows: true },
-      eng2: { view: "secondary", tabsVisible: false, sideArrows: true, interaction: "graph" },
-      eng3: { view: "secondary", tabsVisible: false, sideArrows: true, interaction: "graph" },
+      eng2: { view: "secondary", tabsVisible: false, sideArrows: false, interaction: "graph" },
+      eng3: { view: "secondary", tabsVisible: false, sideArrows: false, interaction: "graph" },
     },
   },
   alt: {
@@ -69,8 +69,8 @@ export const VOYAGER_SCREEN_REGISTRY = {
     variants: {
       alt: { view: "primary", tabsVisible: true, sideArrows: true },
       "alt1-2": { view: "primary", tabsVisible: false, sideArrows: true },
-      alt2: { view: "secondary", tabsVisible: false, sideArrows: true, interaction: "graph" },
-      alt3: { view: "secondary", tabsVisible: false, sideArrows: true, interaction: "graph" },
+      alt2: { view: "secondary", tabsVisible: false, sideArrows: false, interaction: "graph" },
+      alt3: { view: "secondary", tabsVisible: false, sideArrows: false, interaction: "graph" },
     },
   },
   user: {

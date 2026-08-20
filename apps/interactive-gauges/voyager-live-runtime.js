@@ -435,15 +435,13 @@ function mapMarkup(screen, variant) {
 }
 
 function graphGridMarkup(left, right, top, bottom) {
-  const verticals = Array.from({ length: 7 }, (_, index) => {
-    const x = left + (right - left) * index / 6;
-    return `<line x1="${x}" y1="${top}" x2="${x}" y2="${bottom}" />`;
-  }).join("");
   const horizontals = Array.from({ length: 4 }, (_, index) => {
-    const y = top + (bottom - top) * index / 3;
-    return `<line x1="${left}" y1="${y}" x2="${right}" y2="${y}" />`;
+    const y = top + (bottom - top) * (index + 1) / 4;
+    return `
+      <line x1="${left}" y1="${y}" x2="${right}" y2="${y}" />
+      <text class="voyager-live__text voyager-live__text--medium voyager-live__graph-scale-label" x="${left + 4}" y="${y - 5}" data-live-graph-scale-label="${index}"></text>`;
   }).join("");
-  return `<g class="voyager-live__graph-grid">${verticals}${horizontals}</g>`;
+  return `<g class="voyager-live__graph-grid">${horizontals}</g>`;
 }
 
 function graphMarkup(screen, variant) {
@@ -452,33 +450,39 @@ function graphMarkup(screen, variant) {
   const top = 44;
   const bottom = 284;
   const isTemperature = screen.graphMetric === "temperature";
-  const unit = isTemperature ? "°F" : "ft";
-  const label = isTemperature ? "ENGINE TEMP:" : "ALTITUDE:";
   const primary = variant.view === "primary";
   return `
     <rect class="voyager-live__surface" width="504" height="303" />
     ${screenChromeMarkup(screen, variant)}
     ${primary ? `
-      <text class="voyager-live__text voyager-live__text--medium" x="${left}" y="34" data-live-graph-current>${isTemperature ? "ENG 168" : "ALT 700"}</text>
-      <text class="voyager-live__text voyager-live__text--medium" x="${left + (right - left) * 0.47}" y="34" text-anchor="middle" data-live-graph-max>MAX 243</text>
-      <text class="voyager-live__text voyager-live__text--medium" x="${right}" y="34" text-anchor="end" data-live-graph-average>AVG 172</text>
+      <text class="voyager-live__text voyager-live__text--medium" x="${left}" y="34" data-live-graph-current>${isTemperature ? "ENG:168°F" : "ALT:700 FT"}</text>
+      <text class="voyager-live__text voyager-live__text--medium" x="${left + (right - left) * 0.5}" y="34" text-anchor="middle" data-live-graph-max>MAX:243°F</text>
+      <text class="voyager-live__text voyager-live__text--medium" x="${right}" y="34" text-anchor="end" data-live-graph-average>AVG:172°F</text>
     ` : `
-      <text class="voyager-live__text voyager-live__text--medium" x="23" y="34">${label}</text>
-      <text class="voyager-live__text voyager-live__text--medium" x="300" y="34" text-anchor="middle" data-live-graph-readout>168${unit}</text>
-      <text class="voyager-live__text voyager-live__text--medium" x="483" y="34" text-anchor="end" data-live-time>12:30</text>
+      <text class="voyager-live__text voyager-live__text--medium" x="23" y="34" data-live-graph-readout>${isTemperature ? "ENGINE TEMP: 168°F" : "ALTITUDE: 700 FT"}</text>
     `}
-    <text class="voyager-live__text voyager-live__text--small" x="${left + 3}" y="60">←30m→</text>
-    ${graphGridMarkup(left, right, top, bottom)}
     <clipPath id="voyager-live-graph-clip"><rect x="${left}" y="${top}" width="${right - left}" height="${bottom - top}" /></clipPath>
+    ${primary ? "" : `<clipPath id="voyager-live-graph-fill-clip"><path data-live-graph-fill-clip /></clipPath>`}
     <g clip-path="url(#voyager-live-graph-clip)">
       <path class="voyager-live__graph-fill" data-live-graph-fill />
       <path class="voyager-live__graph-line" data-live-graph-line />
+      ${graphGridMarkup(left, right, top, bottom)}
+      <text class="voyager-live__text voyager-live__text--medium voyager-live__graph-track-label" x="${(left + right) / 2}" y="279" text-anchor="middle" data-live-ride-label>FOREST LOOP</text>
       ${primary ? "" : `
-        <line class="voyager-live__graph-cursor-line" data-live-graph-cursor-line />
-        <circle class="voyager-live__graph-cursor" r="12" data-live-graph-cursor />
+        <line class="voyager-live__graph-crosshair" data-live-graph-crosshair-horizontal />
+        <line class="voyager-live__graph-crosshair" data-live-graph-crosshair-vertical />
+        <g data-live-graph-crosshair-center>
+          ${voyagerUiIcon("crosshair-center", { x: -18, y: -18, width: 36, height: 36, className: "voyager-live__graph-crosshair-center" })}
+        </g>
+        <g clip-path="url(#voyager-live-graph-fill-clip)">
+          <line class="voyager-live__graph-crosshair voyager-live__graph-crosshair--inverse" data-live-graph-crosshair-horizontal />
+          <line class="voyager-live__graph-crosshair voyager-live__graph-crosshair--inverse" data-live-graph-crosshair-vertical />
+          <g data-live-graph-crosshair-center>
+            ${voyagerUiIcon("crosshair-center", { x: -18, y: -18, width: 36, height: 36, className: "voyager-live__graph-crosshair-center voyager-live__graph-crosshair-center--inverse" })}
+          </g>
+        </g>
       `}
-    </g>
-    <text class="voyager-live__text voyager-live__text--small" x="${left + 3}" y="247">100${unit}</text>`;
+    </g>`;
 }
 
 function metricBlock(x, y, label, attribute, fallback) {
@@ -666,6 +670,7 @@ export class VoyagerLiveRuntime {
   #menuProjectedTrackId = "";
   #mapPan = { x: 0, y: 0 };
   #mapScale = 1;
+  #graphScale = 1;
   #pulseTimer = 0;
   #stopwatchElapsedMs = 0;
   #stopwatchStartedAt = 0;
@@ -797,8 +802,14 @@ export class VoyagerLiveRuntime {
         this.#mapScale = clamp(this.#mapScale + direction, 0.72, 2.2);
       }
     }
-    if (fromState.variant.interaction === "graph" && (event.action === "left" || event.action === "right")) {
-      this.#ride.seekBy(event.action === "left" ? -0.055 : 0.055);
+    if (fromState.variant.interaction === "graph") {
+      if (event.action === "left" || event.action === "right") {
+        const step = 0.055 / this.#graphScale;
+        this.#ride.seekBy(event.action === "left" ? -step : step);
+      }
+      if (event.action === "up") this.#graphScale = clamp(this.#graphScale * 1.6, 1, 8);
+      if (event.action === "down") this.#graphScale = clamp(this.#graphScale / 1.6, 1, 8);
+      if (event.action === "center") this.#graphScale = 1;
     }
     if (fromState.screen.id === "nav" && event.action === "enter") {
       const destination = voyagerScreenState(event.to);
@@ -1053,41 +1064,81 @@ export class VoyagerLiveRuntime {
     const top = 44;
     const bottom = 284;
     const isTemperature = screen.graphMetric === "temperature";
-    const values = this.#ride.points.map((point, index) => {
+    const allValues = this.#ride.points.map((point, index) => {
       const progress = index / (this.#ride.points.length - 1);
       const elevationFeet = point.elevation * 3.28084;
       return isTemperature ? engineTemperatureAt(progress, elevationFeet) : elevationFeet;
     });
-    const minimum = Math.min(...values);
-    const maximum = Math.max(...values);
+    if (allValues.length < 2) return;
+
+    const scale = variant.interaction === "graph" ? this.#graphScale : 1;
+    const windowSize = 1 / scale;
+    const windowStart = clamp(this.#telemetry.progress - windowSize / 2, 0, 1 - windowSize);
+    const windowEnd = windowStart + windowSize;
+    const visibleValues = allValues.map((value, index) => ({
+      progress: index / (allValues.length - 1),
+      value,
+    })).filter(({ progress }) => progress >= windowStart && progress <= windowEnd);
+    const values = visibleValues.length > 1 ? visibleValues : allValues.map((value, index) => ({
+      progress: index / (allValues.length - 1),
+      value,
+    }));
+    const minimum = Math.min(...values.map(({ value }) => value));
+    const maximum = Math.max(...values.map(({ value }) => value));
     const range = maximum - minimum || 1;
-    const projected = values.map((value, index) => ({
-      x: left + index / (values.length - 1) * (right - left),
-      y: bottom - (value - minimum) / range * (bottom - top - 20) - 10,
+    const projected = values.map(({ progress, value }) => ({
+      x: left + (progress - windowStart) / windowSize * (right - left),
+      y: bottom - (value - minimum) / range * (bottom - top - 16),
     }));
     const linePath = pathFromPoints(projected);
     const fillPath = `${linePath} L${right} ${bottom} L${left} ${bottom} Z`;
     this.#mount.querySelector("[data-live-graph-line]")?.setAttribute("d", linePath);
     this.#mount.querySelector("[data-live-graph-fill]")?.setAttribute("d", fillPath);
+    this.#mount.querySelector("[data-live-graph-fill-clip]")?.setAttribute("d", fillPath);
 
     const currentValue = isTemperature ? this.#telemetry.engineTemperatureF : this.#telemetry.elevationFeet;
-    const average = Math.round(values.reduce((sum, value) => sum + value, 0) / values.length);
-    const unit = isTemperature ? "°F" : "ft";
+    const allMaximum = Math.max(...allValues);
+    const average = Math.round(allValues.reduce((sum, value) => sum + value, 0) / allValues.length);
+    const unit = isTemperature ? "°F" : " FT";
     const prefix = isTemperature ? "ENG" : "ALT";
-    this.#mount.querySelector("[data-live-graph-current]")?.replaceChildren(document.createTextNode(`${prefix} ${currentValue}${isTemperature ? "°" : ""}`));
-    this.#mount.querySelector("[data-live-graph-max]")?.replaceChildren(document.createTextNode(`MAX ${Math.round(maximum)}`));
-    this.#mount.querySelector("[data-live-graph-average]")?.replaceChildren(document.createTextNode(`${isTemperature ? "AVG" : "MIN"} ${isTemperature ? average : Math.round(minimum)}`));
-    setElementText(this.#mount.querySelector("[data-live-graph-readout]"), `${currentValue}${unit}`);
+    setElementText(this.#mount.querySelector("[data-live-graph-current]"), `${prefix}:${currentValue}${unit}`);
+    setElementText(this.#mount.querySelector("[data-live-graph-max]"), `MAX:${Math.round(allMaximum)}${unit}`);
+    setElementText(this.#mount.querySelector("[data-live-graph-average]"), `AVG:${average}${unit}`);
+    setElementText(
+      this.#mount.querySelector("[data-live-graph-readout]"),
+      `${isTemperature ? "ENGINE TEMP" : "ALTITUDE"}: ${currentValue}${unit}`,
+    );
+
+    const labelStep = isTemperature ? 5 : 50;
+    const scaleValues = [0.75, 0.5, 0.25, 0].map((amount) => {
+      const value = minimum + range * amount;
+      return Math.round(value / labelStep) * labelStep;
+    });
+    for (const labelElement of this.#mount.querySelectorAll("[data-live-graph-scale-label]")) {
+      const index = Number(labelElement.dataset.liveGraphScaleLabel);
+      labelElement.textContent = `${scaleValues[index]}${isTemperature ? "" : " FT"}`;
+    }
 
     if (variant.interaction === "graph") {
-      const cursor = this.#pointAtProgress(projected, this.#telemetry.progress);
-      const cursorLine = this.#mount.querySelector("[data-live-graph-cursor-line]");
-      cursorLine?.setAttribute("x1", cursor.x);
-      cursorLine?.setAttribute("x2", cursor.x);
-      cursorLine?.setAttribute("y1", cursor.y);
-      cursorLine?.setAttribute("y2", bottom);
-      this.#mount.querySelector("[data-live-graph-cursor]")?.setAttribute("cx", cursor.x);
-      this.#mount.querySelector("[data-live-graph-cursor]")?.setAttribute("cy", cursor.y);
+      const cursor = {
+        x: left + (this.#telemetry.progress - windowStart) / windowSize * (right - left),
+        y: bottom - (currentValue - minimum) / range * (bottom - top - 16),
+      };
+      for (const horizontal of this.#mount.querySelectorAll("[data-live-graph-crosshair-horizontal]")) {
+        horizontal.setAttribute("x1", left);
+        horizontal.setAttribute("x2", right);
+        horizontal.setAttribute("y1", cursor.y);
+        horizontal.setAttribute("y2", cursor.y);
+      }
+      for (const vertical of this.#mount.querySelectorAll("[data-live-graph-crosshair-vertical]")) {
+        vertical.setAttribute("x1", cursor.x);
+        vertical.setAttribute("x2", cursor.x);
+        vertical.setAttribute("y1", top);
+        vertical.setAttribute("y2", bottom);
+      }
+      for (const center of this.#mount.querySelectorAll("[data-live-graph-crosshair-center]")) {
+        center.setAttribute("transform", `translate(${cursor.x.toFixed(2)} ${cursor.y.toFixed(2)})`);
+      }
     }
   }
 

@@ -253,6 +253,23 @@ register("m-set3-6-2-1", { kind: "slot-input", section: "set", title: "RED LED O
 register("m-set3-6-3-1", { kind: "slot-input", section: "set", title: "YELLOW LED FLASH", value: "240 °F", activeDigit: 1, note: ["FLASH LEFT YELLOW LED WHEN", "EXCEEDED. DEFAULT: 240°F"] });
 register("m-set3-6-4-1", { kind: "slot-input", section: "set", title: "RED LED FLASH", value: "240 °F", activeDigit: 1, note: ["FLASH RIGHT RED LED WHEN", "EXCEEDED. DEFAULT: 240°F"] });
 
+register("m-graph-temp-display", {
+  kind: "settings-modal",
+  section: "graph",
+  title: "GRAPHS DISPLAY",
+  options: ["ENGINE TEMPERATURE", "ALTITUDE"],
+  selectedIndex: 0,
+  note: "ENTER SWITCHES GRAPH. BACK RETURNS TO GRAPH.",
+});
+register("m-graph-alt-display", {
+  kind: "settings-modal",
+  section: "graph",
+  title: "GRAPHS DISPLAY",
+  options: ["ENGINE TEMPERATURE", "ALTITUDE"],
+  selectedIndex: 1,
+  note: "ENTER SWITCHES GRAPH. BACK RETURNS TO GRAPH.",
+});
+
 export const VOYAGER_MENU_STATE_INDEX = Object.freeze(registry);
 export const VOYAGER_MENU_STATE_IDS = new Set(Object.keys(registry));
 
@@ -273,6 +290,8 @@ export const VOYAGER_MENU_STABLE_STATE_ALIASES = {
   "modal.waypoint-select": "m-main1-5-1",
   "modal.system-brightness": "m-set3-3-1-1",
   "modal.system.brightness": "m-set3-3-1-1",
+  "modal.graphs.temperature": "m-graph-temp-display",
+  "modal.graphs.altitude": "m-graph-alt-display",
 };
 
 export const VOYAGER_MENU_CANONICAL_STATE_IDS = Object.entries(

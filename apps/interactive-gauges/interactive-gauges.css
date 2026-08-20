@@ -656,21 +656,42 @@
   fill: #b8b7b3;
 }
 
-.voyager-live__graph-line,
-.voyager-live__graph-cursor-line {
+.voyager-live__graph-line {
   fill: none;
   stroke: #242021;
-  stroke-width: 3;
+  stroke-width: 6;
   stroke-linecap: round;
   stroke-linejoin: round;
   vector-effect: non-scaling-stroke;
 }
 
-.voyager-live__graph-cursor {
-  fill: rgb(245 244 239 / 0.55);
+.voyager-live__graph-crosshair {
+  fill: none;
   stroke: #242021;
-  stroke-width: 3;
+  stroke-linecap: square;
+  stroke-width: 6;
   vector-effect: non-scaling-stroke;
+}
+
+.voyager-live__graph-crosshair--inverse {
+  stroke: #f5f4ef;
+}
+
+.voyager-live__graph-crosshair-center {
+  fill: #242021;
+}
+
+.voyager-live__graph-crosshair-center--inverse {
+  fill: #f5f4ef;
+}
+
+.voyager-live__graph-scale-label,
+.voyager-live__graph-track-label {
+  fill: #242021;
+  paint-order: stroke fill;
+  stroke: #f5f4ef;
+  stroke-linejoin: miter;
+  stroke-width: 3px;
 }
 
 .voyager-live__satellite-dot {
