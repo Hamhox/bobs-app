@@ -8,19 +8,43 @@ import { VoyagerStateEngine } from "./voyager-state-engine.js";
 const APP_BASE = "/apps/interactive-gauges";
 const VOYAGER_URL_PARAMETER = "voyager";
 const VOYAGER_LIVE_TRANSITION_OVERRIDES = {
-  map: { left: null, center: "map", right: "map2-2", enter: "map2" },
-  "map1-2": { left: null, center: "map1-2", right: "map2-2", enter: "map2" },
-  map2: { up: "map2", left: "map2", center: "map2", right: "map2", down: "map2", back: "map", enter: "map2" },
-  "map2-2": { up: "index", left: null, center: "map2-2", right: "map", down: "eng", back: "map", enter: "map3" },
-  map3: { up: "map3", left: "map3", center: "map3", right: "map3", down: "map3", back: "map2-2", enter: "map3" },
-  "map3-2": { up: "map3-2", left: "map3-2", center: "map3-2", right: "map3-2", down: "map3-2", back: "map2-2", enter: "map3-2" },
+  index: { menu: "m-main1-1" },
+  index2: { menu: "m-main1-1" },
+  map: { menu: "m-ride2-1", left: null, center: "map", right: "map2-2", enter: "map2" },
+  "map1-2": { menu: "m-ride2-1", left: null, center: "map1-2", right: "map2-2", enter: "map2" },
+  map2: { menu: "m-ride2-1", up: "map2", left: "map2", center: "map2", right: "map2", down: "map2", back: "map", enter: "map2" },
+  "map2-2": { menu: "m-ride2-1", up: "index", left: null, center: "map2-2", right: "map", down: "eng", back: "map", enter: "map3" },
+  map3: { menu: "m-ride2-1", up: "map3", left: "map3", center: "map3", right: "map3", down: "map3", back: "map2-2", enter: "map3" },
+  "map3-2": { menu: "m-ride2-1", up: "map3-2", left: "map3-2", center: "map3-2", right: "map3-2", down: "map3-2", back: "map2-2", enter: "map3-2" },
+  eng: { menu: "m-graph-temp-primary-display" },
   eng2: { menu: "m-graph-temp-display", up: "eng2", left: "eng2", center: "eng2", right: "eng2", down: "eng2", back: "eng", enter: "alt2" },
-  eng3: { menu: "m-graph-temp-display", up: "eng3", left: "eng3", center: "eng3", right: "eng3", down: "eng3", back: "eng", enter: "alt3" },
+  eng3: { menu: "m-graph-temp-track2-display", up: "eng3", left: "eng3", center: "eng3", right: "eng3", down: "eng3", back: "eng", enter: "alt3" },
+  alt: { menu: "m-graph-alt-primary-display" },
   alt2: { menu: "m-graph-alt-display", up: "alt2", left: "alt2", center: "alt2", right: "alt2", down: "alt2", back: "alt", enter: "eng2" },
-  alt3: { menu: "m-graph-alt-display", up: "alt3", left: "alt3", center: "alt3", right: "alt3", down: "alt3", back: "alt", enter: "eng3" },
-  sat: { left: null, center: "sat2", right: "sat2", enter: "sat2" },
-  sat2: { up: "dir", left: null, center: "sat", right: "sat", down: "index", back: "sat", enter: "sat" },
+  alt3: { menu: "m-graph-alt-track2-display", up: "alt3", left: "alt3", center: "alt3", right: "alt3", down: "alt3", back: "alt", enter: "eng3" },
+  cstm: { menu: "m-user-screen-1-layout" },
+  cstm2: { menu: "m-user-screen-2-layout" },
+  dir: { menu: "m-nav-destination-primary" },
+  dir2: { menu: "m-nav-destination-secondary" },
+  sat: { menu: "m-main1-1", left: null, center: "sat2", right: "sat2", enter: "sat2" },
+  sat2: { menu: "m-main1-1", up: "dir", left: null, center: "sat", right: "sat", down: "index", back: "sat", enter: "sat" },
 };
+const VOYAGER_CONTEXT_MODAL_STATES = [
+  ["m-graph-temp-primary-display", "eng"],
+  ["m-graph-temp-display", "eng2"],
+  ["m-graph-temp-track2-display", "eng3"],
+  ["m-graph-alt-primary-display", "alt"],
+  ["m-graph-alt-display", "alt2"],
+  ["m-graph-alt-track2-display", "alt3"],
+  ["m-user-screen-1-layout", "cstm"],
+  ["m-user-screen-2-layout", "cstm2"],
+  ["m-nav-destination-primary", "dir"],
+  ["m-nav-destination-secondary", "dir2"],
+];
+const VOYAGER_USER_LAYOUT_WORKFLOWS = [
+  ["m-user-screen-1-layout", "m-user-screen-1-data-block", "cstm"],
+  ["m-user-screen-2-layout", "m-user-screen-2-data-block", "cstm2"],
+];
 const stage = document.querySelector("#voyager-stage");
 const liveScreen = document.querySelector("#voyager-live-screen");
 const stateCode = document.querySelector("#voyager-state-code");
@@ -60,28 +84,50 @@ function writeVoyagerStateToUrl(screenId, mode = "replace") {
 }
 
 function applyLiveTransitionOverrides(manifest) {
-  manifest.states["m-graph-temp-display"] = {
-    id: "m-graph-temp-display",
-    transitions: {
-      menu: "eng2", up: "m-graph-temp-display", left: "m-graph-temp-display",
-      center: "m-graph-temp-display", right: "m-graph-temp-display", down: "m-graph-temp-display",
-      back: "eng2", enter: "eng2",
-    },
-    autoTransition: null,
-    archiveLinks: ["alt2", "eng", "eng2"],
-    referenceScreen: manifest.states.eng.referenceScreen,
-  };
-  manifest.states["m-graph-alt-display"] = {
-    id: "m-graph-alt-display",
-    transitions: {
-      menu: "alt2", up: "m-graph-alt-display", left: "m-graph-alt-display",
-      center: "m-graph-alt-display", right: "m-graph-alt-display", down: "m-graph-alt-display",
-      back: "alt2", enter: "alt2",
-    },
-    autoTransition: null,
-    archiveLinks: ["alt", "alt2", "eng2"],
-    referenceScreen: manifest.states.alt.referenceScreen,
-  };
+  for (const [id, parentStateId] of VOYAGER_CONTEXT_MODAL_STATES) {
+    manifest.states[id] = {
+      id,
+      transitions: {
+        menu: parentStateId,
+        up: id,
+        left: parentStateId,
+        center: id,
+        right: id,
+        down: id,
+        back: parentStateId,
+        enter: parentStateId,
+      },
+      autoTransition: null,
+      archiveLinks: [parentStateId, manifest.initialState],
+      referenceScreen: manifest.states[parentStateId].referenceScreen,
+    };
+  }
+  for (const [layoutStateId, pickerStateId, parentStateId] of VOYAGER_USER_LAYOUT_WORKFLOWS) {
+    Object.assign(manifest.states[layoutStateId].transitions, {
+      up: layoutStateId,
+      left: layoutStateId,
+      center: pickerStateId,
+      right: layoutStateId,
+      down: layoutStateId,
+      enter: pickerStateId,
+    });
+    manifest.states[pickerStateId] = {
+      id: pickerStateId,
+      transitions: {
+        menu: layoutStateId,
+        up: pickerStateId,
+        left: layoutStateId,
+        center: layoutStateId,
+        right: pickerStateId,
+        down: pickerStateId,
+        back: layoutStateId,
+        enter: layoutStateId,
+      },
+      autoTransition: null,
+      archiveLinks: [layoutStateId, parentStateId, manifest.initialState],
+      referenceScreen: manifest.states[parentStateId].referenceScreen,
+    };
+  }
   manifest.states.sat2 = {
     id: "sat2",
     transitions: {},

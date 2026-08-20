@@ -8,7 +8,7 @@ const escapeMarkup = (value) => String(value ?? "")
 
 function sectionChrome(section) {
   const slots = [
-    { id: "main", label: "MAIN" },
+    { id: "main", label: "QUICK" },
     { id: "ride", label: "RIDE" },
     {},
     {},
@@ -160,8 +160,26 @@ function noticeModal(definition) {
     ${selectedOkButton(202, 219)}`);
 }
 
+function userLayoutModal(definition) {
+  const slots = definition.options.map((option, index) => {
+    const column = index % 2;
+    const row = Math.floor(index / 2);
+    const x = 93 + column * 166;
+    const y = 126 + row * 47;
+    const selected = index === definition.selectedIndex;
+    return `
+      <g data-menu-layout-slot="${index}"${selected ? " data-menu-layout-slot-selected=\"true\"" : ""}>
+        ${selected ? `<rect class="voyager-menu__selection" x="${x - 7}" y="${y - 23}" width="156" height="30" />` : ""}
+        <text class="voyager-live__text voyager-menu__layout-label${selected ? " voyager-live__text--inverse" : ""}" x="${x}" y="${y}">${index + 1} · ${escapeMarkup(option)}</text>
+      </g>`;
+  }).join("");
+  return modalFrame(definition, `
+    ${slots}
+    <text class="voyager-live__text voyager-menu__note" x="252" y="263" text-anchor="middle">SELECT A POSITION · ENTER TO CHANGE</text>`);
+}
+
 function settingsModal(definition) {
-  const top = 118;
+  const top = definition.summary ? 154 : 118;
   const lineHeight = definition.scroll ? 24 : 28;
   const visibleCount = definition.scroll ? 5 : definition.options.length;
   const maximumStart = Math.max(0, definition.options.length - visibleCount);
@@ -194,6 +212,10 @@ function settingsModal(definition) {
   const thumbTravel = trackHeight - thumbHeight - 6;
   const thumbY = 105 + (maximumStart ? Math.round(thumbTravel * windowStart / maximumStart) : 0);
   return modalFrame(definition, `
+    ${definition.summary ? `
+      <text class="voyager-live__text voyager-menu__summary" x="95" y="119">${escapeMarkup(definition.summary)}</text>
+      <path class="voyager-menu__rule" d="M92 132H412" />
+    ` : ""}
     ${options}
     ${definition.scroll ? `<rect class="voyager-menu__scroll-track" x="399" y="109" width="12" height="${trackHeight}" /><rect class="voyager-menu__scroll-thumb" x="401" y="${thumbY + 7}" width="8" height="${thumbHeight}" />` : ""}
     ${definition.note ? noteLines(definition.note, noteY) : ""}`);
@@ -266,6 +288,7 @@ export function renderVoyagerMenuMarkup(definition, { underlayMarkup = "" } = {}
     notice: noticeModal,
     "settings-modal": settingsModal,
     "slot-input": slotInputModal,
+    "user-layout": userLayoutModal,
     brightness: brightnessModal,
     keyboard: keyboardModal,
     "waypoint-map": waypointMapModal,

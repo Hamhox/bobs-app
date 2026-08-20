@@ -7,11 +7,11 @@ import { VoyagerMenuModel } from "../voyager-menu-model.js";
 import { renderVoyagerMenuMarkup } from "../voyager-menu-renderer.js";
 
 const EXPECTED_COUNTS = Object.freeze({
-  total: 119,
+  total: 129,
   pages: 64,
   workflows: 8,
-  overlays: 47,
-  menuOverlays: 45,
+  overlays: 57,
+  menuOverlays: 51,
 });
 const EDITOR_ACTIONS = ["up", "down", "left", "right", "center", "back", "enter"];
 
@@ -97,6 +97,27 @@ function main() {
   }
   if (!modalMarkup.includes('class="voyager-menu__selection" x="83"')) {
     throw new Error("settings selection does not span the inner modal");
+  }
+
+  const quickMenuMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-main1-1"], new VoyagerMenuModel());
+  if (!quickMenuMarkup.includes("QUICK MENU") || !quickMenuMarkup.includes(">QUICK</text>")) {
+    throw new Error("quick menu naming is not reflected in the title and persistent sidebar");
+  }
+  const graphDisplayMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-graph-temp-display"], new VoyagerMenuModel());
+  if (!graphDisplayMarkup.includes("CURRENT TRACK") || !graphDisplayMarkup.includes("voyager-menu__summary")) {
+    throw new Error("graph display modal is missing its source choices or displaying summary");
+  }
+  const userLayoutMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-user-screen-1-layout"], new VoyagerMenuModel());
+  if (!userLayoutMarkup.includes("USER SCREEN 1 LAYOUT") || !userLayoutMarkup.includes("WHEEL SPEED")) {
+    throw new Error("user screen layout modal is incomplete");
+  }
+  const dataBlockMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-user-screen-1-data-block"], new VoyagerMenuModel());
+  if (!dataBlockMarkup.includes("AVAILABLE DATA BLOCKS") || !dataBlockMarkup.includes("WHEEL SPEED")) {
+    throw new Error("user screen data-block picker is incomplete");
+  }
+  const destinationMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-nav-destination-primary"], new VoyagerMenuModel());
+  if (!destinationMarkup.includes("SELECT DESTINATION WAYPOINT") || !destinationMarkup.includes("WAYPOINT 4")) {
+    throw new Error("navigation destination modal is incomplete");
   }
 
   const pageCenterAction = new VoyagerMenuModel().prepareInput(

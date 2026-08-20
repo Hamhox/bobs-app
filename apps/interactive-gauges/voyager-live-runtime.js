@@ -681,34 +681,80 @@ function userTitleMarkup(title, tabsVisible) {
     </g>`;
 }
 
-function userMarkup(screen, variant) {
-  const hiddenOffset = variant.tabsVisible ? 0 : -48;
-  if (variant.view === "secondary") {
-    return `
-      <rect class="voyager-live__surface" width="504" height="303" />
-      ${screenChromeMarkup(screen, variant)}
-      ${userTitleMarkup("USER SCREEN 2", variant.tabsVisible)}
-      <g transform="translate(${hiddenOffset} 0)">
-        <text class="voyager-live__text voyager-live__text--medium" x="283" y="88" text-anchor="middle">ACCUMULATED RUN TIME</text>
-        <text class="voyager-live__text voyager-live__text--large voyager-live__text--clock" x="283" y="143" text-anchor="middle" data-live-elapsed>00:00:00</text>
-        ${metricBlock(173, 190, "MAX SPD KM/H", "data-live-max-kph", "25")}
-        ${metricBlock(397, 190, "AVG SPD KM/H", "data-live-avg-kph", "12")}
-      </g>`;
-  }
-  const leftCenter = variant.tabsVisible ? 173 : 126;
-  const rightCenter = variant.tabsVisible ? 397 : 378;
+const DEFAULT_USER_SCREEN_BLOCKS = Object.freeze({
+  1: ["WHEEL SPEED", "GPS SPEED", "WHEEL DISTANCE", "WHEEL DISTANCE", "WHEEL ODOMETER", "ALTITUDE"],
+  2: ["ENGINE ACC. RUN TIME", "MAX WHEEL SPEED", "AVG WHEEL SPEED", "<OFF>", "<OFF>", "<OFF>"],
+});
+
+function userMetricDefinition(selection) {
+  const normalized = selection.replace(/[\uE10B\uE10C]/g, "").trim();
+  const variantSuffix = selection.includes("\uE10C") ? " 1" : selection.includes("\uE10B") ? " 2" : "";
+  const definitions = {
+    ALTITUDE: ["ALT FT", "data-live-altitude", "1089"],
+    "MIN ALTITUDE": ["MIN ALT FT", "", "914"],
+    "MAX ALTITUDE": ["MAX ALT FT", "", "1234"],
+    "WHEEL SPEED": ["WHEEL SPD MPH", "data-live-speed", "25"],
+    "GPS SPEED": ["GPS SPD MPH", "data-live-gps-speed", "22"],
+    "WHEEL ODOMETER": ["ODOMETER MI", "data-live-odometer-miles", "523.7"],
+    "GPS ODOMETER": ["GPS ODO MI", "data-live-odometer", "1200"],
+    "ENGINE ACC. RUN TIME": ["ACCUMULATED RUN TIME", "data-live-elapsed", "00:00:00"],
+    "GPS ACC. RUN TIME": ["GPS RUN TIME", "data-live-elapsed", "00:00:00"],
+    "AIR TEMPERATURE": ["AIR TEMP °F", "data-live-temperature", "75°F"],
+    "ENGINE TEMPERATURE": ["ENGINE TEMP °F", "data-live-engine-temperature", "168"],
+    "MAX ENGINE TEMPERATURE": ["MAX ENGINE TEMP °F", "", "179"],
+    "AVG ENGINE TEMPERATURE": ["AVG ENGINE TEMP °F", "", "169"],
+    CLOCK: ["CLOCK", "data-live-time", "12:35"],
+    "STOP WATCH": ["STOP WATCH", "data-live-stopwatch", "00:00:00"],
+    HEADING: ["HEADING", "data-live-heading-label", "NNE"],
+    "COMPASS DIRECTION": ["COMPASS DIRECTION", "data-live-heading-label", "NNE"],
+    "INPUT VOLTAGE": ["INPUT VOLTAGE", "", "13.8"],
+    "INTERNAL BATTERY VOLTAGE": ["BATTERY VOLTAGE", "", "4.1"],
+    TACHOMETER: ["TACHOMETER RPM", "", "3250"],
+    "WHEEL DISTANCE": [`WHEEL DST${variantSuffix} MI`, "data-live-trip-distance", "0.0"],
+    "GPS DISTANCE": [`GPS DST${variantSuffix} MI`, "data-live-distance", "0.0"],
+    "ENGINE TRIP TIME": [`ENGINE TRIP TIME${variantSuffix}`, "data-live-elapsed", "00:00:00"],
+    "GPS TRIP TIME": [`GPS TRIP TIME${variantSuffix}`, "data-live-elapsed", "00:00:00"],
+    "MAX WHEEL SPEED": [`MAX WHEEL SPD${variantSuffix} MPH`, "data-live-max-speed", "25"],
+    "MAX GPS SPEED": [`MAX GPS SPD${variantSuffix} MPH`, "data-live-max-speed", "25"],
+    "AVG WHEEL SPEED": [`AVG WHEEL SPD${variantSuffix} MPH`, "data-live-avg-speed", "12"],
+    "AVG GPS SPEED": [`AVG GPS SPD${variantSuffix} MPH`, "data-live-avg-speed", "12"],
+    "CURRENT (BATTERY CHARGER)": ["CHARGER CURRENT", "", "0.8"],
+  };
+  const [label, attribute, fallback] = definitions[normalized] ?? [normalized, "", "--"];
+  return { label, attribute, fallback };
+}
+
+function userMetricBlock(x, y, selection) {
+  const metric = userMetricDefinition(selection);
+  return `
+    <text class="voyager-live__text voyager-live__text--medium voyager-live__user-metric-label" x="${x}" y="${y}" text-anchor="middle">${metric.label}</text>
+    <text class="voyager-live__text voyager-live__text--readout" x="${x}" y="${y + 58}" text-anchor="middle" ${metric.attribute}>${metric.fallback}</text>`;
+}
+
+function userMarkup(screen, variant, menuValues = {}) {
+  const screenNumber = variant.view === "secondary" ? 2 : 1;
+  const selections = Array.from({ length: 6 }, (_, index) => (
+    menuValues[`userScreen${screenNumber}Block${index + 1}`]
+      ?? DEFAULT_USER_SCREEN_BLOCKS[screenNumber][index]
+  )).filter((selection) => selection !== "<OFF>");
+  const contentLeft = variant.tabsVisible ? 70 : 0;
+  const contentWidth = 504 - contentLeft;
+  const leftCenter = contentLeft + contentWidth * 0.25;
+  const rightCenter = contentLeft + contentWidth * 0.75;
+  const center = contentLeft + contentWidth * 0.5;
+  const rowCount = Math.max(1, Math.ceil(selections.length / 2));
+  const rowLabels = rowCount === 1 ? [123] : rowCount === 2 ? [82, 190] : [62, 148, 234];
+  const blocks = selections.map((selection, index) => {
+    const row = Math.floor(index / 2);
+    const alone = index === selections.length - 1 && selections.length % 2 === 1;
+    const x = alone ? center : index % 2 === 0 ? leftCenter : rightCenter;
+    return userMetricBlock(x, rowLabels[row], selection);
+  }).join("");
   return `
     <rect class="voyager-live__surface" width="504" height="303" />
     ${screenChromeMarkup(screen, variant)}
-    ${userTitleMarkup("USER SCREEN 1", variant.tabsVisible)}
-    <g>
-      ${metricBlock(leftCenter, 62, "WHEEL SPD", "data-live-speed", "25")}
-      ${metricBlock(rightCenter, 62, "GPS SPD", "data-live-gps-speed", "22")}
-      ${metricBlock(leftCenter, 148, "TRIP DST KM", "data-live-trip-distance", "120")}
-      ${metricBlock(rightCenter, 148, "DST 2 KM", "data-live-odometer", "120")}
-      ${metricBlock(leftCenter, 234, "ODOMETER MI", "data-live-odometer-miles", "523.7")}
-      ${metricBlock(rightCenter, 234, "ALT FT", "data-live-altitude", "1089")}
-    </g>`;
+    ${userTitleMarkup(`USER SCREEN ${screenNumber}`, variant.tabsVisible)}
+    ${blocks || `<text class="voyager-live__text voyager-live__text--medium" x="${center}" y="170" text-anchor="middle">NO DATA BLOCKS</text>`}`;
 }
 
 function navigationMarkup(screen, variant) {
@@ -796,7 +842,7 @@ function satelliteMarkup(screen, variant) {
     </g>`;
 }
 
-function renderScreenMarkup(screen, variant) {
+function renderScreenMarkup(screen, variant, menuValues = {}) {
   const renderers = {
     startup: startupMarkup,
     main: mainMarkup,
@@ -806,7 +852,7 @@ function renderScreenMarkup(screen, variant) {
     navigation: navigationMarkup,
     satellite: satelliteMarkup,
   };
-  return renderers[screen.renderer](screen, variant);
+  return renderers[screen.renderer](screen, variant, menuValues);
 }
 
 function projectTrack(points, bounds, extentPoints = points) {
@@ -843,6 +889,7 @@ export class VoyagerLiveRuntime {
   #screenState = null;
   #menuState = null;
   #menuUnderlayScreenState = null;
+  #menuReturnStateId = null;
   #menuModel = new VoyagerMenuModel();
   #layoutKey = "";
   #telemetry = null;
@@ -941,7 +988,15 @@ export class VoyagerLiveRuntime {
   }
 
   prepareInput(stateId, action) {
-    return this.#menuModel.prepareInput(voyagerMenuState(stateId), action);
+    const definition = voyagerMenuState(stateId);
+    const prepared = this.#menuModel.prepareInput(definition, action);
+    const rootMenu = stateId === "m-main1-1" || stateId === "m-ride2-1" || stateId === "m-set3-1";
+    if (rootMenu && this.#menuReturnStateId && (action === "back" || action === "menu")) {
+      const targetStateId = this.#menuReturnStateId;
+      this.#menuReturnStateId = null;
+      return { ...prepared, targetStateId };
+    }
+    return prepared;
   }
 
   resolveInputAction(stateId, action) {
@@ -949,10 +1004,16 @@ export class VoyagerLiveRuntime {
   }
 
   render(state, event = {}) {
+    const sourceScreenState = voyagerScreenState(event.from);
     this.#state = state;
     this.#screenState = voyagerScreenState(state.id);
     this.#menuState = voyagerMenuState(state.id);
     this.#menuUnderlayScreenState = null;
+    if (this.#menuState && event.action === "menu" && sourceScreenState) {
+      this.#menuReturnStateId = event.from;
+    } else if (this.#screenState && voyagerMenuState(event.from)) {
+      this.#menuReturnStateId = null;
+    }
     if (!this.supports(state.id) || (!this.#screenState && !this.#menuState)) {
       throw new Error(`Voyager state ${state.id} does not have a live renderer.`);
     }
@@ -983,11 +1044,12 @@ export class VoyagerLiveRuntime {
     const renderedVariant = mapView && variant.editing
       ? { ...variant, interaction: mapView.mode }
       : variant;
-    const layoutKey = `${screen.id}:${variant.view}:${variant.mapView ?? "default"}:${variant.tabsVisible}:${renderedVariant.interaction ?? "browse"}`;
+    const userLayoutRevision = screen.renderer === "user" ? this.#menuModel.revision : "static";
+    const layoutKey = `${screen.id}:${variant.view}:${variant.mapView ?? "default"}:${variant.tabsVisible}:${renderedVariant.interaction ?? "browse"}:${userLayoutRevision}`;
     if (layoutKey !== this.#layoutKey) {
       this.#mount.innerHTML = `
         <svg class="voyager-live" viewBox="0 0 504 303" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Live Voyager ${screen.tabLabel.toLowerCase()} ${variant.view} screen">
-          ${renderScreenMarkup(screen, renderedVariant)}
+          ${renderScreenMarkup(screen, renderedVariant, this.#menuModel.values)}
         </svg>`;
       this.#layoutKey = layoutKey;
       this.#projectedTrack = [];
@@ -1020,6 +1082,13 @@ export class VoyagerLiveRuntime {
     if (visited.has(definition.id)) throw new Error(`Voyager menu underlay cycle at ${definition.id}.`);
     visited.add(definition.id);
     let resolved = this.#menuModel.resolve(definition);
+    if (resolved.graphDisplay) {
+      const trackSlot = resolved.trackSlot === 2 ? " (TRACK_2)" : "";
+      resolved = {
+        ...resolved,
+        summary: `DISPLAYING: ${this.#telemetry?.trackLabel ?? "CURRENT TRACK"}${trackSlot}`,
+      };
+    }
     if (/^m-ride2-6-4-[1-4]$/.test(resolved.id)) {
       const cardRows = this.#savedRides.slice(0, 4).map((ride) => ({ label: ride.name }));
       while (cardRows.length < 4) cardRows.push({ label: "EMPTY SLOT" });
@@ -1041,7 +1110,7 @@ export class VoyagerLiveRuntime {
       const screenParent = voyagerScreenState(resolved.parentStateId);
       if (screenParent) {
         this.#menuUnderlayScreenState = screenParent;
-        underlayMarkup = renderScreenMarkup(screenParent.screen, screenParent.variant);
+        underlayMarkup = renderScreenMarkup(screenParent.screen, screenParent.variant, this.#menuModel.values);
       }
     }
     return renderVoyagerMenuMarkup(resolved, { underlayMarkup });
@@ -1212,6 +1281,12 @@ export class VoyagerLiveRuntime {
     }
     if (event.from === "m-main1-5-1-1") {
       this.#selectedDestination = this.#waypoints.at(-1) ?? this.#ride.points.at(-1) ?? null;
+    }
+    if (event.from === "m-nav-destination-primary" || event.from === "m-nav-destination-secondary") {
+      const waypointNumber = Number.parseInt(this.#menuModel.values.destinationWaypoint.match(/\d+/)?.[0] ?? "1", 10);
+      const progress = [0.08, 0.34, 0.62, 0.88][clamp(waypointNumber - 1, 0, 3)];
+      const pointIndex = Math.round(progress * Math.max(0, this.#ride.points.length - 1));
+      this.#selectedDestination = this.#ride.points[pointIndex] ?? null;
     }
     if (event.from === "m-ride2-2-1" && telemetry) {
       this.#addWaypoint("CURRENT POSITION", telemetry.latitude, telemetry.longitude);

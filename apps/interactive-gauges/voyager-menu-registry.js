@@ -25,7 +25,7 @@ const MAIN_ROWS = [
 
 registerMenuFamily(
   ["m-main1-1", "m-main1-2", "m-main1-3", "m-main1-4", "m-main1-5", "m-main1-6", "m-main1-7"],
-  { kind: "menu", section: "main", title: "MAIN MENU", rows: MAIN_ROWS },
+  { kind: "menu", section: "main", title: "QUICK MENU", rows: MAIN_ROWS },
   [null, 0, 1, 3, 4, 6, 7],
 );
 register("m-main1-2-1", {
@@ -318,21 +318,74 @@ register("m-set3-6-2-1", { kind: "slot-input", section: "set", title: "RED LED O
 register("m-set3-6-3-1", { kind: "slot-input", section: "set", title: "YELLOW LED FLASH", value: "240 °F", activeDigit: 1, note: ["FLASH LEFT YELLOW LED WHEN", "EXCEEDED. DEFAULT: 240°F"] });
 register("m-set3-6-4-1", { kind: "slot-input", section: "set", title: "RED LED FLASH", value: "240 °F", activeDigit: 1, note: ["FLASH RIGHT RED LED WHEN", "EXCEEDED. DEFAULT: 240°F"] });
 
-register("m-graph-temp-display", {
+const GRAPH_DISPLAY_OPTIONS = ["CURRENT TRACK", "OTHER TRACK", "OTHER ROUTE"];
+const graphDisplayModal = (trackSlot = 1) => ({
   kind: "settings-modal",
   section: "graph",
   title: "GRAPHS DISPLAY",
-  options: ["ENGINE TEMPERATURE", "ALTITUDE"],
+  options: GRAPH_DISPLAY_OPTIONS,
   selectedIndex: 0,
-  note: "ENTER SWITCHES GRAPH. BACK RETURNS TO GRAPH.",
+  graphDisplay: true,
+  trackSlot,
+  summary: `DISPLAYING: CURRENT TRACK${trackSlot === 2 ? " (TRACK_2)" : ""}`,
 });
-register("m-graph-alt-display", {
+
+register("m-graph-temp-primary-display", graphDisplayModal());
+register("m-graph-temp-display", graphDisplayModal());
+register("m-graph-temp-track2-display", graphDisplayModal(2));
+register("m-graph-alt-primary-display", graphDisplayModal());
+register("m-graph-alt-display", graphDisplayModal());
+register("m-graph-alt-track2-display", graphDisplayModal(2));
+
+register("m-user-screen-1-layout", {
+  kind: "user-layout",
+  section: "set",
+  title: "USER SCREEN 1 LAYOUT",
+  userScreen: 1,
+  selectedIndex: 0,
+});
+register("m-user-screen-2-layout", {
+  kind: "user-layout",
+  section: "set",
+  title: "USER SCREEN 2 LAYOUT",
+  userScreen: 2,
+  selectedIndex: 0,
+});
+register("m-user-screen-1-data-block", {
   kind: "settings-modal",
-  section: "graph",
-  title: "GRAPHS DISPLAY",
-  options: ["ENGINE TEMPERATURE", "ALTITUDE"],
-  selectedIndex: 1,
-  note: "ENTER SWITCHES GRAPH. BACK RETURNS TO GRAPH.",
+  section: "set",
+  title: "AVAILABLE DATA BLOCKS",
+  options: USER_SCREEN_DATA_BLOCKS,
+  selectedIndex: 4,
+  scroll: true,
+  dataBlockPicker: true,
+  userScreen: 1,
+});
+register("m-user-screen-2-data-block", {
+  kind: "settings-modal",
+  section: "set",
+  title: "AVAILABLE DATA BLOCKS",
+  options: USER_SCREEN_DATA_BLOCKS,
+  selectedIndex: 8,
+  scroll: true,
+  dataBlockPicker: true,
+  userScreen: 2,
+});
+
+const DESTINATION_WAYPOINT_OPTIONS = ["WAYPOINT 1", "WAYPOINT 2", "WAYPOINT 3", "WAYPOINT 4"];
+register("m-nav-destination-primary", {
+  kind: "settings-modal",
+  section: "main",
+  title: "SELECT DESTINATION WAYPOINT",
+  options: DESTINATION_WAYPOINT_OPTIONS,
+  selectedIndex: 0,
+});
+register("m-nav-destination-secondary", {
+  kind: "settings-modal",
+  section: "main",
+  title: "SELECT DESTINATION WAYPOINT",
+  options: DESTINATION_WAYPOINT_OPTIONS,
+  selectedIndex: 0,
 });
 
 const OVERLAY_KINDS = new Set([
@@ -342,11 +395,25 @@ const OVERLAY_KINDS = new Set([
   "notice",
   "settings-modal",
   "slot-input",
+  "user-layout",
 ]);
 
 function inferredParentStateId(stateId) {
-  if (stateId === "m-graph-temp-display") return "eng2";
-  if (stateId === "m-graph-alt-display") return "alt2";
+  const contextualParents = {
+    "m-graph-temp-primary-display": "eng",
+    "m-graph-temp-display": "eng2",
+    "m-graph-temp-track2-display": "eng3",
+    "m-graph-alt-primary-display": "alt",
+    "m-graph-alt-display": "alt2",
+    "m-graph-alt-track2-display": "alt3",
+    "m-user-screen-1-layout": "cstm",
+    "m-user-screen-2-layout": "cstm2",
+    "m-user-screen-1-data-block": "m-user-screen-1-layout",
+    "m-user-screen-2-data-block": "m-user-screen-2-layout",
+    "m-nav-destination-primary": "dir",
+    "m-nav-destination-secondary": "dir2",
+  };
+  if (contextualParents[stateId]) return contextualParents[stateId];
   const parts = stateId.split("-");
   while (parts.length > 2) {
     parts.pop();
@@ -369,6 +436,7 @@ export const VOYAGER_MENU_STATE_INDEX = Object.freeze(registry);
 export const VOYAGER_MENU_STATE_IDS = new Set(Object.keys(registry));
 
 export const VOYAGER_MENU_STABLE_STATE_ALIASES = {
+  "menu.quick": "m-main1-1",
   "menu.main": "m-main1-1",
   "menu.ride": "m-ride2-1",
   "menu.ride.add-waypoint": "m-ride2-2",
@@ -387,6 +455,11 @@ export const VOYAGER_MENU_STABLE_STATE_ALIASES = {
   "modal.system.brightness": "m-set3-3-1-1",
   "modal.graphs.temperature": "m-graph-temp-display",
   "modal.graphs.altitude": "m-graph-alt-display",
+  "modal.user-screen-1-layout": "m-user-screen-1-layout",
+  "modal.user-screen-2-layout": "m-user-screen-2-layout",
+  "modal.user-screen-1-data-block": "m-user-screen-1-data-block",
+  "modal.user-screen-2-data-block": "m-user-screen-2-data-block",
+  "modal.destination-waypoint": "m-nav-destination-primary",
 };
 
 export const VOYAGER_MENU_CANONICAL_STATE_IDS = Object.entries(

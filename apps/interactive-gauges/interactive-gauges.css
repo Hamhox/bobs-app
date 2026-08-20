@@ -835,6 +835,14 @@
   font-size: 16px;
 }
 
+.voyager-menu__summary {
+  font-size: 15px;
+}
+
+.voyager-menu__layout-label {
+  font-size: 14px;
+}
+
 .voyager-menu__meter,
 .voyager-menu__brightness-track,
 .voyager-menu__input,

@@ -1,4 +1,10 @@
+import { VOYAGER_FONT_SYMBOLS } from "./voyager-font-symbols.js";
+
 const MENU_STORAGE_KEY = "bobs-app:voyager-menu:v1";
+
+const dataBlockVariant = (label, digit) => `${label} ${digit === 1
+  ? VOYAGER_FONT_SYMBOLS.circledDigitNarrow1
+  : VOYAGER_FONT_SYMBOLS.circledDigitNarrow2}`;
 
 const DEFAULT_VALUES = Object.freeze({
   gpsMode: "ENABLED (LOGGING ON)",
@@ -25,6 +31,19 @@ const DEFAULT_VALUES = Object.freeze({
   userScreenTitle: "USER SCREEN 1",
   userScreenBlocks: "4",
   userScreenBlock1: "WHEEL SPEED",
+  userScreen1Block1: "WHEEL SPEED",
+  userScreen1Block2: "GPS SPEED",
+  userScreen1Block3: dataBlockVariant("WHEEL DISTANCE", 1),
+  userScreen1Block4: dataBlockVariant("WHEEL DISTANCE", 2),
+  userScreen1Block5: "WHEEL ODOMETER",
+  userScreen1Block6: "ALTITUDE",
+  userScreen2Block1: "ENGINE ACC. RUN TIME",
+  userScreen2Block2: dataBlockVariant("MAX WHEEL SPEED", 1),
+  userScreen2Block3: dataBlockVariant("AVG WHEEL SPEED", 1),
+  userScreen2Block4: "<OFF>",
+  userScreen2Block5: "<OFF>",
+  userScreen2Block6: "<OFF>",
+  destinationWaypoint: "WAYPOINT 1",
   yellowLedOn: "210 °F",
   redLedOn: "220 °F",
   yellowLedFlash: "240 °F",
@@ -57,6 +76,8 @@ const FIELD_BINDINGS = Object.freeze({
   "m-set3-5-1-1-1": "userScreenTitle",
   "m-set3-5-1-2-1": "userScreenBlocks",
   "m-set3-5-1-3-1": "userScreenBlock1",
+  "m-nav-destination-primary": "destinationWaypoint",
+  "m-nav-destination-secondary": "destinationWaypoint",
   "m-set3-6-1-1": "yellowLedOn",
   "m-set3-6-2-1": "redLedOn",
   "m-set3-6-3-1": "yellowLedFlash",
@@ -100,7 +121,17 @@ const RESET_GROUPS = Object.freeze({
   "UNIT SETTINGS": ["speedUnits", "distanceUnits", "wheelSize", "clockFormat", "timeOfDay", "temperatureUnits"],
   "SYSTEM SETTINGS": ["brightness", "backlightBattery", "backlightExternal", "safeModeTimer", "sleepModeTimer", "chargeMode", "chargeLevel"],
   "GPS SETTINGS": ["mapOrientation", "mapAutoZoom", "logAfterStop", "recordMethod", "wrapWhenFull", "sampleFrequency"],
-  "USER SCREEN 1 SETTINGS": ["userScreenTitle", "userScreenBlocks", "userScreenBlock1"],
+  "USER SCREEN 1 SETTINGS": [
+    "userScreenTitle",
+    "userScreenBlocks",
+    "userScreenBlock1",
+    "userScreen1Block1",
+    "userScreen1Block2",
+    "userScreen1Block3",
+    "userScreen1Block4",
+    "userScreen1Block5",
+    "userScreen1Block6",
+  ],
   "WARNING LED LIGHTS": ["yellowLedOn", "redLedOn", "yellowLedFlash", "redLedFlash"],
 });
 
@@ -166,6 +197,10 @@ export class VoyagerMenuModel {
     };
     if (!draft) return resolved;
     if (definition.kind === "settings-modal") resolved.selectedIndex = draft.selectedIndex;
+    if (definition.kind === "user-layout") {
+      resolved.options = Array.from({ length: 6 }, (_, index) => this.#values[`userScreen${definition.userScreen}Block${index + 1}`]);
+      resolved.selectedIndex = draft.selectedIndex;
+    }
     if (definition.kind === "slot-input" || definition.kind === "keyboard") resolved.value = draft.value;
     if (definition.kind === "slot-input") resolved.activeDigit = draft.activeDigit;
     if (definition.kind === "brightness") resolved.value = draft.value;
@@ -180,7 +215,7 @@ export class VoyagerMenuModel {
   resolveInputAction(definition, action) {
     if (!definition || action !== "center") return action;
     const centerActivatesSelection = definition.presentation === "page"
-      || ["brightness", "confirm", "notice", "settings-modal"].includes(definition.kind);
+      || ["brightness", "confirm", "notice", "settings-modal", "user-layout"].includes(definition.kind);
     return centerActivatesSelection ? "enter" : action;
   }
 
@@ -218,22 +253,27 @@ export class VoyagerMenuModel {
       this.#touch();
     }
 
+    if (definition.kind === "user-layout" && ["up", "down", "left", "right"].includes(preparedAction)) {
+      if (preparedAction === "up") draft.selectedIndex = (draft.selectedIndex + 4) % 6;
+      if (preparedAction === "down") draft.selectedIndex = (draft.selectedIndex + 2) % 6;
+      if (preparedAction === "left" && draft.selectedIndex % 2 === 1) draft.selectedIndex -= 1;
+      if (preparedAction === "right" && draft.selectedIndex % 2 === 0) draft.selectedIndex += 1;
+      this.#touch();
+    }
+
     if (definition.kind === "slot-input") this.#editSlot(draft, preparedAction);
     if (definition.kind === "brightness") this.#editBrightness(draft, preparedAction);
     if (definition.kind === "keyboard") this.#editKeyboard(draft, preparedAction);
 
-    if (preparedAction === "enter") {
+    if (preparedAction === "enter" && definition.kind !== "user-layout") {
       this.#commit(definition, draft);
-      if (definition.id === "m-graph-temp-display" || definition.id === "m-graph-alt-display") {
-        return { action: preparedAction, targetStateId: draft.selectedIndex === 0 ? "eng2" : "alt2" };
-      }
     }
     return { action: preparedAction };
   }
 
   #draftFor(definition) {
     if (this.#drafts.has(definition.id)) return this.#drafts.get(definition.id);
-    const binding = FIELD_BINDINGS[definition.id];
+    const binding = this.#bindingFor(definition);
     const storedValue = binding ? this.#values[binding] : undefined;
     const selectedIndex = definition.kind === "settings-modal" && storedValue !== undefined
       ? Math.max(0, definition.options.indexOf(String(storedValue)))
@@ -249,6 +289,13 @@ export class VoyagerMenuModel {
     };
     this.#drafts.set(definition.id, draft);
     return draft;
+  }
+
+  #bindingFor(definition) {
+    if (!definition.dataBlockPicker) return FIELD_BINDINGS[definition.id];
+    const layoutId = `m-user-screen-${definition.userScreen}-layout`;
+    const selectedSlot = (this.#drafts.get(layoutId)?.selectedIndex ?? 0) + 1;
+    return `userScreen${definition.userScreen}Block${selectedSlot}`;
   }
 
   #editSlot(draft, action) {
@@ -295,7 +342,7 @@ export class VoyagerMenuModel {
   }
 
   #commit(definition, draft) {
-    const binding = FIELD_BINDINGS[definition.id];
+    const binding = this.#bindingFor(definition);
     if (binding) {
       if (definition.kind === "settings-modal") this.#values[binding] = definition.options[draft.selectedIndex];
       else this.#values[binding] = draft.value;
