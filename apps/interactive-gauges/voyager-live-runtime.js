@@ -373,7 +373,7 @@ function mainMarkup(screen, variant) {
         <text class="voyager-live__text voyager-live__text--readout" x="${contentCenter}" y="88" text-anchor="middle" data-live-odometer-miles>523.7</text>
         <text class="voyager-live__text voyager-live__text--medium" x="${maxCenter}" y="127" text-anchor="middle">MAX SPD MPH</text>
         <text class="voyager-live__text voyager-live__text--readout" x="${maxCenter}" y="185" text-anchor="middle" data-live-max-speed>25</text>
-        <path class="voyager-live__line" d="M${contentCenter} 102V195" />
+        <path class="voyager-live__line voyager-live__line--secondary-main" d="M${contentCenter} 102V195" />
         <text class="voyager-live__text voyager-live__text--medium" x="${avgCenter}" y="127" text-anchor="middle">AVG SPD MPH</text>
         <text class="voyager-live__text voyager-live__text--readout" x="${avgCenter}" y="185" text-anchor="middle" data-live-avg-speed>12</text>
         <text class="voyager-live__text voyager-live__text--medium" x="${contentCenter}" y="225" text-anchor="middle">ACCUMULATED RUN TIME</text>
@@ -502,16 +502,20 @@ function userMarkup(screen, variant) {
         ${metricBlock(397, 190, "AVG SPD KM/H", "data-live-avg-kph", "12")}
       </g>`;
   }
+  const leftCenter = variant.tabsVisible ? 173 : 126;
+  const rightCenter = variant.tabsVisible ? 397 : 378;
+  const indicatorX = variant.tabsVisible ? 73 : 7;
   return `
     <rect class="voyager-live__surface" width="504" height="303" />
     ${screenChromeMarkup(screen, variant)}
-    <g transform="translate(${hiddenOffset} 0)">
-      ${screenIndicatorMarkup(1)}
-      <text class="voyager-live__text voyager-live__text--medium" x="283" y="31" text-anchor="middle">KELLY'S SCREEN</text>
-      ${metricBlock(173, 83, "WHEEL SPD", "data-live-speed", "25")}
-      ${metricBlock(397, 83, "GPS SPD", "data-live-gps-speed", "22")}
-      ${metricBlock(173, 190, "TRIP DST KM", "data-live-trip-distance", "120")}
-      ${metricBlock(397, 190, "DST 2 KM", "data-live-odometer", "120")}
+    <g>
+      ${screenIndicatorMarkup(1, indicatorX)}
+      ${metricBlock(leftCenter, 30, "WHEEL SPD", "data-live-speed", "25")}
+      ${metricBlock(rightCenter, 30, "GPS SPD", "data-live-gps-speed", "22")}
+      ${metricBlock(leftCenter, 127, "TRIP DST KM", "data-live-trip-distance", "120")}
+      ${metricBlock(rightCenter, 127, "DST 2 KM", "data-live-odometer", "120")}
+      ${metricBlock(leftCenter, 225, "ODOMETER MI", "data-live-odometer-miles", "523.7")}
+      ${metricBlock(rightCenter, 225, "ALT FT", "data-live-altitude", "1089")}
     </g>`;
 }
 
@@ -522,12 +526,11 @@ function navigationMarkup(screen, variant) {
     ${screenChromeMarkup(screen, variant)}
     <g transform="translate(${hiddenOffset} 0)">
       <text class="voyager-live__text voyager-live__text--medium" x="467.5" y="47" text-anchor="start" data-live-heading-label>N</text>
-      ${metricBlock(186, 34.5, "SPD MPH", "data-live-speed", "21")}
-      <text class="voyager-live__text voyager-live__text--medium" x="186" y="129.25" text-anchor="middle">DEST DST MI</text>
-      <text class="voyager-live__text voyager-live__text--readout" x="186" y="188.25" text-anchor="middle" data-live-destination>700</text>
+      ${metricBlock(186, 30, "SPD MPH", "data-live-speed", "21")}
+      ${metricBlock(186, 127, "DEST DST MI", "data-live-destination", "700")}
       ${compassMarkup({ cx: 388.75, cy: 102, radius: 87.4, pointerAttribute: "data-live-nav-pointer" })}
-      <text class="voyager-live__text voyager-live__text--medium" x="248" y="221" text-anchor="middle">STOP WATCH</text>
-      <text class="voyager-live__text voyager-live__text--large voyager-live__text--clock" x="248" y="277" text-anchor="middle" data-live-stopwatch>00:00:00</text>
+      <text class="voyager-live__text voyager-live__text--medium" x="248" y="225" text-anchor="middle">STOP WATCH</text>
+      <text class="voyager-live__text voyager-live__text--large voyager-live__text--clock" x="248" y="283" text-anchor="middle" data-live-stopwatch>00:00:00</text>
     </g>
     ${voyagerUiIcon("pauseplay-pill", { x: 442, y: 230, width: 62, height: 42, attributes: 'data-live-stopwatch-control=""' })}`;
 }

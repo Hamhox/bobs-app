@@ -498,6 +498,10 @@
   stroke-width: 6px;
 }
 
+.voyager-live__line--secondary-main {
+  stroke-width: 18px;
+}
+
 .voyager-live__line--inverse {
   stroke: #f5f4ef;
 }
