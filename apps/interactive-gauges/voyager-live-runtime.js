@@ -1528,9 +1528,18 @@ export class VoyagerLiveRuntime {
     }
 
     if (variant.interaction === "graph") {
+      const crosshairInset = 18;
       const cursor = {
-        x: left + (this.#telemetry.progress - windowStart) / windowSize * (right - left),
-        y: bottom - (currentValue - minimum) / range * (bottom - top - 16),
+        x: clamp(
+          left + (this.#telemetry.progress - windowStart) / windowSize * (right - left),
+          left + crosshairInset,
+          right - crosshairInset,
+        ),
+        y: clamp(
+          bottom - (currentValue - minimum) / range * (bottom - top - 16),
+          top + crosshairInset,
+          bottom - crosshairInset,
+        ),
       };
       for (const horizontal of this.#mount.querySelectorAll("[data-live-graph-crosshair-horizontal]")) {
         horizontal.setAttribute("x1", left);
