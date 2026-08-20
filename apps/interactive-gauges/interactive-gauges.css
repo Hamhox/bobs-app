@@ -507,14 +507,14 @@
 }
 
 .voyager-live__route {
-  stroke-width: 3;
+  stroke-width: 6px;
   stroke-dasharray: 3 5;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
 .voyager-live__recorded {
-  stroke-width: 2;
+  stroke-width: 18;
   stroke-linecap: round;
   stroke-linejoin: round;
   opacity: 0.45;
@@ -721,10 +721,7 @@
 }
 
 .voyager-live__waypoint {
-  fill: #f5f4ef;
-  stroke: #242021;
-  stroke-width: 2;
-  vector-effect: non-scaling-stroke;
+  fill: #242021;
 }
 
 .voyager-live__position {

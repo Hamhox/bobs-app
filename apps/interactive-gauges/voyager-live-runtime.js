@@ -289,7 +289,7 @@ function sideArrowsMarkup(screen, variant) {
   if (screen.id === "user") return "";
   if (screen.id === "main" || screen.id === "map" || screen.id === "sat" || screen.renderer === "graph") {
     const indicator = screen.id === "map" && variant.screenIndicator
-      ? screenIndicatorMarkup(variant.screenIndicator, 490, 106, true)
+      ? screenIndicatorMarkup(variant.screenIndicator, 484, 106, true)
       : "";
     return `${indicator}${voyagerUiIcon("screen-arrow-right", { x: 492, y: 132, width: 12, height: 35 })}`;
   }
@@ -1039,10 +1039,10 @@ export class VoyagerLiveRuntime {
           label: waypoint.label,
           saved: true,
         }));
-        waypointLayer.innerHTML = [...authoredWaypoints, ...savedWaypoints].map(({ point, label, saved }) => `
+        waypointLayer.innerHTML = [...authoredWaypoints, ...savedWaypoints].map(({ point, label }) => `
             <g transform="translate(${point.x.toFixed(2)} ${point.y.toFixed(2)})">
-              <circle class="voyager-live__waypoint" r="${saved ? 14 : 12}" />
-              <text class="voyager-live__text" x="0" y="6" text-anchor="middle">${label}</text>
+              ${voyagerUiIcon("circle-digit-black", { x: -22, y: -15, width: 44, height: 29, className: "voyager-live__waypoint" })}
+              <text class="voyager-live__text voyager-live__text--inverse" x="0" y="6" text-anchor="middle">${label}</text>
             </g>`).join("");
       }
     }
