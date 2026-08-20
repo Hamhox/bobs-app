@@ -24,7 +24,7 @@ const DEFAULT_VALUES = Object.freeze({
   sampleFrequency: "NORMAL",
   userScreenTitle: "USER SCREEN 1",
   userScreenBlocks: "4",
-  userScreenBlock1: "ALT",
+  userScreenBlock1: "WHEEL SPEED",
   yellowLedOn: "210 °F",
   redLedOn: "220 °F",
   yellowLedFlash: "240 °F",

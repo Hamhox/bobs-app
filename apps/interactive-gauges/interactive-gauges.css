@@ -8,7 +8,7 @@
 
 @font-face {
   font-family: "Bobs Font 6 Pixel";
-  src: url("assets/fonts/bobs-font-6px/woff/BobsFont6Pixel-Regular.woff") format("woff");
+  src: url("assets/fonts/bobs-font-6px/woff/BobsFont6Pixel-Regular.woff?v=1.003") format("woff");
   font-style: normal;
   font-weight: 400;
   font-display: block;
@@ -803,6 +803,10 @@
 
 .voyager-menu__row {
   font-size: 17px;
+}
+
+.voyager-menu__row--option {
+  font-size: 16px;
 }
 
 .voyager-menu__meter,

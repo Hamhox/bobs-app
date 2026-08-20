@@ -1,3 +1,5 @@
+import { VOYAGER_FONT_SYMBOLS } from "./voyager-font-symbols.js";
+
 const registry = {};
 
 function register(id, definition) {
@@ -131,7 +133,16 @@ const SETTINGS_MENU_ROWS = [
 ];
 registerMenuFamily(
   ["m-set3-1", "m-set3-2", "m-set3-3", "m-set3-4", "m-set3-5", "m-set3-6"],
-  { kind: "menu", section: "set", title: "SETTINGS MENU", rows: SETTINGS_MENU_ROWS },
+  {
+    kind: "menu",
+    section: "set",
+    title: "SETTINGS MENU",
+    rows: SETTINGS_MENU_ROWS,
+    titleX: 270,
+    rowTop: 73,
+    rowSpacing: 42,
+    showTitleRule: false,
+  },
   [null, 0, 1, 2, 3, 4],
 );
 
@@ -225,6 +236,51 @@ const USER_SCREEN_SETTINGS = [
   { spacer: true },
   { label: "RESTORE DEFAULTS" },
 ];
+
+const dataBlockVariant = (label, digit) => `${label} ${digit === 1
+  ? VOYAGER_FONT_SYMBOLS.circledDigitNarrow1
+  : VOYAGER_FONT_SYMBOLS.circledDigitNarrow2}`;
+
+const USER_SCREEN_DATA_BLOCKS = [
+  "<OFF>",
+  "ALTITUDE",
+  "MIN ALTITUDE",
+  "MAX ALTITUDE",
+  "WHEEL SPEED",
+  "GPS SPEED",
+  "WHEEL ODOMETER",
+  "GPS ODOMETER",
+  "ENGINE ACC. RUN TIME",
+  "GPS ACC. RUN TIME",
+  "AIR TEMPERATURE",
+  "ENGINE TEMPERATURE",
+  "MAX ENGINE TEMPERATURE",
+  "AVG ENGINE TEMPERATURE",
+  "CLOCK",
+  "STOP WATCH",
+  "HEADING",
+  "COMPASS DIRECTION",
+  "INPUT VOLTAGE",
+  "INTERNAL BATTERY VOLTAGE",
+  "TACHOMETER",
+  dataBlockVariant("WHEEL DISTANCE", 1),
+  dataBlockVariant("GPS DISTANCE", 1),
+  dataBlockVariant("ENGINE TRIP TIME", 1),
+  dataBlockVariant("GPS TRIP TIME", 1),
+  dataBlockVariant("MAX WHEEL SPEED", 1),
+  dataBlockVariant("MAX GPS SPEED", 1),
+  dataBlockVariant("AVG WHEEL SPEED", 1),
+  dataBlockVariant("AVG GPS SPEED", 1),
+  dataBlockVariant("WHEEL DISTANCE", 2),
+  dataBlockVariant("GPS DISTANCE", 2),
+  dataBlockVariant("ENGINE TRIP TIME", 2),
+  dataBlockVariant("GPS TRIP TIME", 2),
+  dataBlockVariant("MAX WHEEL SPEED", 2),
+  dataBlockVariant("MAX GPS SPEED", 2),
+  dataBlockVariant("AVG WHEEL SPEED", 2),
+  dataBlockVariant("AVG GPS SPEED", 2),
+  "CURRENT (BATTERY CHARGER)",
+];
 registerMenuFamily(
   ["m-set3-5-1-1", "m-set3-5-1-2", "m-set3-5-1-3", "m-set3-5-1-4", "m-set3-5-1-5", "m-set3-5-1-6", "m-set3-5-1-7"],
   { kind: "panel", section: "set", title: "USER SCREEN 1 SETTINGS", rows: USER_SCREEN_SETTINGS, compact: true },
@@ -232,7 +288,7 @@ registerMenuFamily(
 );
 register("m-set3-5-1-1-1", { kind: "keyboard", section: "set", title: "USER SCREEN 1 TITLE", value: "KELLY'S SCREEN" });
 register("m-set3-5-1-2-1", { kind: "settings-modal", section: "set", title: "NUMBER OF BLOCKS", options: ["1", "2", "3", "4"], selectedIndex: 0, note: "NUMBER OF DATA BLOCKS TO DISPLAY ON USER SCREEN" });
-register("m-set3-5-1-3-1", { kind: "settings-modal", section: "set", title: "BLOCK 1", options: ["ALT", "STOP WATCH", "DST", "WHEEL SPD", "GPS SPD", "TRIP DST", "ENGINE TEMP"], selectedIndex: 0, scroll: true, note: "DATA TO DISPLAY ON BLOCK 1." });
+register("m-set3-5-1-3-1", { kind: "settings-modal", section: "set", title: "BLOCK 1", options: USER_SCREEN_DATA_BLOCKS, selectedIndex: 4, scroll: true, note: "DATA TO DISPLAY ON BLOCK 1." });
 
 const WARNING_ROWS = [
   { label: "YELLOW LED ON", value: "210°F" },

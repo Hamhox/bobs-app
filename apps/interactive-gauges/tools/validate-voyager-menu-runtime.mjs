@@ -63,6 +63,20 @@ function main() {
     }
   }
 
+  const dataBlockSelector = VOYAGER_MENU_STATE_INDEX["m-set3-5-1-3-1"];
+  if (dataBlockSelector.options.length !== 38) {
+    throw new Error(`data-block options: received ${dataBlockSelector.options.length}, expected 38`);
+  }
+  if (!dataBlockSelector.options.some((option) => option.includes("\uE10B"))) {
+    throw new Error("data-block options are missing the v1.003 circled 2 glyph");
+  }
+  const scrollModel = new VoyagerMenuModel();
+  for (let index = 0; index < 12; index += 1) scrollModel.prepareInput(dataBlockSelector, "down");
+  const scrolledMarkup = renderDefinition(dataBlockSelector, scrollModel);
+  if (!scrolledMarkup.includes('data-menu-option="16" data-menu-option-selected="true"')) {
+    throw new Error("scrolling data-block selector did not keep the active option visible");
+  }
+
   console.log(JSON.stringify(report, null, 2));
 }
 

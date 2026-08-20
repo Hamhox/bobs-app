@@ -1,0 +1,23 @@
+{
+  "font": "Bob's Font 6 Pixel Regular",
+  "version": "1.003",
+  "symbols": {
+    "pause": "U+23F8",
+    "play": "U+25B6",
+    "status-circle": "U+25CF",
+    "degree": "U+00B0",
+    "key-backspace": "U+E100",
+    "key-delete": "U+E101",
+    "key-left": "U+E102",
+    "key-right": "U+E103",
+    "checkbox-checked": "U+E104",
+    "checkbox-empty": "U+E105",
+    "key-space": "U+E106",
+    "radio-selected": "U+E107",
+    "radio-empty": "U+E108",
+    "circled-digit-wide-2": "U+E109",
+    "circled-digit-wide-1": "U+E10A",
+    "circled-digit-narrow-2": "U+E10B",
+    "circled-digit-narrow-1": "U+E10C"
+  }
+}

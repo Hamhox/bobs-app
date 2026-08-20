@@ -33,7 +33,7 @@ reusable `504 x 303` SVG stage in `voyager-live-runtime.js`. `voyager-live-scree
 states in the startup and seven gauge families—Main, Map, Temperature, Altitude, User, Navigation, and Satellite—including tab
 chrome, primary and secondary views, captured map controls, graph interactions, and stable public IDs. The data-driven
 `voyager-menu-registry.js` and
-`voyager-menu-renderer.js` cover all 117 Main Menu, Ride Menu, Settings, and modal states with shared menu shells,
+`voyager-menu-renderer.js` cover all 119 Main Menu, Ride Menu, Settings, and modal states with shared menu shells,
 confirmation, waypoint-map, keyboard, digit-input, settings-list, and brightness renderers. The timed startup frame uses
 the approved Trail Tech wordmark as live vector geometry, so the production runtime has no screen-image fallback.
 
@@ -59,6 +59,10 @@ node tools/build-voyager-ui-kit.mjs --source <path-to-voyager-ui-kit.svg>
 
 The generator performs a safety check and publishes only the named `ICONS` group; the source kit's reference board is
 not copied into the app.
+
+The active live-screen face is Bob's Font 6 Pixel v1.003. Its bundled symbol map documents the keyboard, radio,
+status, and narrow/wide circled-digit glyphs. Menu data-block selectors use the font's circled digits for the authored
+ride-memory 1 and 2 variants; the tuned SVG keyboard and radio controls remain in place.
 
 Asset intake record: the reviewed source was `voyager-ui-kit_v2.svg` with SHA-256
 `1258690247AD16F016A6682F3156894F0FC86C113E05265804B58CBE2E72EB4F`. The user confirmed publication approval for
