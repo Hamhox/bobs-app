@@ -644,6 +644,17 @@
   vector-effect: non-scaling-stroke;
 }
 
+.voyager-live__graph-grid {
+  stroke-width: 1.5;
+}
+
+.voyager-live__graph-border {
+  fill: none;
+  stroke: #242021;
+  stroke-width: 3;
+  vector-effect: non-scaling-stroke;
+}
+
 .voyager-live__text--satellite-coordinate {
   font-size: 28px;
 }

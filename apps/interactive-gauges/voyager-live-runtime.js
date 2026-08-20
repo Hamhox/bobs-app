@@ -435,13 +435,16 @@ function mapMarkup(screen, variant) {
 }
 
 function graphGridMarkup(left, right, top, bottom) {
-  const horizontals = Array.from({ length: 4 }, (_, index) => {
+  const horizontals = Array.from({ length: 3 }, (_, index) => {
     const y = top + (bottom - top) * (index + 1) / 4;
     return `
       <line x1="${left}" y1="${y}" x2="${right}" y2="${y}" />
       <text class="voyager-live__text voyager-live__text--medium voyager-live__graph-scale-label" x="${left + 4}" y="${y - 5}" data-live-graph-scale-label="${index}"></text>`;
   }).join("");
-  return `<g class="voyager-live__graph-grid">${horizontals}</g>`;
+  return `
+    <g class="voyager-live__graph-grid">${horizontals}</g>
+    <rect class="voyager-live__graph-border" x="${left}" y="${top}" width="${right - left}" height="${bottom - top}" />
+    <text class="voyager-live__text voyager-live__text--medium voyager-live__graph-scale-label" x="${left + 4}" y="${bottom - 5}" data-live-graph-scale-label="3"></text>`;
 }
 
 function graphMarkup(screen, variant) {
