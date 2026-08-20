@@ -587,6 +587,10 @@
   font-size: 58px;
 }
 
+.voyager-live__sleep-clock {
+  font-size: 104px;
+}
+
 .voyager-live__tab {
   fill: #f5f4ef;
 }

@@ -182,7 +182,7 @@ const SYSTEM_ROWS = [
   { label: "BACKLIGHT (BAT)", value: "10 SEC" },
   { label: "BACKLIGHT (EXT)", value: "ALWAYS ON" },
   { label: "SAFE MODE TIMER", value: "20 SEC" },
-  { label: "SLEEP MODE TIMER", value: "30 MIN" },
+  { label: "SLEEP MODE TIMER", value: "10 MIN" },
   { label: "CHARGE MODE", value: "MOTOR ON" },
   { label: "CHARGE LEVEL", value: "TRICKLE" },
   { spacer: true },
@@ -197,7 +197,7 @@ register("m-set3-3-1-1", { kind: "brightness", section: "set", title: "BRIGHTNES
 register("m-set3-3-2-1", { kind: "slot-input", section: "set", title: "BACKLIGHT (BATTERY)", value: "007 SEC", activeDigit: 2, note: ["SECONDS BACKLIGHT LIGHTS", "WHEN USING INTERNAL BATTERY", "DEFAULT: 7 SEC"] });
 register("m-set3-3-3-1", { kind: "slot-input", section: "set", title: "BACKLIGHT (EXTERNAL)", value: "000 SEC", activeDigit: 2, note: ["SECONDS BACKLIGHT LIGHTS", "WHEN USING EXTERNAL POWER", "DEFAULT: ALWAYS ON (0 SEC)"] });
 register("m-set3-3-4-1", { kind: "slot-input", section: "set", title: "SAFE MODE TIMER", value: "020 SEC", activeDigit: 1, note: ["SECONDS UNTIL TABS HIDE", "DEFAULT: 20 SEC", "NEVER HIDE: 0 SEC"] });
-register("m-set3-3-5-1", { kind: "slot-input", section: "set", title: "SLEEP MODE TIMER", value: "05 MIN", activeDigit: 1, note: ["MINUTES UNTIL SLEEP MODE", "AFTER LAST SENSOR INPUT", "DEFAULT: 5 MIN"] });
+register("m-set3-3-5-1", { kind: "slot-input", section: "set", title: "SLEEP MODE TIMER", value: "10 MIN", activeDigit: 1, note: ["MINUTES UNTIL SLEEP MODE", "AFTER LAST SENSOR INPUT", "DEFAULT: 10 MIN"] });
 register("m-set3-3-6-1", { kind: "settings-modal", section: "set", title: "CHARGE MODE", options: ["ONLY WHEN MOTOR IS ON", "ALWAYS CHARGE", "OFF"], selectedIndex: 0, note: "DEFAULT: MOTOR ON" });
 register("m-set3-3-7-1", { kind: "settings-modal", section: "set", title: "CHARGE LEVEL", options: ["TRICKLE CHARGE", "FAST CHARGE"], selectedIndex: 0, note: "USE TRICKLE IF POWER SUPPLY IS LIMITED." });
 

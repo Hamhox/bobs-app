@@ -19,7 +19,10 @@ import { VOYAGER_COMPASS_VIEW_BOX, voyagerUiIcon } from "./voyager-ui-icons.js";
 const DIRECTION_INPUTS = new Set(["up", "down", "left", "right"]);
 const WAYPOINT_STORAGE_KEY = "bobs-app:voyager-waypoints:v1";
 const SAVED_RIDE_STORAGE_KEY = "bobs-app:voyager-saved-rides:v1";
-const VOYAGER_SCREEN_REFRESH_MS = 2000;
+const VOYAGER_CONDUCTOR_SLOT_MS = 500;
+const VOYAGER_POWER_SAVE_SLOT_MS = 1000;
+const VOYAGER_SLEEP_CLOCK_MS = 1000;
+const VOYAGER_DEFAULT_SLEEP_AFTER_MS = 10 * 60 * 1000;
 const SD_CARD_DEFAULT_RIDES = Object.freeze([
   { id: "SD-CMRA-T2", name: "CMRA TRAIL 2", progress: 0, trackId: "cmra-trail-2" },
   { id: "SD-BLACKDOG", name: "2016 BLACKDOG", progress: 0, trackId: "blackdog-2016" },
@@ -82,6 +85,26 @@ function engineTemperatureAt(progress, elevationFeet) {
   return Math.round(166 + Math.sin(progress * Math.PI * 2.25) * 11 + elevationFeet / 560);
 }
 
+function summarizeValues(values) {
+  let minimum = Number.POSITIVE_INFINITY;
+  let maximum = Number.NEGATIVE_INFINITY;
+  let sum = 0;
+  for (const value of values) {
+    minimum = Math.min(minimum, value);
+    maximum = Math.max(maximum, value);
+    sum += value;
+  }
+  return { minimum, maximum, average: Math.round(sum / Math.max(1, values.length)) };
+}
+
+function reduceGraphPoints(values, maximumPoints) {
+  if (values.length <= maximumPoints) return values;
+  const stride = Math.ceil(values.length / maximumPoints);
+  const reduced = values.filter((_, index) => index % stride === 0);
+  if (reduced.at(-1) !== values.at(-1)) reduced.push(values.at(-1));
+  return reduced;
+}
+
 function buildTrack(definition, points) {
   const distances = [0];
   const segmentSpeeds = [];
@@ -96,6 +119,10 @@ function buildTrack(definition, points) {
   const sensorSpeedsMph = points
     .map((point) => point.speedKph * 0.621371)
     .filter(Number.isFinite);
+  const elevationValuesFeet = points.map((point) => point.elevation * 3.28084);
+  const temperatureValuesF = points.map((point, index) => Number.isFinite(point.engineTemperatureC)
+    ? point.engineTemperatureC * 9 / 5 + 32
+    : engineTemperatureAt(index / Math.max(1, points.length - 1), elevationValuesFeet[index]));
   return {
     ...definition,
     points,
@@ -105,6 +132,14 @@ function buildTrack(definition, points) {
       ? sensorSpeedsMph.reduce((sum, speed) => sum + speed, 0) / sensorSpeedsMph.length
       : segmentSpeeds.reduce((sum, speed) => sum + speed, 0) / segmentSpeeds.length,
     maxSpeedMph: sensorSpeedsMph.length ? Math.max(...sensorSpeedsMph) : Math.max(...segmentSpeeds),
+    graphValues: {
+      altitude: elevationValuesFeet,
+      temperature: temperatureValuesF,
+    },
+    graphStats: {
+      altitude: summarizeValues(elevationValuesFeet),
+      temperature: summarizeValues(temperatureValuesF),
+    },
   };
 }
 
@@ -121,16 +156,27 @@ function formatDuration(totalSeconds) {
   return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
 }
 
+function formatLocalClock(timestamp = Date.now()) {
+  const date = new Date(timestamp);
+  return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+}
+
 class VoyagerRideEngine {
   #tracks = new Map();
   #currentTrack = null;
   #listeners = new Set();
-  #refreshTimer = 0;
+  #conductorTimer = 0;
+  #conductorPhase = 0;
   #lastTimestamp = 0;
+  #lastActivityTimestamp = 0;
+  #sleepAfterMs = VOYAGER_DEFAULT_SLEEP_AFTER_MS;
   #durationMs = 95000;
   #progress = 0;
   #playbackSpeed = 1;
   #playing = true;
+  #playingBeforeSleep = true;
+  #sleeping = false;
+  #powerSave = false;
   #loop = true;
   #telemetry = null;
 
@@ -144,15 +190,17 @@ class VoyagerRideEngine {
     );
     for (const track of loaded) this.#tracks.set(track.id, track);
     this.#currentTrack = loaded[0];
-    this.#emit();
     this.#lastTimestamp = performance.now();
-    this.#refreshTimer = window.setInterval(this.#tick, VOYAGER_SCREEN_REFRESH_MS);
+    this.#lastActivityTimestamp = this.#lastTimestamp;
+    this.#emit({ kind: "full", mode: "active" });
+    document.addEventListener("visibilitychange", this.#handleVisibilityChange);
+    this.#scheduleConductor();
     return this;
   }
 
   subscribe(listener) {
     this.#listeners.add(listener);
-    if (this.#telemetry) listener(this.#telemetry);
+    if (this.#telemetry) listener(this.#telemetry, { kind: "full", mode: this.#mode });
     return () => this.#listeners.delete(listener);
   }
 
@@ -172,8 +220,53 @@ class VoyagerRideEngine {
     return this.#telemetry;
   }
 
+  get #mode() {
+    if (this.#sleeping) return "sleep";
+    return this.#powerSave ? "power-save" : "active";
+  }
+
   get playing() {
     return this.#playing;
+  }
+
+  graphValues(metric) {
+    return this.#currentTrack?.graphValues?.[metric] ?? [];
+  }
+
+  graphStats(metric) {
+    return this.#currentTrack?.graphStats?.[metric] ?? { minimum: 0, maximum: 0, average: 0 };
+  }
+
+  recordActivity() {
+    const timestamp = performance.now();
+    this.#lastActivityTimestamp = timestamp;
+    if (!this.#sleeping) return;
+    this.#sleeping = false;
+    this.#playing = this.#playingBeforeSleep;
+    this.#lastTimestamp = timestamp;
+    this.#conductorPhase = 0;
+    this.#emit({ kind: "full", mode: this.#mode, reason: "wake" });
+    this.#rescheduleConductor();
+  }
+
+  setPowerSave(enabled) {
+    const powerSave = Boolean(enabled);
+    if (powerSave === this.#powerSave) return;
+    this.#powerSave = powerSave;
+    this.#rescheduleConductor();
+  }
+
+  setSleepAfterMs(milliseconds) {
+    const sleepAfterMs = Number(milliseconds);
+    this.#sleepAfterMs = Number.isFinite(sleepAfterMs) && sleepAfterMs > 0
+      ? sleepAfterMs
+      : Number.POSITIVE_INFINITY;
+  }
+
+  alignStopwatchCadence() {
+    if (this.#sleeping) return;
+    this.#conductorPhase = 1;
+    this.#rescheduleConductor();
   }
 
   selectRide(trackId, { reset = true } = {}) {
@@ -181,7 +274,7 @@ class VoyagerRideEngine {
     if (!nextTrack) throw new Error(`Unknown Voyager GPX ride: ${trackId}`);
     this.#currentTrack = nextTrack;
     if (reset) this.#progress = 0;
-    this.#emit();
+    this.#emit({ kind: "full", mode: this.#mode });
   }
 
   play() {
@@ -194,12 +287,12 @@ class VoyagerRideEngine {
 
   reset() {
     this.#progress = 0;
-    this.#emit();
+    this.#emit({ kind: "full", mode: this.#mode });
   }
 
   seek(progress) {
     this.#progress = clamp(Number(progress) || 0, 0, 1);
-    this.#emit();
+    this.#emit({ kind: "full", mode: this.#mode });
   }
 
   seekBy(amount) {
@@ -215,23 +308,66 @@ class VoyagerRideEngine {
   }
 
   #tick = () => {
+    this.#conductorTimer = 0;
     const timestamp = performance.now();
+    if (!this.#sleeping && timestamp - this.#lastActivityTimestamp >= this.#sleepAfterMs) {
+      this.#playingBeforeSleep = this.#playing;
+      this.#playing = false;
+      this.#sleeping = true;
+      this.#lastTimestamp = timestamp;
+      this.#emit({ kind: "sleep", mode: "sleep", clockLabel: formatLocalClock() });
+      this.#scheduleConductor();
+      return;
+    }
+    if (this.#sleeping) {
+      this.#lastTimestamp = timestamp;
+      this.#emit({ kind: "sleep", mode: "sleep", clockLabel: formatLocalClock() });
+      this.#scheduleConductor();
+      return;
+    }
     if (this.#lastTimestamp && this.#playing && this.#currentTrack) {
       this.#progress += (timestamp - this.#lastTimestamp) / this.#durationMs * this.#playbackSpeed;
       if (this.#progress >= 1) {
         this.#progress = this.#loop ? this.#progress % 1 : 1;
         if (!this.#loop) this.#playing = false;
       }
-      this.#emit();
     }
     this.#lastTimestamp = timestamp;
+    const phase = this.#conductorPhase;
+    this.#conductorPhase = (this.#conductorPhase + 1) % 4;
+    this.#emit({ kind: "phase", mode: this.#mode, phase });
+    this.#scheduleConductor();
   };
 
-  #emit() {
+  #emit(cadence = { kind: "full", mode: this.#mode }) {
     if (!this.#currentTrack) return;
     this.#telemetry = this.#sample(this.#progress);
-    for (const listener of this.#listeners) listener(this.#telemetry);
+    for (const listener of this.#listeners) listener(this.#telemetry, cadence);
   }
+
+  #scheduleConductor() {
+    if (this.#conductorTimer || document.hidden) return;
+    const delay = this.#sleeping
+      ? VOYAGER_SLEEP_CLOCK_MS
+      : this.#powerSave ? VOYAGER_POWER_SAVE_SLOT_MS : VOYAGER_CONDUCTOR_SLOT_MS;
+    this.#conductorTimer = window.setTimeout(this.#tick, delay);
+  }
+
+  #rescheduleConductor() {
+    window.clearTimeout(this.#conductorTimer);
+    this.#conductorTimer = 0;
+    this.#scheduleConductor();
+  }
+
+  #handleVisibilityChange = () => {
+    if (document.hidden) {
+      window.clearTimeout(this.#conductorTimer);
+      this.#conductorTimer = 0;
+      return;
+    }
+    this.#lastTimestamp = performance.now();
+    this.#scheduleConductor();
+  };
 
   #sample(progress) {
     const track = this.#currentTrack;
@@ -753,15 +889,29 @@ export class VoyagerLiveRuntime {
     this.#loadSavedRides();
     this.#menuModel.load();
     this.#available = true;
-    this.#ride.subscribe((telemetry) => {
+    this.#ride.subscribe((telemetry, cadence) => {
       if (this.#telemetry?.trackId !== telemetry.trackId) {
         this.#projectedTrack = [];
         this.#projectedTrackId = "";
       }
       this.#telemetry = telemetry;
       this.#stage.dataset.liveRide = telemetry.trackId;
-      this.#updateDynamicFields();
+      this.#stage.dataset.powerMode = cadence.mode;
+      if (cadence.kind === "sleep") {
+        this.#renderSleep(cadence.clockLabel);
+        return;
+      }
+      if (cadence.reason === "wake" && this.#layoutKey === "sleep" && this.#state) {
+        this.#layoutKey = "";
+        this.render(this.#state, { type: "wake" });
+        return;
+      }
+      this.#updateDynamicFields(cadence.kind === "phase" ? cadence.phase : "all");
     });
+  }
+
+  recordActivity() {
+    this.#ride.recordActivity();
   }
 
   supports(stateId) {
@@ -854,6 +1004,18 @@ export class VoyagerLiveRuntime {
     this.#pulseTimer = window.setTimeout(() => hint.classList.remove("is-pressed"), 180);
   }
 
+  #renderSleep(clockLabel) {
+    if (this.#layoutKey !== "sleep") {
+      this.#mount.innerHTML = `
+        <svg class="voyager-live voyager-live--sleep" viewBox="0 0 504 303" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Voyager sleep mode clock">
+          <rect class="voyager-live__surface" width="504" height="303" />
+          <text class="voyager-live__text voyager-live__sleep-clock" x="252" y="190" text-anchor="middle" data-live-sleep-clock></text>
+        </svg>`;
+      this.#layoutKey = "sleep";
+    }
+    setElementText(this.#mount.querySelector("[data-live-sleep-clock]"), clockLabel);
+  }
+
   #renderMenuMarkup(definition, visited = new Set()) {
     if (visited.has(definition.id)) throw new Error(`Voyager menu underlay cycle at ${definition.id}.`);
     visited.add(definition.id);
@@ -929,12 +1091,17 @@ export class VoyagerLiveRuntime {
     }
   }
 
-  #updateDynamicFields() {
+  #updateDynamicFields(cadence = "all") {
     if (!this.#telemetry || !this.#state || this.#mount.hidden) return;
     const setText = (selector, value) => {
       for (const element of this.#mount.querySelectorAll(selector)) element.textContent = value;
     };
     const telemetry = this.#telemetry;
+    const refreshAll = cadence === "all";
+    const refreshMotion = refreshAll || cadence === 0;
+    const refreshCompass = refreshAll || cadence === 1 || cadence === 3;
+    const refreshStatus = refreshAll || cadence === 2;
+    const refreshStopwatch = refreshAll || cadence === 0 || cadence === 2;
     const menuValues = this.#menuModel.values;
     const brightnessValue = this.#menuState?.kind === "brightness"
       ? this.#menuModel.resolve(this.#menuState).value
@@ -952,59 +1119,76 @@ export class VoyagerLiveRuntime {
     const ambientTemperature = fahrenheit
       ? `${telemetry.ambientTemperatureF}°F`
       : `${Math.round((telemetry.ambientTemperatureF - 32) * 5 / 9)}°C`;
-    setText("[data-live-speed]", String(displaySpeed));
-    setText("[data-live-gps-speed]", String(gpsSpeed));
-    setText("[data-live-altitude]", String(telemetry.elevationFeet));
-    setText("[data-live-distance]", metricDistance ? telemetry.distanceKm.toFixed(1) : (telemetry.distanceKm * 0.621371).toFixed(1));
-    setText("[data-live-trip-distance]", String(Math.round((metricDistance ? telemetry.distanceKm : telemetry.distanceKm * 0.621371) * 10)));
-    setText("[data-live-odometer]", String(Math.round(1200 + telemetry.distanceKm)));
-    setText("[data-live-temperature]", ambientTemperature);
-    setText("[data-live-engine-temperature]", String(fahrenheit ? telemetry.engineTemperatureF : Math.round((telemetry.engineTemperatureF - 32) * 5 / 9)));
-    setText("[data-live-time]", telemetry.timeLabel);
-    setText("[data-live-heading-label]", this.#headingLabel(telemetry.heading));
-    setText("[data-live-max-kph]", String(Math.round(telemetry.maxSpeedMph * 1.60934)));
-    setText("[data-live-avg-kph]", String(Math.round(telemetry.averageSpeedMph * 1.60934)));
-    setText("[data-live-odometer-miles]", (523.7 + telemetry.distanceKm * 0.621371).toFixed(1));
-    setText("[data-live-max-speed]", String(telemetry.maxSpeedMph));
-    setText("[data-live-avg-speed]", String(telemetry.averageSpeedMph));
-    setText("[data-live-elapsed]", telemetry.elapsedLabel);
-    setText("[data-live-stopwatch]", formatDuration(this.#stopwatchMilliseconds() / 1000));
     const destinationMeters = this.#selectedDestination
       ? haversineMeters(telemetry, this.#selectedDestination)
       : telemetry.destinationMeters;
-    setText("[data-live-destination]", String(Math.round(metricDistance ? destinationMeters : destinationMeters * 3.28084)));
-    setText("[data-live-latitude]", coordinateLabel(telemetry.latitude, "N", "S"));
-    setText("[data-live-longitude]", coordinateLabel(telemetry.longitude, "E", "W"));
-    setText("[data-live-ride-label]", telemetry.trackLabel);
-    const loggingEnabled = menuValues.gpsMode === "ENABLED (LOGGING ON)";
-    this.#mount.dataset.logging = this.#ride.playing && loggingEnabled ? "recording" : "paused";
-    this.#mount.dataset.gps = menuValues.gpsMode === "DISABLED (POWER SAVE)" ? "disabled" : "enabled";
-    this.#mount.dataset.stopwatch = this.#stopwatchRunning ? "running" : "paused";
-    this.#mount.dataset.mapOrientation = menuValues.mapOrientation === "NORTH UP" ? "north-up" : "track-up";
-    this.#mount.style.setProperty("--voyager-screen-brightness", String(clamp(Number(brightnessValue) / 50, 0.35, 2)));
+    if (refreshMotion) {
+      setText("[data-live-speed]", String(displaySpeed));
+      setText("[data-live-gps-speed]", String(gpsSpeed));
+      setText("[data-live-altitude]", String(telemetry.elevationFeet));
+      setText("[data-live-distance]", metricDistance ? telemetry.distanceKm.toFixed(1) : (telemetry.distanceKm * 0.621371).toFixed(1));
+      setText("[data-live-trip-distance]", String(Math.round((metricDistance ? telemetry.distanceKm : telemetry.distanceKm * 0.621371) * 10)));
+      setText("[data-live-destination]", String(Math.round(metricDistance ? destinationMeters : destinationMeters * 3.28084)));
+      setText("[data-live-elapsed]", telemetry.elapsedLabel);
+      setText("[data-live-ride-label]", telemetry.trackLabel);
+    }
+    if (refreshStatus) {
+      setText("[data-live-odometer]", String(Math.round(1200 + telemetry.distanceKm)));
+      setText("[data-live-temperature]", ambientTemperature);
+      setText("[data-live-engine-temperature]", String(fahrenheit ? telemetry.engineTemperatureF : Math.round((telemetry.engineTemperatureF - 32) * 5 / 9)));
+      setText("[data-live-time]", telemetry.timeLabel);
+      setText("[data-live-max-kph]", String(Math.round(telemetry.maxSpeedMph * 1.60934)));
+      setText("[data-live-avg-kph]", String(Math.round(telemetry.averageSpeedMph * 1.60934)));
+      setText("[data-live-odometer-miles]", (523.7 + telemetry.distanceKm * 0.621371).toFixed(1));
+      setText("[data-live-max-speed]", String(telemetry.maxSpeedMph));
+      setText("[data-live-avg-speed]", String(telemetry.averageSpeedMph));
+      setText("[data-live-latitude]", coordinateLabel(telemetry.latitude, "N", "S"));
+      setText("[data-live-longitude]", coordinateLabel(telemetry.longitude, "E", "W"));
+      const powerSave = menuValues.gpsMode === "DISABLED (POWER SAVE)";
+      const sleepMinutes = Number.parseInt(menuValues.sleepModeTimer, 10);
+      this.#ride.setPowerSave(powerSave);
+      this.#ride.setSleepAfterMs(sleepMinutes * 60 * 1000);
+      const loggingEnabled = menuValues.gpsMode === "ENABLED (LOGGING ON)";
+      this.#mount.dataset.logging = this.#ride.playing && loggingEnabled ? "recording" : "paused";
+      this.#mount.dataset.gps = powerSave ? "disabled" : "enabled";
+      this.#mount.dataset.stopwatch = this.#stopwatchRunning ? "running" : "paused";
+      this.#mount.dataset.mapOrientation = menuValues.mapOrientation === "NORTH UP" ? "north-up" : "track-up";
+      this.#mount.style.setProperty("--voyager-screen-brightness", String(clamp(Number(brightnessValue) / 50, 0.35, 2)));
+    }
+    if (refreshStopwatch) {
+      setText("[data-live-stopwatch]", formatDuration(this.#stopwatchMilliseconds() / 1000));
+    }
+    if (refreshCompass) {
+      setText("[data-live-heading-label]", this.#headingLabel(telemetry.heading));
+    }
 
     if (this.#menuState) {
-      this.#updateMenuMap();
-      if (this.#menuUnderlayScreenState?.screen.renderer === "graph") this.#updateGraph(this.#menuUnderlayScreenState);
+      if (refreshMotion) {
+        this.#updateMenuMap();
+        if (this.#menuUnderlayScreenState?.screen.renderer === "graph") this.#updateGraph(this.#menuUnderlayScreenState);
+      }
       return;
     }
 
     if (!this.#screenState) return;
 
-    for (const pointer of this.#mount.querySelectorAll("[data-live-compass-pointer], [data-live-nav-pointer]")) {
-      const cx = pointer.dataset.cx;
-      const cy = pointer.dataset.cy;
-      pointer.setAttribute("transform", `rotate(${telemetry.heading.toFixed(2)} ${cx} ${cy})`);
+    if (refreshCompass) {
+      for (const pointer of this.#mount.querySelectorAll("[data-live-compass-pointer], [data-live-nav-pointer]")) {
+        const cx = pointer.dataset.cx;
+        const cy = pointer.dataset.cy;
+        pointer.setAttribute("transform", `rotate(${telemetry.heading.toFixed(2)} ${cx} ${cy})`);
+      }
     }
 
-    if (this.#screenState.screen.renderer === "map") this.#updateMap();
-    if (this.#screenState.screen.renderer === "graph") this.#updateGraph();
+    if (refreshMotion && this.#screenState.screen.renderer === "map") this.#updateMap();
+    if (refreshMotion && this.#screenState.screen.renderer === "graph") this.#updateGraph();
   }
 
   #startStopwatch() {
     if (this.#stopwatchRunning) return;
     this.#stopwatchStartedAt = performance.now();
     this.#stopwatchRunning = true;
+    this.#ride.alignStopwatchCadence();
   }
 
   #pauseStopwatch() {
@@ -1291,11 +1475,7 @@ export class VoyagerLiveRuntime {
     const top = 44;
     const bottom = 284;
     const isTemperature = screen.graphMetric === "temperature";
-    const allValues = this.#ride.points.map((point, index) => {
-      const progress = index / (this.#ride.points.length - 1);
-      const elevationFeet = point.elevation * 3.28084;
-      return isTemperature ? engineTemperatureAt(progress, elevationFeet) : elevationFeet;
-    });
+    const allValues = this.#ride.graphValues(screen.graphMetric);
     if (allValues.length < 2) return;
 
     const scale = variant.interaction === "graph" ? this.#graphScale : 1;
@@ -1310,10 +1490,12 @@ export class VoyagerLiveRuntime {
       progress: index / (allValues.length - 1),
       value,
     }));
-    const minimum = Math.min(...values.map(({ value }) => value));
-    const maximum = Math.max(...values.map(({ value }) => value));
+    const graphStats = this.#ride.graphStats(screen.graphMetric);
+    const minimum = scale === 1 ? graphStats.minimum : Math.min(...values.map(({ value }) => value));
+    const maximum = scale === 1 ? graphStats.maximum : Math.max(...values.map(({ value }) => value));
     const range = maximum - minimum || 1;
-    const projected = values.map(({ progress, value }) => ({
+    const plottedValues = reduceGraphPoints(values, Math.ceil(right - left));
+    const projected = plottedValues.map(({ progress, value }) => ({
       x: left + (progress - windowStart) / windowSize * (right - left),
       y: bottom - (value - minimum) / range * (bottom - top - 16),
     }));
@@ -1324,8 +1506,7 @@ export class VoyagerLiveRuntime {
     this.#mount.querySelector("[data-live-graph-fill-clip]")?.setAttribute("d", fillPath);
 
     const currentValue = isTemperature ? this.#telemetry.engineTemperatureF : this.#telemetry.elevationFeet;
-    const allMaximum = Math.max(...allValues);
-    const average = Math.round(allValues.reduce((sum, value) => sum + value, 0) / allValues.length);
+    const { maximum: allMaximum, average } = graphStats;
     const unit = isTemperature ? "°F" : " FT";
     const prefix = isTemperature ? "ENG" : "ALT";
     setElementText(this.#mount.querySelector("[data-live-graph-current]"), `${prefix}:${currentValue}${unit}`);

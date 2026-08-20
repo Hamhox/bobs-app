@@ -13,7 +13,7 @@ const DEFAULT_VALUES = Object.freeze({
   backlightBattery: "007 SEC",
   backlightExternal: "000 SEC",
   safeModeTimer: "020 SEC",
-  sleepModeTimer: "05 MIN",
+  sleepModeTimer: "10 MIN",
   chargeMode: "ONLY WHEN MOTOR IS ON",
   chargeLevel: "TRICKLE CHARGE",
   mapOrientation: "NORTH UP",
@@ -145,7 +145,8 @@ export class VoyagerMenuModel {
       const stored = JSON.parse(window.localStorage.getItem(MENU_STORAGE_KEY) ?? "{}");
       if (stored && typeof stored === "object" && !Array.isArray(stored)) {
         for (const key of Object.keys(DEFAULT_VALUES)) {
-          if (typeof stored[key] === typeof DEFAULT_VALUES[key]) this.#values[key] = stored[key];
+          const previousSleepDefault = key === "sleepModeTimer" && ["05 MIN", "30 MIN"].includes(stored[key]);
+          if (!previousSleepDefault && typeof stored[key] === typeof DEFAULT_VALUES[key]) this.#values[key] = stored[key];
         }
       }
     } catch {

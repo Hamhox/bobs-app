@@ -143,6 +143,7 @@ function commitState(engine, state, event) {
 }
 
 function dispatchAction(action, source, engine) {
+  liveRuntime.recordActivity();
   const currentState = engine.getState();
   const preparedInput = liveRuntime.prepareInput(currentState.id, action);
   if (preparedInput.targetStateId) {
@@ -199,11 +200,15 @@ function enableInterface(engine, guide) {
   guide.exit();
 
   startGuideButton.addEventListener("click", () => {
+    liveRuntime.recordActivity();
     guide.start().catch((error) => {
       interactionLive.textContent = error.message;
     });
   });
-  exploreButton.addEventListener("click", () => guide.exit());
+  exploreButton.addEventListener("click", () => {
+    liveRuntime.recordActivity();
+    guide.exit();
+  });
 }
 
 async function initializeVoyager() {
@@ -234,6 +239,7 @@ async function initializeVoyager() {
         source = "public-api",
         ...runtimeParameters
       } = parameters;
+      liveRuntime.recordActivity();
       const stateId = liveRuntime.resolveStateId(screenId);
       if (!manifest.states[stateId]) throw new Error(`Unknown Voyager state: ${screenId}`);
       if (!liveRuntime.supports(stateId)) throw new Error(`Voyager state ${screenId} does not have a live renderer.`);
