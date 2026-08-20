@@ -487,15 +487,24 @@ function metricBlock(x, y, label, attribute, fallback) {
     <text class="voyager-live__text voyager-live__text--readout" x="${x}" y="${y + 58}" text-anchor="middle" ${attribute}>${fallback}</text>`;
 }
 
+function userTitleMarkup(title, tabsVisible) {
+  const x = tabsVisible ? 70 : 0;
+  const width = tabsVisible ? 434 : 504;
+  return `
+    <g class="voyager-live__user-title-bar">
+      <rect x="${x}" width="${width}" height="40" />
+      <text class="voyager-live__text voyager-live__text--medium voyager-live__user-title" x="${x + width / 2}" y="30" text-anchor="middle">${title}</text>
+    </g>`;
+}
+
 function userMarkup(screen, variant) {
   const hiddenOffset = variant.tabsVisible ? 0 : -48;
   if (variant.view === "secondary") {
     return `
       <rect class="voyager-live__surface" width="504" height="303" />
       ${screenChromeMarkup(screen, variant)}
+      ${userTitleMarkup("USER SCREEN 2", variant.tabsVisible)}
       <g transform="translate(${hiddenOffset} 0)">
-        ${screenIndicatorMarkup(2)}
-        <text class="voyager-live__text voyager-live__text--medium" x="283" y="31" text-anchor="middle">GEOFF'S SCREEN</text>
         <text class="voyager-live__text voyager-live__text--medium" x="283" y="88" text-anchor="middle">ACCUMULATED RUN TIME</text>
         <text class="voyager-live__text voyager-live__text--large voyager-live__text--clock" x="283" y="143" text-anchor="middle" data-live-elapsed>00:00:00</text>
         ${metricBlock(173, 190, "MAX SPD KM/H", "data-live-max-kph", "25")}
@@ -504,18 +513,17 @@ function userMarkup(screen, variant) {
   }
   const leftCenter = variant.tabsVisible ? 173 : 126;
   const rightCenter = variant.tabsVisible ? 397 : 378;
-  const indicatorX = variant.tabsVisible ? 73 : 7;
   return `
     <rect class="voyager-live__surface" width="504" height="303" />
     ${screenChromeMarkup(screen, variant)}
+    ${userTitleMarkup("USER SCREEN 1", variant.tabsVisible)}
     <g>
-      ${screenIndicatorMarkup(1, indicatorX)}
-      ${metricBlock(leftCenter, 30, "WHEEL SPD", "data-live-speed", "25")}
-      ${metricBlock(rightCenter, 30, "GPS SPD", "data-live-gps-speed", "22")}
-      ${metricBlock(leftCenter, 127, "TRIP DST KM", "data-live-trip-distance", "120")}
-      ${metricBlock(rightCenter, 127, "DST 2 KM", "data-live-odometer", "120")}
-      ${metricBlock(leftCenter, 225, "ODOMETER MI", "data-live-odometer-miles", "523.7")}
-      ${metricBlock(rightCenter, 225, "ALT FT", "data-live-altitude", "1089")}
+      ${metricBlock(leftCenter, 62, "WHEEL SPD", "data-live-speed", "25")}
+      ${metricBlock(rightCenter, 62, "GPS SPD", "data-live-gps-speed", "22")}
+      ${metricBlock(leftCenter, 148, "TRIP DST KM", "data-live-trip-distance", "120")}
+      ${metricBlock(rightCenter, 148, "DST 2 KM", "data-live-odometer", "120")}
+      ${metricBlock(leftCenter, 234, "ODOMETER MI", "data-live-odometer-miles", "523.7")}
+      ${metricBlock(rightCenter, 234, "ALT FT", "data-live-altitude", "1089")}
     </g>`;
 }
 

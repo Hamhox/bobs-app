@@ -568,6 +568,18 @@
   fill: #b8b7b3;
 }
 
+.voyager-live__user-title-bar rect {
+  fill: #808080;
+}
+
+.voyager-live__user-title {
+  fill: #242021;
+  paint-order: stroke fill;
+  stroke: #f5f4ef;
+  stroke-linejoin: miter;
+  stroke-width: 3px;
+}
+
 .voyager-live__text--clock {
   font-size: 58px;
 }
