@@ -270,6 +270,36 @@ register("m-graph-alt-display", {
   note: "ENTER SWITCHES GRAPH. BACK RETURNS TO GRAPH.",
 });
 
+const OVERLAY_KINDS = new Set([
+  "brightness",
+  "confirm",
+  "keyboard",
+  "notice",
+  "settings-modal",
+  "slot-input",
+]);
+
+function inferredParentStateId(stateId) {
+  if (stateId === "m-graph-temp-display") return "eng2";
+  if (stateId === "m-graph-alt-display") return "alt2";
+  const parts = stateId.split("-");
+  while (parts.length > 2) {
+    parts.pop();
+    const candidate = parts.join("-");
+    if (registry[candidate]) return candidate;
+  }
+  return null;
+}
+
+for (const definition of Object.values(registry)) {
+  definition.presentation = OVERLAY_KINDS.has(definition.kind)
+    ? "overlay"
+    : definition.kind === "waypoint-map"
+      ? "workflow"
+      : "page";
+  definition.parentStateId = inferredParentStateId(definition.id);
+}
+
 export const VOYAGER_MENU_STATE_INDEX = Object.freeze(registry);
 export const VOYAGER_MENU_STATE_IDS = new Set(Object.keys(registry));
 

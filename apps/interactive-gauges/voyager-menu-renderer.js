@@ -84,13 +84,13 @@ function panelScreen(definition) {
 
 function modalFrame(definition, innerMarkup, { x = 77, y = 49, width = 350, height = 225 } = {}) {
   return `
-    <rect class="voyager-live__surface" width="504" height="303" />
-    ${sectionChrome(definition.section)}
-    <rect class="voyager-menu__modal-shadow" x="39" y="20" width="426" height="276" />
+    <g data-menu-overlay="${definition.id}" data-menu-parent="${definition.parentStateId ?? ""}">
+    <rect class="voyager-menu__modal-shadow" x="${x + 5}" y="${y + 5}" width="${width}" height="${height}" />
     <rect class="voyager-menu__modal" x="${x}" y="${y}" width="${width}" height="${height}" />
     <text class="voyager-live__text voyager-menu__title" x="252" y="${y + 34}" text-anchor="middle">${escapeMarkup(definition.title)}</text>
     <path class="voyager-menu__rule" d="M${x + 37} ${y + 48}H${x + width - 37}" />
-    ${innerMarkup}`;
+    ${innerMarkup}
+    </g>`;
 }
 
 function noteLines(lines, startY, className = "voyager-menu__note") {
@@ -100,10 +100,10 @@ function noteLines(lines, startY, className = "voyager-menu__note") {
   ).join("");
 }
 
-function pairedConfirmationButtons(y) {
+function pairedConfirmationButtons(y, selected = 0) {
   return `
-    ${voyagerUiIcon("btn-cancel-selected", { x: 143, y, width: 100, height: 42 })}
-    ${voyagerUiIcon("btn-ok-disabled", { x: 263, y: y + 11, width: 100, height: 32 })}`;
+    ${voyagerUiIcon(selected === 0 ? "btn-cancel-selected" : "btn-cancel-disabled", { x: 143, y: selected === 0 ? y : y + 11, width: 100, height: selected === 0 ? 42 : 32 })}
+    ${voyagerUiIcon(selected === 1 ? "btn-ok-selected" : "btn-ok-disabled", { x: 263, y: selected === 1 ? y : y + 11, width: 100, height: selected === 1 ? 42 : 32 })}`;
 }
 
 function selectedOkButton(x, y) {
@@ -114,7 +114,7 @@ function confirmModal(definition) {
   const startY = definition.lines.length > 2 ? 124 : 136;
   return modalFrame(definition, `
     ${noteLines(definition.lines, startY, "voyager-menu__confirm-copy")}
-    ${pairedConfirmationButtons(216)}`);
+    ${pairedConfirmationButtons(216, definition.selectedConfirmation)}`);
 }
 
 function noticeModal(definition) {
@@ -168,6 +168,7 @@ function keyboardModal(definition) {
     <text class="voyager-live__text voyager-menu__keyboard" x="68" y="184">Q W E R T Y U I O P ! °</text>
     <text class="voyager-live__text voyager-menu__keyboard" x="68" y="206">A S D F G H J K L : “ ’</text>
     <text class="voyager-live__text voyager-menu__keyboard" x="68" y="228">Z X C V B N M _</text>
+    <text class="voyager-live__text voyager-menu__note" x="421" y="228" text-anchor="end">${escapeMarkup(definition.keyboardKey)}</text>
     ${voyagerUiIcon("keyboard-16pt-backspace", { x: 248, y: 210, width: 24, height: 20 })}
     ${voyagerUiIcon("keyboard-16pt-delete", { x: 278, y: 210, width: 29, height: 20 })}
     ${voyagerUiIcon("keyboard-16pt-back", { x: 313, y: 210, width: 23, height: 20 })}
@@ -199,7 +200,7 @@ function waypointMapModal(definition) {
       <text class="voyager-live__text voyager-menu__note" x="252" y="271" text-anchor="middle">${definition.mode === "select-delete" ? "SELECT WAYPOINT · ENTER TO DELETE" : crosshair ? "MOVE CROSSHAIRS · ENTER TO CONFIRM" : "SELECT WAYPOINT · ENTER TO CONFIRM"}</text>`}`;
 }
 
-export function renderVoyagerMenuMarkup(definition) {
+export function renderVoyagerMenuMarkup(definition, { underlayMarkup = "" } = {}) {
   const renderers = {
     menu: menuScreen,
     panel: panelScreen,
@@ -211,7 +212,9 @@ export function renderVoyagerMenuMarkup(definition) {
     keyboard: keyboardModal,
     "waypoint-map": waypointMapModal,
   };
-  return renderers[definition.kind](definition);
+  const markup = renderers[definition.kind](definition);
+  if (definition.presentation !== "overlay") return markup;
+  return `${underlayMarkup || `<rect class="voyager-live__surface" width="504" height="303" />${sectionChrome(definition.section)}`}${markup}`;
 }
 
 export function voyagerMenuAriaLabel(definition) {

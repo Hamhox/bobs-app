@@ -12,11 +12,13 @@ import {
   VOYAGER_MENU_STATE_IDS,
   voyagerMenuState,
 } from "./voyager-menu-registry.js";
+import { VoyagerMenuModel } from "./voyager-menu-model.js";
 import { renderVoyagerMenuMarkup, voyagerMenuAriaLabel } from "./voyager-menu-renderer.js";
 import { VOYAGER_COMPASS_VIEW_BOX, voyagerUiIcon } from "./voyager-ui-icons.js";
 
 const DIRECTION_INPUTS = new Set(["up", "down", "left", "right"]);
 const WAYPOINT_STORAGE_KEY = "bobs-app:voyager-waypoints:v1";
+const SAVED_RIDE_STORAGE_KEY = "bobs-app:voyager-saved-rides:v1";
 const VOYAGER_SCREEN_REFRESH_MS = 2000;
 const clamp = (value, minimum, maximum) => Math.min(maximum, Math.max(minimum, value));
 const radians = (degrees) => (degrees * Math.PI) / 180;
@@ -134,6 +136,10 @@ class VoyagerRideEngine {
 
   get points() {
     return this.#currentTrack?.points ?? [];
+  }
+
+  pointsFor(trackId) {
+    return this.#tracks.get(trackId)?.points ?? [];
   }
 
   get trackIds() {
@@ -423,6 +429,7 @@ function mapMarkup(screen, variant) {
     <clipPath id="voyager-live-map-clip"><rect x="${mapLeft}" y="40" width="${mapRight - mapLeft}" height="207" /></clipPath>
     <g clip-path="url(#voyager-live-map-clip)">
       <g data-live-map-transform>
+        <path class="voyager-live__route voyager-live__route--overlay" data-live-overlay-route />
         <path class="voyager-live__recorded" data-live-recorded />
         <path class="voyager-live__route" data-live-route />
         <g data-live-waypoints></g>
@@ -667,6 +674,8 @@ export class VoyagerLiveRuntime {
   #state = null;
   #screenState = null;
   #menuState = null;
+  #menuUnderlayScreenState = null;
+  #menuModel = new VoyagerMenuModel();
   #layoutKey = "";
   #telemetry = null;
   #projectedTrack = [];
@@ -682,6 +691,9 @@ export class VoyagerLiveRuntime {
   #stopwatchRunning = false;
   #available = false;
   #waypoints = [];
+  #savedRides = [];
+  #overlayRideId = null;
+  #selectedDestination = null;
 
   constructor({ mount, stage, appBase }) {
     this.#mount = mount;
@@ -701,6 +713,8 @@ export class VoyagerLiveRuntime {
       ]),
     ]);
     this.#loadWaypoints();
+    this.#loadSavedRides();
+    this.#menuModel.load();
     this.#available = true;
     this.#ride.subscribe((telemetry) => {
       if (this.#telemetry?.trackId !== telemetry.trackId) {
@@ -738,10 +752,15 @@ export class VoyagerLiveRuntime {
     if (parameters.playing === false) this.#ride.pause();
   }
 
+  prepareInput(stateId, action) {
+    return this.#menuModel.prepareInput(voyagerMenuState(stateId), action);
+  }
+
   render(state, event = {}) {
     this.#state = state;
     this.#screenState = voyagerScreenState(state.id);
     this.#menuState = voyagerMenuState(state.id);
+    this.#menuUnderlayScreenState = null;
     if (!this.supports(state.id) || (!this.#screenState && !this.#menuState)) {
       throw new Error(`Voyager state ${state.id} does not have a live renderer.`);
     }
@@ -752,11 +771,11 @@ export class VoyagerLiveRuntime {
     this.#applyInteractiveInput(event);
 
     if (this.#menuState) {
-      const layoutKey = `menu:${state.id}:${this.#waypoints.length}`;
+      const layoutKey = `menu:${state.id}:${this.#waypoints.length}:${this.#menuModel.revision}`;
       if (layoutKey !== this.#layoutKey) {
         this.#mount.innerHTML = `
           <svg class="voyager-live voyager-menu" viewBox="0 0 504 303" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${voyagerMenuAriaLabel(this.#menuState)}">
-            ${renderVoyagerMenuMarkup(this.#menuState)}
+            ${this.#renderMenuMarkup(this.#menuState)}
           </svg>`;
         this.#layoutKey = layoutKey;
         this.#menuProjectedTrack = [];
@@ -786,6 +805,26 @@ export class VoyagerLiveRuntime {
     hint.classList.add("is-pressed");
     window.clearTimeout(this.#pulseTimer);
     this.#pulseTimer = window.setTimeout(() => hint.classList.remove("is-pressed"), 180);
+  }
+
+  #renderMenuMarkup(definition, visited = new Set()) {
+    if (visited.has(definition.id)) throw new Error(`Voyager menu underlay cycle at ${definition.id}.`);
+    visited.add(definition.id);
+    const resolved = this.#menuModel.resolve(definition);
+    if (resolved.presentation !== "overlay") return renderVoyagerMenuMarkup(resolved);
+
+    let underlayMarkup = "";
+    const menuParent = voyagerMenuState(resolved.parentStateId);
+    if (menuParent) {
+      underlayMarkup = this.#renderMenuMarkup(menuParent, visited);
+    } else {
+      const screenParent = voyagerScreenState(resolved.parentStateId);
+      if (screenParent) {
+        this.#menuUnderlayScreenState = screenParent;
+        underlayMarkup = renderScreenMarkup(screenParent.screen, screenParent.variant);
+      }
+    }
+    return renderVoyagerMenuMarkup(resolved, { underlayMarkup });
   }
 
   #applyInteractiveInput(event) {
@@ -832,14 +871,28 @@ export class VoyagerLiveRuntime {
       for (const element of this.#mount.querySelectorAll(selector)) element.textContent = value;
     };
     const telemetry = this.#telemetry;
-    setText("[data-live-speed]", String(telemetry.speedMph));
-    setText("[data-live-gps-speed]", String(Math.max(0, telemetry.speedMph - 2)));
+    const menuValues = this.#menuModel.values;
+    const metricSpeed = menuValues.speedUnits === "KM/H";
+    const metricDistance = menuValues.distanceUnits === "KILOMETERS / METERS";
+    const fahrenheit = menuValues.temperatureUnits === "FAHRENHEIT";
+    const sourceSpeedMph = menuValues.speedSource === "GPS"
+      ? Math.max(0, telemetry.speedMph - 2)
+      : telemetry.speedMph;
+    const displaySpeed = metricSpeed ? Math.round(sourceSpeedMph * 1.60934) : sourceSpeedMph;
+    const gpsSpeed = metricSpeed
+      ? Math.round(Math.max(0, telemetry.speedMph - 2) * 1.60934)
+      : Math.max(0, telemetry.speedMph - 2);
+    const ambientTemperature = fahrenheit
+      ? `${telemetry.ambientTemperatureF}°F`
+      : `${Math.round((telemetry.ambientTemperatureF - 32) * 5 / 9)}°C`;
+    setText("[data-live-speed]", String(displaySpeed));
+    setText("[data-live-gps-speed]", String(gpsSpeed));
     setText("[data-live-altitude]", String(telemetry.elevationFeet));
-    setText("[data-live-distance]", (telemetry.distanceKm * 0.621371).toFixed(1));
-    setText("[data-live-trip-distance]", String(Math.round(telemetry.distanceKm * 10)));
+    setText("[data-live-distance]", metricDistance ? telemetry.distanceKm.toFixed(1) : (telemetry.distanceKm * 0.621371).toFixed(1));
+    setText("[data-live-trip-distance]", String(Math.round((metricDistance ? telemetry.distanceKm : telemetry.distanceKm * 0.621371) * 10)));
     setText("[data-live-odometer]", String(Math.round(1200 + telemetry.distanceKm)));
-    setText("[data-live-temperature]", `${telemetry.ambientTemperatureF}°F`);
-    setText("[data-live-engine-temperature]", String(telemetry.engineTemperatureF));
+    setText("[data-live-temperature]", ambientTemperature);
+    setText("[data-live-engine-temperature]", String(fahrenheit ? telemetry.engineTemperatureF : Math.round((telemetry.engineTemperatureF - 32) * 5 / 9)));
     setText("[data-live-time]", telemetry.timeLabel);
     setText("[data-live-heading-label]", this.#headingLabel(telemetry.heading));
     setText("[data-live-max-kph]", String(Math.round(telemetry.maxSpeedMph * 1.60934)));
@@ -849,15 +902,23 @@ export class VoyagerLiveRuntime {
     setText("[data-live-avg-speed]", String(telemetry.averageSpeedMph));
     setText("[data-live-elapsed]", telemetry.elapsedLabel);
     setText("[data-live-stopwatch]", formatDuration(this.#stopwatchMilliseconds() / 1000));
-    setText("[data-live-destination]", String(telemetry.destinationMeters));
+    const destinationMeters = this.#selectedDestination
+      ? haversineMeters(telemetry, this.#selectedDestination)
+      : telemetry.destinationMeters;
+    setText("[data-live-destination]", String(Math.round(metricDistance ? destinationMeters : destinationMeters * 3.28084)));
     setText("[data-live-latitude]", coordinateLabel(telemetry.latitude, "N", "S"));
     setText("[data-live-longitude]", coordinateLabel(telemetry.longitude, "E", "W"));
     setText("[data-live-ride-label]", telemetry.trackLabel);
-    this.#mount.dataset.logging = this.#ride.playing ? "recording" : "paused";
+    const loggingEnabled = menuValues.gpsMode === "ENABLED (LOGGING ON)";
+    this.#mount.dataset.logging = this.#ride.playing && loggingEnabled ? "recording" : "paused";
+    this.#mount.dataset.gps = menuValues.gpsMode === "DISABLED (POWER SAVE)" ? "disabled" : "enabled";
     this.#mount.dataset.stopwatch = this.#stopwatchRunning ? "running" : "paused";
+    this.#mount.dataset.mapOrientation = menuValues.mapOrientation === "NORTH UP" ? "north-up" : "track-up";
+    this.#mount.style.setProperty("--voyager-screen-brightness", String(clamp(Number(menuValues.brightness) / 50, 0.35, 2)));
 
     if (this.#menuState) {
       this.#updateMenuMap();
+      if (this.#menuUnderlayScreenState?.screen.renderer === "graph") this.#updateGraph(this.#menuUnderlayScreenState);
       return;
     }
 
@@ -893,6 +954,12 @@ export class VoyagerLiveRuntime {
   #applyMenuOutcome(event) {
     if (event.action !== "enter") return;
     const telemetry = this.#telemetry;
+    if (event.from === "m-main1-4" && telemetry) {
+      this.#addWaypoint("QUICK ADD", telemetry.latitude, telemetry.longitude);
+    }
+    if (event.from === "m-main1-5-1-1") {
+      this.#selectedDestination = this.#waypoints.at(-1) ?? this.#ride.points.at(-1) ?? null;
+    }
     if (event.from === "m-ride2-2-1" && telemetry) {
       this.#addWaypoint("CURRENT POSITION", telemetry.latitude, telemetry.longitude);
     }
@@ -908,12 +975,61 @@ export class VoyagerLiveRuntime {
       this.#invalidateMapProjection();
     }
     if (event.from === "m-ride2-6-1-1") {
-      this.#waypoints = [];
-      this.#saveWaypoints();
-      this.#invalidateMapProjection();
       this.#ride.reset();
+      this.#overlayRideId = null;
+      this.#selectedDestination = null;
     }
-    if (event.from === "m-main1-3-1" || event.from === "m-main1-2-1") this.#ride.reset();
+    if (event.from === "m-ride2-6-2-1-1" && telemetry) this.#saveCurrentRide(telemetry);
+    if (event.from === "m-ride2-6-3-1") {
+      this.#overlayRideId = null;
+      this.#invalidateMapProjection();
+    }
+    if (event.from === "m-ride2-6-4-1-1-1") this.#renameSavedRide();
+    if (event.from === "m-ride2-6-4-1-2-1") this.#continueSavedRide();
+    if (event.from === "m-ride2-6-4-1-3-1") {
+      this.#overlayRideId = this.#savedRides[0]?.trackId ?? null;
+      this.#invalidateMapProjection();
+    }
+    if (event.from === "m-ride2-6-4-1-4-1") this.#deleteSavedRide();
+    if (event.from === "m-main1-2-1") {
+      this.#stopwatchElapsedMs = 0;
+      this.#stopwatchStartedAt = this.#stopwatchRunning ? performance.now() : 0;
+    }
+    if (event.from === "m-main1-3-1") this.#ride.reset();
+  }
+
+  #saveCurrentRide(telemetry) {
+    const name = this.#menuModel.values.rideName || `RIDE-${this.#savedRides.length + 32}`;
+    this.#savedRides = [{
+      id: `RIDE-${Date.now().toString(36).toUpperCase()}`,
+      name,
+      progress: telemetry.progress,
+      trackId: telemetry.trackId,
+    }, ...this.#savedRides.filter((ride) => ride.name !== name)].slice(0, 8);
+    this.#saveSavedRides();
+  }
+
+  #renameSavedRide() {
+    if (!this.#savedRides.length) return;
+    this.#savedRides[0] = { ...this.#savedRides[0], name: this.#menuModel.values.rideName };
+    this.#saveSavedRides();
+  }
+
+  #continueSavedRide() {
+    const ride = this.#savedRides[0];
+    if (!ride || !this.#ride.trackIds.includes(ride.trackId)) return;
+    this.#ride.selectRide(ride.trackId);
+    this.#ride.seek(ride.progress);
+    this.#overlayRideId = null;
+    this.#invalidateMapProjection();
+  }
+
+  #deleteSavedRide() {
+    if (!this.#savedRides.length) return;
+    const [removed] = this.#savedRides.splice(0, 1);
+    if (this.#overlayRideId === removed.trackId) this.#overlayRideId = null;
+    this.#saveSavedRides();
+    this.#invalidateMapProjection();
   }
 
   #addWaypoint(source, latitude, longitude) {
@@ -951,6 +1067,25 @@ export class VoyagerLiveRuntime {
       window.localStorage.setItem(WAYPOINT_STORAGE_KEY, JSON.stringify(this.#waypoints));
     } catch {
       // The prototype remains usable if storage is unavailable.
+    }
+  }
+
+  #loadSavedRides() {
+    try {
+      const stored = JSON.parse(window.localStorage.getItem(SAVED_RIDE_STORAGE_KEY) ?? "[]");
+      this.#savedRides = Array.isArray(stored)
+        ? stored.filter((ride) => typeof ride?.name === "string" && typeof ride?.trackId === "string").slice(0, 8)
+        : [];
+    } catch {
+      this.#savedRides = [];
+    }
+  }
+
+  #saveSavedRides() {
+    try {
+      window.localStorage.setItem(SAVED_RIDE_STORAGE_KEY, JSON.stringify(this.#savedRides));
+    } catch {
+      // Saved-ride controls remain usable when storage is unavailable.
     }
   }
 
@@ -1030,6 +1165,16 @@ export class VoyagerLiveRuntime {
       });
       this.#projectedTrackId = this.#telemetry.trackId;
       this.#mount.querySelector("[data-live-route]")?.setAttribute("d", pathFromPoints(this.#projectedTrack));
+      const overlayPoints = this.#ride.pointsFor(this.#overlayRideId);
+      this.#mount.querySelector("[data-live-overlay-route]")?.setAttribute(
+        "d",
+        overlayPoints.length > 1 ? pathFromPoints(projectTrack(overlayPoints, {
+          left: variant.tabsVisible ? 104 : 62,
+          right: variant.interaction ? 415 : 462,
+          top: 62,
+          bottom: 234,
+        })) : "",
+      );
       const waypointLayer = this.#mount.querySelector("[data-live-waypoints]");
       if (waypointLayer) {
         const authoredWaypoints = [0.08, 0.34, 0.62, 0.88].map((position, index) => {
@@ -1056,14 +1201,15 @@ export class VoyagerLiveRuntime {
       "transform",
       `translate(${position.x.toFixed(2)} ${position.y.toFixed(2)}) rotate(${this.#telemetry.heading.toFixed(2)})`,
     );
+    const mapRotation = this.#menuModel.values.mapOrientation === "TRACK UP" ? -this.#telemetry.heading : 0;
     this.#mount.querySelector("[data-live-map-transform]")?.setAttribute(
       "transform",
-      `translate(${this.#mapPan.x} ${this.#mapPan.y}) translate(252 150) scale(${this.#mapScale}) translate(-252 -150)`,
+      `translate(${this.#mapPan.x} ${this.#mapPan.y}) translate(252 150) rotate(${mapRotation.toFixed(2)}) scale(${this.#mapScale}) translate(-252 -150)`,
     );
   }
 
-  #updateGraph() {
-    const { screen, variant } = this.#screenState;
+  #updateGraph(screenState = this.#screenState) {
+    const { screen, variant } = screenState;
     const left = variant.tabsVisible ? 87 : 23;
     const right = 483;
     const top = 44;

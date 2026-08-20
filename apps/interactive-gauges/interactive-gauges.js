@@ -143,8 +143,12 @@ function commitState(engine, state, event) {
 
 function dispatchAction(action, source, engine) {
   const currentState = engine.getState();
+  const preparedInput = liveRuntime.prepareInput(currentState.id, action);
+  if (preparedInput.targetStateId) {
+    return engine.reset(preparedInput.targetStateId, `${source}:menu-selection`);
+  }
   const policyStateId = liveRuntime.getInputPolicyStateId(currentState.id);
-  return engine.dispatch(action, source, policyStateId);
+  return engine.dispatch(preparedInput.action, source, policyStateId);
 }
 
 function bindControl(control, engine) {

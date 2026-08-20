@@ -9,6 +9,7 @@ The original ZIP is intentionally not part of the public site. Extract it to a r
 ```powershell
 node tools/build-voyager-manifest.mjs --source <path-to-extracted-gps_demo3>
 node tools/validate-voyager-manifest.mjs
+node tools/validate-voyager-menu-runtime.mjs
 ```
 
 The generator reads every historical HTML state, keeps the explicit screen filename as audit metadata, records all eight control transitions, preserves `href="#"` as a null transition, records meta-refresh declarations, and verifies the source archive's referenced 504 by 303 GIFs. The historical GIFs remain outside the public app and are not copied into production assets.
