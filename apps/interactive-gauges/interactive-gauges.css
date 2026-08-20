@@ -537,7 +537,7 @@
 }
 
 .voyager-live__text--medium {
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .voyager-live__text--status {
@@ -651,7 +651,7 @@
 .voyager-live__graph-border {
   fill: none;
   stroke: #242021;
-  stroke-width: 3;
+  stroke-width: 6;
   vector-effect: non-scaling-stroke;
 }
 
