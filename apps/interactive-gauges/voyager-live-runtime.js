@@ -362,19 +362,22 @@ function compassMarkup({ cx, cy, radius, pointerAttribute = "data-live-compass-p
 function mainMarkup(screen, variant) {
   const hiddenOffset = variant.tabsVisible ? 0 : -47;
   if (variant.view === "secondary") {
+    const contentCenter = variant.tabsVisible ? 285 : 252;
+    const maxCenter = variant.tabsVisible ? 173 : 126;
+    const avgCenter = variant.tabsVisible ? 397 : 378;
     return `
       <rect class="voyager-live__surface" width="504" height="303" />
       ${screenChromeMarkup(screen, variant)}
-      <g transform="translate(${hiddenOffset} 0)">
-        <text class="voyager-live__text voyager-live__text--medium" x="283" y="27" text-anchor="middle">ODOMETER MI</text>
-        <text class="voyager-live__text voyager-live__text--readout" x="283" y="99" text-anchor="middle" data-live-odometer-miles>523.7</text>
-        <text class="voyager-live__text voyager-live__text--medium" x="173" y="137" text-anchor="middle">MAX SPD MPH</text>
-        <text class="voyager-live__text voyager-live__text--readout" x="173" y="191" text-anchor="middle" data-live-max-speed>25</text>
-        <path class="voyager-live__line" d="M285 116V185" />
-        <text class="voyager-live__text voyager-live__text--medium" x="397" y="137" text-anchor="middle">AVG SPD MPH</text>
-        <text class="voyager-live__text voyager-live__text--readout" x="397" y="191" text-anchor="middle" data-live-avg-speed>12</text>
-        <text class="voyager-live__text voyager-live__text--medium" x="283" y="235" text-anchor="middle">ACCUMULATED RUN TIME</text>
-        <text class="voyager-live__text voyager-live__text--large voyager-live__text--clock" x="283" y="291" text-anchor="middle" data-live-elapsed>00:00:00</text>
+      <g>
+        <text class="voyager-live__text voyager-live__text--medium" x="${contentCenter}" y="30" text-anchor="middle">ODOMETER MI</text>
+        <text class="voyager-live__text voyager-live__text--readout" x="${contentCenter}" y="88" text-anchor="middle" data-live-odometer-miles>523.7</text>
+        <text class="voyager-live__text voyager-live__text--medium" x="${maxCenter}" y="127" text-anchor="middle">MAX SPD MPH</text>
+        <text class="voyager-live__text voyager-live__text--readout" x="${maxCenter}" y="185" text-anchor="middle" data-live-max-speed>25</text>
+        <path class="voyager-live__line" d="M${contentCenter} 102V195" />
+        <text class="voyager-live__text voyager-live__text--medium" x="${avgCenter}" y="127" text-anchor="middle">AVG SPD MPH</text>
+        <text class="voyager-live__text voyager-live__text--readout" x="${avgCenter}" y="185" text-anchor="middle" data-live-avg-speed>12</text>
+        <text class="voyager-live__text voyager-live__text--medium" x="${contentCenter}" y="225" text-anchor="middle">ACCUMULATED RUN TIME</text>
+        <text class="voyager-live__text voyager-live__text--large voyager-live__text--clock" x="${contentCenter}" y="283" text-anchor="middle" data-live-elapsed>00:00:00</text>
       </g>`;
   }
   return `
