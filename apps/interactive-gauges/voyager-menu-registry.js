@@ -102,10 +102,16 @@ register("m-ride2-6-3-1", {
 const SAVED_RIDES = ["CMRA TRAIL 2", "2016 BLACKDOG", "DEMO FOREST", "DEMO MOUNTAIN"];
 registerMenuFamily(
   ["m-ride2-6-4-1", "m-ride2-6-4-2", "m-ride2-6-4-3", "m-ride2-6-4-4"],
-  { kind: "panel", section: "ride", title: "MEMORY CARD RIDES", rows: SAVED_RIDES.map((label) => ({ label })) },
+  {
+    kind: "panel",
+    section: "ride",
+    title: "MEMORY CARD RIDES",
+    rows: SAVED_RIDES.map((label) => ({ label })),
+    note: "ENTER / CENTER: RIDE OPTIONS",
+  },
   [0, 1, 2, 3],
 );
-const SAVED_RIDE_ACTIONS = ["LOAD", "OVERLAY", "INFO", "EJECT"];
+const SAVED_RIDE_ACTIONS = ["LOAD RIDE", "OVERLAY", "INFO", "EJECT"];
 registerMenuFamily(
   ["m-ride2-6-4-1-1", "m-ride2-6-4-1-2", "m-ride2-6-4-1-3", "m-ride2-6-4-1-4"],
   { kind: "settings-modal", section: "ride", title: "MEMORY CARD RIDE", options: SAVED_RIDE_ACTIONS },

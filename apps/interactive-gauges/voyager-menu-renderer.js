@@ -116,7 +116,8 @@ function panelScreen(definition) {
       lineHeight,
       selectionLeft: 45,
       selectionWidth: 414,
-    })}`;
+    })}
+    ${definition.note ? noteLines(definition.note, 254) : ""}`;
 }
 
 function modalFrame(definition, innerMarkup, { x = 77, y = 49, width = 350, height = 225 } = {}) {
