@@ -184,27 +184,32 @@ function userLayoutModal(definition) {
   const slots = definition.options.map((option, index) => {
     const column = index % 2;
     const row = Math.floor(index / 2);
-    const cellX = 75 + column * 180;
-    const y = 121 + row * 47;
-    const selected = index === definition.selectedIndex;
+    const cellX = 72 + column * 181;
+    const y = 142 + row * 37;
+    const selected = index + 1 === definition.selectedIndex;
     const label = compactUserLayoutLabel(option);
     return `
       <g data-menu-layout-slot="${index}"${selected ? " data-menu-layout-slot-selected=\"true\"" : ""}>
-        ${selected ? `<rect class="voyager-menu__selection voyager-menu__layout-selection" x="${cellX}" y="${y - 25}" width="174" height="35" />` : ""}
-        <rect class="voyager-menu__layout-number${selected ? " voyager-menu__layout-number--selected" : ""}" x="${cellX + 7}" y="${y - 18}" width="18" height="18" />
-        <text class="voyager-live__text voyager-menu__layout-index${selected ? "" : " voyager-live__text--inverse"}" x="${cellX + 16}" y="${y - 3}" text-anchor="middle">${index + 1}</text>
-        <text class="voyager-live__text voyager-menu__layout-label${selected ? " voyager-live__text--inverse" : ""}" x="${cellX + 32}" y="${y - 2}">${escapeMarkup(label)}</text>
+        ${selected ? `<rect class="voyager-menu__selection voyager-menu__layout-selection" x="${cellX}" y="${y - 25}" width="177" height="32" />` : ""}
+        <rect class="voyager-menu__layout-number${selected ? " voyager-menu__layout-number--selected" : ""}" x="${cellX + 7}" y="${y - 20}" width="18" height="18" />
+        <text class="voyager-live__text voyager-menu__layout-index${selected ? "" : " voyager-live__text--inverse"}" x="${cellX + 16}" y="${y - 5}" text-anchor="middle">${index + 1}</text>
+        <text class="voyager-live__text voyager-menu__layout-label${selected ? " voyager-live__text--inverse" : ""}" x="${cellX + 32}" y="${y - 4}">${escapeMarkup(label)}</text>
       </g>`;
   }).join("");
+  const nameSelected = definition.selectedIndex === 0;
+  const confirmationSelection = definition.selectedIndex >= 7 ? definition.selectedIndex - 7 : -1;
   return modalFrame(definition, `
-    <path class="voyager-menu__layout-divider" d="M252 96V237" />
+    <text class="voyager-live__text voyager-menu__layout-name-label" x="76" y="101">USER NAME</text>
+    <rect class="voyager-menu__layout-name-field${nameSelected ? " voyager-menu__layout-name-field--selected" : ""}" x="175" y="79" width="253" height="31" />
+    <text class="voyager-live__text voyager-menu__layout-name${nameSelected ? " voyager-live__text--inverse" : ""}" x="187" y="101">${escapeMarkup(definition.name)}</text>
+    <path class="voyager-menu__layout-divider" d="M252 118V222" />
     ${slots}
-    <path class="voyager-menu__layout-footer-rule" d="M75 239H429" />
-    <text class="voyager-live__text voyager-menu__layout-footer" x="252" y="262" text-anchor="middle">ARROWS: POSITION · ENTER: CHANGE</text>`, {
-    x: 64,
-    y: 38,
-    width: 376,
-    height: 238,
+    <path class="voyager-menu__layout-footer-rule" d="M72 226H432" />
+    ${pairedConfirmationButtons(239, confirmationSelection)}`, {
+    x: 58,
+    y: 28,
+    width: 388,
+    height: 266,
   });
 }
 

@@ -42,8 +42,8 @@ const VOYAGER_CONTEXT_MODAL_STATES = [
   ["m-nav-destination-secondary", "dir2"],
 ];
 const VOYAGER_USER_LAYOUT_WORKFLOWS = [
-  ["m-user-screen-1-layout", "m-user-screen-1-data-block", "cstm"],
-  ["m-user-screen-2-layout", "m-user-screen-2-data-block", "cstm2"],
+  ["m-user-screen-1-layout", "m-user-screen-1-data-block", "m-user-screen-1-name", "cstm"],
+  ["m-user-screen-2-layout", "m-user-screen-2-data-block", "m-user-screen-2-name", "cstm2"],
 ];
 const stage = document.querySelector("#voyager-stage");
 const liveScreen = document.querySelector("#voyager-live-screen");
@@ -102,7 +102,7 @@ function applyLiveTransitionOverrides(manifest) {
       referenceScreen: manifest.states[parentStateId].referenceScreen,
     };
   }
-  for (const [layoutStateId, pickerStateId, parentStateId] of VOYAGER_USER_LAYOUT_WORKFLOWS) {
+  for (const [layoutStateId, pickerStateId, nameStateId, parentStateId] of VOYAGER_USER_LAYOUT_WORKFLOWS) {
     Object.assign(manifest.states[layoutStateId].transitions, {
       up: layoutStateId,
       left: layoutStateId,
@@ -120,6 +120,22 @@ function applyLiveTransitionOverrides(manifest) {
         center: layoutStateId,
         right: pickerStateId,
         down: pickerStateId,
+        back: layoutStateId,
+        enter: layoutStateId,
+      },
+      autoTransition: null,
+      archiveLinks: [layoutStateId, parentStateId, manifest.initialState],
+      referenceScreen: manifest.states[parentStateId].referenceScreen,
+    };
+    manifest.states[nameStateId] = {
+      id: nameStateId,
+      transitions: {
+        menu: layoutStateId,
+        up: nameStateId,
+        left: nameStateId,
+        center: nameStateId,
+        right: nameStateId,
+        down: nameStateId,
         back: layoutStateId,
         enter: layoutStateId,
       },

@@ -7,11 +7,11 @@ import { VoyagerMenuModel } from "../voyager-menu-model.js";
 import { renderVoyagerMenuMarkup } from "../voyager-menu-renderer.js";
 
 const EXPECTED_COUNTS = Object.freeze({
-  total: 129,
+  total: 131,
   pages: 64,
   workflows: 8,
-  overlays: 57,
-  menuOverlays: 51,
+  overlays: 59,
+  menuOverlays: 53,
 });
 const EDITOR_ACTIONS = ["up", "down", "left", "right", "center", "back", "enter"];
 
@@ -108,12 +108,44 @@ function main() {
     throw new Error("graph display modal is missing its source choices or displaying summary");
   }
   const userLayoutMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-user-screen-1-layout"], new VoyagerMenuModel());
-  if (!userLayoutMarkup.includes("USER SCREEN 1 LAYOUT") || !userLayoutMarkup.includes("WHEEL SPD")) {
+  if (!userLayoutMarkup.includes("USER SCREEN 1 LAYOUT")
+    || !userLayoutMarkup.includes("USER NAME")
+    || !userLayoutMarkup.includes("WHEEL SPD")
+    || !userLayoutMarkup.includes("btn-cancel-disabled")
+    || !userLayoutMarkup.includes("btn-ok-disabled")) {
     throw new Error("user screen layout modal is incomplete");
   }
   const dataBlockMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-user-screen-1-data-block"], new VoyagerMenuModel());
-  if (!dataBlockMarkup.includes("AVAILABLE DATA BLOCKS") || !dataBlockMarkup.includes("WHEEL SPEED")) {
+  if (!dataBlockMarkup.includes("CHOOSE READOUT") || !dataBlockMarkup.includes("WHEEL SPEED")) {
     throw new Error("user screen data-block picker is incomplete");
+  }
+
+  const layoutDefinition = VOYAGER_MENU_STATE_INDEX["m-user-screen-1-layout"];
+  const pickerDefinition = VOYAGER_MENU_STATE_INDEX["m-user-screen-1-data-block"];
+  const stagedLayoutModel = new VoyagerMenuModel();
+  stagedLayoutModel.prepareInput(layoutDefinition, "down");
+  stagedLayoutModel.prepareInput(pickerDefinition, "down");
+  stagedLayoutModel.prepareInput(pickerDefinition, "enter");
+  if (stagedLayoutModel.values.userScreen1Block1 !== "WHEEL SPEED") {
+    throw new Error("user layout picker committed before OK");
+  }
+  stagedLayoutModel.prepareInput(layoutDefinition, "up");
+  stagedLayoutModel.prepareInput(layoutDefinition, "up");
+  const cancelAction = stagedLayoutModel.prepareInput(layoutDefinition, "enter");
+  if (cancelAction.targetStateId !== "cstm" || stagedLayoutModel.values.userScreen1Block1 !== "WHEEL SPEED") {
+    throw new Error("user layout Cancel did not discard staged changes");
+  }
+
+  const committedLayoutModel = new VoyagerMenuModel();
+  committedLayoutModel.prepareInput(layoutDefinition, "down");
+  committedLayoutModel.prepareInput(pickerDefinition, "down");
+  committedLayoutModel.prepareInput(pickerDefinition, "enter");
+  committedLayoutModel.prepareInput(layoutDefinition, "up");
+  committedLayoutModel.prepareInput(layoutDefinition, "up");
+  committedLayoutModel.prepareInput(layoutDefinition, "right");
+  const okAction = committedLayoutModel.prepareInput(layoutDefinition, "enter");
+  if (okAction.targetStateId !== "cstm" || committedLayoutModel.values.userScreen1Block1 === "WHEEL SPEED") {
+    throw new Error("user layout OK did not commit staged changes");
   }
   const destinationMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-nav-destination-primary"], new VoyagerMenuModel());
   if (!destinationMarkup.includes("SELECT DESTINATION WAYPOINT") || !destinationMarkup.includes("WAYPOINT 4")) {

@@ -597,7 +597,7 @@
 }
 
 .voyager-live__user-metric-readout--clock {
-  font-size: 46px;
+  font-size: 42px;
 }
 
 .voyager-live__text--clock {
@@ -857,7 +857,25 @@
 }
 
 .voyager-menu__layout-label {
+  font-family: "Bobs Font 6 Pixel Narrow", "Bobs Font 6 Pixel", monospace;
   font-size: 13px;
+}
+
+.voyager-menu__layout-name-label,
+.voyager-menu__layout-name {
+  font-size: 14px;
+}
+
+.voyager-menu__layout-name-field {
+  fill: #f5f4ef;
+  stroke: #242021;
+  stroke-width: 3;
+  shape-rendering: crispEdges;
+  vector-effect: non-scaling-stroke;
+}
+
+.voyager-menu__layout-name-field--selected {
+  fill: #242021;
 }
 
 .voyager-menu__layout-selection,

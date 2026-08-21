@@ -29,6 +29,8 @@ const DEFAULT_VALUES = Object.freeze({
   wrapWhenFull: "WRAP WHEN FULL",
   sampleFrequency: "NORMAL",
   userScreenTitle: "USER SCREEN 1",
+  userScreen1Title: "USER SCREEN 1",
+  userScreen2Title: "USER SCREEN 2",
   userScreenBlocks: "4",
   userScreenBlock1: "WHEEL SPEED",
   userScreen1Block1: "WHEEL SPEED",
@@ -73,7 +75,7 @@ const FIELD_BINDINGS = Object.freeze({
   "m-set3-4-4-1": "recordMethod",
   "m-set3-4-5-1": "wrapWhenFull",
   "m-set3-4-6-1": "sampleFrequency",
-  "m-set3-5-1-1-1": "userScreenTitle",
+  "m-set3-5-1-1-1": "userScreen1Title",
   "m-set3-5-1-2-1": "userScreenBlocks",
   "m-set3-5-1-3-1": "userScreenBlock1",
   "m-nav-destination-primary": "destinationWaypoint",
@@ -108,7 +110,7 @@ const ROW_BINDINGS = Object.freeze({
   "RECORD METHOD": "recordMethod",
   "WRAP WHEN FULL": "wrapWhenFull",
   "SAMPLE FREQUENCY": "sampleFrequency",
-  "SCREEN NAME": "userScreenTitle",
+  "SCREEN NAME": "userScreen1Title",
   "NUMBER OF BLOCKS": "userScreenBlocks",
   "BLOCK 1": "userScreenBlock1",
   "YELLOW LED ON": "yellowLedOn",
@@ -123,6 +125,7 @@ const RESET_GROUPS = Object.freeze({
   "GPS SETTINGS": ["mapOrientation", "mapAutoZoom", "logAfterStop", "recordMethod", "wrapWhenFull", "sampleFrequency"],
   "USER SCREEN 1 SETTINGS": [
     "userScreenTitle",
+    "userScreen1Title",
     "userScreenBlocks",
     "userScreenBlock1",
     "userScreen1Block1",
@@ -179,6 +182,9 @@ export class VoyagerMenuModel {
           const previousSleepDefault = key === "sleepModeTimer" && ["05 MIN", "30 MIN"].includes(stored[key]);
           if (!previousSleepDefault && typeof stored[key] === typeof DEFAULT_VALUES[key]) this.#values[key] = stored[key];
         }
+        if (typeof stored.userScreen1Title !== "string" && typeof stored.userScreenTitle === "string") {
+          this.#values.userScreen1Title = stored.userScreenTitle;
+        }
       }
     } catch {
       this.#values = { ...DEFAULT_VALUES };
@@ -198,7 +204,8 @@ export class VoyagerMenuModel {
     if (!draft) return resolved;
     if (definition.kind === "settings-modal") resolved.selectedIndex = draft.selectedIndex;
     if (definition.kind === "user-layout") {
-      resolved.options = Array.from({ length: 6 }, (_, index) => this.#values[`userScreen${definition.userScreen}Block${index + 1}`]);
+      resolved.name = draft.name;
+      resolved.options = [...draft.options];
       resolved.selectedIndex = draft.selectedIndex;
     }
     if (definition.kind === "slot-input" || definition.kind === "keyboard") resolved.value = draft.value;
@@ -254,11 +261,41 @@ export class VoyagerMenuModel {
     }
 
     if (definition.kind === "user-layout" && ["up", "down", "left", "right"].includes(preparedAction)) {
-      if (preparedAction === "up") draft.selectedIndex = (draft.selectedIndex + 4) % 6;
-      if (preparedAction === "down") draft.selectedIndex = (draft.selectedIndex + 2) % 6;
-      if (preparedAction === "left" && draft.selectedIndex % 2 === 1) draft.selectedIndex -= 1;
-      if (preparedAction === "right" && draft.selectedIndex % 2 === 0) draft.selectedIndex += 1;
+      const selected = draft.selectedIndex;
+      if (preparedAction === "up") {
+        if (selected === 0) draft.selectedIndex = 7;
+        else if (selected <= 2) draft.selectedIndex = 0;
+        else if (selected <= 6) draft.selectedIndex -= 2;
+        else draft.selectedIndex -= 2;
+      }
+      if (preparedAction === "down") {
+        if (selected === 0) draft.selectedIndex = 1;
+        else if (selected <= 4) draft.selectedIndex += 2;
+        else if (selected <= 6) draft.selectedIndex += 2;
+        else draft.selectedIndex = 0;
+      }
+      if (preparedAction === "left") {
+        if ([2, 4, 6, 8].includes(selected)) draft.selectedIndex -= 1;
+      }
+      if (preparedAction === "right") {
+        if ([1, 3, 5, 7].includes(selected)) draft.selectedIndex += 1;
+      }
       this.#touch();
+    }
+
+    if (definition.kind === "user-layout" && preparedAction === "enter") {
+      if (draft.selectedIndex === 0) {
+        return { action: preparedAction, targetStateId: `m-user-screen-${definition.userScreen}-name` };
+      }
+      if (draft.selectedIndex >= 1 && draft.selectedIndex <= 6) {
+        return { action: preparedAction, targetStateId: `m-user-screen-${definition.userScreen}-data-block` };
+      }
+      if (draft.selectedIndex === 7) {
+        this.#discard(definition.id);
+        return { action: "back", targetStateId: definition.parentStateId };
+      }
+      this.#commit(definition, draft);
+      return { action: preparedAction, targetStateId: definition.parentStateId };
     }
 
     if (definition.kind === "slot-input") this.#editSlot(draft, preparedAction);
@@ -287,15 +324,32 @@ export class VoyagerMenuModel {
       selectedIndex,
       value,
     };
+    if (definition.kind === "user-layout") {
+      draft.name = this.#values[`userScreen${definition.userScreen}Title`];
+      draft.options = Array.from(
+        { length: 6 },
+        (_, index) => this.#values[`userScreen${definition.userScreen}Block${index + 1}`],
+      );
+    }
+    if (definition.dataBlockPicker) {
+      const layoutDraft = this.#drafts.get(`m-user-screen-${definition.userScreen}-layout`);
+      const selectedSlot = Math.max(0, (layoutDraft?.selectedIndex ?? 1) - 1);
+      const selectedValue = layoutDraft?.options?.[selectedSlot];
+      if (selectedValue !== undefined) {
+        draft.selectedIndex = Math.max(0, definition.options.indexOf(String(selectedValue)));
+      }
+    }
+    if (definition.userScreenNameEditor) {
+      const layoutDraft = this.#drafts.get(`m-user-screen-${definition.userScreen}-layout`);
+      draft.value = layoutDraft?.name ?? this.#values[`userScreen${definition.userScreen}Title`];
+    }
     this.#drafts.set(definition.id, draft);
     return draft;
   }
 
   #bindingFor(definition) {
-    if (!definition.dataBlockPicker) return FIELD_BINDINGS[definition.id];
-    const layoutId = `m-user-screen-${definition.userScreen}-layout`;
-    const selectedSlot = (this.#drafts.get(layoutId)?.selectedIndex ?? 0) + 1;
-    return `userScreen${definition.userScreen}Block${selectedSlot}`;
+    if (definition.dataBlockPicker || definition.userScreenNameEditor) return null;
+    return FIELD_BINDINGS[definition.id];
   }
 
   #editSlot(draft, action) {
@@ -342,6 +396,31 @@ export class VoyagerMenuModel {
   }
 
   #commit(definition, draft) {
+    if (definition.kind === "user-layout") {
+      this.#values[`userScreen${definition.userScreen}Title`] = draft.name;
+      draft.options.forEach((option, index) => {
+        this.#values[`userScreen${definition.userScreen}Block${index + 1}`] = option;
+      });
+      this.#save();
+      this.#drafts.delete(definition.id);
+      this.#touch();
+      return;
+    }
+    if (definition.dataBlockPicker) {
+      const layoutDraft = this.#drafts.get(`m-user-screen-${definition.userScreen}-layout`);
+      const selectedSlot = Math.max(0, (layoutDraft?.selectedIndex ?? 1) - 1);
+      if (layoutDraft?.options) layoutDraft.options[selectedSlot] = definition.options[draft.selectedIndex];
+      this.#drafts.delete(definition.id);
+      this.#touch();
+      return;
+    }
+    if (definition.userScreenNameEditor) {
+      const layoutDraft = this.#drafts.get(`m-user-screen-${definition.userScreen}-layout`);
+      if (layoutDraft) layoutDraft.name = String(draft.value).trim() || `USER SCREEN ${definition.userScreen}`;
+      this.#drafts.delete(definition.id);
+      this.#touch();
+      return;
+    }
     const binding = this.#bindingFor(definition);
     if (binding) {
       if (definition.kind === "settings-modal") this.#values[binding] = definition.options[draft.selectedIndex];

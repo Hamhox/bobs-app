@@ -351,10 +351,24 @@ register("m-user-screen-2-layout", {
   userScreen: 2,
   selectedIndex: 0,
 });
+register("m-user-screen-1-name", {
+  kind: "keyboard",
+  section: "set",
+  title: "USER SCREEN 1 NAME",
+  userScreen: 1,
+  userScreenNameEditor: true,
+});
+register("m-user-screen-2-name", {
+  kind: "keyboard",
+  section: "set",
+  title: "USER SCREEN 2 NAME",
+  userScreen: 2,
+  userScreenNameEditor: true,
+});
 register("m-user-screen-1-data-block", {
   kind: "settings-modal",
   section: "set",
-  title: "AVAILABLE DATA BLOCKS",
+  title: "CHOOSE READOUT",
   options: USER_SCREEN_DATA_BLOCKS,
   selectedIndex: 4,
   scroll: true,
@@ -364,7 +378,7 @@ register("m-user-screen-1-data-block", {
 register("m-user-screen-2-data-block", {
   kind: "settings-modal",
   section: "set",
-  title: "AVAILABLE DATA BLOCKS",
+  title: "CHOOSE READOUT",
   options: USER_SCREEN_DATA_BLOCKS,
   selectedIndex: 8,
   scroll: true,
@@ -408,6 +422,8 @@ function inferredParentStateId(stateId) {
     "m-graph-alt-track2-display": "alt3",
     "m-user-screen-1-layout": "cstm",
     "m-user-screen-2-layout": "cstm2",
+    "m-user-screen-1-name": "m-user-screen-1-layout",
+    "m-user-screen-2-name": "m-user-screen-2-layout",
     "m-user-screen-1-data-block": "m-user-screen-1-layout",
     "m-user-screen-2-data-block": "m-user-screen-2-layout",
     "m-nav-destination-primary": "dir",

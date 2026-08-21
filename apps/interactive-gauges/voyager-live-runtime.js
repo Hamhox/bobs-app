@@ -777,7 +777,7 @@ function userMarkup(screen, variant, menuValues = {}) {
   return `
     <rect class="voyager-live__surface" width="504" height="303" />
     ${screenChromeMarkup(screen, variant)}
-    ${userTitleMarkup(`USER SCREEN ${screenNumber}`, variant.tabsVisible)}
+    ${userTitleMarkup(menuValues[`userScreen${screenNumber}Title`] ?? `USER SCREEN ${screenNumber}`, variant.tabsVisible)}
     ${blocks || `<text class="voyager-live__text voyager-live__text--medium" x="${center}" y="170" text-anchor="middle">NO DATA BLOCKS</text>`}`;
 }
 
