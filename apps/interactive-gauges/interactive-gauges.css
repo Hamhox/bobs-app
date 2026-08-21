@@ -861,7 +861,6 @@
   font-size: 13px;
 }
 
-.voyager-menu__layout-name-label,
 .voyager-menu__layout-name {
   font-size: 14px;
 }
@@ -958,9 +957,74 @@
   letter-spacing: 0.12em;
 }
 
-.voyager-menu__keyboard {
+.voyager-menu__keyboard-key {
   font-size: 17px;
-  letter-spacing: 0.12em;
+}
+
+.voyager-menu__keyboard-key-selection {
+  fill: #242021;
+  shape-rendering: crispEdges;
+  animation: voyager-keyboard-selection-blink 1s steps(1, end) infinite;
+}
+
+.voyager-menu__keyboard-key--selected {
+  animation: voyager-keyboard-character-blink 1s steps(1, end) infinite;
+}
+
+.voyager-menu__keyboard-icon--selected {
+  animation: voyager-keyboard-icon-blink 1s steps(1, end) infinite;
+}
+
+@keyframes voyager-keyboard-selection-blink {
+  0%,
+  49.99% {
+    opacity: 1;
+  }
+
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes voyager-keyboard-character-blink {
+  0%,
+  49.99% {
+    fill: #f5f4ef;
+  }
+
+  50%,
+  100% {
+    fill: #242021;
+  }
+}
+
+@keyframes voyager-keyboard-icon-blink {
+  0%,
+  49.99% {
+    filter: invert(1);
+  }
+
+  50%,
+  100% {
+    filter: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .voyager-menu__keyboard-key-selection,
+  .voyager-menu__keyboard-key--selected,
+  .voyager-menu__keyboard-icon--selected {
+    animation: none;
+  }
+
+  .voyager-menu__keyboard-key--selected {
+    fill: #f5f4ef;
+  }
+
+  .voyager-menu__keyboard-icon--selected {
+    filter: invert(1);
+  }
 }
 
 .voyager-menu__map-route,

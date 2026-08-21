@@ -1,4 +1,5 @@
 import { voyagerUiIcon } from "./voyager-ui-icons.js";
+import { VOYAGER_KEYBOARD_ROWS } from "./voyager-menu-model.js";
 
 const escapeMarkup = (value) => String(value ?? "")
   .replaceAll("&", "&amp;")
@@ -199,9 +200,8 @@ function userLayoutModal(definition) {
   const nameSelected = definition.selectedIndex === 0;
   const confirmationSelection = definition.selectedIndex >= 7 ? definition.selectedIndex - 7 : -1;
   return modalFrame(definition, `
-    <text class="voyager-live__text voyager-menu__layout-name-label" x="76" y="101">USER NAME</text>
-    <rect class="voyager-menu__layout-name-field${nameSelected ? " voyager-menu__layout-name-field--selected" : ""}" x="175" y="79" width="253" height="31" />
-    <text class="voyager-live__text voyager-menu__layout-name${nameSelected ? " voyager-live__text--inverse" : ""}" x="187" y="101">${escapeMarkup(definition.name)}</text>
+    <rect class="voyager-menu__layout-name-field${nameSelected ? " voyager-menu__layout-name-field--selected" : ""}" x="72" y="79" width="356" height="31" />
+    <text class="voyager-live__text voyager-menu__layout-name${nameSelected ? " voyager-live__text--inverse" : ""}" x="250" y="101" text-anchor="middle">${escapeMarkup(definition.name)}</text>
     <path class="voyager-menu__layout-divider" d="M252 118V222" />
     ${slots}
     <path class="voyager-menu__layout-footer-rule" d="M72 226H432" />
@@ -292,22 +292,46 @@ function brightnessModal(definition) {
     <text class="voyager-live__text voyager-menu__slot-value" x="252" y="222" text-anchor="middle">${definition.value}%</text>`);
 }
 
+const KEYBOARD_ICON_MAP = Object.freeze({
+  BACKSPACE: { id: "keyboard-16pt-backspace", width: 24 },
+  SPACE: { id: "keyboard-16pt-space", width: 24 },
+  BACK: { id: "keyboard-16pt-back", width: 23 },
+  FORWARD: { id: "keyboard-16pt-forward", width: 23 },
+  DELETE: { id: "keyboard-16pt-delete", width: 27 },
+});
+
+function keyboardKeyMarkup(key, row, column, selected) {
+  const x = 72 + column * 30;
+  const y = 157 + row * 24;
+  const icon = KEYBOARD_ICON_MAP[key];
+  return `
+    <g data-menu-key="${escapeMarkup(key)}"${selected ? " data-menu-key-selected=\"true\"" : ""}>
+      ${selected ? `<rect class="voyager-menu__keyboard-key-selection" x="${x - 13}" y="${y - 19}" width="26" height="22" />` : ""}
+      ${icon
+    ? voyagerUiIcon(icon.id, {
+      x: x - icon.width / 2,
+      y: y - 18,
+      width: icon.width,
+      height: 20,
+      className: selected ? "voyager-menu__keyboard-icon--selected" : "",
+    })
+    : `<text class="voyager-live__text voyager-menu__keyboard-key${selected ? " voyager-menu__keyboard-key--selected" : ""}" x="${x}" y="${y}" text-anchor="middle">${escapeMarkup(key)}</text>`}
+    </g>`;
+}
+
 function keyboardModal(definition) {
+  const valueCharacters = [...String(definition.value)];
+  const cursor = Math.min(valueCharacters.length, Math.max(0, definition.keyboardCursor ?? valueCharacters.length));
+  valueCharacters.splice(cursor, 0, "|");
+  const keys = VOYAGER_KEYBOARD_ROWS.map((row, rowIndex) => row.map((key, columnIndex) => {
+    const keyboardIndex = rowIndex * row.length + columnIndex;
+    return keyboardKeyMarkup(key, rowIndex, columnIndex, keyboardIndex === definition.keyboardIndex);
+  }).join("")).join("");
   return modalFrame(definition, `
     <rect class="voyager-menu__input" x="58" y="101" width="388" height="34" />
-    <text class="voyager-live__text voyager-menu__keyboard-value" x="70" y="125">${escapeMarkup(definition.value)}|</text>
-    <text class="voyager-live__text voyager-menu__keyboard" x="68" y="162">1 2 3 4 5 6 7 8 9 0 - +</text>
-    <text class="voyager-live__text voyager-menu__keyboard" x="68" y="184">Q W E R T Y U I O P ! °</text>
-    <text class="voyager-live__text voyager-menu__keyboard" x="68" y="206">A S D F G H J K L : “ ’</text>
-    <text class="voyager-live__text voyager-menu__keyboard" x="68" y="228">Z X C V B N M _</text>
-    <text class="voyager-live__text voyager-menu__note" x="421" y="228" text-anchor="end">${escapeMarkup(definition.keyboardKey)}</text>
-    ${voyagerUiIcon("keyboard-16pt-backspace", { x: 248, y: 210, width: 24, height: 20 })}
-    ${voyagerUiIcon("keyboard-16pt-delete", { x: 278, y: 210, width: 29, height: 20 })}
-    ${voyagerUiIcon("keyboard-16pt-back", { x: 313, y: 210, width: 23, height: 20 })}
-    ${voyagerUiIcon("keyboard-16pt-forward", { x: 342, y: 210, width: 23, height: 20 })}
-    ${voyagerUiIcon("keyboard-16pt-checkmark", { x: 371, y: 210, width: 23, height: 20 })}
-    ${voyagerUiIcon("keyboard-16pt-space", { x: 400, y: 210, width: 23, height: 20 })}
-    ${pairedConfirmationButtons(236)}`, { x: 39, y: 39, width: 426, height: 250 });
+    <text class="voyager-live__text voyager-menu__keyboard-value" x="70" y="125">${escapeMarkup(valueCharacters.join(""))}</text>
+    ${keys}
+    ${pairedConfirmationButtons(247)}`, { x: 39, y: 39, width: 426, height: 250 });
 }
 
 function waypointMapModal(definition) {

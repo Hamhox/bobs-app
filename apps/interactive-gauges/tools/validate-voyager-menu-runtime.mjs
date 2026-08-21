@@ -3,7 +3,7 @@
 import {
   VOYAGER_MENU_STATE_INDEX,
 } from "../voyager-menu-registry.js";
-import { VoyagerMenuModel } from "../voyager-menu-model.js";
+import { VOYAGER_KEYBOARD_ROWS, VoyagerMenuModel } from "../voyager-menu-model.js";
 import { renderVoyagerMenuMarkup } from "../voyager-menu-renderer.js";
 
 const EXPECTED_COUNTS = Object.freeze({
@@ -70,6 +70,19 @@ function main() {
   if (!dataBlockSelector.options.some((option) => option.includes("\uE10B"))) {
     throw new Error("data-block options are missing the v1.003 circled 2 glyph");
   }
+
+  if (VOYAGER_KEYBOARD_ROWS.length !== 4 || VOYAGER_KEYBOARD_ROWS.some((row) => row.length !== 13)) {
+    throw new Error("keyboard is not a full four-by-thirteen device grid");
+  }
+  const expectedKeyboardRows = [
+    "1234567890-+BACKSPACE",
+    "QWERTYUIOP_°\\",
+    "ASDFGHJKL:',.",
+    "ZXCVBNMSPACE()BACKFORWARDDELETE",
+  ];
+  if (VOYAGER_KEYBOARD_ROWS.some((row, index) => row.join("") !== expectedKeyboardRows[index])) {
+    throw new Error("keyboard character map no longer matches the device");
+  }
   const scrollModel = new VoyagerMenuModel();
   for (let index = 0; index < 12; index += 1) scrollModel.prepareInput(dataBlockSelector, "down");
   const scrolledMarkup = renderDefinition(dataBlockSelector, scrollModel);
@@ -109,7 +122,8 @@ function main() {
   }
   const userLayoutMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-user-screen-1-layout"], new VoyagerMenuModel());
   if (!userLayoutMarkup.includes("USER SCREEN 1 LAYOUT")
-    || !userLayoutMarkup.includes("USER NAME")
+    || userLayoutMarkup.includes("USER NAME")
+    || !userLayoutMarkup.includes('text-anchor="middle">USER SCREEN 1</text>')
     || !userLayoutMarkup.includes("WHEEL SPD")
     || !userLayoutMarkup.includes("btn-cancel-disabled")
     || !userLayoutMarkup.includes("btn-ok-disabled")) {
@@ -172,6 +186,25 @@ function main() {
   );
   if (editorCenterAction.action !== "center") {
     throw new Error("center no longer retains its digit-editor behavior");
+  }
+
+  const keyboardDefinition = VOYAGER_MENU_STATE_INDEX["m-set3-5-1-1-1"];
+  const keyboardModel = new VoyagerMenuModel();
+  const keyboardMarkup = renderDefinition(keyboardDefinition, keyboardModel);
+  if (!keyboardMarkup.includes('data-menu-key="\\"')
+    || !keyboardMarkup.includes('data-menu-key=","')
+    || !keyboardMarkup.includes('data-menu-key="BACKSPACE"')
+    || !keyboardMarkup.includes("voyager-menu__keyboard-key-selection")
+    || keyboardMarkup.includes("voyager-menu__note")) {
+    throw new Error("keyboard rendering is missing device keys or retains the floating active-key display");
+  }
+  for (let index = 0; index < 12; index += 1) keyboardModel.prepareInput(keyboardDefinition, "right");
+  const beforeBackspace = keyboardModel.resolve(keyboardDefinition).value;
+  keyboardModel.prepareInput(keyboardDefinition, "center");
+  const afterBackspace = keyboardModel.resolve(keyboardDefinition);
+  if (afterBackspace.value !== beforeBackspace.slice(0, -1)
+    || afterBackspace.keyboardCursor !== [...afterBackspace.value].length) {
+    throw new Error("keyboard BACKSPACE did not update the value and cursor together");
   }
 
   console.log(JSON.stringify(report, null, 2));

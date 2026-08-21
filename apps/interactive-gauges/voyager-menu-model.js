@@ -138,14 +138,15 @@ const RESET_GROUPS = Object.freeze({
   "WARNING LED LIGHTS": ["yellowLedOn", "redLedOn", "yellowLedFlash", "redLedFlash"],
 });
 
-const KEYBOARD_KEYS = Object.freeze([
-  ..."1234567890-+",
-  ..."QWERTYUIOP!°",
-  ..."ASDFGHJKL:'\"",
-  ..."ZXCVBNM_",
-  "SPACE",
-  "DELETE",
+export const VOYAGER_KEYBOARD_ROWS = Object.freeze([
+  Object.freeze(["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "+", "BACKSPACE"]),
+  Object.freeze(["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "_", "°", "\\"]),
+  Object.freeze(["A", "S", "D", "F", "G", "H", "J", "K", "L", ":", "'", ",", "."]),
+  Object.freeze(["Z", "X", "C", "V", "B", "N", "M", "SPACE", "(", ")", "BACK", "FORWARD", "DELETE"]),
 ]);
+
+const KEYBOARD_KEYS = Object.freeze(VOYAGER_KEYBOARD_ROWS.flat());
+const KEYBOARD_COLUMN_COUNT = VOYAGER_KEYBOARD_ROWS[0].length;
 
 const clamp = (value, minimum, maximum) => Math.min(maximum, Math.max(minimum, value));
 
@@ -215,6 +216,7 @@ export class VoyagerMenuModel {
     if (definition.kind === "keyboard") {
       resolved.keyboardIndex = draft.keyboardIndex;
       resolved.keyboardKey = KEYBOARD_KEYS[draft.keyboardIndex];
+      resolved.keyboardCursor = draft.keyboardCursor;
     }
     return resolved;
   }
@@ -319,6 +321,7 @@ export class VoyagerMenuModel {
     const digitIndexes = editableDigitIndexes(value);
     const draft = {
       activeDigit: clamp(definition.activeDigit ?? 0, 0, Math.max(0, digitIndexes.length - 1)),
+      keyboardCursor: [...String(value)].length,
       keyboardIndex: 0,
       selectedConfirmation: 0,
       selectedIndex,
@@ -342,6 +345,7 @@ export class VoyagerMenuModel {
     if (definition.userScreenNameEditor) {
       const layoutDraft = this.#drafts.get(`m-user-screen-${definition.userScreen}-layout`);
       draft.value = layoutDraft?.name ?? this.#values[`userScreen${definition.userScreen}Title`];
+      draft.keyboardCursor = [...String(draft.value)].length;
     }
     this.#drafts.set(definition.id, draft);
     return draft;
@@ -383,15 +387,29 @@ export class VoyagerMenuModel {
       return;
     }
     if (action === "up" || action === "down") {
-      draft.keyboardIndex = (draft.keyboardIndex + (action === "up" ? -12 : 12) + KEYBOARD_KEYS.length) % KEYBOARD_KEYS.length;
+      draft.keyboardIndex = (draft.keyboardIndex + (action === "up" ? -KEYBOARD_COLUMN_COUNT : KEYBOARD_COLUMN_COUNT) + KEYBOARD_KEYS.length) % KEYBOARD_KEYS.length;
       this.#touch();
       return;
     }
     if (action !== "center") return;
     const key = KEYBOARD_KEYS[draft.keyboardIndex];
-    if (key === "DELETE") draft.value = String(draft.value).slice(0, -1);
-    else if (key === "SPACE") draft.value += " ";
-    else draft.value += key;
+    const characters = [...String(draft.value)];
+    draft.keyboardCursor = clamp(draft.keyboardCursor, 0, characters.length);
+    if (key === "BACKSPACE" && draft.keyboardCursor > 0) {
+      characters.splice(draft.keyboardCursor - 1, 1);
+      draft.keyboardCursor -= 1;
+    } else if (key === "DELETE" && draft.keyboardCursor < characters.length) {
+      characters.splice(draft.keyboardCursor, 1);
+    } else if (key === "BACK") {
+      draft.keyboardCursor = clamp(draft.keyboardCursor - 1, 0, characters.length);
+    } else if (key === "FORWARD") {
+      draft.keyboardCursor = clamp(draft.keyboardCursor + 1, 0, characters.length);
+    } else {
+      const character = key === "SPACE" ? " " : key;
+      characters.splice(draft.keyboardCursor, 0, character);
+      draft.keyboardCursor += 1;
+    }
+    draft.value = characters.join("");
     this.#touch();
   }
 
