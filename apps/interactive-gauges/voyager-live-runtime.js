@@ -36,6 +36,14 @@ const SD_CARD_DEFAULT_RIDES = Object.freeze([
 const clamp = (value, minimum, maximum) => Math.min(maximum, Math.max(minimum, value));
 const radians = (degrees) => (degrees * Math.PI) / 180;
 
+export function formatVoyagerDestinationDistance(destinationMeters, metricDistance) {
+  return String(Math.round(metricDistance ? destinationMeters : destinationMeters / 1609.344));
+}
+
+export function voyagerDestinationTextLength(value) {
+  return String(value).length > 7 ? 196 : null;
+}
+
 function haversineMeters(a, b) {
   const earthRadius = 6371000;
   const latitudeDelta = radians(b.latitude - a.latitude);
@@ -1289,7 +1297,7 @@ export class VoyagerLiveRuntime {
       setText("[data-live-altitude]", String(telemetry.elevationFeet));
       setText("[data-live-distance]", metricDistance ? telemetry.distanceKm.toFixed(1) : (telemetry.distanceKm * 0.621371).toFixed(1));
       setText("[data-live-trip-distance]", String(Math.round((metricDistance ? telemetry.distanceKm : telemetry.distanceKm * 0.621371) * 10)));
-      setText("[data-live-destination]", String(Math.round(metricDistance ? destinationMeters : destinationMeters * 3.28084)));
+      this.#updateDestinationDistance(formatVoyagerDestinationDistance(destinationMeters, metricDistance));
       setText("[data-live-elapsed]", telemetry.elapsedLabel);
       setText("[data-live-ride-label]", telemetry.trackLabel);
     }
@@ -1477,6 +1485,20 @@ export class VoyagerLiveRuntime {
 
   #syncDestinationLabel() {
     setElementText(this.#mount.querySelector("[data-live-destination-label]"), this.#destinationLabel());
+  }
+
+  #updateDestinationDistance(value) {
+    const readout = this.#mount.querySelector("[data-live-destination]");
+    if (!readout) return;
+    setElementText(readout, value);
+    const textLength = voyagerDestinationTextLength(value);
+    if (textLength) {
+      readout.setAttribute("textLength", String(textLength));
+      readout.setAttribute("lengthAdjust", "spacingAndGlyphs");
+      return;
+    }
+    readout.removeAttribute("textLength");
+    readout.removeAttribute("lengthAdjust");
   }
 
   #queueToast(message, durationMs = 5000) {

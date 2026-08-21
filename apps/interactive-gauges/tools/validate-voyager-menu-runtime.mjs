@@ -5,6 +5,10 @@ import {
 } from "../voyager-menu-registry.js";
 import { VOYAGER_KEYBOARD_ROWS, VoyagerMenuModel } from "../voyager-menu-model.js";
 import { renderVoyagerMenuMarkup, renderVoyagerToastMarkup } from "../voyager-menu-renderer.js";
+import {
+  formatVoyagerDestinationDistance,
+  voyagerDestinationTextLength,
+} from "../voyager-live-runtime.js";
 
 const EXPECTED_COUNTS = Object.freeze({
   total: 131,
@@ -129,6 +133,13 @@ function main() {
     || !destinationToastMarkup.includes("CMRA Trail Head")
     || (destinationToastMarkup.match(/voyager-menu__toast-copy/g) ?? []).length !== 2) {
     throw new Error("destination waypoint toast is not a two-line device notice");
+  }
+  if (formatVoyagerDestinationDistance(3_270_000, false) !== "2032") {
+    throw new Error("imperial destination distance is not converted from meters to miles");
+  }
+  if (voyagerDestinationTextLength("1234567") !== null
+    || voyagerDestinationTextLength("12345678") !== 196) {
+    throw new Error("destination distance no longer caps values beyond seven characters");
   }
   const graphDisplayMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-graph-temp-display"], new VoyagerMenuModel());
   if (!graphDisplayMarkup.includes("CURRENT TRACK") || !graphDisplayMarkup.includes("voyager-menu__summary")) {
