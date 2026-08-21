@@ -497,6 +497,7 @@
 
 .voyager-live__line,
 .voyager-live__route,
+.voyager-live__routes,
 .voyager-live__recorded,
 .voyager-live__compass-line,
 .voyager-live__scale-line {
@@ -520,6 +521,14 @@
 .voyager-live__route {
   stroke-width: 8px;
   stroke-dasharray: 0 8;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+}
+
+.voyager-live__routes {
+  stroke: #817c7d;
+  stroke-width: 5px;
+  stroke-dasharray: 0 6;
   stroke-linecap: square;
   stroke-linejoin: miter;
 }

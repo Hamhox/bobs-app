@@ -324,14 +324,8 @@ class VoyagerRideEngine {
     return this.#currentTrack?.mapSegments ?? [];
   }
 
-  get waypointCatalog() {
-    const seen = new Set();
-    return [...this.#tracks.values()].flatMap((track) => track.waypoints.flatMap((waypoint) => {
-      const key = `${waypoint.name}|${waypoint.latitude.toFixed(6)}|${waypoint.longitude.toFixed(6)}`;
-      if (seen.has(key)) return [];
-      seen.add(key);
-      return [{ ...waypoint, trackId: track.id, trackLabel: track.label }];
-    }));
+  get surroundingRoutes() {
+    return this.#currentTrack?.areaId ? this.#currentTrack.mapSegments : [];
   }
 
   pointsFor(trackId) {
@@ -398,20 +392,23 @@ class VoyagerRideEngine {
   }
 
   selectRide(trackId, { reset = true } = {}) {
-    const area = this.#areas.get(trackId);
-    let resolvedTrackId = trackId;
-    if (area) {
-      const candidates = area.trackIds.filter((candidate) => candidate !== area.lastTrackId);
-      const selectionPool = candidates.length ? candidates : area.trackIds;
-      resolvedTrackId = selectionPool[Math.floor(Math.random() * selectionPool.length)];
-      area.lastTrackId = resolvedTrackId;
-    }
+    const resolvedTrackId = this.#selectAreaTrackId(trackId) ?? trackId;
     const nextTrack = this.#tracks.get(resolvedTrackId);
     if (!nextTrack) throw new Error(`Unknown Voyager GPX ride: ${trackId}`);
     this.#currentTrack = nextTrack;
     if (reset) this.#progress = 0;
     this.#emit({ kind: "full", mode: this.#mode });
     return nextTrack;
+  }
+
+  #selectAreaTrackId(areaId) {
+    const area = this.#areas.get(areaId);
+    if (!area) return null;
+    const candidates = area.trackIds.filter((candidate) => candidate !== area.lastTrackId);
+    const selectionPool = candidates.length ? candidates : area.trackIds;
+    const resolvedTrackId = selectionPool[Math.floor(Math.random() * selectionPool.length)];
+    area.lastTrackId = resolvedTrackId;
+    return resolvedTrackId;
   }
 
   play() {
@@ -466,7 +463,12 @@ class VoyagerRideEngine {
       this.#progress += (timestamp - this.#lastTimestamp) / this.#durationMs * this.#playbackSpeed;
       if (this.#progress >= 1) {
         this.#progress = this.#loop ? this.#progress % 1 : 1;
-        if (!this.#loop) this.#playing = false;
+        if (!this.#loop) {
+          this.#playing = false;
+        } else if (this.#currentTrack.areaId) {
+          const nextTrackId = this.#selectAreaTrackId(this.#currentTrack.areaId);
+          this.#currentTrack = this.#tracks.get(nextTrackId) ?? this.#currentTrack;
+        }
       }
     }
     this.#lastTimestamp = timestamp;
@@ -533,6 +535,7 @@ class VoyagerRideEngine {
       : Number.NaN;
     return {
       trackId: track.id,
+      areaId: track.areaId ?? null,
       trackLabel: track.label,
       progress,
       pointIndex: index,
@@ -724,16 +727,13 @@ function controlHintMarkup(interaction) {
 }
 
 function mapMarkup(screen, variant) {
-  const mapLeft = variant.tabsVisible ? 83 : 28;
-  const mapRight = variant.interaction ? 446 : 486;
   const status = variant.interaction ? "" : statusBarMarkup(variant);
   return `
     <rect class="voyager-live__surface" width="504" height="303" />
-    ${screenChromeMarkup(screen, variant)}
-    ${status}
-    <clipPath id="voyager-live-map-clip"><rect x="${mapLeft}" y="40" width="${mapRight - mapLeft}" height="207" /></clipPath>
+    <clipPath id="voyager-live-map-clip"><rect width="504" height="303" /></clipPath>
     <g clip-path="url(#voyager-live-map-clip)">
       <g data-live-map-transform>
+        <path class="voyager-live__routes" data-live-routes />
         <path class="voyager-live__route voyager-live__route--overlay" data-live-overlay-route />
         <path class="voyager-live__recorded" data-live-recorded />
         <path class="voyager-live__route" data-live-route />
@@ -741,6 +741,8 @@ function mapMarkup(screen, variant) {
         <path class="voyager-live__position" data-live-position d="M0-12 9 10 0 5-9 10Z" />
       </g>
     </g>
+    ${screenChromeMarkup(screen, variant)}
+    ${status}
     ${controlHintMarkup(variant.interaction)}
     <path class="voyager-live__scale-line" d="M${variant.tabsVisible ? 80 : 20} 279v13h142v-13" />
     <text class="voyager-live__text voyager-live__text--medium" x="${variant.tabsVisible ? 126 : 66}" y="286">2 mi</text>
@@ -1094,7 +1096,11 @@ export class VoyagerLiveRuntime {
     this.#menuModel.load();
     this.#available = true;
     this.#ride.subscribe((telemetry, cadence) => {
-      if (this.#telemetry?.trackId !== telemetry.trackId) {
+      const previousTelemetry = this.#telemetry;
+      const advancedAreaTrack = previousTelemetry?.areaId
+        && previousTelemetry.areaId === telemetry.areaId
+        && previousTelemetry.trackId !== telemetry.trackId;
+      if (previousTelemetry?.trackId !== telemetry.trackId) {
         this.#projectedTrack = [];
         this.#projectedNetworkSegments = [];
         this.#projectedTrackId = "";
@@ -1113,6 +1119,10 @@ export class VoyagerLiveRuntime {
         return;
       }
       this.#updateDynamicFields(cadence.kind === "phase" ? cadence.phase : "all");
+      if (advancedAreaTrack) {
+        this.#queueToast(["NEXT TRACK", telemetry.trackLabel]);
+        this.#renderQueuedToast();
+      }
     });
   }
 
@@ -1283,7 +1293,7 @@ export class VoyagerLiveRuntime {
   }
 
   #destinationWaypoints() {
-    const loadedWaypoints = this.#ride.waypoints.length ? this.#ride.waypoints : this.#ride.waypointCatalog;
+    const loadedWaypoints = this.#ride.waypoints;
     const savedWaypoints = this.#waypoints.map((waypoint) => ({
       name: `${waypoint.source} ${waypoint.label}`,
       latitude: waypoint.latitude,
@@ -1743,15 +1753,19 @@ export class VoyagerLiveRuntime {
       const networkPoints = networkSegments.flat();
       const extentPoints = overlayPoints.length > 1 ? [...networkPoints, ...overlayPoints] : networkPoints;
       const projectionBounds = {
-        left: variant.tabsVisible ? 104 : 62,
-        right: variant.interaction ? 415 : 462,
-        top: 62,
-        bottom: 234,
+        left: 4,
+        right: 500,
+        top: 4,
+        bottom: 299,
       };
       this.#projectedTrack = projectTrack(this.#ride.points, projectionBounds, extentPoints);
       this.#projectedNetworkSegments = networkSegments.map((segment) => projectTrack(segment, projectionBounds, extentPoints));
       this.#projectedTrackId = this.#telemetry.trackId;
-      this.#mount.querySelector("[data-live-route]")?.setAttribute("d", pathFromSegments(this.#projectedNetworkSegments));
+      this.#mount.querySelector("[data-live-routes]")?.setAttribute(
+        "d",
+        this.#ride.surroundingRoutes.length ? pathFromSegments(this.#projectedNetworkSegments) : "",
+      );
+      this.#mount.querySelector("[data-live-route]")?.setAttribute("d", pathFromPoints(this.#projectedTrack));
       this.#mount.querySelector("[data-live-overlay-route]")?.setAttribute(
         "d", overlayPoints.length > 1
           ? pathFromPoints(projectTrack(overlayPoints, projectionBounds, extentPoints))
@@ -1759,19 +1773,12 @@ export class VoyagerLiveRuntime {
       );
       const waypointLayer = this.#mount.querySelector("[data-live-waypoints]");
       if (waypointLayer) {
-        const authoredWaypoints = [0.08, 0.34, 0.62, 0.88].map((position, index) => {
-          const point = this.#projectedTrack[Math.round(position * (this.#projectedTrack.length - 1))];
-          return { point, label: String(index + 1), saved: false };
-        });
-        const savedWaypoints = this.#waypoints.map((waypoint) => ({
-          point: this.#projectedTrack[this.#nearestRidePointIndex(waypoint)],
-          label: waypoint.label,
-          saved: true,
-        }));
-        waypointLayer.innerHTML = [...authoredWaypoints, ...savedWaypoints].map(({ point, label }) => `
-            <g transform="translate(${point.x.toFixed(2)} ${point.y.toFixed(2)})">
+        const destinationWaypoints = this.#destinationWaypoints();
+        const projectedWaypoints = projectTrack(destinationWaypoints, projectionBounds, extentPoints);
+        waypointLayer.innerHTML = projectedWaypoints.map((point, index) => `
+            <g data-live-map-marker data-map-x="${point.x.toFixed(2)}" data-map-y="${point.y.toFixed(2)}">
               ${voyagerUiIcon("circle-digit-black", { x: -22, y: -15, width: 44, height: 29, className: "voyager-live__waypoint" })}
-              <text class="voyager-live__text voyager-live__text--inverse" x="0" y="6" text-anchor="middle">${label}</text>
+              <text class="voyager-live__text voyager-live__text--inverse" x="0" y="6" text-anchor="middle">${destinationWaypoints[index].label}</text>
             </g>`).join("");
       }
     }
@@ -1785,8 +1792,14 @@ export class VoyagerLiveRuntime {
     this.#mount.querySelector("[data-live-recorded]")?.setAttribute("d", pathFromPoints(recordedPoints));
     this.#mount.querySelector("[data-live-position]")?.setAttribute(
       "transform",
-      `translate(${position.x.toFixed(2)} ${position.y.toFixed(2)}) rotate(${this.#telemetry.heading.toFixed(2)})`,
+      `translate(${position.x.toFixed(2)} ${position.y.toFixed(2)}) scale(${(1 / mapView.scale).toFixed(4)}) rotate(${this.#telemetry.heading.toFixed(2)})`,
     );
+    for (const marker of this.#mount.querySelectorAll("[data-live-map-marker]")) {
+      marker.setAttribute(
+        "transform",
+        `translate(${marker.dataset.mapX} ${marker.dataset.mapY}) scale(${(1 / mapView.scale).toFixed(4)})`,
+      );
+    }
     const mapRotation = this.#menuModel.values.mapOrientation === "TRACK UP" ? -this.#telemetry.heading : 0;
     this.#mount.querySelector("[data-live-map-transform]")?.setAttribute(
       "transform",
