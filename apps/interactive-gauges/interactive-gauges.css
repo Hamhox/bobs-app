@@ -840,6 +840,41 @@
 }
 
 .voyager-menu__layout-label {
+  font-size: 13px;
+}
+
+.voyager-menu__layout-selection,
+.voyager-menu__layout-number,
+.voyager-menu__layout-number--selected {
+  shape-rendering: crispEdges;
+}
+
+.voyager-menu__layout-number {
+  fill: #242021;
+}
+
+.voyager-menu__layout-number--selected {
+  fill: #f5f4ef;
+}
+
+.voyager-menu__layout-index {
+  font-size: 12px;
+}
+
+.voyager-menu__layout-divider,
+.voyager-menu__layout-footer-rule {
+  fill: none;
+  stroke: #242021;
+  stroke-width: 3;
+  shape-rendering: crispEdges;
+  vector-effect: non-scaling-stroke;
+}
+
+.voyager-menu__layout-footer {
+  font-size: 13px;
+}
+
+.voyager-menu__overlay--data-picker .voyager-menu__row--option {
   font-size: 14px;
 }
 

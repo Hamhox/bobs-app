@@ -108,7 +108,7 @@ function main() {
     throw new Error("graph display modal is missing its source choices or displaying summary");
   }
   const userLayoutMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-user-screen-1-layout"], new VoyagerMenuModel());
-  if (!userLayoutMarkup.includes("USER SCREEN 1 LAYOUT") || !userLayoutMarkup.includes("WHEEL SPEED")) {
+  if (!userLayoutMarkup.includes("USER SCREEN 1 LAYOUT") || !userLayoutMarkup.includes("WHEEL SPD")) {
     throw new Error("user screen layout modal is incomplete");
   }
   const dataBlockMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-user-screen-1-data-block"], new VoyagerMenuModel());

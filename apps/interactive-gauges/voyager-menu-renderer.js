@@ -121,8 +121,9 @@ function panelScreen(definition) {
 }
 
 function modalFrame(definition, innerMarkup, { x = 77, y = 49, width = 350, height = 225 } = {}) {
+  const modifier = definition.dataBlockPicker ? " voyager-menu__overlay--data-picker" : ` voyager-menu__overlay--${definition.kind}`;
   return `
-    <g data-menu-overlay="${definition.id}" data-menu-parent="${definition.parentStateId ?? ""}">
+    <g class="voyager-menu__overlay${modifier}" data-menu-overlay="${definition.id}" data-menu-parent="${definition.parentStateId ?? ""}">
     <rect class="voyager-menu__modal-shadow" x="${x + 6}" y="${y + 6}" width="${width}" height="${height}" />
     <rect class="voyager-menu__modal" x="${x}" y="${y}" width="${width}" height="${height}" />
     ${titleBandMarkup(definition.title, { x: x + 9, y: y + 9, width: width - 18 })}
@@ -160,28 +161,58 @@ function noticeModal(definition) {
     ${selectedOkButton(202, 219)}`);
 }
 
+function compactUserLayoutLabel(option) {
+  return option
+    .replace("CURRENT (BATTERY CHARGER)", "CHARGER CURRENT")
+    .replace("INTERNAL BATTERY VOLTAGE", "INT BATTERY V")
+    .replace("MAX ENGINE TEMPERATURE", "MAX ENG TEMP")
+    .replace("AVG ENGINE TEMPERATURE", "AVG ENG TEMP")
+    .replace("ENGINE TEMPERATURE", "ENG TEMP")
+    .replace("ENGINE ACC. RUN TIME", "ENG RUN TIME")
+    .replace("GPS ACC. RUN TIME", "GPS RUN TIME")
+    .replace("COMPASS DIRECTION", "COMPASS DIR")
+    .replace("WHEEL ODOMETER", "WHEEL ODO")
+    .replace("GPS ODOMETER", "GPS ODO")
+    .replace("WHEEL DISTANCE", "WHEEL DST")
+    .replace("GPS DISTANCE", "GPS DST")
+    .replace("WHEEL SPEED", "WHEEL SPD")
+    .replace("GPS SPEED", "GPS SPD")
+    .replace("ENGINE TRIP TIME", "ENG TRIP TIME");
+}
+
 function userLayoutModal(definition) {
   const slots = definition.options.map((option, index) => {
     const column = index % 2;
     const row = Math.floor(index / 2);
-    const x = 93 + column * 166;
-    const y = 126 + row * 47;
+    const cellX = 75 + column * 180;
+    const y = 121 + row * 47;
     const selected = index === definition.selectedIndex;
+    const label = compactUserLayoutLabel(option);
     return `
       <g data-menu-layout-slot="${index}"${selected ? " data-menu-layout-slot-selected=\"true\"" : ""}>
-        ${selected ? `<rect class="voyager-menu__selection" x="${x - 7}" y="${y - 23}" width="156" height="30" />` : ""}
-        <text class="voyager-live__text voyager-menu__layout-label${selected ? " voyager-live__text--inverse" : ""}" x="${x}" y="${y}">${index + 1} · ${escapeMarkup(option)}</text>
+        ${selected ? `<rect class="voyager-menu__selection voyager-menu__layout-selection" x="${cellX}" y="${y - 25}" width="174" height="35" />` : ""}
+        <rect class="voyager-menu__layout-number${selected ? " voyager-menu__layout-number--selected" : ""}" x="${cellX + 7}" y="${y - 18}" width="18" height="18" />
+        <text class="voyager-live__text voyager-menu__layout-index${selected ? "" : " voyager-live__text--inverse"}" x="${cellX + 16}" y="${y - 3}" text-anchor="middle">${index + 1}</text>
+        <text class="voyager-live__text voyager-menu__layout-label${selected ? " voyager-live__text--inverse" : ""}" x="${cellX + 32}" y="${y - 2}">${escapeMarkup(label)}</text>
       </g>`;
   }).join("");
   return modalFrame(definition, `
+    <path class="voyager-menu__layout-divider" d="M252 96V237" />
     ${slots}
-    <text class="voyager-live__text voyager-menu__note" x="252" y="263" text-anchor="middle">SELECT A POSITION · ENTER TO CHANGE</text>`);
+    <path class="voyager-menu__layout-footer-rule" d="M75 239H429" />
+    <text class="voyager-live__text voyager-menu__layout-footer" x="252" y="262" text-anchor="middle">ARROWS: POSITION · ENTER: CHANGE</text>`, {
+    x: 64,
+    y: 38,
+    width: 376,
+    height: 238,
+  });
 }
 
 function settingsModal(definition) {
-  const top = definition.summary ? 154 : 118;
-  const lineHeight = definition.scroll ? 24 : 28;
-  const visibleCount = definition.scroll ? 5 : definition.options.length;
+  const dataBlockPicker = definition.dataBlockPicker === true;
+  const top = dataBlockPicker ? 110 : definition.summary ? 154 : 118;
+  const lineHeight = dataBlockPicker ? 21 : definition.scroll ? 24 : 28;
+  const visibleCount = dataBlockPicker ? 7 : definition.scroll ? 5 : definition.options.length;
   const maximumStart = Math.max(0, definition.options.length - visibleCount);
   const windowStart = definition.scroll
     ? Math.min(maximumStart, Math.max(0, definition.selectedIndex - 2))
@@ -191,34 +222,50 @@ function settingsModal(definition) {
     const sourceIndex = windowStart + visibleIndex;
     const y = top + visibleIndex * lineHeight;
     const selected = sourceIndex === definition.selectedIndex;
+    const selectionX = dataBlockPicker ? 73 : 83;
+    const selectionWidth = dataBlockPicker ? 354 : 338;
+    const radioX = dataBlockPicker ? 85 : 113;
+    const labelX = dataBlockPicker ? 111 : 143;
+    const selectionY = dataBlockPicker ? y - 18 : y - 20;
+    const selectionHeight = dataBlockPicker ? 21 : 24;
+    const radioY = dataBlockPicker ? y - 17 : y - 18;
+    const radioSize = dataBlockPicker ? 17 : 18;
     return `
       <g data-menu-option="${sourceIndex}"${selected ? " data-menu-option-selected=\"true\"" : ""}>
-        ${selected ? `<rect class="voyager-menu__selection" x="83" y="${y - 20}" width="338" height="24" />` : ""}
+        ${selected ? `<rect class="voyager-menu__selection" x="${selectionX}" y="${selectionY}" width="${selectionWidth}" height="${selectionHeight}" />` : ""}
         ${voyagerUiIcon(selected ? "radio-16pt-checked" : "radio-16pt-unchecked", {
-          x: 113,
-          y: y - 18,
-          width: 18,
-          height: 18,
+          x: radioX,
+          y: radioY,
+          width: radioSize,
+          height: radioSize,
           className: selected ? "voyager-ui-icon--inverse" : "",
         })}
-        <text class="voyager-live__text voyager-menu__row voyager-menu__row--option${selected ? " voyager-live__text--inverse" : ""}" x="143" y="${y}">${escapeMarkup(option)}</text>
+        <text class="voyager-live__text voyager-menu__row voyager-menu__row--option${selected ? " voyager-live__text--inverse" : ""}" x="${labelX}" y="${y}">${escapeMarkup(option)}</text>
       </g>`;
   }).join("");
   const noteY = definition.scroll ? 251 : Math.min(250, top + visibleOptions.length * lineHeight + 18);
-  const trackHeight = 116;
+  const trackHeight = dataBlockPicker ? 145 : 116;
   const thumbHeight = definition.scroll
     ? Math.max(18, Math.round(trackHeight * visibleCount / definition.options.length))
     : trackHeight;
   const thumbTravel = trackHeight - thumbHeight - 6;
-  const thumbY = 105 + (maximumStart ? Math.round(thumbTravel * windowStart / maximumStart) : 0);
+  const trackY = dataBlockPicker ? 101 : 109;
+  const trackX = dataBlockPicker ? 415 : 399;
+  const thumbOffset = maximumStart ? Math.round(thumbTravel * windowStart / maximumStart) : 0;
+  const thumbY = trackY + 3 + thumbOffset;
   return modalFrame(definition, `
     ${definition.summary ? `
       <text class="voyager-live__text voyager-menu__summary" x="95" y="119">${escapeMarkup(definition.summary)}</text>
       <path class="voyager-menu__rule" d="M92 132H412" />
     ` : ""}
     ${options}
-    ${definition.scroll ? `<rect class="voyager-menu__scroll-track" x="399" y="109" width="12" height="${trackHeight}" /><rect class="voyager-menu__scroll-thumb" x="401" y="${thumbY + 7}" width="8" height="${thumbHeight}" />` : ""}
-    ${definition.note ? noteLines(definition.note, noteY) : ""}`);
+    ${definition.scroll ? `<rect class="voyager-menu__scroll-track" x="${trackX}" y="${trackY}" width="12" height="${trackHeight}" /><rect class="voyager-menu__scroll-thumb" x="${trackX + 2}" y="${thumbY}" width="8" height="${thumbHeight}" />` : ""}
+    ${definition.note ? noteLines(definition.note, noteY) : ""}`, dataBlockPicker ? {
+    x: 64,
+    y: 38,
+    width: 376,
+    height: 238,
+  } : undefined);
 }
 
 function slotInputModal(definition) {
