@@ -65,6 +65,15 @@ function firstTrack(source) {
   return parsePoints(track, "trkpt");
 }
 
+function namedWaypoints(source) {
+  const waypointPattern = /<wpt\b([^>]*)>([\s\S]*?)<\/wpt>/gi;
+  return [...source.matchAll(waypointPattern)].map((match) => ({
+    latitude: Number(attribute(match[1], "lat")),
+    longitude: Number(attribute(match[1], "lon")),
+    name: elementText(match[2], "name"),
+  })).filter((waypoint) => waypoint.name && Number.isFinite(waypoint.latitude + waypoint.longitude));
+}
+
 function chronological(points) {
   if (points.length > 1 && points[0].timestamp > points.at(-1).timestamp) return [...points].reverse();
   return points;
@@ -76,8 +85,11 @@ function sample(points, stride) {
   return sampled;
 }
 
-function serializeRide(label, sourceLabel, points, startTime) {
+function serializeRide(label, sourceLabel, points, waypoints, startTime) {
   const originalStart = points[0].timestamp;
+  const waypointMarkup = waypoints.map((waypoint) =>
+    `  <wpt lat="${waypoint.latitude.toFixed(6)}" lon="${waypoint.longitude.toFixed(6)}"><name>${escapeXml(waypoint.name)}</name></wpt>`,
+  ).join("\n");
   const trackPoints = points.map((point) => {
     const timestamp = new Date(startTime + Math.max(0, point.timestamp - originalStart)).toISOString();
     return `      <trkpt lat="${point.latitude.toFixed(6)}" lon="${point.longitude.toFixed(6)}"><ele>${point.elevation.toFixed(1)}</ele><time>${timestamp}</time><extensions><TT:RideData eng="${point.engineC.toFixed(1)}" air="${point.airC.toFixed(1)}" spd="${point.speedKph.toFixed(1)}" rpm="${point.rpm.toFixed(0)}"/></extensions></trkpt>`;
@@ -85,6 +97,7 @@ function serializeRide(label, sourceLabel, points, startTime) {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <gpx version="1.1" creator="Bob's App reviewed Voyager ride export" xmlns="http://www.topografix.com/GPX/1/1" xmlns:TT="http://www.trailtech.net/xml">
   <metadata><name>${escapeXml(label)}</name><desc>Performance-reduced ride data derived from approved ${escapeXml(sourceLabel)}.</desc></metadata>
+${waypointMarkup}
   <trk><name>${escapeXml(label)}</name><trkseg>
 ${trackPoints}
   </trkseg></trk>
@@ -96,20 +109,22 @@ const cmraSource = await readFile(path.join(sourceDirectory, "CMRA (1).gpx"), "u
 const blackdogSource = await readFile(path.join(sourceDirectory, "2016 Blackdog.gpx"), "utf8");
 const cmraPoints = sample(chronological(namedRoute(cmraSource, "Trail 2")), 2);
 const blackdogPoints = sample(chronological(firstTrack(blackdogSource)), 4);
+const cmraWaypoints = namedWaypoints(cmraSource);
+const blackdogWaypoints = namedWaypoints(blackdogSource);
 const outputDirectory = path.join(appDirectory, "assets", "rides");
 
 await Promise.all([
   writeFile(
     path.join(outputDirectory, "cmra-trail-2.gpx"),
-    serializeRide("CMRA TRAIL 2", "CMRA Trail 2", cmraPoints, Date.UTC(2026, 7, 18, 12, 30)),
+    serializeRide("CMRA TRAIL 2", "CMRA Trail 2", cmraPoints, cmraWaypoints, Date.UTC(2026, 7, 18, 12, 30)),
   ),
   writeFile(
     path.join(outputDirectory, "blackdog-2016.gpx"),
-    serializeRide("2016 BLACKDOG", "2016 Blackdog", blackdogPoints, Date.UTC(2026, 7, 18, 14, 0)),
+    serializeRide("2016 BLACKDOG", "2016 Blackdog", blackdogPoints, blackdogWaypoints, Date.UTC(2026, 7, 18, 14, 0)),
   ),
 ]);
 
 console.log(JSON.stringify({
-  cmra: { points: cmraPoints.length, sourcePoints: 6242 },
-  blackdog: { points: blackdogPoints.length, sourcePoints: 10801 },
+  cmra: { points: cmraPoints.length, sourcePoints: 6242, waypoints: cmraWaypoints.length },
+  blackdog: { points: blackdogPoints.length, sourcePoints: 10801, waypoints: blackdogWaypoints.length },
 }, null, 2));

@@ -844,12 +844,20 @@
   font-size: 25px;
 }
 
+.voyager-menu__title--narrow {
+  font-family: "Bobs Font 6 Pixel Narrow", "Bobs Font 6 Pixel", monospace;
+}
+
 .voyager-menu__row {
   font-size: 17px;
 }
 
 .voyager-menu__row--option {
   font-size: 16px;
+}
+
+.voyager-menu__waypoint-digit {
+  font-size: 15px;
 }
 
 .voyager-menu__summary {

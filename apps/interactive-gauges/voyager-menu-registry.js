@@ -386,13 +386,15 @@ register("m-user-screen-2-data-block", {
   userScreen: 2,
 });
 
-const DESTINATION_WAYPOINT_OPTIONS = ["WAYPOINT 1", "WAYPOINT 2", "WAYPOINT 3", "WAYPOINT 4"];
+const DESTINATION_WAYPOINT_OPTIONS = ["CMRA TRAIL HEAD", "TRAIL 1 BAILOUT", "CIRCLE E CAMP", "A-B RESET"];
 register("m-nav-destination-primary", {
   kind: "settings-modal",
   section: "main",
   title: "SELECT DESTINATION WAYPOINT",
   options: DESTINATION_WAYPOINT_OPTIONS,
   selectedIndex: 0,
+  destinationWaypointPicker: true,
+  titleNarrow: true,
 });
 register("m-nav-destination-secondary", {
   kind: "settings-modal",
@@ -400,6 +402,8 @@ register("m-nav-destination-secondary", {
   title: "SELECT DESTINATION WAYPOINT",
   options: DESTINATION_WAYPOINT_OPTIONS,
   selectedIndex: 0,
+  destinationWaypointPicker: true,
+  titleNarrow: true,
 });
 
 const OVERLAY_KINDS = new Set([

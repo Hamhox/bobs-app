@@ -162,7 +162,12 @@ function main() {
     throw new Error("user layout OK did not commit staged changes");
   }
   const destinationMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-nav-destination-primary"], new VoyagerMenuModel());
-  if (!destinationMarkup.includes("SELECT DESTINATION WAYPOINT") || !destinationMarkup.includes("WAYPOINT 4")) {
+  if (!destinationMarkup.includes("SELECT DESTINATION WAYPOINT")
+    || !destinationMarkup.includes("CMRA TRAIL HEAD")
+    || !destinationMarkup.includes("CIRCLE E CAMP")
+    || !destinationMarkup.includes("circle-digit-black")
+    || !destinationMarkup.includes("voyager-menu__title--narrow")
+    || destinationMarkup.includes("radio-16pt")) {
     throw new Error("navigation destination modal is incomplete");
   }
 

@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gpx version="1.1" creator="Bob's App reviewed Voyager ride export" xmlns="http://www.topografix.com/GPX/1/1" xmlns:TT="http://www.trailtech.net/xml">
   <metadata><name>CMRA TRAIL 2</name><desc>Performance-reduced ride data derived from approved CMRA Trail 2.</desc></metadata>
+  <wpt lat="35.054364" lon="-86.051392"><name>CMRA Trail Head</name></wpt>
+  <wpt lat="35.013952" lon="-86.049320"><name>Trail 1 Bailout</name></wpt>
+  <wpt lat="35.099656" lon="-86.100776"><name>Circle E Camp</name></wpt>
   <trk><name>CMRA TRAIL 2</name><trkseg>
       <trkpt lat="35.054504" lon="-86.051304"><ele>564.9</ele><time>2026-08-18T12:30:00.000Z</time><extensions><TT:RideData eng="57.8" air="23.7" spd="21.0" rpm="2170"/></extensions></trkpt>
       <trkpt lat="35.054424" lon="-86.051344"><ele>563.9</ele><time>2026-08-18T12:30:02.000Z</time><extensions><TT:RideData eng="57.8" air="23.7" spd="20.0" rpm="2425"/></extensions></trkpt>

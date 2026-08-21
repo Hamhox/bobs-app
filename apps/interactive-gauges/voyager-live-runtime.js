@@ -78,7 +78,12 @@ function parseGpx(xmlText) {
   if (points.length < 2 || points.some((point) => !Number.isFinite(point.latitude + point.longitude))) {
     throw new Error("Voyager GPX does not contain a usable track.");
   }
-  return points;
+  const waypoints = [...documentNode.querySelectorAll("wpt")].map((waypoint) => ({
+    name: waypoint.querySelector("name")?.textContent?.trim() ?? "",
+    latitude: Number(waypoint.getAttribute("lat")),
+    longitude: Number(waypoint.getAttribute("lon")),
+  })).filter((waypoint) => waypoint.name && Number.isFinite(waypoint.latitude + waypoint.longitude));
+  return { points, waypoints };
 }
 
 function engineTemperatureAt(progress, elevationFeet) {
@@ -130,7 +135,7 @@ function graphSamplesInWindow(values, windowStart, windowEnd) {
   return samples;
 }
 
-function buildTrack(definition, points) {
+function buildTrack(definition, { points, waypoints }) {
   const distances = [0];
   const segmentSpeeds = [];
   for (let index = 1; index < points.length; index += 1) {
@@ -151,6 +156,7 @@ function buildTrack(definition, points) {
   return {
     ...definition,
     points,
+    waypoints,
     distances,
     totalMeters: distances.at(-1) || 1,
     averageSpeedMph: sensorSpeedsMph.length
@@ -231,6 +237,18 @@ class VoyagerRideEngine {
 
   get points() {
     return this.#currentTrack?.points ?? [];
+  }
+
+  get waypoints() {
+    return this.#currentTrack?.waypoints ?? [];
+  }
+
+  get waypointCatalog() {
+    return [...this.#tracks.values()].flatMap((track) => track.waypoints.map((waypoint) => ({
+      ...waypoint,
+      trackId: track.id,
+      trackLabel: track.label,
+    })));
   }
 
   pointsFor(trackId) {
@@ -1017,7 +1035,7 @@ export class VoyagerLiveRuntime {
   }
 
   prepareInput(stateId, action) {
-    const definition = voyagerMenuState(stateId);
+    const definition = this.#contextualizeMenuDefinition(voyagerMenuState(stateId));
     const prepared = this.#menuModel.prepareInput(definition, action);
     const rootMenu = stateId === "m-main1-1" || stateId === "m-ride2-1" || stateId === "m-set3-1";
     if (rootMenu && this.#menuReturnStateId && (action === "back" || action === "menu")) {
@@ -1029,7 +1047,7 @@ export class VoyagerLiveRuntime {
   }
 
   resolveInputAction(stateId, action) {
-    return this.#menuModel.resolveInputAction(voyagerMenuState(stateId), action);
+    return this.#menuModel.resolveInputAction(this.#contextualizeMenuDefinition(voyagerMenuState(stateId)), action);
   }
 
   render(state, event = {}) {
@@ -1111,7 +1129,8 @@ export class VoyagerLiveRuntime {
   #renderMenuMarkup(definition, visited = new Set()) {
     if (visited.has(definition.id)) throw new Error(`Voyager menu underlay cycle at ${definition.id}.`);
     visited.add(definition.id);
-    let resolved = this.#menuModel.resolve(definition);
+    const contextualDefinition = this.#contextualizeMenuDefinition(definition);
+    let resolved = this.#menuModel.resolve(contextualDefinition);
     if (resolved.graphDisplay) {
       const trackSlot = resolved.trackSlot === 2 ? " (TRACK_2)" : "";
       resolved = {
@@ -1144,6 +1163,30 @@ export class VoyagerLiveRuntime {
       }
     }
     return renderVoyagerMenuMarkup(resolved, { underlayMarkup });
+  }
+
+  #destinationWaypoints() {
+    const loadedWaypoints = this.#ride.waypoints.length ? this.#ride.waypoints : this.#ride.waypointCatalog;
+    const savedWaypoints = this.#waypoints.map((waypoint) => ({
+      name: `${waypoint.source} ${waypoint.label}`,
+      latitude: waypoint.latitude,
+      longitude: waypoint.longitude,
+    }));
+    return [...loadedWaypoints, ...savedWaypoints].slice(0, 4).map((waypoint, index) => ({
+      ...waypoint,
+      label: String(index + 1),
+    }));
+  }
+
+  #contextualizeMenuDefinition(definition) {
+    if (!definition?.destinationWaypointPicker) return definition;
+    const waypointOptions = this.#destinationWaypoints();
+    if (!waypointOptions.length) return definition;
+    return {
+      ...definition,
+      options: waypointOptions.map((waypoint) => waypoint.name),
+      waypointOptions,
+    };
   }
 
   #applyInteractiveInput(event) {
@@ -1319,10 +1362,8 @@ export class VoyagerLiveRuntime {
       this.#selectedDestination = this.#waypoints.at(-1) ?? this.#ride.points.at(-1) ?? null;
     }
     if (event.from === "m-nav-destination-primary" || event.from === "m-nav-destination-secondary") {
-      const waypointNumber = Number.parseInt(this.#menuModel.values.destinationWaypoint.match(/\d+/)?.[0] ?? "1", 10);
-      const progress = [0.08, 0.34, 0.62, 0.88][clamp(waypointNumber - 1, 0, 3)];
-      const pointIndex = Math.round(progress * Math.max(0, this.#ride.points.length - 1));
-      this.#selectedDestination = this.#ride.points[pointIndex] ?? null;
+      const selectedName = this.#menuModel.values.destinationWaypoint;
+      this.#selectedDestination = this.#destinationWaypoints().find((waypoint) => waypoint.name === selectedName) ?? null;
     }
     if (event.from === "m-ride2-2-1" && telemetry) {
       this.#addWaypoint("CURRENT POSITION", telemetry.latitude, telemetry.longitude);

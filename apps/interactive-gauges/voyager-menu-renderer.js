@@ -43,10 +43,10 @@ function titleMarkup(title, x = 285, y = 31, showRule = true) {
     ${showRule ? `<path class="voyager-menu__rule" d="M78 ${y + 10}H454" />` : ""}`;
 }
 
-function titleBandMarkup(title, { x, y, width, height = 36 } = {}) {
+function titleBandMarkup(title, { x, y, width, height = 36, titleClassName = "" } = {}) {
   return `
     <rect class="voyager-menu__title-band" x="${x}" y="${y}" width="${width}" height="${height}" />
-    <text class="voyager-live__text voyager-live__text--inverse voyager-menu__title" x="${x + width / 2}" y="${y + 28}" text-anchor="middle">${escapeMarkup(title)}</text>`;
+    <text class="voyager-live__text voyager-live__text--inverse voyager-menu__title${titleClassName ? ` ${titleClassName}` : ""}" x="${x + width / 2}" y="${y + 28}" text-anchor="middle">${escapeMarkup(title)}</text>`;
 }
 
 function panelFrameMarkup({ x = 39, y = 18, width = 426, height = 278 } = {}) {
@@ -122,12 +122,21 @@ function panelScreen(definition) {
 }
 
 function modalFrame(definition, innerMarkup, { x = 77, y = 49, width = 350, height = 225 } = {}) {
-  const modifier = definition.dataBlockPicker ? " voyager-menu__overlay--data-picker" : ` voyager-menu__overlay--${definition.kind}`;
+  const modifier = definition.dataBlockPicker
+    ? " voyager-menu__overlay--data-picker"
+    : definition.destinationWaypointPicker
+      ? " voyager-menu__overlay--destination-waypoint"
+      : ` voyager-menu__overlay--${definition.kind}`;
   return `
     <g class="voyager-menu__overlay${modifier}" data-menu-overlay="${definition.id}" data-menu-parent="${definition.parentStateId ?? ""}">
     <rect class="voyager-menu__modal-shadow" x="${x + 6}" y="${y + 6}" width="${width}" height="${height}" />
     <rect class="voyager-menu__modal" x="${x}" y="${y}" width="${width}" height="${height}" />
-    ${titleBandMarkup(definition.title, { x: x + 9, y: y + 9, width: width - 18 })}
+    ${titleBandMarkup(definition.title, {
+    x: x + 9,
+    y: y + 9,
+    width: width - 18,
+    titleClassName: definition.titleNarrow ? "voyager-menu__title--narrow" : "",
+  })}
     ${innerMarkup}
     </g>`;
 }
@@ -215,8 +224,9 @@ function userLayoutModal(definition) {
 
 function settingsModal(definition) {
   const dataBlockPicker = definition.dataBlockPicker === true;
-  const top = dataBlockPicker ? 110 : definition.summary ? 154 : 118;
-  const lineHeight = dataBlockPicker ? 21 : definition.scroll ? 24 : 28;
+  const destinationWaypointPicker = definition.destinationWaypointPicker === true;
+  const top = dataBlockPicker ? 110 : destinationWaypointPicker ? 122 : definition.summary ? 154 : 118;
+  const lineHeight = dataBlockPicker ? 21 : destinationWaypointPicker ? 32 : definition.scroll ? 24 : 28;
   const visibleCount = dataBlockPicker ? 7 : definition.scroll ? 5 : definition.options.length;
   const maximumStart = Math.max(0, definition.options.length - visibleCount);
   const windowStart = definition.scroll
@@ -235,6 +245,23 @@ function settingsModal(definition) {
     const selectionHeight = dataBlockPicker ? 21 : 24;
     const radioY = dataBlockPicker ? y - 17 : y - 18;
     const radioSize = dataBlockPicker ? 17 : 18;
+    if (destinationWaypointPicker) {
+      const waypoint = definition.waypointOptions?.[sourceIndex];
+      const waypointDigit = waypoint?.label ?? String(sourceIndex + 1);
+      return `
+        <g data-menu-option="${sourceIndex}" data-menu-waypoint-name="${escapeMarkup(option)}"${selected ? " data-menu-option-selected=\"true\"" : ""}>
+          ${selected ? `<rect class="voyager-menu__selection" x="83" y="${y - 23}" width="338" height="29" />` : ""}
+          ${voyagerUiIcon("circle-digit-black", {
+      x: 101,
+      y: y - 22,
+      width: 40,
+      height: 27,
+      className: selected ? "voyager-ui-icon--inverse" : "",
+    })}
+          <text class="voyager-live__text voyager-menu__waypoint-digit${selected ? "" : " voyager-live__text--inverse"}" x="121" y="${y - 3}" text-anchor="middle">${escapeMarkup(waypointDigit)}</text>
+          <text class="voyager-live__text voyager-menu__row voyager-menu__row--option${selected ? " voyager-live__text--inverse" : ""}" x="153" y="${y}">${escapeMarkup(option)}</text>
+        </g>`;
+    }
     return `
       <g data-menu-option="${sourceIndex}"${selected ? " data-menu-option-selected=\"true\"" : ""}>
         ${selected ? `<rect class="voyager-menu__selection" x="${selectionX}" y="${selectionY}" width="${selectionWidth}" height="${selectionHeight}" />` : ""}

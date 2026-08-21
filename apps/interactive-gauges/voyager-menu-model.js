@@ -45,7 +45,7 @@ const DEFAULT_VALUES = Object.freeze({
   userScreen2Block4: "<OFF>",
   userScreen2Block5: "<OFF>",
   userScreen2Block6: "<OFF>",
-  destinationWaypoint: "WAYPOINT 1",
+  destinationWaypoint: "CMRA TRAIL HEAD",
   yellowLedOn: "210 °F",
   redLedOn: "220 °F",
   yellowLedFlash: "240 °F",

@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gpx version="1.1" creator="Bob's App reviewed Voyager ride export" xmlns="http://www.topografix.com/GPX/1/1" xmlns:TT="http://www.trailtech.net/xml">
   <metadata><name>2016 BLACKDOG</name><desc>Performance-reduced ride data derived from approved 2016 Blackdog.</desc></metadata>
+  <wpt lat="45.530092" lon="-121.521152"><name>A-B reset</name></wpt>
+  <wpt lat="45.637324" lon="-121.558440"><name>Hood River Fairground</name></wpt>
+  <wpt lat="45.228096" lon="-121.269480"><name>Wamic Gas</name></wpt>
   <trk><name>2016 BLACKDOG</name><trkseg>
       <trkpt lat="45.636203" lon="-121.557784"><ele>233.1</ele><time>2026-08-18T14:00:00.000Z</time><extensions><TT:RideData eng="19.3" air="23.6" spd="4.7" rpm="0"/></extensions></trkpt>
       <trkpt lat="45.636148" lon="-121.557813"><ele>231.6</ele><time>2026-08-18T14:06:26.000Z</time><extensions><TT:RideData eng="21.0" air="25.1" spd="0.0" rpm="7"/></extensions></trkpt>
