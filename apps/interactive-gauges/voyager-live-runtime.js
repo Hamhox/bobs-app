@@ -28,10 +28,10 @@ const VOYAGER_POWER_SAVE_SLOT_MS = 1000;
 const VOYAGER_SLEEP_CLOCK_MS = 1000;
 const VOYAGER_DEFAULT_SLEEP_AFTER_MS = 10 * 60 * 1000;
 const SD_CARD_DEFAULT_RIDES = Object.freeze([
+  { id: "SD-BAKER", name: "BAKER WEST", progress: 0, trackId: "baker-west-desert" },
+  { id: "SD-JORDAN", name: "JORDAN CREEK", progress: 0, trackId: "jordan-creek" },
   { id: "SD-CMRA-T2", name: "CMRA TRAIL 2", progress: 0, trackId: "cmra-trail-2" },
   { id: "SD-BLACKDOG", name: "2016 BLACKDOG", progress: 0, trackId: "blackdog-2016" },
-  { id: "SD-FOREST", name: "DEMO FOREST", progress: 0, trackId: "forest-loop" },
-  { id: "SD-MOUNTAIN", name: "DEMO MOUNTAIN", progress: 0, trackId: "mountain-run" },
 ]);
 const clamp = (value, minimum, maximum) => Math.min(maximum, Math.max(minimum, value));
 const radians = (degrees) => (degrees * Math.PI) / 180;
@@ -96,6 +96,44 @@ function parseGpx(xmlText) {
     longitude: Number(waypoint.getAttribute("lon")),
   })).filter((waypoint) => waypoint.name && Number.isFinite(waypoint.latitude + waypoint.longitude));
   return { points, waypoints };
+}
+
+function decodedAreaPoint(row) {
+  const sensor = (index) => row[index] === null ? Number.NaN : Number(row[index]);
+  return {
+    latitude: Number(row[0]),
+    longitude: Number(row[1]),
+    elevation: Number(row[2] ?? 0),
+    time: Number(row[3]),
+    engineTemperatureC: sensor(4),
+    airTemperatureC: sensor(5),
+    speedKph: sensor(6),
+    rpm: sensor(7),
+  };
+}
+
+export function parseVoyagerRideArea(data) {
+  if (data?.kind !== "voyager-ride-area" || data.version !== 1) {
+    throw new Error("Voyager ride area has an unsupported format.");
+  }
+  const networkSegments = (data.network ?? []).map((segment) => segment.map((row) => ({
+    latitude: Number(row[0]),
+    longitude: Number(row[1]),
+  })).filter((point) => Number.isFinite(point.latitude + point.longitude))).filter((segment) => segment.length > 1);
+  const rides = (data.rides ?? []).map((ride) => ({
+    id: String(ride.id ?? ""),
+    label: String(ride.label ?? "RIDE"),
+    points: (ride.points ?? []).map(decodedAreaPoint).filter((point) => (
+      Number.isFinite(point.latitude + point.longitude + point.elevation + point.time)
+    )),
+  })).filter((ride) => ride.id && ride.points.length > 1);
+  const waypoints = (data.waypoints ?? []).map((waypoint) => ({
+    name: String(waypoint.name ?? "").trim(),
+    latitude: Number(waypoint.latitude),
+    longitude: Number(waypoint.longitude),
+  })).filter((waypoint) => waypoint.name && Number.isFinite(waypoint.latitude + waypoint.longitude));
+  if (!networkSegments.length || !rides.length) throw new Error("Voyager ride area does not contain usable geometry.");
+  return { networkSegments, rides, waypoints };
 }
 
 function engineTemperatureAt(progress, elevationFeet) {
@@ -169,6 +207,7 @@ function buildTrack(definition, { points, waypoints }) {
     ...definition,
     points,
     waypoints,
+    mapSegments: definition.mapSegments?.length ? definition.mapSegments : [points],
     distances,
     totalMeters: distances.at(-1) || 1,
     averageSpeedMph: sensorSpeedsMph.length
@@ -206,6 +245,7 @@ function formatLocalClock(timestamp = Date.now()) {
 
 class VoyagerRideEngine {
   #tracks = new Map();
+  #areas = new Map();
   #currentTrack = null;
   #listeners = new Set();
   #conductorTimer = 0;
@@ -224,15 +264,40 @@ class VoyagerRideEngine {
   #telemetry = null;
 
   async load(trackDefinitions) {
-    const loaded = await Promise.all(
+    const loadedGroups = await Promise.all(
       trackDefinitions.map(async (definition) => {
-        const response = await fetch(definition.url);
-        if (!response.ok) throw new Error(`Voyager GPX request failed with ${response.status}.`);
-        return buildTrack(definition, parseGpx(await response.text()));
+        const response = await fetch(definition.areaUrl ?? definition.url);
+        if (!response.ok) throw new Error(`Voyager ride request failed with ${response.status}.`);
+        if (!definition.areaUrl) {
+          return { areaId: null, tracks: [buildTrack(definition, parseGpx(await response.text()))] };
+        }
+        const area = parseVoyagerRideArea(await response.json());
+        return {
+          areaId: definition.id,
+          tracks: area.rides.map((ride) => buildTrack({
+            ...definition,
+            areaId: definition.id,
+            id: `${definition.id}:${ride.id}`,
+            label: ride.label,
+            mapSegments: area.networkSegments,
+          }, { points: ride.points, waypoints: area.waypoints })),
+        };
       }),
     );
-    for (const track of loaded) this.#tracks.set(track.id, track);
-    this.#currentTrack = loaded[0];
+    const loadedTracks = [];
+    for (const group of loadedGroups) {
+      for (const track of group.tracks) {
+        this.#tracks.set(track.id, track);
+        loadedTracks.push(track);
+      }
+      if (group.areaId) {
+        this.#areas.set(group.areaId, {
+          lastTrackId: null,
+          trackIds: group.tracks.map((track) => track.id),
+        });
+      }
+    }
+    this.#currentTrack = loadedTracks[0];
     this.#lastTimestamp = performance.now();
     this.#lastActivityTimestamp = this.#lastTimestamp;
     this.#emit({ kind: "full", mode: "active" });
@@ -255,20 +320,28 @@ class VoyagerRideEngine {
     return this.#currentTrack?.waypoints ?? [];
   }
 
+  get mapSegments() {
+    return this.#currentTrack?.mapSegments ?? [];
+  }
+
   get waypointCatalog() {
-    return [...this.#tracks.values()].flatMap((track) => track.waypoints.map((waypoint) => ({
-      ...waypoint,
-      trackId: track.id,
-      trackLabel: track.label,
-    })));
+    const seen = new Set();
+    return [...this.#tracks.values()].flatMap((track) => track.waypoints.flatMap((waypoint) => {
+      const key = `${waypoint.name}|${waypoint.latitude.toFixed(6)}|${waypoint.longitude.toFixed(6)}`;
+      if (seen.has(key)) return [];
+      seen.add(key);
+      return [{ ...waypoint, trackId: track.id, trackLabel: track.label }];
+    }));
   }
 
   pointsFor(trackId) {
-    return this.#tracks.get(trackId)?.points ?? [];
+    const area = this.#areas.get(trackId);
+    const resolvedTrackId = area?.lastTrackId ?? area?.trackIds[0] ?? trackId;
+    return this.#tracks.get(resolvedTrackId)?.points ?? [];
   }
 
   get trackIds() {
-    return [...this.#tracks.keys()];
+    return [...this.#tracks.keys(), ...this.#areas.keys()];
   }
 
   get telemetry() {
@@ -325,11 +398,20 @@ class VoyagerRideEngine {
   }
 
   selectRide(trackId, { reset = true } = {}) {
-    const nextTrack = this.#tracks.get(trackId);
+    const area = this.#areas.get(trackId);
+    let resolvedTrackId = trackId;
+    if (area) {
+      const candidates = area.trackIds.filter((candidate) => candidate !== area.lastTrackId);
+      const selectionPool = candidates.length ? candidates : area.trackIds;
+      resolvedTrackId = selectionPool[Math.floor(Math.random() * selectionPool.length)];
+      area.lastTrackId = resolvedTrackId;
+    }
+    const nextTrack = this.#tracks.get(resolvedTrackId);
     if (!nextTrack) throw new Error(`Unknown Voyager GPX ride: ${trackId}`);
     this.#currentTrack = nextTrack;
     if (reset) this.#progress = 0;
     this.#emit({ kind: "full", mode: this.#mode });
+    return nextTrack;
   }
 
   play() {
@@ -938,6 +1020,10 @@ function pathFromPoints(points) {
   return points.map((point, index) => `${index === 0 ? "M" : "L"}${point.x.toFixed(2)} ${point.y.toFixed(2)}`).join(" ");
 }
 
+function pathFromSegments(segments) {
+  return segments.map(pathFromPoints).filter(Boolean).join(" ");
+}
+
 function coordinateLabel(value, positive, negative) {
   return `${value >= 0 ? positive : negative}${Math.abs(value).toFixed(6)}`;
 }
@@ -956,6 +1042,7 @@ export class VoyagerLiveRuntime {
   #layoutKey = "";
   #telemetry = null;
   #projectedTrack = [];
+  #projectedNetworkSegments = [];
   #projectedTrackId = "";
   #menuProjectedTrack = [];
   #menuProjectedTrackId = "";
@@ -998,6 +1085,8 @@ export class VoyagerLiveRuntime {
         { id: "mountain-run", label: "MOUNTAIN RUN", url: `${this.#appBase}/assets/rides/mountain-run.gpx` },
         { id: "cmra-trail-2", label: "CMRA TRAIL 2", url: `${this.#appBase}/assets/rides/cmra-trail-2.gpx` },
         { id: "blackdog-2016", label: "2016 BLACKDOG", url: `${this.#appBase}/assets/rides/blackdog-2016.gpx` },
+        { id: "baker-west-desert", label: "BAKER WEST", areaUrl: `${this.#appBase}/assets/rides/baker-west-desert.voyager.json` },
+        { id: "jordan-creek", label: "JORDAN CREEK", areaUrl: `${this.#appBase}/assets/rides/jordan-creek.voyager.json` },
       ]),
     ]);
     this.#loadWaypoints();
@@ -1007,6 +1096,7 @@ export class VoyagerLiveRuntime {
     this.#ride.subscribe((telemetry, cadence) => {
       if (this.#telemetry?.trackId !== telemetry.trackId) {
         this.#projectedTrack = [];
+        this.#projectedNetworkSegments = [];
         this.#projectedTrackId = "";
         this.#graphCursorProjection = null;
       }
@@ -1124,6 +1214,7 @@ export class VoyagerLiveRuntime {
         </svg>`;
       this.#layoutKey = layoutKey;
       this.#projectedTrack = [];
+      this.#projectedNetworkSegments = [];
       this.#graphCursorProjection = null;
     }
     this.#mount.querySelector("svg")?.setAttribute("data-voyager-screen-id", state.id);
@@ -1445,13 +1536,15 @@ export class VoyagerLiveRuntime {
   #loadSavedRide() {
     const ride = this.#savedRides[this.#selectedSavedRideIndex];
     if (!ride || !this.#ride.trackIds.includes(ride.trackId)) return;
-    this.#ride.selectRide(ride.trackId);
+    const selectedTrack = this.#ride.selectRide(ride.trackId);
     this.#ride.seek(ride.progress);
     this.#ride.play();
     this.#overlayRideId = null;
+    this.#selectedDestination = null;
     this.#mapViews.overview = { pan: { x: 0, y: 0 }, scale: 1, mode: "pan", followPosition: false };
     this.#mapViews.detail = { pan: { x: 0, y: 0 }, scale: 2.1, mode: "pan", followPosition: true };
     this.#invalidateMapProjection();
+    this.#queueToast(["RIDE LOADED", selectedTrack.label]);
   }
 
   #deleteSavedRide() {
@@ -1527,6 +1620,7 @@ export class VoyagerLiveRuntime {
 
   #invalidateMapProjection() {
     this.#projectedTrack = [];
+    this.#projectedNetworkSegments = [];
     this.#projectedTrackId = "";
     this.#menuProjectedTrack = [];
     this.#menuProjectedTrackId = "";
@@ -1645,9 +1739,9 @@ export class VoyagerLiveRuntime {
     const mapView = this.#mapViews[variant.mapView];
     if (!this.#projectedTrack.length || this.#projectedTrackId !== this.#telemetry.trackId) {
       const overlayPoints = this.#ride.pointsFor(this.#overlayRideId);
-      const extentPoints = overlayPoints.length > 1
-        ? [...this.#ride.points, ...overlayPoints]
-        : this.#ride.points;
+      const networkSegments = this.#ride.mapSegments.length ? this.#ride.mapSegments : [this.#ride.points];
+      const networkPoints = networkSegments.flat();
+      const extentPoints = overlayPoints.length > 1 ? [...networkPoints, ...overlayPoints] : networkPoints;
       const projectionBounds = {
         left: variant.tabsVisible ? 104 : 62,
         right: variant.interaction ? 415 : 462,
@@ -1655,8 +1749,9 @@ export class VoyagerLiveRuntime {
         bottom: 234,
       };
       this.#projectedTrack = projectTrack(this.#ride.points, projectionBounds, extentPoints);
+      this.#projectedNetworkSegments = networkSegments.map((segment) => projectTrack(segment, projectionBounds, extentPoints));
       this.#projectedTrackId = this.#telemetry.trackId;
-      this.#mount.querySelector("[data-live-route]")?.setAttribute("d", pathFromPoints(this.#projectedTrack));
+      this.#mount.querySelector("[data-live-route]")?.setAttribute("d", pathFromSegments(this.#projectedNetworkSegments));
       this.#mount.querySelector("[data-live-overlay-route]")?.setAttribute(
         "d", overlayPoints.length > 1
           ? pathFromPoints(projectTrack(overlayPoints, projectionBounds, extentPoints))
