@@ -902,6 +902,7 @@ export class VoyagerLiveRuntime {
     detail: { pan: { x: 0, y: 0 }, scale: 2.1, mode: "pan", followPosition: true },
   };
   #graphScale = 1;
+  #graphCursorProjection = null;
   #pulseTimer = 0;
   #stopwatchElapsedMs = 0;
   #stopwatchStartedAt = 0;
@@ -940,6 +941,7 @@ export class VoyagerLiveRuntime {
       if (this.#telemetry?.trackId !== telemetry.trackId) {
         this.#projectedTrack = [];
         this.#projectedTrackId = "";
+        this.#graphCursorProjection = null;
       }
       this.#telemetry = telemetry;
       this.#stage.dataset.liveRide = telemetry.trackId;
@@ -1053,6 +1055,7 @@ export class VoyagerLiveRuntime {
         </svg>`;
       this.#layoutKey = layoutKey;
       this.#projectedTrack = [];
+      this.#graphCursorProjection = null;
     }
     this.#mount.querySelector("svg")?.setAttribute("data-voyager-screen-id", state.id);
     this.#updateDynamicFields();
@@ -1250,7 +1253,13 @@ export class VoyagerLiveRuntime {
     }
 
     if (refreshMotion && this.#screenState.screen.renderer === "map") this.#updateMap();
-    if (refreshMotion && this.#screenState.screen.renderer === "graph") this.#updateGraph();
+    if (this.#screenState.screen.renderer === "graph") {
+      if (refreshMotion) {
+        this.#updateGraph();
+      } else if (cadence === 2 && this.#screenState.variant.interaction === "graph") {
+        this.#updateGraphCrosshair();
+      }
+    }
   }
 
   #startStopwatch() {
@@ -1603,34 +1612,61 @@ export class VoyagerLiveRuntime {
     }
 
     if (variant.interaction === "graph") {
-      const crosshairInset = 18;
-      const cursor = {
-        x: clamp(
-          left + (this.#telemetry.progress - windowStart) / windowSize * (right - left),
-          left + crosshairInset,
-          right - crosshairInset,
-        ),
-        y: clamp(
-          bottom - (currentValue - minimum) / range * (bottom - top - 16),
-          top + crosshairInset,
-          bottom - crosshairInset,
-        ),
+      this.#graphCursorProjection = {
+        bottom,
+        isTemperature,
+        left,
+        minimum,
+        range,
+        right,
+        top,
+        windowSize,
+        windowStart,
       };
-      for (const horizontal of this.#mount.querySelectorAll("[data-live-graph-crosshair-horizontal]")) {
-        horizontal.setAttribute("x1", left);
-        horizontal.setAttribute("x2", right);
-        horizontal.setAttribute("y1", cursor.y);
-        horizontal.setAttribute("y2", cursor.y);
-      }
-      for (const vertical of this.#mount.querySelectorAll("[data-live-graph-crosshair-vertical]")) {
-        vertical.setAttribute("x1", cursor.x);
-        vertical.setAttribute("x2", cursor.x);
-        vertical.setAttribute("y1", top);
-        vertical.setAttribute("y2", bottom);
-      }
-      for (const center of this.#mount.querySelectorAll("[data-live-graph-crosshair-center]")) {
-        center.setAttribute("transform", `translate(${cursor.x.toFixed(2)} ${cursor.y.toFixed(2)})`);
-      }
+      this.#updateGraphCrosshair();
+    }
+  }
+
+  #updateGraphCrosshair() {
+    const projection = this.#graphCursorProjection;
+    if (!projection || !this.#telemetry) return;
+    const {
+      bottom,
+      isTemperature,
+      left,
+      minimum,
+      range,
+      right,
+      top,
+      windowSize,
+      windowStart,
+    } = projection;
+    const currentValue = isTemperature ? this.#telemetry.engineTemperatureF : this.#telemetry.elevationFeet;
+    const verticalInset = 18;
+    const horizontalInset = 52;
+    const normalizedProgress = clamp((this.#telemetry.progress - windowStart) / windowSize, 0, 1);
+    const cursor = {
+      x: left + horizontalInset + normalizedProgress * (right - left - horizontalInset * 2),
+      y: clamp(
+        bottom - (currentValue - minimum) / range * (bottom - top - 16),
+        top + verticalInset,
+        bottom - verticalInset,
+      ),
+    };
+    for (const horizontal of this.#mount.querySelectorAll("[data-live-graph-crosshair-horizontal]")) {
+      horizontal.setAttribute("x1", left);
+      horizontal.setAttribute("x2", right);
+      horizontal.setAttribute("y1", cursor.y);
+      horizontal.setAttribute("y2", cursor.y);
+    }
+    for (const vertical of this.#mount.querySelectorAll("[data-live-graph-crosshair-vertical]")) {
+      vertical.setAttribute("x1", cursor.x);
+      vertical.setAttribute("x2", cursor.x);
+      vertical.setAttribute("y1", top);
+      vertical.setAttribute("y2", bottom);
+    }
+    for (const center of this.#mount.querySelectorAll("[data-live-graph-crosshair-center]")) {
+      center.setAttribute("transform", `translate(${cursor.x.toFixed(2)} ${cursor.y.toFixed(2)})`);
     }
   }
 
