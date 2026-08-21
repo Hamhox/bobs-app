@@ -13,7 +13,11 @@ import {
   voyagerMenuState,
 } from "./voyager-menu-registry.js";
 import { VoyagerMenuModel } from "./voyager-menu-model.js";
-import { renderVoyagerMenuMarkup, voyagerMenuAriaLabel } from "./voyager-menu-renderer.js";
+import {
+  renderVoyagerMenuMarkup,
+  renderVoyagerToastMarkup,
+  voyagerMenuAriaLabel,
+} from "./voyager-menu-renderer.js";
 import { VOYAGER_COMPASS_VIEW_BOX, voyagerUiIcon } from "./voyager-ui-icons.js";
 
 const DIRECTION_INPUTS = new Set(["up", "down", "left", "right"]);
@@ -955,6 +959,8 @@ export class VoyagerLiveRuntime {
   #selectedSavedRideIndex = 0;
   #overlayRideId = null;
   #selectedDestination = null;
+  #toastMessage = "";
+  #toastExpiresAt = 0;
 
   constructor({ mount, stage, appBase }) {
     this.#mount = mount;
@@ -1035,6 +1041,7 @@ export class VoyagerLiveRuntime {
   }
 
   prepareInput(stateId, action) {
+    this.#clearToast();
     const definition = this.#contextualizeMenuDefinition(voyagerMenuState(stateId));
     const prepared = this.#menuModel.prepareInput(definition, action);
     const rootMenu = stateId === "m-main1-1" || stateId === "m-ride2-1" || stateId === "m-set3-1";
@@ -1083,6 +1090,7 @@ export class VoyagerLiveRuntime {
       }
       this.#mount.querySelector("svg")?.setAttribute("data-voyager-screen-id", state.id);
       this.#updateDynamicFields();
+      this.#renderQueuedToast();
       return;
     }
 
@@ -1104,6 +1112,7 @@ export class VoyagerLiveRuntime {
     }
     this.#mount.querySelector("svg")?.setAttribute("data-voyager-screen-id", state.id);
     this.#updateDynamicFields();
+    this.#renderQueuedToast();
   }
 
   pulseInput(action) {
@@ -1234,6 +1243,7 @@ export class VoyagerLiveRuntime {
   }
 
   #updateDynamicFields(cadence = "all") {
+    this.#expireToast();
     if (!this.#telemetry || !this.#state || this.#mount.hidden) return;
     const setText = (selector, value) => {
       for (const element of this.#mount.querySelectorAll(selector)) element.textContent = value;
@@ -1356,7 +1366,8 @@ export class VoyagerLiveRuntime {
     const savedRideSelection = event.from.match(/^m-ride2-6-4-([1-4])$/);
     if (savedRideSelection) this.#selectedSavedRideIndex = Number(savedRideSelection[1]) - 1;
     if (event.from === "m-main1-4" && telemetry) {
-      this.#addWaypoint("QUICK ADD", telemetry.latitude, telemetry.longitude);
+      const waypoint = this.#addWaypoint("QUICK ADD", telemetry.latitude, telemetry.longitude);
+      this.#queueToast(`Waypoint ${waypoint.label} added.`);
     }
     if (event.from === "m-main1-5-1-1") {
       this.#selectedDestination = this.#waypoints.at(-1) ?? this.#ride.points.at(-1) ?? null;
@@ -1435,15 +1446,41 @@ export class VoyagerLiveRuntime {
   }
 
   #addWaypoint(source, latitude, longitude) {
-    this.#waypoints.push({
+    const waypoint = {
       id: `WP-${Date.now().toString(36).toUpperCase()}`,
       label: String(this.#waypoints.length + 5),
       source,
       latitude,
       longitude,
-    });
+    };
+    this.#waypoints.push(waypoint);
     this.#saveWaypoints();
     this.#invalidateMapProjection();
+    return waypoint;
+  }
+
+  #queueToast(message, durationMs = 5000) {
+    this.#toastMessage = message;
+    this.#toastExpiresAt = performance.now() + durationMs;
+  }
+
+  #renderQueuedToast() {
+    if (!this.#toastMessage || performance.now() >= this.#toastExpiresAt) return;
+    const screen = this.#mount.querySelector("svg");
+    if (!screen) return;
+    screen.querySelector("[data-live-toast]")?.remove();
+    screen.insertAdjacentHTML("beforeend", renderVoyagerToastMarkup(this.#toastMessage));
+  }
+
+  #expireToast() {
+    if (!this.#toastExpiresAt || performance.now() < this.#toastExpiresAt) return;
+    this.#clearToast();
+  }
+
+  #clearToast() {
+    this.#mount.querySelector("[data-live-toast]")?.remove();
+    this.#toastMessage = "";
+    this.#toastExpiresAt = 0;
   }
 
   #invalidateMapProjection() {

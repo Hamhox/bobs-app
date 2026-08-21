@@ -4,7 +4,7 @@ import {
   VOYAGER_MENU_STATE_INDEX,
 } from "../voyager-menu-registry.js";
 import { VOYAGER_KEYBOARD_ROWS, VoyagerMenuModel } from "../voyager-menu-model.js";
-import { renderVoyagerMenuMarkup } from "../voyager-menu-renderer.js";
+import { renderVoyagerMenuMarkup, renderVoyagerToastMarkup } from "../voyager-menu-renderer.js";
 
 const EXPECTED_COUNTS = Object.freeze({
   total: 131,
@@ -115,6 +115,14 @@ function main() {
   const quickMenuMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-main1-1"], new VoyagerMenuModel());
   if (!quickMenuMarkup.includes("QUICK MENU") || !quickMenuMarkup.includes(">QUICK</text>")) {
     throw new Error("quick menu naming is not reflected in the title and persistent sidebar");
+  }
+  const waypointToastMarkup = renderVoyagerToastMarkup("Waypoint 7 added.");
+  if (!waypointToastMarkup.includes("Waypoint 7 added.")
+    || !waypointToastMarkup.includes("voyager-menu__modal-shadow")
+    || !waypointToastMarkup.includes("voyager-menu__modal")
+    || waypointToastMarkup.includes("voyager-menu__title-band")
+    || waypointToastMarkup.includes("voyager-menu__underlay-wash")) {
+    throw new Error("quick-add waypoint toast is not the compact device notice");
   }
   const graphDisplayMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-graph-temp-display"], new VoyagerMenuModel());
   if (!graphDisplayMarkup.includes("CURRENT TRACK") || !graphDisplayMarkup.includes("voyager-menu__summary")) {

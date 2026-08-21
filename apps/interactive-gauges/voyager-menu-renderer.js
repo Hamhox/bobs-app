@@ -148,6 +148,15 @@ function noteLines(lines, startY, className = "voyager-menu__note") {
   ).join("");
 }
 
+export function renderVoyagerToastMarkup(message) {
+  return `
+    <g class="voyager-menu__toast" data-live-toast data-live-toast-message="${escapeMarkup(message)}">
+      <rect class="voyager-menu__modal-shadow" x="139" y="128" width="238" height="58" />
+      <rect class="voyager-menu__modal" x="133" y="122" width="238" height="58" />
+      <text class="voyager-live__text voyager-menu__toast-copy" x="252" y="158" text-anchor="middle">${escapeMarkup(message)}</text>
+    </g>`;
+}
+
 function pairedConfirmationButtons(y, selected = 0) {
   return `
     ${voyagerUiIcon(selected === 0 ? "btn-cancel-selected" : "btn-cancel-disabled", { x: 143, y: selected === 0 ? y : y + 11, width: 100, height: selected === 0 ? 42 : 32 })}
