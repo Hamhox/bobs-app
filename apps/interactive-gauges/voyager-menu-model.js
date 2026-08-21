@@ -395,9 +395,13 @@ export class VoyagerMenuModel {
   #editKeyboard(draft, action) {
     if (draft.selectedConfirmation >= 0) {
       if (action === "left" || action === "right") {
-        draft.selectedConfirmation = action === "left" ? 0 : 1;
+        draft.selectedConfirmation = draft.selectedConfirmation === 0 ? 1 : 0;
         this.#touch();
       } else if (action === "up") {
+        draft.selectedConfirmation = -1;
+        this.#touch();
+      } else if (action === "down") {
+        draft.keyboardIndex %= KEYBOARD_COLUMN_COUNT;
         draft.selectedConfirmation = -1;
         this.#touch();
       }

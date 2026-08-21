@@ -225,6 +225,23 @@ function main() {
   if (returnedKeyboardFocus.keyboardKey !== "Z" || returnedKeyboardFocus.selectedConfirmation !== -1) {
     throw new Error("keyboard Up did not return from OK to the final key row");
   }
+  keyboardFocusModel.prepareInput(keyboardDefinition, "down");
+  keyboardFocusModel.prepareInput(keyboardDefinition, "left");
+  const cancelButtonFocus = keyboardFocusModel.resolve(keyboardDefinition);
+  if (cancelButtonFocus.selectedConfirmation !== 0) {
+    throw new Error("keyboard Left did not move from OK to Cancel");
+  }
+  keyboardFocusModel.prepareInput(keyboardDefinition, "right");
+  const returnedOkFocus = keyboardFocusModel.resolve(keyboardDefinition);
+  if (returnedOkFocus.selectedConfirmation !== 1) {
+    throw new Error("keyboard Right did not move from Cancel to OK");
+  }
+  keyboardFocusModel.prepareInput(keyboardDefinition, "left");
+  keyboardFocusModel.prepareInput(keyboardDefinition, "down");
+  const wrappedKeyboardFocus = keyboardFocusModel.resolve(keyboardDefinition);
+  if (wrappedKeyboardFocus.keyboardKey !== "1" || wrappedKeyboardFocus.selectedConfirmation !== -1) {
+    throw new Error("keyboard Down did not move from the confirmation buttons to the top row");
+  }
 
   console.log(JSON.stringify(report, null, 2));
 }
