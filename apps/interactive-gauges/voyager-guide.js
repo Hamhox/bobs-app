@@ -11,19 +11,26 @@ const STEPS = [
     state: "m-main1-1",
     destination: "menu.main",
     actions: ["right", "enter"],
-    instruction: "Press RIGHT or ENTER to highlight Reset Stop Watch.",
+    instruction: "Press RIGHT or ENTER to highlight Log Track.",
   },
   {
     number: "03",
     state: "m-main1-2",
     destination: "m-main1-2",
     actions: ["down"],
-    instruction: "Press DOWN to highlight Reset Ride DST.",
+    instruction: "Press DOWN to highlight Reset Ride Memory.",
   },
   {
     number: "04",
     state: "m-main1-3",
     destination: "m-main1-3",
+    actions: ["down"],
+    instruction: "Press DOWN to highlight Reset Trip DST.",
+  },
+  {
+    number: "05",
+    state: "m-main1-4",
+    destination: "m-main1-4",
     actions: ["right", "enter"],
     instruction: "Press RIGHT or ENTER to open the confirmation.",
   },
@@ -79,7 +86,7 @@ export class VoyagerGuide {
     if (!this.#active || !event.moved) return;
 
     const nextIndex = STEPS.findIndex((step) => step.state === state.id);
-    if (state.id === "m-main1-3-1") {
+    if (state.id === "m-main1-4-1") {
       this.#complete = true;
       this.#renderComplete();
       return;
@@ -119,7 +126,7 @@ export class VoyagerGuide {
     this.#elements.panel.dataset.voyagerState = "modal.reset-ride-distance";
     this.#elements.label.textContent = "Objective complete";
     this.#elements.instruction.textContent =
-      "You opened the archived Reset Ride Distance confirmation. CANCEL is the only recovered selection.";
+      "You opened the Reset Trip Distance confirmation with Cancel selected.";
     this.#elements.live.textContent =
       "Guided objective complete. The archived confirmation is open with Cancel selected.";
   }

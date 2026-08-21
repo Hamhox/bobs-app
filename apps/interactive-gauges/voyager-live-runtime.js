@@ -1479,57 +1479,76 @@ export class VoyagerLiveRuntime {
   }
 
   #applyMenuOutcome(event) {
+    const definition = voyagerMenuState(event.from);
+    if (event.action === "back" && definition?.cancelOutcome === "cancel-export") {
+      this.#queueToast("CANCELLED");
+      return;
+    }
     if (event.action !== "enter") return;
     const telemetry = this.#telemetry;
     const savedRideSelection = event.from.match(/^m-ride2-6-4-([1-4])$/);
     if (savedRideSelection) this.#selectedSavedRideIndex = Number(savedRideSelection[1]) - 1;
-    if (event.from === "m-main1-4" && telemetry) {
+    if (definition?.outcome === "quick-add-waypoint" && telemetry) {
       const waypoint = this.#addWaypoint("QUICK ADD", telemetry.latitude, telemetry.longitude);
       this.#queueToast(`Waypoint ${waypoint.label} added.`);
     }
-    if (event.from === "m-main1-5-1-1") {
-      this.#selectedDestination = this.#waypoints.at(-1) ?? this.#ride.points.at(-1) ?? null;
-    }
-    if (event.from === "m-nav-destination-primary" || event.from === "m-nav-destination-secondary") {
+    if (definition?.outcome === "select-destination"
+      || event.from === "m-nav-destination-primary"
+      || event.from === "m-nav-destination-secondary") {
       const selectedName = this.#menuModel.values.destinationWaypoint;
       this.#selectedDestination = this.#destinationWaypoints().find((waypoint) => waypoint.name === selectedName) ?? null;
       if (this.#selectedDestination) this.#queueToast(["WAYPOINT SELECTED", selectedName]);
     }
-    if (event.from === "m-ride2-2-1" && telemetry) {
-      this.#addWaypoint("CURRENT POSITION", telemetry.latitude, telemetry.longitude);
+    if (definition?.outcome === "add-waypoint-current" && telemetry) {
+      const waypoint = this.#addWaypoint("CURRENT POSITION", telemetry.latitude, telemetry.longitude);
+      this.#queueToast(`Waypoint ${waypoint.label} added.`);
     }
-    if (event.from === "m-ride2-3-1-1-1") {
-      this.#addWaypoint("LAT/LON", 45.768892, -122.519284);
+    if (definition?.outcome === "add-waypoint-coordinates") {
+      const waypoint = this.#addWaypoint("LAT/LON", 45.768892, -122.519284);
+      this.#queueToast(`Waypoint ${waypoint.label} added.`);
     }
-    if (event.from === "m-ride2-4-1-1" && telemetry) {
-      this.#addWaypoint("CROSSHAIRS", telemetry.latitude + 0.0012, telemetry.longitude + 0.0017);
+    if (definition?.outcome === "add-waypoint-crosshair" && telemetry) {
+      const waypoint = this.#addWaypoint("CROSSHAIRS", telemetry.latitude + 0.0012, telemetry.longitude + 0.0017);
+      this.#queueToast(`Waypoint ${waypoint.label} added.`);
     }
-    if (event.from === "m-ride2-5-1-1" && this.#waypoints.length) {
+    if (definition?.outcome === "erase-waypoint" && this.#waypoints.length) {
       this.#waypoints.pop();
       this.#saveWaypoints();
       this.#invalidateMapProjection();
+      this.#queueToast("WAYPOINT ERASED");
     }
-    if (event.from === "m-ride2-6-1-1") {
-      this.#ride.reset();
-      this.#overlayRideId = null;
+    if (definition?.outcome === "erase-waypoints") {
+      this.#waypoints = [];
+      this.#saveWaypoints();
+      this.#invalidateMapProjection();
+      this.#queueToast("ALL WAYPOINTS ERASED");
+    }
+    if (definition?.outcome === "reset-destination") {
       this.#selectedDestination = null;
+      this.#queueToast("DESTINATION RESET");
     }
-    if (event.from === "m-ride2-6-2-1-1" && telemetry) this.#saveCurrentRide(telemetry);
-    if (event.from === "m-ride2-6-3-1") {
-      this.#overlayRideId = null;
-      this.#invalidateMapProjection();
-    }
-    if (event.from === "m-ride2-6-4-1-1-1") this.#loadSavedRide();
-    if (event.from === "m-ride2-6-4-1-2-1") {
-      this.#overlayRideId = this.#savedRides[this.#selectedSavedRideIndex]?.trackId ?? null;
-      this.#invalidateMapProjection();
-    }
-    if (event.from === "m-ride2-6-4-1-4-1") this.#deleteSavedRide();
-    if (event.from === "m-main1-2-1") {
+    if (definition?.outcome === "reset-ride-memory") {
+      this.#ride.reset();
+      this.#waypoints = [];
+      this.#selectedDestination = null;
       this.#stopwatchElapsedMs = 0;
       this.#stopwatchStartedAt = this.#stopwatchRunning ? performance.now() : 0;
+      this.#saveWaypoints();
+      this.#invalidateMapProjection();
+      this.#queueToast("RIDE MEMORY RESET");
     }
-    if (event.from === "m-main1-3-1") this.#ride.reset();
+    if (definition?.outcome === "reset-trip-1") this.#queueToast("TRIP DST / TIME RESET");
+    if (definition?.outcome === "reset-trip-2") this.#queueToast("TRIP DST / TIME 2 RESET");
+    if (definition?.outcome === "reset-stopwatch") {
+      this.#stopwatchElapsedMs = 0;
+      this.#stopwatchStartedAt = this.#stopwatchRunning ? performance.now() : 0;
+      this.#queueToast("STOP WATCH RESET");
+    }
+    if (definition?.outcome === "start-track-segment") this.#queueToast("NEW TRACK SEGMENT STARTED");
+    if (definition?.outcome === "erase-tracks") this.#queueToast("ALL TRACKS ERASED");
+    if (definition?.outcome === "erase-routes") this.#queueToast("ALL ROUTES ERASED");
+    if (definition?.outcome === "export-ride") this.#queueToast("GPX SAVED TO SD CARD");
+    if (definition?.outcome === "export-settings") this.#queueToast("SETTINGS SAVED TO SD CARD");
   }
 
   #saveCurrentRide(telemetry) {

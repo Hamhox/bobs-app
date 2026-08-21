@@ -7,22 +7,49 @@ const dataBlockVariant = (label, digit) => `${label} ${digit === 1
   : VOYAGER_FONT_SYMBOLS.circledDigitNarrow2}`;
 
 const DEFAULT_VALUES = Object.freeze({
+  logTrack: "OFF",
+  tracksDisplay: "ALL",
+  visibleTracks: ["BAKER WEST", "JORDAN CREEK", "CMRA TRAIL 2", "2016 BLACKDOG"],
+  routesDisplay: "ALL",
+  waypointsDisplay: "ALL",
   gpsMode: "ENABLED (LOGGING ON)",
-  speedSource: "GPS",
+  speedSource: "WHL SENSOR",
   speedUnits: "MPH",
-  distanceUnits: "MILES / FEET",
-  wheelSize: "1676 mm",
+  distanceUnits: "MILES",
+  altitudeUnits: "FEET",
+  wheelSize: "2110 mm",
   clockFormat: "12 HOUR",
-  timeOfDay: "12:35",
+  timeOfDay: "12:42:04 PM",
   temperatureUnits: "FAHRENHEIT",
+  tabsTimeout: "015 SEC",
+  displayMode: "NORMAL",
+  wheelSensor: "ENABLED",
+  engineSensor: "ENABLED",
+  ppr: "1",
+  sensorSensitivity: "LOW",
+  runTimeSource: "ENG OR WHL",
   brightness: 50,
-  backlightBattery: "007 SEC",
+  backlightLevel: "HIGH",
+  backlightBattery: "020 SEC",
   backlightExternal: "000 SEC",
+  sleepBattery: "003 MIN",
+  sleepExternal: "020 MIN",
+  turnOff: "060 MIN",
   safeModeTimer: "020 SEC",
   sleepModeTimer: "10 MIN",
-  chargeMode: "ONLY WHEN MOTOR IS ON",
+  chargeMode: "VEHICLE",
   chargeLevel: "TRICKLE CHARGE",
-  mapOrientation: "NORTH UP",
+  logMethod: "TIME",
+  logFrequency: "2 SEC",
+  logOption: "ENG OR WHL",
+  autoSplit: "005 MI GAP",
+  coordFormat: "DEG.DEC",
+  signalBars: "ON",
+  mapOrientation: "TRACK UP",
+  pointerSize: "MEDIUM",
+  mapScreen1: "AUTO-CENTER",
+  mapScreen2: "AUTO-CENTER",
+  panZoomTimeout: "030 SEC",
   mapAutoZoom: "ON",
   logAfterStop: "030 SEC",
   recordMethod: "DISTANCE",
@@ -46,45 +73,11 @@ const DEFAULT_VALUES = Object.freeze({
   userScreen2Block5: "<OFF>",
   userScreen2Block6: "<OFF>",
   destinationWaypoint: "CMRA TRAIL HEAD",
-  yellowLedOn: "210 °F",
-  redLedOn: "220 °F",
-  yellowLedFlash: "240 °F",
-  redLedFlash: "240 °F",
+  yellowLedOn: "000",
+  redLedOn: "000",
+  yellowLedFlash: "000",
+  redLedFlash: "000",
   rideName: "RIDE-32",
-});
-
-const FIELD_BINDINGS = Object.freeze({
-  "m-main1-6-1": "gpsMode",
-  "m-main1-7-1": "speedSource",
-  "m-set3-2-1-1": "speedUnits",
-  "m-set3-2-2-1": "distanceUnits",
-  "m-set3-2-3-1": "wheelSize",
-  "m-set3-2-4-1": "clockFormat",
-  "m-set3-2-5-1": "timeOfDay",
-  "m-set3-2-6-1": "temperatureUnits",
-  "m-set3-3-1-1": "brightness",
-  "m-set3-3-2-1": "backlightBattery",
-  "m-set3-3-3-1": "backlightExternal",
-  "m-set3-3-4-1": "safeModeTimer",
-  "m-set3-3-5-1": "sleepModeTimer",
-  "m-set3-3-6-1": "chargeMode",
-  "m-set3-3-7-1": "chargeLevel",
-  "m-set3-4-1-1": "mapOrientation",
-  "m-set3-4-2-1": "mapAutoZoom",
-  "m-set3-4-3-1": "logAfterStop",
-  "m-set3-4-4-1": "recordMethod",
-  "m-set3-4-5-1": "wrapWhenFull",
-  "m-set3-4-6-1": "sampleFrequency",
-  "m-set3-5-1-1-1": "userScreen1Title",
-  "m-set3-5-1-2-1": "userScreenBlocks",
-  "m-set3-5-1-3-1": "userScreenBlock1",
-  "m-nav-destination-primary": "destinationWaypoint",
-  "m-nav-destination-secondary": "destinationWaypoint",
-  "m-set3-6-1-1": "yellowLedOn",
-  "m-set3-6-2-1": "redLedOn",
-  "m-set3-6-3-1": "yellowLedFlash",
-  "m-set3-6-4-1": "redLedFlash",
-  "m-ride2-6-2-1-1": "rideName",
 });
 
 const ROW_BINDINGS = Object.freeze({
@@ -120,9 +113,12 @@ const ROW_BINDINGS = Object.freeze({
 });
 
 const RESET_GROUPS = Object.freeze({
-  "UNIT SETTINGS": ["speedUnits", "distanceUnits", "wheelSize", "clockFormat", "timeOfDay", "temperatureUnits"],
+  "UNIT SETTINGS": ["distanceUnits", "altitudeUnits", "clockFormat", "timeOfDay", "temperatureUnits", "tabsTimeout", "displayMode"],
+  "VEHICLE SENSORS": ["wheelSensor", "wheelSize", "engineSensor", "ppr", "sensorSensitivity", "speedSource", "runTimeSource"],
+  "POWER SETTINGS": ["backlightLevel", "backlightBattery", "backlightExternal", "sleepBattery", "sleepExternal", "turnOff", "chargeMode"],
   "SYSTEM SETTINGS": ["brightness", "backlightBattery", "backlightExternal", "safeModeTimer", "sleepModeTimer", "chargeMode", "chargeLevel"],
-  "GPS SETTINGS": ["mapOrientation", "mapAutoZoom", "logAfterStop", "recordMethod", "wrapWhenFull", "sampleFrequency"],
+  "GPS SETTINGS": ["logMethod", "logFrequency", "logOption", "autoSplit", "coordFormat", "signalBars"],
+  "MAP SETTINGS": ["mapOrientation", "pointerSize", "mapScreen1", "mapScreen2", "panZoomTimeout"],
   "USER SCREEN 1 SETTINGS": [
     "userScreenTitle",
     "userScreen1Title",
@@ -156,7 +152,7 @@ function editableDigitIndexes(value) {
 
 function rowValue(key, value) {
   if (key === "brightness") return `${value}%`;
-  if (key === "distanceUnits") return value === "MILES / FEET" ? "MI / FT" : "KM / M";
+  if (key === "distanceUnits") return String(value).startsWith("MILES") ? "MILES" : "KILOMETERS";
   if (key === "chargeMode") return value === "ONLY WHEN MOTOR IS ON" ? "MOTOR ON" : value;
   if (key === "chargeLevel") return value === "TRICKLE CHARGE" ? "TRICKLE" : "FAST";
   return String(value);
@@ -198,12 +194,13 @@ export class VoyagerMenuModel {
     const resolved = {
       ...definition,
       rows: definition.rows?.map((row) => {
-        const key = ROW_BINDINGS[row.label];
+        const key = row.field ?? ROW_BINDINGS[row.label];
         return key ? { ...row, value: rowValue(key, this.#values[key]) } : { ...row };
       }),
     };
     if (!draft) return resolved;
-    if (definition.kind === "settings-modal") resolved.selectedIndex = draft.selectedIndex;
+    if (definition.kind === "settings-modal" || definition.kind === "checklist-modal") resolved.selectedIndex = draft.selectedIndex;
+    if (definition.kind === "checklist-modal") resolved.checkedOptions = [...draft.checkedOptions];
     if (definition.kind === "user-layout") {
       resolved.name = draft.name;
       resolved.options = [...draft.options];
@@ -225,14 +222,18 @@ export class VoyagerMenuModel {
   resolveInputAction(definition, action) {
     if (!definition || action !== "center") return action;
     const centerActivatesSelection = definition.presentation === "page"
-      || ["brightness", "confirm", "notice", "settings-modal", "user-layout"].includes(definition.kind);
+      || ["brightness", "checklist-modal", "confirm", "notice", "settings-modal", "user-layout"].includes(definition.kind);
     return centerActivatesSelection ? "enter" : action;
   }
 
   prepareInput(definition, action) {
     if (!definition) return { action };
     if (action === "back" || action === "menu") {
-      this.#discard(definition.id);
+      if (action === "back" && definition.kind === "checklist-modal") {
+        this.#commit(definition, this.#draftFor(definition));
+      } else {
+        this.#discard(definition.id);
+      }
       return { action };
     }
     const preparedAction = this.resolveInputAction(definition, action);
@@ -257,10 +258,19 @@ export class VoyagerMenuModel {
       }
     }
 
-    if (definition.kind === "settings-modal" && (preparedAction === "up" || preparedAction === "down")) {
+    if (["settings-modal", "checklist-modal"].includes(definition.kind) && (preparedAction === "up" || preparedAction === "down")) {
       const count = definition.options.length;
       draft.selectedIndex = (draft.selectedIndex + (preparedAction === "up" ? -1 : 1) + count) % count;
       this.#touch();
+    }
+
+    if (definition.kind === "checklist-modal" && preparedAction === "enter") {
+      const selected = draft.selectedIndex;
+      draft.checkedOptions = draft.checkedOptions.includes(selected)
+        ? draft.checkedOptions.filter((index) => index !== selected)
+        : [...draft.checkedOptions, selected].sort((a, b) => a - b);
+      this.#touch();
+      return { action: preparedAction, targetStateId: definition.id };
     }
 
     if (definition.kind === "user-layout" && ["up", "down", "left", "right"].includes(preparedAction)) {
@@ -316,6 +326,13 @@ export class VoyagerMenuModel {
     if (definition.kind === "brightness") this.#editBrightness(draft, preparedAction);
     if (definition.kind === "keyboard") this.#editKeyboard(draft, preparedAction);
 
+    if (preparedAction === "enter" && definition.kind === "settings-modal") {
+      const targetStateId = definition.optionTargets?.[draft.selectedIndex];
+      this.#commit(definition, draft);
+      if (targetStateId) return { action: preparedAction, targetStateId };
+      return { action: preparedAction };
+    }
+
     if (preparedAction === "enter" && definition.kind !== "user-layout") {
       this.#commit(definition, draft);
     }
@@ -339,6 +356,11 @@ export class VoyagerMenuModel {
       selectedIndex,
       value,
     };
+    if (definition.kind === "checklist-modal") {
+      const selectedValues = Array.isArray(storedValue) ? storedValue : [];
+      draft.checkedOptions = definition.options.flatMap((option, index) => selectedValues.includes(option) ? [index] : []);
+      if (!draft.checkedOptions.length) draft.checkedOptions = [...(definition.checkedOptions ?? [])];
+    }
     if (definition.kind === "user-layout") {
       draft.name = this.#values[`userScreen${definition.userScreen}Title`];
       draft.options = Array.from(
@@ -365,7 +387,7 @@ export class VoyagerMenuModel {
 
   #bindingFor(definition) {
     if (definition.dataBlockPicker || definition.userScreenNameEditor) return null;
-    return FIELD_BINDINGS[definition.id];
+    return definition.field;
   }
 
   #editSlot(draft, action) {
@@ -445,6 +467,14 @@ export class VoyagerMenuModel {
   }
 
   #commit(definition, draft) {
+    if (definition.kind === "checklist-modal") {
+      const binding = this.#bindingFor(definition);
+      if (binding) this.#values[binding] = draft.checkedOptions.map((index) => definition.options[index]);
+      this.#save();
+      this.#drafts.delete(definition.id);
+      this.#touch();
+      return;
+    }
     if (definition.kind === "user-layout") {
       this.#values[`userScreen${definition.userScreen}Title`] = draft.name;
       draft.options.forEach((option, index) => {
@@ -483,7 +513,7 @@ export class VoyagerMenuModel {
   #applyPageAction(definition) {
     const selectedRow = definition.rows?.[definition.selectedIndex];
     if (selectedRow?.label !== "RESTORE DEFAULTS") return;
-    for (const key of RESET_GROUPS[definition.title] ?? []) this.#values[key] = DEFAULT_VALUES[key];
+    for (const key of RESET_GROUPS[definition.restoreGroup ?? definition.title] ?? []) this.#values[key] = DEFAULT_VALUES[key];
     this.#save();
     this.#touch();
   }

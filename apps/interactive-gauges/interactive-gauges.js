@@ -1,6 +1,7 @@
 import { initializeFontPlayground } from "./font-playground.js";
 import { VoyagerGuide } from "./voyager-guide.js";
 import { VoyagerLiveRuntime } from "./voyager-live-runtime.js";
+import { VOYAGER_MENU_STATE_INDEX, VOYAGER_MENU_TRANSITIONS } from "./voyager-menu-registry.js";
 import { initializeVoyagerManual } from "./voyager-manual.js";
 import { VoyagerMapViewer } from "./voyager-map-viewer.js";
 import { VoyagerStateEngine } from "./voyager-state-engine.js";
@@ -29,22 +30,6 @@ const VOYAGER_LIVE_TRANSITION_OVERRIDES = {
   sat: { menu: "m-main1-1", left: null, center: "sat2", right: "sat2", enter: "sat2" },
   sat2: { menu: "m-main1-1", up: "dir", left: null, center: "sat", right: "sat", down: "index", back: "sat", enter: "sat" },
 };
-const VOYAGER_CONTEXT_MODAL_STATES = [
-  ["m-graph-temp-primary-display", "eng"],
-  ["m-graph-temp-display", "eng2"],
-  ["m-graph-temp-track2-display", "eng3"],
-  ["m-graph-alt-primary-display", "alt"],
-  ["m-graph-alt-display", "alt2"],
-  ["m-graph-alt-track2-display", "alt3"],
-  ["m-user-screen-1-layout", "cstm"],
-  ["m-user-screen-2-layout", "cstm2"],
-  ["m-nav-destination-primary", "dir"],
-  ["m-nav-destination-secondary", "dir2"],
-];
-const VOYAGER_USER_LAYOUT_WORKFLOWS = [
-  ["m-user-screen-1-layout", "m-user-screen-1-data-block", "m-user-screen-1-name", "cstm"],
-  ["m-user-screen-2-layout", "m-user-screen-2-data-block", "m-user-screen-2-name", "cstm2"],
-];
 const stage = document.querySelector("#voyager-stage");
 const liveScreen = document.querySelector("#voyager-live-screen");
 const stateCode = document.querySelector("#voyager-state-code");
@@ -84,64 +69,21 @@ function writeVoyagerStateToUrl(screenId, mode = "replace") {
 }
 
 function applyLiveTransitionOverrides(manifest) {
-  for (const [id, parentStateId] of VOYAGER_CONTEXT_MODAL_STATES) {
+  for (const [id, definition] of Object.entries(VOYAGER_MENU_STATE_INDEX)) {
+    const previousState = manifest.states[id];
+    const parentState = manifest.states[definition.parentStateId];
     manifest.states[id] = {
       id,
-      transitions: {
-        menu: parentStateId,
-        up: id,
-        left: parentStateId,
-        center: id,
-        right: id,
-        down: id,
-        back: parentStateId,
-        enter: parentStateId,
-      },
+      transitions: { ...VOYAGER_MENU_TRANSITIONS[id] },
       autoTransition: null,
-      archiveLinks: [parentStateId, manifest.initialState],
-      referenceScreen: manifest.states[parentStateId].referenceScreen,
-    };
-  }
-  for (const [layoutStateId, pickerStateId, nameStateId, parentStateId] of VOYAGER_USER_LAYOUT_WORKFLOWS) {
-    Object.assign(manifest.states[layoutStateId].transitions, {
-      up: layoutStateId,
-      left: layoutStateId,
-      center: pickerStateId,
-      right: layoutStateId,
-      down: layoutStateId,
-      enter: pickerStateId,
-    });
-    manifest.states[pickerStateId] = {
-      id: pickerStateId,
-      transitions: {
-        menu: layoutStateId,
-        up: pickerStateId,
-        left: layoutStateId,
-        center: layoutStateId,
-        right: pickerStateId,
-        down: pickerStateId,
-        back: layoutStateId,
-        enter: layoutStateId,
-      },
-      autoTransition: null,
-      archiveLinks: [layoutStateId, parentStateId, manifest.initialState],
-      referenceScreen: manifest.states[parentStateId].referenceScreen,
-    };
-    manifest.states[nameStateId] = {
-      id: nameStateId,
-      transitions: {
-        menu: layoutStateId,
-        up: nameStateId,
-        left: nameStateId,
-        center: nameStateId,
-        right: nameStateId,
-        down: nameStateId,
-        back: layoutStateId,
-        enter: layoutStateId,
-      },
-      autoTransition: null,
-      archiveLinks: [layoutStateId, parentStateId, manifest.initialState],
-      referenceScreen: manifest.states[parentStateId].referenceScreen,
+      archiveLinks: [...new Set([
+        definition.parentStateId,
+        ...Object.values(VOYAGER_MENU_TRANSITIONS[id]),
+        manifest.initialState,
+      ].filter((target) => typeof target === "string"))],
+      referenceScreen: previousState?.referenceScreen
+        ?? parentState?.referenceScreen
+        ?? manifest.states[manifest.initialState].referenceScreen,
     };
   }
   manifest.states.sat2 = {

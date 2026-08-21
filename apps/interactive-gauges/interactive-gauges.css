@@ -844,6 +844,7 @@
 .voyager-menu__selection,
 .voyager-menu__button--active,
 .voyager-menu__meter-fill,
+.voyager-menu__progress-fill,
 .voyager-menu__scroll-thumb,
 .voyager-menu__map-position,
 .voyager-menu__choice-arrow {
@@ -936,6 +937,8 @@
 
 .voyager-menu__meter,
 .voyager-menu__brightness-track,
+.voyager-menu__progress-track,
+.voyager-menu__checkbox,
 .voyager-menu__input,
 .voyager-menu__button,
 .voyager-menu__scroll-track {
@@ -943,6 +946,25 @@
   stroke: #242021;
   stroke-width: 3;
   vector-effect: non-scaling-stroke;
+}
+
+.voyager-menu__checkbox--selected {
+  stroke: #f5f4ef;
+}
+
+.voyager-menu__checkmark {
+  fill: none;
+  stroke: #242021;
+  stroke-width: 3;
+  vector-effect: non-scaling-stroke;
+}
+
+.voyager-menu__checkmark--selected {
+  stroke: #f5f4ef;
+}
+
+.voyager-menu__progress-fill {
+  shape-rendering: crispEdges;
 }
 
 .voyager-menu__confirm-copy,

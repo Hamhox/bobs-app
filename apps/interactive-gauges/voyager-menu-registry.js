@@ -1,478 +1,653 @@
 import { VOYAGER_FONT_SYMBOLS } from "./voyager-font-symbols.js";
 
 const registry = {};
-
-function register(id, definition) {
-  registry[id] = { id, ...definition };
-}
-
-function registerMenuFamily(ids, definition, selectedRows = []) {
-  ids.forEach((id, index) => register(id, { ...definition, selectedIndex: selectedRows[index] ?? null }));
-}
-
-const MAIN_ROWS = [
-  { label: "RESET STOP WATCH" },
-  { label: "RESET RIDE DST" },
-  { spacer: true },
-  { label: "QUICK ADD WAYPOINT" },
-  { label: "SELECT DESTINATION" },
-  { spacer: true },
-  { label: "GPS", value: "ENABLED (LOGGING ON)" },
-  { label: "SPEED/DST", value: "GPS" },
-  { spacer: true },
-  { label: "MEMORY", value: "38%", meter: 0.38 },
-];
-
-registerMenuFamily(
-  ["m-main1-1", "m-main1-2", "m-main1-3", "m-main1-4", "m-main1-5", "m-main1-6", "m-main1-7"],
-  { kind: "menu", section: "main", title: "QUICK MENU", rows: MAIN_ROWS },
-  [null, 0, 1, 3, 4, 6, 7],
-);
-register("m-main1-2-1", {
-  kind: "confirm", section: "main", title: "RESET STOP WATCH", lines: ["RESET STOP WATCH?"],
-});
-register("m-main1-3-1", {
-  kind: "confirm", section: "main", title: "RESET RIDE DST",
-  lines: ["RESET RIDE DST?", "RIDE DST IS ONLY VISIBLE", "FROM USER SCREEN."],
-});
-register("m-main1-5-1", { kind: "waypoint-map", section: "main", title: "DEST. WAYPOINT: SELECT", mode: "select" });
-register("m-main1-5-1-1", { kind: "waypoint-map", section: "main", title: "DEST. WAYPOINT: CONFIRM", mode: "confirm" });
-register("m-main1-6-1", {
-  kind: "settings-modal", section: "main", title: "GPS",
-  options: ["ENABLED (LOGGING ON)", "ENABLED (LOGGING OFF)", "DISABLED (POWER SAVE)"], selectedIndex: 0,
-});
-register("m-main1-7-1", {
-  kind: "settings-modal", section: "main", title: "SPEED/DST SOURCE",
-  options: ["WHEEL SENSOR", "GPS"], selectedIndex: 1,
-});
-
-const RIDE_ROWS = [
-  { label: "RIDE NAME", value: "RIDE-32" },
-  { label: "ADD WAYPOINT (CURRENT POS)" },
-  { label: "ADD WAYPOINT (LAT/LON)" },
-  { label: "ADD WAYPOINT (CROSSHAIR)" },
-  { spacer: true },
-  { label: "DELETE WAYPOINT" },
-  { spacer: true },
-  { label: "EDIT RIDES" },
-];
-registerMenuFamily(
-  ["m-ride2-1", "m-ride2-2", "m-ride2-3", "m-ride2-4", "m-ride2-5", "m-ride2-6"],
-  { kind: "menu", section: "ride", title: "RIDE MENU", rows: RIDE_ROWS },
-  [null, 1, 2, 3, 5, 7],
-);
-register("m-ride2-2-1", { kind: "waypoint-map", section: "ride", title: "ADD WAYPOINT: CONFIRM", mode: "confirm", pending: "current" });
-register("m-ride2-3-1", { kind: "slot-input", section: "ride", title: "ENTER LATITUDE", value: "N45.768892", activeDigit: 3 });
-register("m-ride2-3-1-1", { kind: "slot-input", section: "ride", title: "ENTER LONGITUDE", value: "W122.519284", activeDigit: 4 });
-register("m-ride2-3-1-1-1", { kind: "waypoint-map", section: "ride", title: "ADD WAYPOINT: CONFIRM", mode: "confirm", pending: "coordinates" });
-register("m-ride2-4-1", { kind: "waypoint-map", section: "ride", title: "ADD WAYPOINT: CROSSHAIRS", mode: "crosshair", pending: "crosshair" });
-register("m-ride2-4-1-1", { kind: "waypoint-map", section: "ride", title: "ADD WAYPOINT: CONFIRM", mode: "confirm", pending: "crosshair" });
-register("m-ride2-5-1", { kind: "waypoint-map", section: "ride", title: "DELETE WAYPOINT: SELECT", mode: "select-delete" });
-register("m-ride2-5-1-1", { kind: "waypoint-map", section: "ride", title: "DELETE WAYPOINT: CONFIRM", mode: "confirm-delete" });
-
-const EDIT_RIDE_ROWS = [
-  { label: "NEW RIDE (CLEAR CURRENT)" },
-  { label: "SAVE RIDE" },
-  { spacer: true },
-  { label: "CLEAR OVERLAY" },
-  { label: "SAVED RIDES" },
-];
-registerMenuFamily(
-  ["m-ride2-6-1", "m-ride2-6-2", "m-ride2-6-3", "m-ride2-6-4"],
-  { kind: "panel", section: "ride", title: "EDIT RIDES", rows: EDIT_RIDE_ROWS },
-  [0, 1, 3, 4],
-);
-register("m-ride2-6-1-1", {
-  kind: "confirm", section: "ride", title: "NEW RIDE",
-  lines: ["START NEW RIDE AND", "DISCARD CURRENT RIDE?", "UNSAVED DATA WILL BE LOST."],
-});
-register("m-ride2-6-2-1", {
-  kind: "confirm", section: "ride", title: "SAVE RIDE",
-  lines: ["SAVE CURRENT RIDE AND", "START NEW RIDE?"],
-});
-register("m-ride2-6-2-1-1", { kind: "keyboard", section: "ride", title: "NAME RIDE", value: "YACOLT RIDE1" });
-register("m-ride2-6-2-1-1-1", {
-  kind: "notice", section: "ride", title: "RIDE SAVED", lines: ["RIDE-32", "IS SAVED TO", "MEMORY CARD."],
-});
-register("m-ride2-6-3-1", {
-  kind: "confirm", section: "ride", title: "CLEAR OVERLAYED RIDE",
-  lines: ["REMOVE OVERLAYED RIDE FROM", "MAP SCREEN. UNSAVED DATA", "WILL NOT BE LOST."],
-});
-
-const SAVED_RIDES = ["CMRA TRAIL 2", "2016 BLACKDOG", "DEMO FOREST", "DEMO MOUNTAIN"];
-registerMenuFamily(
-  ["m-ride2-6-4-1", "m-ride2-6-4-2", "m-ride2-6-4-3", "m-ride2-6-4-4"],
-  {
-    kind: "panel",
-    section: "ride",
-    title: "MEMORY CARD RIDES",
-    rows: SAVED_RIDES.map((label) => ({ label })),
-    note: "ENTER / CENTER: RIDE OPTIONS",
-  },
-  [0, 1, 2, 3],
-);
-const SAVED_RIDE_ACTIONS = ["LOAD RIDE", "OVERLAY", "INFO", "EJECT"];
-registerMenuFamily(
-  ["m-ride2-6-4-1-1", "m-ride2-6-4-1-2", "m-ride2-6-4-1-3", "m-ride2-6-4-1-4"],
-  { kind: "settings-modal", section: "ride", title: "MEMORY CARD RIDE", options: SAVED_RIDE_ACTIONS },
-  [0, 1, 2, 3],
-);
-register("m-ride2-6-4-1-1-1", {
-  kind: "confirm", section: "ride", title: "LOAD MEMORY CARD RIDE",
-  lines: ["LOAD RIDE FROM", "MEMORY CARD?", "CURRENT RIDE WILL BE REPLACED."],
-});
-register("m-ride2-6-4-1-2-1", {
-  kind: "confirm", section: "ride", title: "OVERLAY MEMORY CARD RIDE",
-  lines: ["LOAD RIDE ON", "TOP OF THE CURRENT RIDE", "FOR REFERENCE."],
-});
-register("m-ride2-6-4-1-3-1", {
-  kind: "notice", section: "ride", title: "MEMORY CARD RIDE INFO",
-  lines: ["REAL GPX RIDE DATA", "TEMPERATURE / SPEED / RPM", "PERFORMANCE REDUCED."],
-});
-register("m-ride2-6-4-1-4-1", {
-  kind: "confirm", section: "ride", title: "EJECT MEMORY CARD RIDE", lines: ["REMOVE RIDE FROM", "THE MEMORY CARD LIST?"],
-});
-
-const SETTINGS_MENU_ROWS = [
-  { label: "UNIT SETTINGS" },
-  { label: "SYSTEM SETTINGS" },
-  { label: "GPS SETTINGS" },
-  { label: "USER SCREENS" },
-  { label: "WARNING LED LIGHTS" },
-];
-registerMenuFamily(
-  ["m-set3-1", "m-set3-2", "m-set3-3", "m-set3-4", "m-set3-5", "m-set3-6"],
-  {
-    kind: "menu",
-    section: "set",
-    title: "SETTINGS MENU",
-    rows: SETTINGS_MENU_ROWS,
-    titleX: 270,
-    rowTop: 73,
-    rowSpacing: 42,
-    showTitleRule: false,
-  },
-  [null, 0, 1, 2, 3, 4],
-);
-
-const UNIT_ROWS = [
-  { label: "SPEED UNITS", value: "MPH" },
-  { label: "DISTANCE UNITS", value: "KM" },
-  { label: "WHEEL SIZE", value: "2110mm" },
-  { label: "CLOCK FORMAT", value: "12 HOUR" },
-  { label: "TIME OF DAY", value: "12:35" },
-  { label: "TEMP. UNITS", value: "CELCIUS" },
-  { spacer: true },
-  { label: "RESTORE DEFAULTS" },
-];
-registerMenuFamily(
-  ["m-set3-2-1", "m-set3-2-2", "m-set3-2-3", "m-set3-2-4", "m-set3-2-5", "m-set3-2-6", "m-set3-2-7"],
-  { kind: "panel", section: "set", title: "UNIT SETTINGS", rows: UNIT_ROWS },
-  [0, 1, 2, 3, 4, 5, 7],
-);
-register("m-set3-2-1-1", { kind: "settings-modal", section: "set", title: "SPEED UNITS", options: ["KM/H", "MPH"], selectedIndex: 1 });
-register("m-set3-2-2-1", { kind: "settings-modal", section: "set", title: "DISTANCE UNITS", options: ["KILOMETERS / METERS", "MILES / FEET"], selectedIndex: 0 });
-register("m-set3-2-3-1", { kind: "slot-input", section: "set", title: "WHEEL SIZE", value: "1676 mm", activeDigit: 1, note: ["MOTORCYCLE: 2110mm", "ATV: 1675mm"] });
-register("m-set3-2-4-1", { kind: "settings-modal", section: "set", title: "CLOCK FORMAT", options: ["12 HOUR", "24 HOUR"], selectedIndex: 0 });
-register("m-set3-2-5-1", { kind: "slot-input", section: "set", title: "TIME OF DAY", value: "12:35", activeDigit: 1 });
-register("m-set3-2-6-1", { kind: "settings-modal", section: "set", title: "TEMPERATURE UNITS", options: ["CELCIUS", "FAHRENHEIT"], selectedIndex: 0 });
-
-const SYSTEM_ROWS = [
-  { label: "BRIGHTNESS", value: "50%" },
-  { label: "BACKLIGHT (BAT)", value: "10 SEC" },
-  { label: "BACKLIGHT (EXT)", value: "ALWAYS ON" },
-  { label: "SAFE MODE TIMER", value: "20 SEC" },
-  { label: "SLEEP MODE TIMER", value: "10 MIN" },
-  { label: "CHARGE MODE", value: "MOTOR ON" },
-  { label: "CHARGE LEVEL", value: "TRICKLE" },
-  { spacer: true },
-  { label: "RESTORE DEFAULTS" },
-];
-registerMenuFamily(
-  ["m-set3-3-1", "m-set3-3-2", "m-set3-3-3", "m-set3-3-4", "m-set3-3-5", "m-set3-3-6", "m-set3-3-7", "m-set3-3-8"],
-  { kind: "panel", section: "set", title: "SYSTEM SETTINGS", rows: SYSTEM_ROWS },
-  [0, 1, 2, 3, 4, 5, 6, 8],
-);
-register("m-set3-3-1-1", { kind: "brightness", section: "set", title: "BRIGHTNESS", value: 50 });
-register("m-set3-3-2-1", { kind: "slot-input", section: "set", title: "BACKLIGHT (BATTERY)", value: "007 SEC", activeDigit: 2, note: ["SECONDS BACKLIGHT LIGHTS", "WHEN USING INTERNAL BATTERY", "DEFAULT: 7 SEC"] });
-register("m-set3-3-3-1", { kind: "slot-input", section: "set", title: "BACKLIGHT (EXTERNAL)", value: "000 SEC", activeDigit: 2, note: ["SECONDS BACKLIGHT LIGHTS", "WHEN USING EXTERNAL POWER", "DEFAULT: ALWAYS ON (0 SEC)"] });
-register("m-set3-3-4-1", { kind: "slot-input", section: "set", title: "SAFE MODE TIMER", value: "020 SEC", activeDigit: 1, note: ["SECONDS UNTIL TABS HIDE", "DEFAULT: 20 SEC", "NEVER HIDE: 0 SEC"] });
-register("m-set3-3-5-1", { kind: "slot-input", section: "set", title: "SLEEP MODE TIMER", value: "10 MIN", activeDigit: 1, note: ["MINUTES UNTIL SLEEP MODE", "AFTER LAST SENSOR INPUT", "DEFAULT: 10 MIN"] });
-register("m-set3-3-6-1", { kind: "settings-modal", section: "set", title: "CHARGE MODE", options: ["ONLY WHEN MOTOR IS ON", "ALWAYS CHARGE", "OFF"], selectedIndex: 0, note: "DEFAULT: MOTOR ON" });
-register("m-set3-3-7-1", { kind: "settings-modal", section: "set", title: "CHARGE LEVEL", options: ["TRICKLE CHARGE", "FAST CHARGE"], selectedIndex: 0, note: "USE TRICKLE IF POWER SUPPLY IS LIMITED." });
-
-const GPS_ROWS = [
-  { label: "MAP ORIENTATION", value: "NORTH UP" },
-  { label: "MAP AUTO-ZOOM", value: "ON" },
-  { label: "LOG AFTER STOP", value: "30 SEC" },
-  { label: "RECORD METHOD", value: "DISTANCE" },
-  { label: "WRAP WHEN FULL", value: "YES" },
-  { label: "SAMPLE FREQUENCY", value: "NORMAL" },
-  { spacer: true },
-  { label: "RESTORE DEFAULTS" },
-];
-registerMenuFamily(
-  ["m-set3-4-1", "m-set3-4-2", "m-set3-4-3", "m-set3-4-4", "m-set3-4-5", "m-set3-4-6", "m-set3-4-7"],
-  { kind: "panel", section: "set", title: "GPS SETTINGS", rows: GPS_ROWS },
-  [0, 1, 2, 3, 4, 5, 7],
-);
-register("m-set3-4-1-1", { kind: "settings-modal", section: "set", title: "MAP ORIENTATION", options: ["TRACK UP", "NORTH UP"], selectedIndex: 1, note: "TRACK UP ROTATES MAP. NORTH UP ROTATES POSITION." });
-register("m-set3-4-2-1", { kind: "settings-modal", section: "set", title: "MAP AUTO-ZOOM", options: ["ON", "OFF"], selectedIndex: 0, note: "AUTO PAN AND ZOOM MAP TO KEEP RIDE ON THE SCREEN." });
-register("m-set3-4-3-1", { kind: "slot-input", section: "set", title: "LOG AFTER STOP", value: "030 SEC", activeDigit: 1, note: ["CONSERVE POWER", "DEFAULT: 30 SEC"] });
-register("m-set3-4-4-1", { kind: "settings-modal", section: "set", title: "RECORD METHOD", options: ["TIME", "DISTANCE"], selectedIndex: 1, note: "METHOD FOR GATHERING LOG POINTS." });
-register("m-set3-4-5-1", { kind: "settings-modal", section: "set", title: "WRAP WHEN FULL", options: ["WRAP WHEN FULL", "STOP LOGGING WHEN FULL"], selectedIndex: 0, note: "WRAP OVERWRITES BEGINNING." });
-register("m-set3-4-6-1", { kind: "settings-modal", section: "set", title: "SAMPLE FREQUENCY", options: ["FAST", "NORMAL", "SLOW"], selectedIndex: 1, note: "CONSERVE MEMORY SPACE" });
-
-const USER_SCREEN_ROWS = [
-  { label: "USER SCREEN 1 SETTINGS" },
-  { label: "USER SCREEN 2 SETTINGS" },
-  { spacer: true },
-  { label: "RESTORE DEFAULTS" },
-];
-registerMenuFamily(
-  ["m-set3-5-1", "m-set3-5-2", "m-set3-5-3"],
-  { kind: "panel", section: "set", title: "USER SCREENS", rows: USER_SCREEN_ROWS },
-  [0, 1, 3],
-);
-const USER_SCREEN_SETTINGS = [
-  { label: "SCREEN NAME", value: "KELLY'S SCREEN" },
-  { spacer: true },
-  { label: "NUMBER OF BLOCKS", value: "4" },
-  { label: "BLOCK 1", value: "WHEEL SPD" },
-  { label: "BLOCK 2", value: "GPS SPD" },
-  { label: "BLOCK 3", value: "DST" },
-  { label: "BLOCK 4", value: "TRIP DST" },
-  { spacer: true },
-  { label: "RESTORE DEFAULTS" },
-];
-
-const dataBlockVariant = (label, digit) => `${label} ${digit === 1
-  ? VOYAGER_FONT_SYMBOLS.circledDigitNarrow1
-  : VOYAGER_FONT_SYMBOLS.circledDigitNarrow2}`;
-
-const USER_SCREEN_DATA_BLOCKS = [
-  "<OFF>",
-  "ALTITUDE",
-  "MIN ALTITUDE",
-  "MAX ALTITUDE",
-  "WHEEL SPEED",
-  "GPS SPEED",
-  "WHEEL ODOMETER",
-  "GPS ODOMETER",
-  "ENGINE ACC. RUN TIME",
-  "GPS ACC. RUN TIME",
-  "AIR TEMPERATURE",
-  "ENGINE TEMPERATURE",
-  "MAX ENGINE TEMPERATURE",
-  "AVG ENGINE TEMPERATURE",
-  "CLOCK",
-  "STOP WATCH",
-  "HEADING",
-  "COMPASS DIRECTION",
-  "INPUT VOLTAGE",
-  "INTERNAL BATTERY VOLTAGE",
-  "TACHOMETER",
-  dataBlockVariant("WHEEL DISTANCE", 1),
-  dataBlockVariant("GPS DISTANCE", 1),
-  dataBlockVariant("ENGINE TRIP TIME", 1),
-  dataBlockVariant("GPS TRIP TIME", 1),
-  dataBlockVariant("MAX WHEEL SPEED", 1),
-  dataBlockVariant("MAX GPS SPEED", 1),
-  dataBlockVariant("AVG WHEEL SPEED", 1),
-  dataBlockVariant("AVG GPS SPEED", 1),
-  dataBlockVariant("WHEEL DISTANCE", 2),
-  dataBlockVariant("GPS DISTANCE", 2),
-  dataBlockVariant("ENGINE TRIP TIME", 2),
-  dataBlockVariant("GPS TRIP TIME", 2),
-  dataBlockVariant("MAX WHEEL SPEED", 2),
-  dataBlockVariant("MAX GPS SPEED", 2),
-  dataBlockVariant("AVG WHEEL SPEED", 2),
-  dataBlockVariant("AVG GPS SPEED", 2),
-  "CURRENT (BATTERY CHARGER)",
-];
-registerMenuFamily(
-  ["m-set3-5-1-1", "m-set3-5-1-2", "m-set3-5-1-3", "m-set3-5-1-4", "m-set3-5-1-5", "m-set3-5-1-6", "m-set3-5-1-7"],
-  { kind: "panel", section: "set", title: "USER SCREEN 1 SETTINGS", rows: USER_SCREEN_SETTINGS, compact: true },
-  [0, 2, 3, 4, 5, 6, 8],
-);
-register("m-set3-5-1-1-1", { kind: "keyboard", section: "set", title: "USER SCREEN 1 TITLE", value: "KELLY'S SCREEN" });
-register("m-set3-5-1-2-1", { kind: "settings-modal", section: "set", title: "NUMBER OF BLOCKS", options: ["1", "2", "3", "4"], selectedIndex: 0, note: "NUMBER OF DATA BLOCKS TO DISPLAY ON USER SCREEN" });
-register("m-set3-5-1-3-1", { kind: "settings-modal", section: "set", title: "BLOCK 1", options: USER_SCREEN_DATA_BLOCKS, selectedIndex: 4, scroll: true, note: "DATA TO DISPLAY ON BLOCK 1." });
-
-const WARNING_ROWS = [
-  { label: "YELLOW LED ON", value: "210°F" },
-  { label: "RED LED ON", value: "220°F" },
-  { spacer: true },
-  { label: "YELLOW LED FLASH", value: "240°F" },
-  { label: "RED LED FLASH", value: "240°F" },
-  { spacer: true },
-  { label: "RESTORE DEFAULTS" },
-];
-registerMenuFamily(
-  ["m-set3-6-1", "m-set3-6-2", "m-set3-6-3", "m-set3-6-4", "m-set3-6-5"],
-  { kind: "panel", section: "set", title: "WARNING LED LIGHTS", rows: WARNING_ROWS },
-  [0, 1, 3, 4, 6],
-);
-register("m-set3-6-1-1", { kind: "slot-input", section: "set", title: "YELLOW LED ON", value: "210 °F", activeDigit: 1, note: ["LIGHTS LEFT YELLOW LED WHEN", "EXCEEDED. DEFAULT: 210°F"] });
-register("m-set3-6-2-1", { kind: "slot-input", section: "set", title: "RED LED ON", value: "220 °F", activeDigit: 1, note: ["LIGHTS RIGHT RED LED WHEN", "EXCEEDED. DEFAULT: 220°F"] });
-register("m-set3-6-3-1", { kind: "slot-input", section: "set", title: "YELLOW LED FLASH", value: "240 °F", activeDigit: 1, note: ["FLASH LEFT YELLOW LED WHEN", "EXCEEDED. DEFAULT: 240°F"] });
-register("m-set3-6-4-1", { kind: "slot-input", section: "set", title: "RED LED FLASH", value: "240 °F", activeDigit: 1, note: ["FLASH RIGHT RED LED WHEN", "EXCEEDED. DEFAULT: 240°F"] });
-
-const GRAPH_DISPLAY_OPTIONS = ["CURRENT TRACK", "OTHER TRACK", "OTHER ROUTE"];
-const graphDisplayModal = (trackSlot = 1) => ({
-  kind: "settings-modal",
-  section: "graph",
-  title: "GRAPHS DISPLAY",
-  options: GRAPH_DISPLAY_OPTIONS,
-  selectedIndex: 0,
-  graphDisplay: true,
-  trackSlot,
-  summary: `DISPLAYING: CURRENT TRACK${trackSlot === 2 ? " (TRACK_2)" : ""}`,
-});
-
-register("m-graph-temp-primary-display", graphDisplayModal());
-register("m-graph-temp-display", graphDisplayModal());
-register("m-graph-temp-track2-display", graphDisplayModal(2));
-register("m-graph-alt-primary-display", graphDisplayModal());
-register("m-graph-alt-display", graphDisplayModal());
-register("m-graph-alt-track2-display", graphDisplayModal(2));
-
-register("m-user-screen-1-layout", {
-  kind: "user-layout",
-  section: "set",
-  title: "USER SCREEN 1 LAYOUT",
-  userScreen: 1,
-  selectedIndex: 0,
-});
-register("m-user-screen-2-layout", {
-  kind: "user-layout",
-  section: "set",
-  title: "USER SCREEN 2 LAYOUT",
-  userScreen: 2,
-  selectedIndex: 0,
-});
-register("m-user-screen-1-name", {
-  kind: "keyboard",
-  section: "set",
-  title: "USER SCREEN 1 NAME",
-  userScreen: 1,
-  userScreenNameEditor: true,
-});
-register("m-user-screen-2-name", {
-  kind: "keyboard",
-  section: "set",
-  title: "USER SCREEN 2 NAME",
-  userScreen: 2,
-  userScreenNameEditor: true,
-});
-register("m-user-screen-1-data-block", {
-  kind: "settings-modal",
-  section: "set",
-  title: "CHOOSE READOUT",
-  options: USER_SCREEN_DATA_BLOCKS,
-  selectedIndex: 4,
-  scroll: true,
-  dataBlockPicker: true,
-  userScreen: 1,
-});
-register("m-user-screen-2-data-block", {
-  kind: "settings-modal",
-  section: "set",
-  title: "CHOOSE READOUT",
-  options: USER_SCREEN_DATA_BLOCKS,
-  selectedIndex: 8,
-  scroll: true,
-  dataBlockPicker: true,
-  userScreen: 2,
-});
-
+const transitionIndex = {};
 const DESTINATION_WAYPOINT_OPTIONS = ["CMRA TRAIL HEAD", "TRAIL 1 BAILOUT", "CIRCLE E CAMP", "A-B RESET"];
-register("m-nav-destination-primary", {
-  kind: "settings-modal",
-  section: "main",
-  title: "SELECT DESTINATION WAYPOINT",
-  options: DESTINATION_WAYPOINT_OPTIONS,
-  selectedIndex: 0,
-  destinationWaypointPicker: true,
-  titleNarrow: true,
-});
-register("m-nav-destination-secondary", {
-  kind: "settings-modal",
-  section: "main",
-  title: "SELECT DESTINATION WAYPOINT",
-  options: DESTINATION_WAYPOINT_OPTIONS,
-  selectedIndex: 0,
-  destinationWaypointPicker: true,
-  titleNarrow: true,
-});
 
 const OVERLAY_KINDS = new Set([
   "brightness",
+  "checklist-modal",
   "confirm",
   "keyboard",
   "notice",
+  "progress",
   "settings-modal",
   "slot-input",
   "user-layout",
 ]);
 
-function inferredParentStateId(stateId) {
-  const contextualParents = {
-    "m-graph-temp-primary-display": "eng",
-    "m-graph-temp-display": "eng2",
-    "m-graph-temp-track2-display": "eng3",
-    "m-graph-alt-primary-display": "alt",
-    "m-graph-alt-display": "alt2",
-    "m-graph-alt-track2-display": "alt3",
-    "m-user-screen-1-layout": "cstm",
-    "m-user-screen-2-layout": "cstm2",
-    "m-user-screen-1-name": "m-user-screen-1-layout",
-    "m-user-screen-2-name": "m-user-screen-2-layout",
-    "m-user-screen-1-data-block": "m-user-screen-1-layout",
-    "m-user-screen-2-data-block": "m-user-screen-2-layout",
-    "m-nav-destination-primary": "dir",
-    "m-nav-destination-secondary": "dir2",
-  };
-  if (contextualParents[stateId]) return contextualParents[stateId];
-  const parts = stateId.split("-");
-  while (parts.length > 2) {
-    parts.pop();
-    const candidate = parts.join("-");
-    if (registry[candidate]) return candidate;
-  }
-  return null;
+function presentationFor(kind) {
+  if (OVERLAY_KINDS.has(kind)) return "overlay";
+  if (kind === "waypoint-map") return "workflow";
+  return "page";
 }
 
-for (const definition of Object.values(registry)) {
-  definition.presentation = OVERLAY_KINDS.has(definition.kind)
-    ? "overlay"
-    : definition.kind === "waypoint-map"
-      ? "workflow"
-      : "page";
-  definition.parentStateId = inferredParentStateId(definition.id);
+function register(id, definition, navigation = {}) {
+  const parentStateId = definition.parentStateId ?? null;
+  const presentation = presentationFor(definition.kind);
+  registry[id] = { id, ...definition, parentStateId, presentation };
+  transitionIndex[id] = {
+    menu: navigation.menu ?? (presentation === "overlay" ? parentStateId : "index"),
+    up: navigation.up ?? id,
+    left: navigation.left ?? (parentStateId ?? null),
+    center: navigation.center ?? (presentation === "page" ? navigation.enter ?? id : id),
+    right: navigation.right ?? id,
+    down: navigation.down ?? id,
+    back: navigation.back ?? (parentStateId ?? "index"),
+    enter: navigation.enter ?? (parentStateId ?? id),
+  };
+}
+
+function selectableRowIndexes(rows) {
+  return rows.flatMap((row, index) => row.spacer ? [] : [index]);
+}
+
+function registerPageFamily({ ids, rows, targets = [], parentStateId, ...definition }) {
+  const rowIndexes = selectableRowIndexes(rows);
+  if (ids.length !== rowIndexes.length) {
+    throw new Error(`${definition.title} has ${rowIndexes.length} selectable rows but ${ids.length} states.`);
+  }
+  ids.forEach((id, index) => {
+    const target = targets[index] === undefined ? id : targets[index];
+    register(id, {
+      ...definition,
+      rows,
+      parentStateId,
+      selectedIndex: rowIndexes[index],
+    }, {
+      up: ids[(index - 1 + ids.length) % ids.length],
+      left: parentStateId,
+      right: target,
+      down: ids[(index + 1) % ids.length],
+      back: parentStateId,
+      enter: target,
+    });
+  });
+}
+
+function registerSection({ rootId, rowIds, rows, targets, section, title, up, down, ...definition }) {
+  register(rootId, { kind: "menu", section, title, rows, ...definition }, {
+    menu: "index",
+    up,
+    left: null,
+    center: null,
+    right: rowIds[0],
+    down,
+    back: "index",
+    enter: rowIds[0],
+  });
+  registerPageFamily({
+    ids: rowIds,
+    rows,
+    targets,
+    parentStateId: rootId,
+    kind: "menu",
+    section,
+    title,
+    ...definition,
+  });
+}
+
+function registerOverlay(id, definition, parentStateId, navigation = {}) {
+  register(id, { ...definition, parentStateId }, {
+    menu: parentStateId,
+    up: id,
+    left: definition.kind === "settings-modal" || definition.kind === "slot-input" || definition.kind === "brightness"
+      ? parentStateId
+      : id,
+    center: id,
+    right: id,
+    down: id,
+    back: parentStateId,
+    enter: parentStateId,
+    ...navigation,
+  });
+}
+
+const QUICK_ROWS = [
+  { label: "LOG TRACK", field: "logTrack", value: "OFF" },
+  { spacer: true },
+  { label: "RESET RIDE MEMORY" },
+  { label: "RESET TRIP DST" },
+  { spacer: true },
+  { label: "IMPORT RIDE" },
+  { label: "EXPORT RIDE" },
+  { spacer: true },
+  { label: "ADD WAYPOINT (CURRENT POS)" },
+  { label: "SELECT DESTINATION" },
+];
+const QUICK_IDS = ["m-main1-2", "m-main1-3", "m-main1-4", "m-main1-5", "m-main1-6", "m-main1-7", "m-main1-8"];
+
+registerSection({
+  rootId: "m-main1-1",
+  rowIds: QUICK_IDS,
+  rows: QUICK_ROWS,
+  targets: ["m-main1-2-1", "m-main1-3-1", "m-main1-4-1", "m-main1-5-1", "m-main1-6-1", "m-main1-7", "m-main1-8-1"],
+  section: "main",
+  title: "QUICK MENU",
+  up: "m-set3-1",
+  down: "m-ride2-1",
+  compact: true,
+});
+registry["m-main1-7"].outcome = "quick-add-waypoint";
+registerOverlay("m-main1-2-1", {
+  kind: "settings-modal", section: "main", title: "LOG TRACK", field: "logTrack", options: ["OFF", "ON"], selectedIndex: 0,
+}, "m-main1-2");
+registerOverlay("m-main1-3-1", {
+  kind: "confirm", section: "main", title: "RESET RIDE MEMORY", outcome: "reset-ride-memory",
+  lines: ["ERASE ALL TRACKS/ROUTES/WAYPOINTS", "AND RESET TRIP DST (1), (2)?", "UNSAVED DATA WILL BE LOST!"],
+}, "m-main1-3");
+registerOverlay("m-main1-4-1", {
+  kind: "confirm", section: "main", title: "RESET TRIP DIST", outcome: "reset-trip-1",
+  lines: ["RESET TRIP DST/TIME?", "TRIP DST (1) IS VISIBLE FROM", "MAIN & USER SCREEN."],
+}, "m-main1-4");
+registerOverlay("m-main1-5-1", {
+  kind: "settings-modal", section: "main", title: "SELECT FILE TO IMPORT", fileBrowser: true,
+  options: ["BAKER-WEST.GPX", "JORDAN-CREEK.GPX", "CMRA-TRAIL-2.GPX", "2016-BLACKDOG.GPX"], selectedIndex: 0, scroll: true,
+}, "m-main1-5");
+registerOverlay("m-main1-6-1", {
+  kind: "progress", section: "main", title: "EXPORTING GPX", lines: ["WRITING FILE..."], progress: 0.68,
+  outcome: "export-ride", cancelOutcome: "cancel-export",
+}, "m-main1-6");
+registerOverlay("m-main1-8-1", {
+  kind: "settings-modal", section: "main", title: "SELECT DESTINATION WAYPOINT", field: "destinationWaypoint", options: DESTINATION_WAYPOINT_OPTIONS, selectedIndex: 0,
+  destinationWaypointPicker: true, titleNarrow: true, outcome: "select-destination",
+}, "m-main1-8");
+
+const RIDE_ROWS = [
+  { label: "TRACKS", submenu: true },
+  { label: "ROUTES", submenu: true },
+  { label: "WAYPOINTS", submenu: true },
+  { label: "GRAPHS DISPLAY", submenu: true },
+  { label: "RESETS", submenu: true },
+  { label: "IMPORT / EXPORT", submenu: true },
+  { label: "MEMORY", value: "31%", meter: 0.31, submenu: true },
+];
+const RIDE_IDS = ["m-ride2-2", "m-ride2-3", "m-ride2-4", "m-ride2-5", "m-ride2-6", "m-ride2-7", "m-ride2-8"];
+registerSection({
+  rootId: "m-ride2-1",
+  rowIds: RIDE_IDS,
+  rows: RIDE_ROWS,
+  targets: ["m-ride-tracks-1", "m-ride-routes-1", "m-ride-waypoints-1", "m-ride-graphs-display", "m-ride-resets-1", "m-ride-transfer-1", "m-ride-memory-1"],
+  section: "ride",
+  title: "RIDE MENU",
+  up: "m-main1-1",
+  down: "m-set3-1",
+});
+
+const TRACK_ROWS = [
+  { label: "TRACKS DISPLAY", field: "tracksDisplay", value: "ALL" },
+  { label: "RENAME A TRACK" },
+  { label: "START NEW TRACK SEGMENT" },
+  { label: "ERASE ALL TRACKS" },
+];
+registerPageFamily({
+  ids: ["m-ride-tracks-1", "m-ride-tracks-2", "m-ride-tracks-3", "m-ride-tracks-4"],
+  rows: TRACK_ROWS,
+  targets: ["m-ride-tracks-display", "m-ride-tracks-rename", "m-ride-tracks-segment", "m-ride-tracks-erase"],
+  parentStateId: "m-ride2-2", kind: "panel", section: "ride", title: "TRACKS",
+});
+registerOverlay("m-ride-tracks-display", {
+  kind: "settings-modal", section: "ride", title: "TRACK(S) TO DISPLAY", field: "tracksDisplay",
+  options: ["NONE", "ALL", "CUSTOM"], selectedIndex: 1, optionTargets: { 2: "m-ride-tracks-custom" },
+}, "m-ride-tracks-1");
+registerOverlay("m-ride-tracks-custom", {
+  kind: "checklist-modal", section: "ride", title: "CUSTOM TRACKS", field: "visibleTracks",
+  options: ["BAKER WEST", "JORDAN CREEK", "CMRA TRAIL 2", "2016 BLACKDOG"], checkedOptions: [0, 1, 2, 3], selectedIndex: 0,
+}, "m-ride-tracks-display");
+registerOverlay("m-ride-tracks-rename", {
+  kind: "settings-modal", section: "ride", title: "RENAME A TRACK", options: ["BAKER WEST", "JORDAN CREEK", "CMRA TRAIL 2", "2016 BLACKDOG"], selectedIndex: 0,
+  optionTargets: { 0: "m-ride-track-name", 1: "m-ride-track-name", 2: "m-ride-track-name", 3: "m-ride-track-name" },
+}, "m-ride-tracks-2");
+registerOverlay("m-ride-track-name", {
+  kind: "keyboard", section: "ride", title: "TRACK NAME", value: "BAKER WEST",
+}, "m-ride-tracks-rename");
+registerOverlay("m-ride-tracks-segment", {
+  kind: "confirm", section: "ride", title: "START NEW TRACK SEGMENT", outcome: "start-track-segment",
+  lines: ["CLOSE CURRENT SEGMENT AND", "BEGIN A NEW TRACK SEGMENT?"],
+}, "m-ride-tracks-3");
+registerOverlay("m-ride-tracks-erase", {
+  kind: "confirm", section: "ride", title: "ERASE ALL TRACKS", outcome: "erase-tracks", lines: ["ERASE ALL TRACKS?", "UNSAVED DATA WILL BE LOST!"],
+}, "m-ride-tracks-4");
+
+const ROUTE_ROWS = [
+  { label: "ROUTES DISPLAY", field: "routesDisplay", value: "ALL" },
+  { label: "RENAME A ROUTE" },
+  { label: "ERASE ALL ROUTES" },
+];
+registerPageFamily({
+  ids: ["m-ride-routes-1", "m-ride-routes-2", "m-ride-routes-3"], rows: ROUTE_ROWS,
+  targets: ["m-ride-routes-display", "m-ride-routes-rename", "m-ride-routes-erase"],
+  parentStateId: "m-ride2-3", kind: "panel", section: "ride", title: "ROUTES",
+});
+registerOverlay("m-ride-routes-display", {
+  kind: "settings-modal", section: "ride", title: "ROUTE(S) TO DISPLAY", field: "routesDisplay", options: ["NONE", "ALL", "CUSTOM"], selectedIndex: 1,
+}, "m-ride-routes-1");
+registerOverlay("m-ride-routes-rename", {
+  kind: "settings-modal", section: "ride", title: "RENAME A ROUTE", options: ["FOREST LOOP", "JUNIPER RIDGE", "WEST CONNECTOR"], selectedIndex: 0,
+}, "m-ride-routes-2");
+registerOverlay("m-ride-routes-erase", {
+  kind: "confirm", section: "ride", title: "ERASE ALL ROUTES", outcome: "erase-routes", lines: ["ERASE ALL ROUTES?", "UNSAVED DATA WILL BE LOST!"],
+}, "m-ride-routes-3");
+
+const WAYPOINT_ROWS = [
+  { label: "WAYPOINTS DISPLAY", field: "waypointsDisplay", value: "ALL" },
+  { label: "RENAME A WAYPOINT" },
+  { label: "SELECT DESTINATION" },
+  { label: "RESET DESTINATION" },
+  { spacer: true },
+  { label: "ADD WAYPOINT", submenu: true },
+  { label: "ERASE WAYPOINT(S)", submenu: true },
+];
+registerPageFamily({
+  ids: ["m-ride-waypoints-1", "m-ride-waypoints-2", "m-ride-waypoints-3", "m-ride-waypoints-4", "m-ride-waypoints-5", "m-ride-waypoints-6"],
+  rows: WAYPOINT_ROWS,
+  targets: ["m-ride-waypoints-display", "m-ride-waypoints-rename", "m-ride-waypoints-destination", "m-ride-waypoints-reset", "m-ride-waypoints-add-1", "m-ride-waypoints-erase-1"],
+  parentStateId: "m-ride2-4", kind: "panel", section: "ride", title: "WAYPOINTS", compact: true,
+});
+registerOverlay("m-ride-waypoints-display", {
+  kind: "settings-modal", section: "ride", title: "WAYPOINTS TO DISPLAY", field: "waypointsDisplay", options: ["NONE", "ALL", "CUSTOM"], selectedIndex: 1,
+}, "m-ride-waypoints-1");
+registerOverlay("m-ride-waypoints-rename", {
+  kind: "settings-modal", section: "ride", title: "RENAME A WAYPOINT", options: DESTINATION_WAYPOINT_OPTIONS, selectedIndex: 0, destinationWaypointPicker: true, titleNarrow: true,
+}, "m-ride-waypoints-2");
+registerOverlay("m-ride-waypoints-destination", {
+  kind: "settings-modal", section: "ride", title: "SELECT DESTINATION WAYPOINT", field: "destinationWaypoint", options: DESTINATION_WAYPOINT_OPTIONS, selectedIndex: 0,
+  destinationWaypointPicker: true, titleNarrow: true, outcome: "select-destination",
+}, "m-ride-waypoints-3");
+registerOverlay("m-ride-waypoints-reset", {
+  kind: "confirm", section: "ride", title: "RESET DESTINATION", outcome: "reset-destination", lines: ["CLEAR DESTINATION WAYPOINT?"],
+}, "m-ride-waypoints-4");
+
+const ADD_WAYPOINT_ROWS = [
+  { label: "CURRENT POSITION" },
+  { label: "LATITUDE / LONGITUDE" },
+  { label: "MAP CROSSHAIRS" },
+];
+registerPageFamily({
+  ids: ["m-ride-waypoints-add-1", "m-ride-waypoints-add-2", "m-ride-waypoints-add-3"], rows: ADD_WAYPOINT_ROWS,
+  targets: ["m-ride-waypoint-current", "m-ride-waypoint-latitude", "m-ride-waypoint-crosshair"],
+  parentStateId: "m-ride-waypoints-5", kind: "panel", section: "ride", title: "ADD WAYPOINT",
+});
+register("m-ride-waypoint-current", {
+  kind: "waypoint-map", section: "ride", title: "ADD WAYPOINT: CONFIRM", mode: "confirm", pending: "current", parentStateId: "m-ride-waypoints-add-1", outcome: "add-waypoint-current",
+}, { back: "m-ride-waypoints-add-1", enter: "m-ride-waypoints-add-1" });
+registerOverlay("m-ride-waypoint-latitude", {
+  kind: "slot-input", section: "ride", title: "ENTER LATITUDE", value: "N45.768892", activeDigit: 3,
+}, "m-ride-waypoints-add-2", { enter: "m-ride-waypoint-longitude" });
+registerOverlay("m-ride-waypoint-longitude", {
+  kind: "slot-input", section: "ride", title: "ENTER LONGITUDE", value: "W122.519284", activeDigit: 4,
+}, "m-ride-waypoint-latitude", { enter: "m-ride-waypoint-coordinates-confirm" });
+register("m-ride-waypoint-coordinates-confirm", {
+  kind: "waypoint-map", section: "ride", title: "ADD WAYPOINT: CONFIRM", mode: "confirm", pending: "coordinates", parentStateId: "m-ride-waypoint-longitude", outcome: "add-waypoint-coordinates",
+}, { back: "m-ride-waypoint-longitude", enter: "m-ride-waypoints-add-2" });
+register("m-ride-waypoint-crosshair", {
+  kind: "waypoint-map", section: "ride", title: "ADD WAYPOINT: CROSSHAIRS", mode: "crosshair", pending: "crosshair", parentStateId: "m-ride-waypoints-add-3",
+}, { up: "m-ride-waypoint-crosshair", left: "m-ride-waypoint-crosshair", center: "m-ride-waypoint-crosshair", right: "m-ride-waypoint-crosshair", down: "m-ride-waypoint-crosshair", back: "m-ride-waypoints-add-3", enter: "m-ride-waypoint-crosshair-confirm" });
+register("m-ride-waypoint-crosshair-confirm", {
+  kind: "waypoint-map", section: "ride", title: "ADD WAYPOINT: CONFIRM", mode: "confirm", pending: "crosshair", parentStateId: "m-ride-waypoint-crosshair", outcome: "add-waypoint-crosshair",
+}, { back: "m-ride-waypoint-crosshair", enter: "m-ride-waypoints-add-3" });
+
+const ERASE_WAYPOINT_ROWS = [
+  { label: "ERASE ONE WAYPOINT" },
+  { label: "ERASE ALL WAYPOINTS" },
+];
+registerPageFamily({
+  ids: ["m-ride-waypoints-erase-1", "m-ride-waypoints-erase-2"], rows: ERASE_WAYPOINT_ROWS,
+  targets: ["m-ride-waypoint-delete", "m-ride-waypoints-erase-all"], parentStateId: "m-ride-waypoints-6",
+  kind: "panel", section: "ride", title: "ERASE WAYPOINT(S)",
+});
+register("m-ride-waypoint-delete", {
+  kind: "waypoint-map", section: "ride", title: "DELETE WAYPOINT: SELECT", mode: "select-delete", parentStateId: "m-ride-waypoints-erase-1",
+}, { back: "m-ride-waypoints-erase-1", enter: "m-ride-waypoint-delete-confirm" });
+register("m-ride-waypoint-delete-confirm", {
+  kind: "waypoint-map", section: "ride", title: "DELETE WAYPOINT: CONFIRM", mode: "confirm-delete", parentStateId: "m-ride-waypoint-delete", outcome: "erase-waypoint",
+}, { back: "m-ride-waypoint-delete", enter: "m-ride-waypoints-erase-1" });
+registerOverlay("m-ride-waypoints-erase-all", {
+  kind: "confirm", section: "ride", title: "ERASE ALL WAYPOINTS", outcome: "erase-waypoints", lines: ["ERASE ALL WAYPOINTS?"],
+}, "m-ride-waypoints-erase-2");
+
+registerOverlay("m-ride-graphs-display", {
+  kind: "settings-modal", section: "ride", title: "GRAPHS DISPLAY", graphDisplay: true, summary: "DISPLAYING: CURRENT TRACK",
+  options: ["CURRENT TRACK", "OTHER TRACK", "OTHER ROUTE"], selectedIndex: 0,
+}, "m-ride2-5");
+
+const RESET_ROWS = [
+  { label: "RESET RIDE MEMORY" },
+  { spacer: true },
+  { label: "RESET TRIP DST" },
+  { label: `RESET TRIP DST ${VOYAGER_FONT_SYMBOLS.circledDigitNarrow2}` },
+  { label: "RESET STOPWATCH" },
+];
+registerPageFamily({
+  ids: ["m-ride-resets-1", "m-ride-resets-2", "m-ride-resets-3", "m-ride-resets-4"], rows: RESET_ROWS,
+  targets: ["m-ride-reset-memory", "m-ride-reset-trip-1", "m-ride-reset-trip-2", "m-ride-reset-stopwatch"],
+  parentStateId: "m-ride2-6", kind: "panel", section: "ride", title: "RESETS",
+});
+registerOverlay("m-ride-reset-memory", {
+  kind: "confirm", section: "ride", title: "RESET RIDE MEMORY", outcome: "reset-ride-memory",
+  lines: ["ERASE ALL TRACKS/ROUTES/WAYPOINTS", "AND RESET TRIP DST (1), (2)?", "UNSAVED DATA WILL BE LOST!"],
+}, "m-ride-resets-1");
+registerOverlay("m-ride-reset-trip-1", { kind: "confirm", section: "ride", title: "RESET TRIP DIST", outcome: "reset-trip-1", lines: ["RESET TRIP DST/TIME?", "TRIP DST (1) IS VISIBLE FROM", "MAIN & USER SCREEN."] }, "m-ride-resets-2");
+registerOverlay("m-ride-reset-trip-2", { kind: "confirm", section: "ride", title: "RESET TRIP DIST (2)", outcome: "reset-trip-2", lines: ["RESET TRIP DST/TIME (2)?"] }, "m-ride-resets-3");
+registerOverlay("m-ride-reset-stopwatch", { kind: "confirm", section: "ride", title: "RESET STOP WATCH", outcome: "reset-stopwatch", lines: ["RESET STOP WATCH?"] }, "m-ride-resets-4");
+
+const TRANSFER_ROWS = [
+  { label: "IMPORT RIDE" },
+  { label: "IMPORT SETTINGS", submenu: true },
+  { spacer: true },
+  { label: "EXPORT RIDE" },
+  { label: "EXPORT SETTINGS", submenu: true },
+];
+registerPageFamily({
+  ids: ["m-ride-transfer-1", "m-ride-transfer-2", "m-ride-transfer-3", "m-ride-transfer-4"], rows: TRANSFER_ROWS,
+  targets: ["m-ride-import-file", "m-ride-import-settings", "m-ride-export-progress", "m-ride-export-settings"],
+  parentStateId: "m-ride2-7", kind: "panel", section: "ride", title: "IMPORT / EXPORT",
+});
+registerOverlay("m-ride-import-file", {
+  kind: "settings-modal", section: "ride", title: "SELECT FILE TO IMPORT", fileBrowser: true,
+  options: ["BAKER-WEST.GPX", "JORDAN-CREEK.GPX", "CMRA-TRAIL-2.GPX", "2016-BLACKDOG.GPX"], selectedIndex: 0, scroll: true,
+}, "m-ride-transfer-1");
+registerOverlay("m-ride-import-settings", {
+  kind: "settings-modal", section: "ride", title: "IMPORT SETTINGS", options: ["RIDE DATA", "USER SCREENS", "DEVICE SETTINGS", "ALL SETTINGS"], selectedIndex: 3,
+}, "m-ride-transfer-2");
+registerOverlay("m-ride-export-progress", {
+  kind: "progress", section: "ride", title: "EXPORTING GPX", lines: ["WRITING FILE..."], progress: 0.68, outcome: "export-ride", cancelOutcome: "cancel-export",
+}, "m-ride-transfer-3");
+registerOverlay("m-ride-export-settings", {
+  kind: "progress", section: "ride", title: "EXPORT SETTINGS", lines: ["WRITING FILE..."], progress: 0.68, outcome: "export-settings", cancelOutcome: "cancel-export",
+}, "m-ride-transfer-4");
+
+const MEMORY_ROWS = [
+  { label: "TRACKS", value: "3 / 30", meter: 0.10 },
+  { label: "TRACK MEMORY", value: "31%", meter: 0.31 },
+  { label: "ROUTES", value: "4 / 300", meter: 0.013 },
+  { label: "ROUTE MEMORY", value: "17%", meter: 0.17 },
+  { label: "WAYPOINTS", value: "9 / 300", meter: 0.03 },
+  { label: "MICROSD", value: "416 / 486MB", meter: 0.86 },
+  { spacer: true },
+  { label: "RESET RIDE MEMORY" },
+];
+registerPageFamily({
+  ids: ["m-ride-memory-1", "m-ride-memory-2", "m-ride-memory-3", "m-ride-memory-4", "m-ride-memory-5", "m-ride-memory-6", "m-ride-memory-7"],
+  rows: MEMORY_ROWS, targets: [undefined, undefined, undefined, undefined, undefined, undefined, "m-ride-memory-reset"],
+  parentStateId: "m-ride2-8", kind: "memory", section: "ride", title: "MEMORY", compact: true,
+});
+registerOverlay("m-ride-memory-reset", {
+  kind: "confirm", section: "ride", title: "RESET RIDE MEMORY", outcome: "reset-ride-memory",
+  lines: ["ERASE ALL TRACKS/ROUTES/WAYPOINTS", "AND RESET TRIP DST (1), (2)?", "UNSAVED DATA WILL BE LOST!"],
+}, "m-ride-memory-7");
+
+const SET_ROWS = [
+  { label: "UNIT SETTINGS", submenu: true },
+  { label: "VEHICLE SENSORS", submenu: true },
+  { label: "POWER SETTINGS", submenu: true },
+  { label: "GPS SETTINGS", submenu: true },
+  { label: "MAP SETTINGS", submenu: true },
+  { label: "WARNING LED LIGHTS", submenu: true },
+  { label: "UTILITY", submenu: true },
+];
+const SET_IDS = ["m-set3-2", "m-set3-3", "m-set3-4", "m-set3-5", "m-set3-6", "m-set3-7", "m-set3-8"];
+registerSection({
+  rootId: "m-set3-1", rowIds: SET_IDS, rows: SET_ROWS,
+  targets: ["m-set3-2-1", "m-set3-3-1", "m-set3-4-1", "m-set3-5-1", "m-set3-6-1", "m-set3-7-1", "m-set3-8-1"],
+  section: "set", title: "SETTINGS MENU", up: "m-ride2-1", down: "m-main1-1", compact: true,
+});
+
+const UNIT_ROWS = [
+  { label: "SPEED / DIST UNITS", field: "distanceUnits", value: "MILES" },
+  { label: "ALTITUDE UNITS", field: "altitudeUnits", value: "FEET" },
+  { label: "TEMP. UNITS", field: "temperatureUnits", value: "FAHRENHEIT" },
+  { spacer: true },
+  { label: "CLOCK FORMAT", field: "clockFormat", value: "12 HOUR" },
+  { label: "TIME OF DAY", field: "timeOfDay", value: "12:42:04 PM" },
+  { spacer: true },
+  { label: "TABS TIMEOUT", field: "tabsTimeout", value: "15 SEC" },
+  { label: "DISPLAY MODE", field: "displayMode", value: "NORMAL" },
+  { spacer: true },
+  { label: "RESTORE DEFAULTS" },
+];
+registerPageFamily({
+  ids: ["m-set3-2-1", "m-set3-2-2", "m-set3-2-3", "m-set3-2-4", "m-set3-2-5", "m-set3-2-6", "m-set3-2-7", "m-set3-2-8"], rows: UNIT_ROWS,
+  targets: ["m-set3-2-units", "m-set3-2-altitude", "m-set3-2-temperature", "m-set3-2-clock", "m-set3-2-time", "m-set3-2-tabs", "m-set3-2-display", "m-set3-2-8"],
+  parentStateId: "m-set3-2", kind: "panel", section: "set", title: "UNIT SETTINGS", compact: true, restoreGroup: "UNIT SETTINGS",
+});
+registerOverlay("m-set3-2-units", { kind: "settings-modal", section: "set", title: "SPEED / DIST UNITS", field: "distanceUnits", options: ["MILES", "KILOMETERS"], selectedIndex: 0 }, "m-set3-2-1");
+registerOverlay("m-set3-2-altitude", { kind: "settings-modal", section: "set", title: "ALTITUDE UNITS", field: "altitudeUnits", options: ["FEET", "METERS"], selectedIndex: 0 }, "m-set3-2-2");
+registerOverlay("m-set3-2-temperature", { kind: "settings-modal", section: "set", title: "TEMPERATURE UNITS", field: "temperatureUnits", options: ["FAHRENHEIT", "CELSIUS"], selectedIndex: 0 }, "m-set3-2-3");
+registerOverlay("m-set3-2-clock", { kind: "settings-modal", section: "set", title: "CLOCK FORMAT", field: "clockFormat", options: ["12 HOUR", "24 HOUR"], selectedIndex: 0 }, "m-set3-2-4");
+registerOverlay("m-set3-2-time", { kind: "slot-input", section: "set", title: "TIME OF DAY", field: "timeOfDay", value: "12:42:04 PM", activeDigit: 1 }, "m-set3-2-5");
+registerOverlay("m-set3-2-tabs", { kind: "slot-input", section: "set", title: "TABS TIMEOUT", field: "tabsTimeout", value: "015 SEC", activeDigit: 1 }, "m-set3-2-6");
+registerOverlay("m-set3-2-display", { kind: "settings-modal", section: "set", title: "DISPLAY MODE", field: "displayMode", options: ["NORMAL", "INVERTED"], selectedIndex: 0 }, "m-set3-2-7");
+
+const VEHICLE_ROWS = [
+  { label: "WHEEL SENSOR", field: "wheelSensor", value: "ENABLED" },
+  { label: "  WHEEL SIZE", field: "wheelSize", value: "2110 mm" },
+  { spacer: true },
+  { label: "ENGINE SENSOR", field: "engineSensor", value: "ENABLED" },
+  { label: "  PPR", field: "ppr", value: "1" },
+  { label: "  SENSITIVITY", field: "sensorSensitivity", value: "LOW" },
+  { label: "  TACHBAR", submenu: true },
+  { spacer: true },
+  { label: "SPEED / DIST", field: "speedSource", value: "WHL SENSOR" },
+  { label: "ACCUM RUN TIME", field: "runTimeSource", value: "ENG OR WHL" },
+  { spacer: true },
+  { label: "RESTORE DEFAULTS" },
+];
+registerPageFamily({
+  ids: ["m-set3-3-1", "m-set3-3-2", "m-set3-3-3", "m-set3-3-4", "m-set3-3-5", "m-set3-3-6", "m-set3-3-7", "m-set3-3-8", "m-set3-3-9"], rows: VEHICLE_ROWS,
+  targets: ["m-set3-3-wheel", "m-set3-3-size", "m-set3-3-engine", "m-set3-3-ppr", "m-set3-3-sensitivity", "m-set3-3-tachbar", "m-set3-3-source", "m-set3-3-runtime", "m-set3-3-9"],
+  parentStateId: "m-set3-3", kind: "panel", section: "set", title: "VEHICLE SENSORS", compact: true, restoreGroup: "VEHICLE SENSORS",
+});
+registerOverlay("m-set3-3-wheel", { kind: "settings-modal", section: "set", title: "WHEEL SENSOR", field: "wheelSensor", options: ["ENABLED", "DISABLED"], selectedIndex: 0 }, "m-set3-3-1");
+registerOverlay("m-set3-3-size", { kind: "slot-input", section: "set", title: "WHEEL SIZE", field: "wheelSize", value: "2110 mm", activeDigit: 1 }, "m-set3-3-2");
+registerOverlay("m-set3-3-engine", { kind: "settings-modal", section: "set", title: "ENGINE SENSOR", field: "engineSensor", options: ["ENABLED", "DISABLED"], selectedIndex: 0 }, "m-set3-3-3");
+registerOverlay("m-set3-3-ppr", { kind: "slot-input", section: "set", title: "PULSES PER REVOLUTION", field: "ppr", value: "1", activeDigit: 0 }, "m-set3-3-4");
+registerOverlay("m-set3-3-sensitivity", { kind: "settings-modal", section: "set", title: "SENSITIVITY", field: "sensorSensitivity", options: ["LOW", "MEDIUM", "HIGH"], selectedIndex: 0 }, "m-set3-3-5");
+registerOverlay("m-set3-3-tachbar", { kind: "settings-modal", section: "set", title: "TACHBAR OPTIONS", options: ["TACHBAR SCREEN: ENABLED", "TACH SCALE: 15000 RPM", "MAIN SCREEN: TACHBAR"], selectedIndex: 0 }, "m-set3-3-6");
+registerOverlay("m-set3-3-source", { kind: "settings-modal", section: "set", title: "SPEED / DIST", field: "speedSource", options: ["WHL SENSOR", "GPS"], selectedIndex: 0 }, "m-set3-3-7");
+registerOverlay("m-set3-3-runtime", { kind: "settings-modal", section: "set", title: "ACCUM RUN TIME", field: "runTimeSource", options: ["ENG OR WHL", "ENGINE", "WHEEL", "GPS"], selectedIndex: 0 }, "m-set3-3-8");
+
+const POWER_ROWS = [
+  { label: "BACKLIGHT LEVEL", field: "backlightLevel", value: "HIGH" },
+  { label: "  TIMEOUT (BAT)", field: "backlightBattery", value: "20 SEC" },
+  { label: "  TIMEOUT (EXT)", field: "backlightExternal", value: "ALWAYS ON" },
+  { spacer: true },
+  { label: "SLEEP (BATTERY)", field: "sleepBattery", value: "3 MIN" },
+  { label: "SLEEP (EXT POWER)", field: "sleepExternal", value: "20 MIN" },
+  { spacer: true },
+  { label: "TURN OFF", field: "turnOff", value: "60 MIN" },
+  { spacer: true },
+  { label: "CHARGE MODE", field: "chargeMode", value: "VEHICLE" },
+  { spacer: true },
+  { label: "RESTORE DEFAULTS" },
+];
+registerPageFamily({
+  ids: ["m-set3-4-1", "m-set3-4-2", "m-set3-4-3", "m-set3-4-4", "m-set3-4-5", "m-set3-4-6", "m-set3-4-7", "m-set3-4-8"], rows: POWER_ROWS,
+  targets: ["m-set3-4-level", "m-set3-4-battery", "m-set3-4-external", "m-set3-4-sleep-battery", "m-set3-4-sleep-external", "m-set3-4-turnoff", "m-set3-4-charge", "m-set3-4-8"],
+  parentStateId: "m-set3-4", kind: "panel", section: "set", title: "POWER SETTINGS", compact: true, restoreGroup: "POWER SETTINGS",
+});
+registerOverlay("m-set3-4-level", { kind: "settings-modal", section: "set", title: "BACKLIGHT LEVEL", field: "backlightLevel", options: ["LOW", "MEDIUM", "HIGH"], selectedIndex: 2 }, "m-set3-4-1");
+registerOverlay("m-set3-4-battery", { kind: "slot-input", section: "set", title: "TIMEOUT (BATTERY)", field: "backlightBattery", value: "020 SEC", activeDigit: 1 }, "m-set3-4-2");
+registerOverlay("m-set3-4-external", { kind: "slot-input", section: "set", title: "TIMEOUT (EXTERNAL)", field: "backlightExternal", value: "000 SEC", activeDigit: 1, note: "000 = ALWAYS ON" }, "m-set3-4-3");
+registerOverlay("m-set3-4-sleep-battery", { kind: "slot-input", section: "set", title: "SLEEP (BATTERY)", field: "sleepBattery", value: "003 MIN", activeDigit: 1 }, "m-set3-4-4");
+registerOverlay("m-set3-4-sleep-external", { kind: "slot-input", section: "set", title: "SLEEP (EXT POWER)", field: "sleepExternal", value: "020 MIN", activeDigit: 1 }, "m-set3-4-5");
+registerOverlay("m-set3-4-turnoff", { kind: "slot-input", section: "set", title: "TURN OFF", field: "turnOff", value: "060 MIN", activeDigit: 1 }, "m-set3-4-6");
+registerOverlay("m-set3-4-charge", { kind: "settings-modal", section: "set", title: "CHARGE MODE", field: "chargeMode", options: ["VEHICLE", "ALWAYS", "OFF"], selectedIndex: 0 }, "m-set3-4-7");
+
+const GPS_ROWS = [
+  { label: "LOG METHOD", field: "logMethod", value: "TIME" },
+  { label: "LOG FREQUENCY", field: "logFrequency", value: "2 SEC" },
+  { label: "LOG OPTION", field: "logOption", value: "ENG OR WHL" },
+  { label: "AUTO-SPLIT", field: "autoSplit", value: "5 MI GAP" },
+  { spacer: true },
+  { label: "COORD FORMAT", field: "coordFormat", value: "DEG.DEC" },
+  { label: "SIGNAL BARS", field: "signalBars", value: "ON" },
+  { spacer: true },
+  { label: "RESTORE DEFAULTS" },
+];
+registerPageFamily({
+  ids: ["m-set3-5-1", "m-set3-5-2", "m-set3-5-3", "m-set3-5-4", "m-set3-5-5", "m-set3-5-6", "m-set3-5-7"], rows: GPS_ROWS,
+  targets: ["m-set3-5-method", "m-set3-5-frequency", "m-set3-5-option", "m-set3-5-split", "m-set3-5-coords", "m-set3-5-bars", "m-set3-5-7"],
+  parentStateId: "m-set3-5", kind: "panel", section: "set", title: "GPS SETTINGS", compact: true, restoreGroup: "GPS SETTINGS",
+});
+registerOverlay("m-set3-5-method", { kind: "settings-modal", section: "set", title: "LOG METHOD", field: "logMethod", options: ["TIME", "DISTANCE"], selectedIndex: 0 }, "m-set3-5-1");
+registerOverlay("m-set3-5-frequency", { kind: "settings-modal", section: "set", title: "LOG FREQUENCY", field: "logFrequency", options: ["1 SEC", "2 SEC", "5 SEC", "10 SEC"], selectedIndex: 1 }, "m-set3-5-2");
+registerOverlay("m-set3-5-option", { kind: "settings-modal", section: "set", title: "LOG OPTION", field: "logOption", options: ["ENG OR WHL", "ENGINE", "WHEEL", "ALWAYS"], selectedIndex: 0 }, "m-set3-5-3");
+registerOverlay("m-set3-5-split", { kind: "slot-input", section: "set", title: "AUTO-SPLIT", field: "autoSplit", value: "005 MI GAP", activeDigit: 1 }, "m-set3-5-4");
+registerOverlay("m-set3-5-coords", { kind: "settings-modal", section: "set", title: "COORD FORMAT", field: "coordFormat", options: ["DEG.DEC", "DEG MIN", "DEG MIN SEC"], selectedIndex: 0 }, "m-set3-5-5");
+registerOverlay("m-set3-5-bars", { kind: "settings-modal", section: "set", title: "SIGNAL BARS", field: "signalBars", options: ["ON", "OFF"], selectedIndex: 0 }, "m-set3-5-6");
+
+const MAP_ROWS = [
+  { label: "ORIENTATION", field: "mapOrientation", value: "TRACK UP" },
+  { label: "POINTER SIZE", field: "pointerSize", value: "MEDIUM" },
+  { spacer: true },
+  { label: "MAP SCREEN 1", field: "mapScreen1", value: "AUTO-CENTER" },
+  { label: "  OPTIONS", submenu: true },
+  { spacer: true },
+  { label: "MAP SCREEN 2", field: "mapScreen2", value: "AUTO-CENTER" },
+  { label: "  OPTIONS", submenu: true },
+  { spacer: true },
+  { label: "P/Z TIMEOUT", field: "panZoomTimeout", value: "30 SEC" },
+  { spacer: true },
+  { label: "RESTORE DEFAULTS" },
+];
+registerPageFamily({
+  ids: ["m-set3-6-1", "m-set3-6-2", "m-set3-6-3", "m-set3-6-4", "m-set3-6-5", "m-set3-6-6", "m-set3-6-7", "m-set3-6-8"], rows: MAP_ROWS,
+  targets: ["m-set3-6-orientation", "m-set3-6-pointer", "m-set3-6-screen1", "m-set3-6-options1", "m-set3-6-screen2", "m-set3-6-options2", "m-set3-6-timeout", "m-set3-6-8"],
+  parentStateId: "m-set3-6", kind: "panel", section: "set", title: "MAP SETTINGS", compact: true, restoreGroup: "MAP SETTINGS",
+});
+registerOverlay("m-set3-6-orientation", { kind: "settings-modal", section: "set", title: "MAP ORIENTATION", field: "mapOrientation", options: ["TRACK UP", "NORTH UP"], selectedIndex: 0 }, "m-set3-6-1");
+registerOverlay("m-set3-6-pointer", { kind: "settings-modal", section: "set", title: "POINTER SIZE", field: "pointerSize", options: ["SMALL", "MEDIUM", "LARGE"], selectedIndex: 1 }, "m-set3-6-2");
+registerOverlay("m-set3-6-screen1", { kind: "settings-modal", section: "set", title: "MAP SCREEN 1", field: "mapScreen1", options: ["AUTO-CENTER", "FREE PAN"], selectedIndex: 0 }, "m-set3-6-3");
+registerOverlay("m-set3-6-options1", { kind: "settings-modal", section: "set", title: "MAP SCREEN 1 OPTIONS", options: ["SHOW TRACKS", "SHOW ROUTES", "SHOW WAYPOINTS"], selectedIndex: 0 }, "m-set3-6-4");
+registerOverlay("m-set3-6-screen2", { kind: "settings-modal", section: "set", title: "MAP SCREEN 2", field: "mapScreen2", options: ["AUTO-CENTER", "FREE PAN"], selectedIndex: 0 }, "m-set3-6-5");
+registerOverlay("m-set3-6-options2", { kind: "settings-modal", section: "set", title: "MAP SCREEN 2 OPTIONS", options: ["SHOW TRACKS", "SHOW ROUTES", "SHOW WAYPOINTS"], selectedIndex: 0 }, "m-set3-6-6");
+registerOverlay("m-set3-6-timeout", { kind: "slot-input", section: "set", title: "P/Z TIMEOUT", field: "panZoomTimeout", value: "030 SEC", activeDigit: 1 }, "m-set3-6-7");
+
+const WARNING_ROWS = [
+  { label: "YELLOW LED ON", field: "yellowLedOn", value: "DISABLED" },
+  { label: "RED LED ON", field: "redLedOn", value: "DISABLED" },
+  { spacer: true },
+  { label: "YELLOW LED FLASH", field: "yellowLedFlash", value: "DISABLED" },
+  { label: "RED LED FLASH", field: "redLedFlash", value: "DISABLED" },
+  { spacer: true },
+  { label: "RESTORE DEFAULTS" },
+];
+registerPageFamily({
+  ids: ["m-set3-7-1", "m-set3-7-2", "m-set3-7-3", "m-set3-7-4", "m-set3-7-5"], rows: WARNING_ROWS,
+  targets: ["m-set3-7-yellow-on", "m-set3-7-red-on", "m-set3-7-yellow-flash", "m-set3-7-red-flash", "m-set3-7-5"],
+  parentStateId: "m-set3-7", kind: "panel", section: "set", title: "WARNING LED LIGHTS", restoreGroup: "WARNING LED LIGHTS",
+});
+const warningModal = (slug, title, field, parentStateId) => registerOverlay(`m-set3-7-${slug}`, {
+  kind: "slot-input", section: "set", title, field, value: "000", activeDigit: 1,
+  note: ["LIGHT WHEN EXCEEDED.", "000 = DISABLED", "DEFAULT: DISABLED"],
+}, parentStateId);
+warningModal("yellow-on", "YELLOW LED ON", "yellowLedOn", "m-set3-7-1");
+warningModal("red-on", "RED LED ON", "redLedOn", "m-set3-7-2");
+warningModal("yellow-flash", "YELLOW LED FLASH", "yellowLedFlash", "m-set3-7-3");
+warningModal("red-flash", "RED LED FLASH", "redLedFlash", "m-set3-7-4");
+
+const UTILITY_ROWS = [
+  { label: "STATUS SCREEN" },
+  { label: "SOFTWARE UPDATE" },
+  { label: "PERSONAL INFORMATION", submenu: true },
+  { label: "DEMO MENU", submenu: true },
+  { label: "SERVICE SCREEN", submenu: true },
+  { label: "MANAGE SETTINGS", submenu: true },
+];
+registerPageFamily({
+  ids: ["m-set3-8-1", "m-set3-8-2", "m-set3-8-3", "m-set3-8-4", "m-set3-8-5", "m-set3-8-6"], rows: UTILITY_ROWS,
+  targets: ["m-set3-8-status", "m-set3-8-flash", "m-set3-8-personal", "m-set3-8-demo", "m-set3-8-service", "m-set3-8-manage"],
+  parentStateId: "m-set3-8", kind: "panel", section: "set", title: "UTILITY",
+});
+registerOverlay("m-set3-8-status", { kind: "notice", section: "set", title: "STATUS SCREEN", lines: ["GPS: 3D FIX", "MEMORY: 31%", "BATTERY: 86%", "SOFTWARE: V1.6"] }, "m-set3-8-1");
+registerOverlay("m-set3-8-flash", { kind: "settings-modal", section: "set", title: "SELECT FLASH FILE", options: ["VOYAGER-1.6.FLASH", "VOYAGER-1.5.FLASH"], selectedIndex: 0 }, "m-set3-8-2");
+registerOverlay("m-set3-8-personal", { kind: "notice", section: "set", title: "PERSONAL INFORMATION", lines: ["NAME: BOB", "ADDR: PORTLAND, OR", "PHONE: 555-0146"] }, "m-set3-8-3");
+registerOverlay("m-set3-8-demo", { kind: "settings-modal", section: "set", title: "DEMO MENU", options: ["PLAYBACK MODE: SINGLE FILE", "START PLAYBACK"], selectedIndex: 0 }, "m-set3-8-4");
+registerOverlay("m-set3-8-service", { kind: "keyboard", section: "set", title: "INPUT SERVICE PASSWORD", value: "" }, "m-set3-8-5");
+registerOverlay("m-set3-8-manage", { kind: "settings-modal", section: "set", title: "MANAGE SETTINGS", options: ["SAVE SETTINGS TO FILE", "LOAD SETTINGS FROM FILE", "RESTORE DEFAULT SETTINGS"], selectedIndex: 0 }, "m-set3-8-6");
+
+const USER_SCREEN_DATA_BLOCKS = [
+  "<OFF>", "ALTITUDE", "MIN ALTITUDE", "MAX ALTITUDE", "WHEEL SPEED", "GPS SPEED", "WHEEL ODOMETER", "GPS ODOMETER",
+  "ENGINE ACC. RUN TIME", "GPS ACC. RUN TIME", "AIR TEMPERATURE", "ENGINE TEMPERATURE", "MAX ENGINE TEMPERATURE",
+  "AVG ENGINE TEMPERATURE", "CLOCK", "STOP WATCH", "HEADING", "COMPASS DIRECTION", "INPUT VOLTAGE",
+  "INTERNAL BATTERY VOLTAGE", "TACHOMETER",
+  `WHEEL DISTANCE ${VOYAGER_FONT_SYMBOLS.circledDigitNarrow1}`,
+  `GPS DISTANCE ${VOYAGER_FONT_SYMBOLS.circledDigitNarrow1}`,
+  `ENGINE TRIP TIME ${VOYAGER_FONT_SYMBOLS.circledDigitNarrow1}`,
+  `GPS TRIP TIME ${VOYAGER_FONT_SYMBOLS.circledDigitNarrow1}`,
+  `MAX WHEEL SPEED ${VOYAGER_FONT_SYMBOLS.circledDigitNarrow1}`,
+  `MAX GPS SPEED ${VOYAGER_FONT_SYMBOLS.circledDigitNarrow1}`,
+  `AVG WHEEL SPEED ${VOYAGER_FONT_SYMBOLS.circledDigitNarrow1}`,
+  `AVG GPS SPEED ${VOYAGER_FONT_SYMBOLS.circledDigitNarrow1}`,
+  `WHEEL DISTANCE ${VOYAGER_FONT_SYMBOLS.circledDigitNarrow2}`,
+  `GPS DISTANCE ${VOYAGER_FONT_SYMBOLS.circledDigitNarrow2}`,
+  `ENGINE TRIP TIME ${VOYAGER_FONT_SYMBOLS.circledDigitNarrow2}`,
+  `GPS TRIP TIME ${VOYAGER_FONT_SYMBOLS.circledDigitNarrow2}`,
+  `MAX WHEEL SPEED ${VOYAGER_FONT_SYMBOLS.circledDigitNarrow2}`,
+  `MAX GPS SPEED ${VOYAGER_FONT_SYMBOLS.circledDigitNarrow2}`,
+  `AVG WHEEL SPEED ${VOYAGER_FONT_SYMBOLS.circledDigitNarrow2}`,
+  `AVG GPS SPEED ${VOYAGER_FONT_SYMBOLS.circledDigitNarrow2}`,
+  "CURRENT (BATTERY CHARGER)",
+];
+
+const graphDisplayModal = (trackSlot = 1) => ({
+  kind: "settings-modal", section: "graph", title: "GRAPHS DISPLAY", options: ["CURRENT TRACK", "OTHER TRACK", "OTHER ROUTE"],
+  selectedIndex: 0, graphDisplay: true, trackSlot, summary: `DISPLAYING: CURRENT TRACK${trackSlot === 2 ? " (TRACK_2)" : ""}`,
+});
+[
+  ["m-graph-temp-primary-display", "eng", 1], ["m-graph-temp-display", "eng2", 1], ["m-graph-temp-track2-display", "eng3", 2],
+  ["m-graph-alt-primary-display", "alt", 1], ["m-graph-alt-display", "alt2", 1], ["m-graph-alt-track2-display", "alt3", 2],
+].forEach(([id, parent, slot]) => registerOverlay(id, graphDisplayModal(slot), parent));
+
+for (const userScreen of [1, 2]) {
+  const layoutId = `m-user-screen-${userScreen}-layout`;
+  const screenParent = userScreen === 1 ? "cstm" : "cstm2";
+  registerOverlay(layoutId, {
+    kind: "user-layout", section: "set", title: `USER SCREEN ${userScreen} LAYOUT`, userScreen, selectedIndex: 0,
+  }, screenParent);
+  registerOverlay(`m-user-screen-${userScreen}-name`, {
+    kind: "keyboard", section: "set", title: `USER SCREEN ${userScreen} NAME`, userScreen, userScreenNameEditor: true,
+  }, layoutId);
+  registerOverlay(`m-user-screen-${userScreen}-data-block`, {
+    kind: "settings-modal", section: "set", title: "CHOOSE READOUT", options: USER_SCREEN_DATA_BLOCKS,
+    selectedIndex: userScreen === 1 ? 4 : 8, scroll: true, dataBlockPicker: true, userScreen,
+  }, layoutId);
+}
+
+for (const [id, parent] of [["m-nav-destination-primary", "dir"], ["m-nav-destination-secondary", "dir2"]]) {
+  registerOverlay(id, {
+    kind: "settings-modal", section: "main", title: "SELECT DESTINATION WAYPOINT", field: "destinationWaypoint", options: DESTINATION_WAYPOINT_OPTIONS, selectedIndex: 0,
+    destinationWaypointPicker: true, titleNarrow: true, outcome: "select-destination",
+  }, parent);
 }
 
 export const VOYAGER_MENU_STATE_INDEX = Object.freeze(registry);
+export const VOYAGER_MENU_TRANSITIONS = Object.freeze(transitionIndex);
 export const VOYAGER_MENU_STATE_IDS = new Set(Object.keys(registry));
 
 export const VOYAGER_MENU_STABLE_STATE_ALIASES = {
   "menu.quick": "m-main1-1",
   "menu.main": "m-main1-1",
   "menu.ride": "m-ride2-1",
-  "menu.ride.add-waypoint": "m-ride2-2",
-  "menu.ride.add-waypoint.current": "m-ride2-2",
-  "menu.ride.add-waypoint.coordinates": "m-ride2-3",
-  "menu.ride.add-waypoint.crosshair": "m-ride2-4",
+  "menu.ride.tracks": "m-ride-tracks-1",
+  "menu.ride.routes": "m-ride-routes-1",
+  "menu.ride.waypoints": "m-ride-waypoints-1",
+  "menu.ride.add-waypoint": "m-ride-waypoints-add-1",
+  "menu.ride.add-waypoint.current": "m-ride-waypoints-add-1",
+  "menu.ride.add-waypoint.coordinates": "m-ride-waypoints-add-2",
+  "menu.ride.add-waypoint.crosshair": "m-ride-waypoints-add-3",
   "menu.settings": "m-set3-1",
   "menu.settings.units": "m-set3-2-1",
-  "menu.settings.system": "m-set3-3-1",
-  "menu.settings.gps": "m-set3-4-1",
-  "menu.settings.user-screens": "m-set3-5-1",
-  "menu.settings.warning-led": "m-set3-6-1",
-  "modal.reset-ride-distance": "m-main1-3-1",
-  "modal.waypoint-select": "m-main1-5-1",
-  "modal.system-brightness": "m-set3-3-1-1",
-  "modal.system.brightness": "m-set3-3-1-1",
+  "menu.settings.vehicle": "m-set3-3-1",
+  "menu.settings.power": "m-set3-4-1",
+  "menu.settings.gps": "m-set3-5-1",
+  "menu.settings.map": "m-set3-6-1",
+  "menu.settings.warning-led": "m-set3-7-1",
+  "menu.settings.utility": "m-set3-8-1",
+  "modal.reset-ride-distance": "m-main1-4-1",
+  "modal.waypoint-select": "m-main1-8-1",
   "modal.graphs.temperature": "m-graph-temp-display",
   "modal.graphs.altitude": "m-graph-alt-display",
   "modal.user-screen-1-layout": "m-user-screen-1-layout",
@@ -482,12 +657,11 @@ export const VOYAGER_MENU_STABLE_STATE_ALIASES = {
   "modal.destination-waypoint": "m-nav-destination-primary",
 };
 
-export const VOYAGER_MENU_CANONICAL_STATE_IDS = Object.entries(
-  VOYAGER_MENU_STABLE_STATE_ALIASES,
-).reduce((canonicalIds, [stableId, stateId]) => {
-  canonicalIds[stateId] ??= stableId;
-  return canonicalIds;
-}, {});
+export const VOYAGER_MENU_CANONICAL_STATE_IDS = Object.entries(VOYAGER_MENU_STABLE_STATE_ALIASES)
+  .reduce((canonicalIds, [stableId, stateId]) => {
+    canonicalIds[stateId] ??= stableId;
+    return canonicalIds;
+  }, {});
 
 export function voyagerMenuState(stateId) {
   return VOYAGER_MENU_STATE_INDEX[stateId] ?? null;

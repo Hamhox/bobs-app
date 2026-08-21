@@ -78,10 +78,11 @@ function rowsMarkup(definition, {
       <g data-menu-row="${sourceIndex}">
         ${selected ? `<rect class="voyager-menu__selection" x="${selectionLeft}" y="${y - selectionOffset}" width="${selectionWidth}" height="${selectionHeight}" />` : ""}
         <text class="voyager-live__text voyager-menu__row${selected ? " voyager-live__text--inverse" : ""}" x="${left}" y="${y}">${escapeMarkup(row.label)}</text>
-        ${row.value ? `<text class="voyager-live__text voyager-menu__row${selected ? " voyager-live__text--inverse" : ""}" x="${left + width}" y="${y}" text-anchor="end">${escapeMarkup(row.value)}</text>` : ""}
+        ${row.value ? `<text class="voyager-live__text voyager-menu__row${selected ? " voyager-live__text--inverse" : ""}" x="${left + (row.meter ? 202 : width)}" y="${y}" text-anchor="end">${escapeMarkup(row.value)}</text>` : ""}
+        ${row.submenu ? `<text class="voyager-live__text voyager-menu__row${selected ? " voyager-live__text--inverse" : ""}" x="${left + width}" y="${y}" text-anchor="end">&gt;</text>` : ""}
         ${row.meter ? `
-          <rect class="voyager-menu__meter" x="${left + 202}" y="${y - 15}" width="${width - 205}" height="17" />
-          <rect class="voyager-menu__meter-fill" x="${left + 204}" y="${y - 13}" width="${Math.round((width - 209) * row.meter)}" height="13" />` : ""}
+          <rect class="voyager-menu__meter" x="${left + 216}" y="${y - 15}" width="${width - 219}" height="17" />
+          <rect class="voyager-menu__meter-fill" x="${left + 218}" y="${y - 13}" width="${Math.round((width - 223) * row.meter)}" height="13" />` : ""}
       </g>`;
   }).join("");
 }
@@ -104,7 +105,7 @@ function menuScreen(definition) {
 }
 
 function panelScreen(definition) {
-  const lineHeight = definition.compact ? 20 : 24;
+  const lineHeight = definition.rowSpacing ?? (definition.compact ? 20 : 24);
   return `
     <rect class="voyager-live__surface" width="504" height="303" />
     ${sectionChrome(definition.section)}
@@ -112,7 +113,7 @@ function panelScreen(definition) {
     ${titleBandMarkup(definition.title, { x: 48, y: 27, width: 408 })}
     ${rowsMarkup(definition, {
       left: 70,
-      top: 89,
+      top: definition.rowTop ?? 89,
       width: 344,
       lineHeight,
       selectionLeft: 45,
@@ -183,6 +184,15 @@ function noticeModal(definition) {
   return modalFrame(definition, `
     ${noteLines(definition.lines, 128, "voyager-menu__confirm-copy")}
     ${selectedOkButton(202, 219)}`);
+}
+
+function progressModal(definition) {
+  const progress = Math.max(0, Math.min(1, Number(definition.progress) || 0));
+  return modalFrame(definition, `
+    ${noteLines(definition.lines, 126, "voyager-menu__confirm-copy")}
+    <rect class="voyager-menu__progress-track" x="116" y="158" width="272" height="27" />
+    <rect class="voyager-menu__progress-fill" x="120" y="162" width="${Math.round(264 * progress)}" height="19" />
+    <text class="voyager-live__text voyager-menu__note" x="252" y="226" text-anchor="middle">ENTER: COMPLETE · BACK: CANCEL</text>`);
 }
 
 function compactUserLayoutLabel(option) {
@@ -319,6 +329,22 @@ function settingsModal(definition) {
   } : undefined);
 }
 
+function checklistModal(definition) {
+  const options = definition.options.map((option, index) => {
+    const y = 119 + index * 31;
+    const selected = index === definition.selectedIndex;
+    const checked = definition.checkedOptions.includes(index);
+    return `
+      <g data-menu-option="${index}"${selected ? " data-menu-option-selected=\"true\"" : ""}>
+        ${selected ? `<rect class="voyager-menu__selection" x="82" y="${y - 21}" width="340" height="27" />` : ""}
+        <rect class="voyager-menu__checkbox${selected ? " voyager-menu__checkbox--selected" : ""}" x="104" y="${y - 18}" width="18" height="18" />
+        ${checked ? `<path class="voyager-menu__checkmark${selected ? " voyager-menu__checkmark--selected" : ""}" d="M108 ${y - 9}l4 4 8-10" />` : ""}
+        <text class="voyager-live__text voyager-menu__row voyager-menu__row--option${selected ? " voyager-live__text--inverse" : ""}" x="139" y="${y}">${escapeMarkup(option)}</text>
+      </g>`;
+  }).join("");
+  return modalFrame(definition, `${options}${noteLines("ENTER: TOGGLE · BACK: SAVE", 253)}`);
+}
+
 function slotInputModal(definition) {
   const value = escapeMarkup(definition.value);
   return modalFrame(definition, `
@@ -409,9 +435,12 @@ export function renderVoyagerMenuMarkup(definition, { underlayMarkup = "" } = {}
   const renderers = {
     menu: menuScreen,
     panel: panelScreen,
+    memory: panelScreen,
     confirm: confirmModal,
     notice: noticeModal,
+    progress: progressModal,
     "settings-modal": settingsModal,
+    "checklist-modal": checklistModal,
     "slot-input": slotInputModal,
     "user-layout": userLayoutModal,
     brightness: brightnessModal,

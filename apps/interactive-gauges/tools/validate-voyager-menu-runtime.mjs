@@ -2,6 +2,7 @@
 
 import {
   VOYAGER_MENU_STATE_INDEX,
+  VOYAGER_MENU_TRANSITIONS,
 } from "../voyager-menu-registry.js";
 import { VOYAGER_KEYBOARD_ROWS, VoyagerMenuModel } from "../voyager-menu-model.js";
 import { renderVoyagerMenuMarkup, renderVoyagerToastMarkup } from "../voyager-menu-renderer.js";
@@ -11,11 +12,11 @@ import {
 } from "../voyager-live-runtime.js";
 
 const EXPECTED_COUNTS = Object.freeze({
-  total: 131,
-  pages: 64,
-  workflows: 8,
-  overlays: 59,
-  menuOverlays: 53,
+  total: 205,
+  pages: 108,
+  workflows: 6,
+  overlays: 91,
+  menuOverlays: 85,
 });
 const EDITOR_ACTIONS = ["up", "down", "left", "right", "center", "back", "enter"];
 
@@ -51,6 +52,11 @@ function main() {
     if (definition.presentation === "overlay" && !definition.parentStateId) {
       throw new Error(`${definition.id} has no overlay parent`);
     }
+    for (const [action, target] of Object.entries(VOYAGER_MENU_TRANSITIONS[definition.id] ?? {})) {
+      if (target !== null && !VOYAGER_MENU_STATE_INDEX[target] && !["index", "eng", "eng2", "eng3", "alt", "alt2", "alt3", "cstm", "cstm2", "dir", "dir2"].includes(target)) {
+        throw new Error(`${definition.id}.${action} references missing state ${target}`);
+      }
+    }
 
     const model = new VoyagerMenuModel();
     const markup = renderDefinition(definition, model);
@@ -67,7 +73,7 @@ function main() {
     }
   }
 
-  const dataBlockSelector = VOYAGER_MENU_STATE_INDEX["m-set3-5-1-3-1"];
+  const dataBlockSelector = VOYAGER_MENU_STATE_INDEX["m-user-screen-1-data-block"];
   if (dataBlockSelector.options.length !== 38) {
     throw new Error(`data-block options: received ${dataBlockSelector.options.length}, expected 38`);
   }
@@ -105,7 +111,7 @@ function main() {
   if (!panelMarkup.includes('class="voyager-menu__selection" x="45"')) {
     throw new Error("nested menu selection does not span the inner panel");
   }
-  const modalMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-set3-2-1-1"], new VoyagerMenuModel());
+  const modalMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-set3-2-units"], new VoyagerMenuModel());
   if (!modalMarkup.includes("voyager-menu__modal-shadow") || !modalMarkup.includes("voyager-menu__title-band")) {
     throw new Error("settings modal is missing its device frame primitives");
   }
@@ -206,21 +212,21 @@ function main() {
     throw new Error("center does not activate the selected menu row");
   }
   const radioCenterAction = new VoyagerMenuModel().prepareInput(
-    VOYAGER_MENU_STATE_INDEX["m-set3-2-1-1"],
+    VOYAGER_MENU_STATE_INDEX["m-set3-2-units"],
     "center",
   );
   if (radioCenterAction.action !== "enter") {
     throw new Error("center does not commit the selected radio option");
   }
   const editorCenterAction = new VoyagerMenuModel().prepareInput(
-    VOYAGER_MENU_STATE_INDEX["m-set3-2-3-1"],
+    VOYAGER_MENU_STATE_INDEX["m-set3-2-time"],
     "center",
   );
   if (editorCenterAction.action !== "center") {
     throw new Error("center no longer retains its digit-editor behavior");
   }
 
-  const keyboardDefinition = VOYAGER_MENU_STATE_INDEX["m-set3-5-1-1-1"];
+  const keyboardDefinition = VOYAGER_MENU_STATE_INDEX["m-user-screen-1-name"];
   const keyboardModel = new VoyagerMenuModel();
   const keyboardMarkup = renderDefinition(keyboardDefinition, keyboardModel);
   if (!keyboardMarkup.includes('data-menu-key="\\"')
