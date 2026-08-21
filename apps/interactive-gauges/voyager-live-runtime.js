@@ -749,9 +749,10 @@ function userMetricDefinition(selection) {
 
 function userMetricBlock(x, y, selection) {
   const metric = userMetricDefinition(selection);
+  const readoutClass = metric.fallback === "00:00:00" ? " voyager-live__user-metric-readout--clock" : "";
   return `
     <text class="voyager-live__text voyager-live__text--medium voyager-live__user-metric-label" x="${x}" y="${y}" text-anchor="middle">${metric.label}</text>
-    <text class="voyager-live__text voyager-live__text--readout" x="${x}" y="${y + 58}" text-anchor="middle" ${metric.attribute}>${metric.fallback}</text>`;
+    <text class="voyager-live__text voyager-live__text--readout${readoutClass}" x="${x}" y="${y + 58}" text-anchor="middle" ${metric.attribute}>${metric.fallback}</text>`;
 }
 
 function userMarkup(screen, variant, menuValues = {}) {
@@ -945,7 +946,10 @@ export class VoyagerLiveRuntime {
 
   async initialize() {
     const fontReady = document.fonts?.load
-      ? document.fonts.load('16px "Bobs Font 6 Pixel"', "VOYAGER RIDE").catch(() => [])
+      ? Promise.all([
+        document.fonts.load('16px "Bobs Font 6 Pixel"', "VOYAGER RIDE"),
+        document.fonts.load('18px "Bobs Font 6 Pixel Narrow"', "ACCUMULATED RUN TIME"),
+      ]).catch(() => [])
       : Promise.resolve();
     await Promise.all([
       fontReady,
