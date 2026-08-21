@@ -325,13 +325,16 @@ function keyboardModal(definition) {
   valueCharacters.splice(cursor, 0, "|");
   const keys = VOYAGER_KEYBOARD_ROWS.map((row, rowIndex) => row.map((key, columnIndex) => {
     const keyboardIndex = rowIndex * row.length + columnIndex;
-    return keyboardKeyMarkup(key, rowIndex, columnIndex, keyboardIndex === definition.keyboardIndex);
+    const keyboardHasFocus = (definition.selectedConfirmation ?? -1) < 0;
+    return keyboardKeyMarkup(key, rowIndex, columnIndex, keyboardHasFocus && keyboardIndex === definition.keyboardIndex);
   }).join("")).join("");
   return modalFrame(definition, `
-    <rect class="voyager-menu__input" x="58" y="101" width="388" height="34" />
-    <text class="voyager-live__text voyager-menu__keyboard-value" x="70" y="125">${escapeMarkup(valueCharacters.join(""))}</text>
-    ${keys}
-    ${pairedConfirmationButtons(247)}`, { x: 39, y: 39, width: 426, height: 250 });
+    <g transform="translate(0 -21)">
+      <rect class="voyager-menu__input" x="58" y="101" width="388" height="34" />
+      <text class="voyager-live__text voyager-menu__keyboard-value" x="70" y="125">${escapeMarkup(valueCharacters.join(""))}</text>
+      ${keys}
+      ${pairedConfirmationButtons(247, definition.selectedConfirmation ?? -1)}
+    </g>`, { x: 39, y: 18, width: 426, height: 267 });
 }
 
 function waypointMapModal(definition) {

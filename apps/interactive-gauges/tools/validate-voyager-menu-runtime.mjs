@@ -198,6 +198,10 @@ function main() {
     || keyboardMarkup.includes("voyager-menu__note")) {
     throw new Error("keyboard rendering is missing device keys or retains the floating active-key display");
   }
+  if (!keyboardMarkup.includes('y="18" width="426" height="267"')
+    || !keyboardMarkup.includes('transform="translate(0 -21)"')) {
+    throw new Error("keyboard modal is no longer centered with padded confirmation buttons");
+  }
   for (let index = 0; index < 12; index += 1) keyboardModel.prepareInput(keyboardDefinition, "right");
   const beforeBackspace = keyboardModel.resolve(keyboardDefinition).value;
   keyboardModel.prepareInput(keyboardDefinition, "center");
@@ -205,6 +209,21 @@ function main() {
   if (afterBackspace.value !== beforeBackspace.slice(0, -1)
     || afterBackspace.keyboardCursor !== [...afterBackspace.value].length) {
     throw new Error("keyboard BACKSPACE did not update the value and cursor together");
+  }
+  const keyboardFocusModel = new VoyagerMenuModel();
+  for (let index = 0; index < 4; index += 1) keyboardFocusModel.prepareInput(keyboardDefinition, "down");
+  const focusedConfirmation = keyboardFocusModel.resolve(keyboardDefinition);
+  const focusedConfirmationMarkup = renderDefinition(keyboardDefinition, keyboardFocusModel);
+  if (focusedConfirmation.keyboardKey !== "Z"
+    || focusedConfirmation.selectedConfirmation !== 1
+    || !focusedConfirmationMarkup.includes("btn-ok-selected")
+    || focusedConfirmationMarkup.includes("voyager-menu__keyboard-key-selection")) {
+    throw new Error("keyboard Down did not move from the final key row to OK");
+  }
+  keyboardFocusModel.prepareInput(keyboardDefinition, "up");
+  const returnedKeyboardFocus = keyboardFocusModel.resolve(keyboardDefinition);
+  if (returnedKeyboardFocus.keyboardKey !== "Z" || returnedKeyboardFocus.selectedConfirmation !== -1) {
+    throw new Error("keyboard Up did not return from OK to the final key row");
   }
 
   console.log(JSON.stringify(report, null, 2));

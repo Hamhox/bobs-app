@@ -217,6 +217,7 @@ export class VoyagerMenuModel {
       resolved.keyboardIndex = draft.keyboardIndex;
       resolved.keyboardKey = KEYBOARD_KEYS[draft.keyboardIndex];
       resolved.keyboardCursor = draft.keyboardCursor;
+      resolved.selectedConfirmation = draft.selectedConfirmation;
     }
     return resolved;
   }
@@ -300,6 +301,17 @@ export class VoyagerMenuModel {
       return { action: preparedAction, targetStateId: definition.parentStateId };
     }
 
+    if (definition.kind === "keyboard"
+      && draft.selectedConfirmation >= 0
+      && (preparedAction === "center" || preparedAction === "enter")) {
+      if (draft.selectedConfirmation === 0) {
+        this.#discard(definition.id);
+        return { action: "back" };
+      }
+      this.#commit(definition, draft);
+      return { action: "enter" };
+    }
+
     if (definition.kind === "slot-input") this.#editSlot(draft, preparedAction);
     if (definition.kind === "brightness") this.#editBrightness(draft, preparedAction);
     if (definition.kind === "keyboard") this.#editKeyboard(draft, preparedAction);
@@ -323,7 +335,7 @@ export class VoyagerMenuModel {
       activeDigit: clamp(definition.activeDigit ?? 0, 0, Math.max(0, digitIndexes.length - 1)),
       keyboardCursor: [...String(value)].length,
       keyboardIndex: 0,
-      selectedConfirmation: 0,
+      selectedConfirmation: definition.kind === "keyboard" ? -1 : 0,
       selectedIndex,
       value,
     };
@@ -381,12 +393,27 @@ export class VoyagerMenuModel {
   }
 
   #editKeyboard(draft, action) {
+    if (draft.selectedConfirmation >= 0) {
+      if (action === "left" || action === "right") {
+        draft.selectedConfirmation = action === "left" ? 0 : 1;
+        this.#touch();
+      } else if (action === "up") {
+        draft.selectedConfirmation = -1;
+        this.#touch();
+      }
+      return;
+    }
     if (action === "left" || action === "right") {
       draft.keyboardIndex = (draft.keyboardIndex + (action === "left" ? -1 : 1) + KEYBOARD_KEYS.length) % KEYBOARD_KEYS.length;
       this.#touch();
       return;
     }
     if (action === "up" || action === "down") {
+      if (action === "down" && draft.keyboardIndex >= KEYBOARD_KEYS.length - KEYBOARD_COLUMN_COUNT) {
+        draft.selectedConfirmation = 1;
+        this.#touch();
+        return;
+      }
       draft.keyboardIndex = (draft.keyboardIndex + (action === "up" ? -KEYBOARD_COLUMN_COUNT : KEYBOARD_COLUMN_COUNT) + KEYBOARD_KEYS.length) % KEYBOARD_KEYS.length;
       this.#touch();
       return;
