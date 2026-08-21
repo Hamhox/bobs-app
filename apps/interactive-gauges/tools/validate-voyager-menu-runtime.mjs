@@ -12,8 +12,8 @@ import {
 } from "../voyager-live-runtime.js";
 
 const EXPECTED_COUNTS = Object.freeze({
-  total: 205,
-  pages: 108,
+  total: 199,
+  pages: 102,
   workflows: 6,
   overlays: 91,
   menuOverlays: 85,
@@ -110,6 +110,18 @@ function main() {
   }
   if (!panelMarkup.includes('class="voyager-menu__selection" x="45"')) {
     throw new Error("nested menu selection does not span the inner panel");
+  }
+  const memoryDefinition = VOYAGER_MENU_STATE_INDEX["m-ride-memory-1"];
+  const memoryMarkup = renderDefinition(memoryDefinition, new VoyagerMenuModel());
+  const memoryTransitions = VOYAGER_MENU_TRANSITIONS[memoryDefinition.id];
+  if (memoryMarkup.includes("TRACK MEMORY")
+    || memoryMarkup.includes("ROUTE MEMORY")
+    || (memoryMarkup.match(/voyager-menu__selection/g) ?? []).length !== 1
+    || !memoryMarkup.includes('class="voyager-menu__panel" x="55" y="18" width="400" height="267"')
+    || memoryTransitions.up !== memoryDefinition.id
+    || memoryTransitions.down !== memoryDefinition.id
+    || memoryTransitions.enter !== "m-ride-memory-reset") {
+    throw new Error("memory panel no longer keeps its meters static and Reset Ride Memory actionable");
   }
   const modalMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-set3-2-units"], new VoyagerMenuModel());
   if (!modalMarkup.includes("voyager-menu__modal-shadow") || !modalMarkup.includes("voyager-menu__title-band")) {

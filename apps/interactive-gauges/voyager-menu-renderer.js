@@ -122,6 +122,22 @@ function panelScreen(definition) {
     ${definition.note ? noteLines(definition.note, 254) : ""}`;
 }
 
+function memoryScreen(definition) {
+  return `
+    <rect class="voyager-live__surface" width="504" height="303" />
+    ${sectionChrome(definition.section)}
+    ${panelFrameMarkup({ x: 55, y: 18, width: 400, height: 267 })}
+    ${titleBandMarkup(definition.title, { x: 64, y: 27, width: 382 })}
+    ${rowsMarkup(definition, {
+      left: 70,
+      top: 89,
+      width: 366,
+      lineHeight: 20,
+      selectionLeft: 62,
+      selectionWidth: 386,
+    })}`;
+}
+
 function modalFrame(definition, innerMarkup, { x = 77, y = 49, width = 350, height = 225 } = {}) {
   const modifier = definition.dataBlockPicker
     ? " voyager-menu__overlay--data-picker"
@@ -435,7 +451,7 @@ export function renderVoyagerMenuMarkup(definition, { underlayMarkup = "" } = {}
   const renderers = {
     menu: menuScreen,
     panel: panelScreen,
-    memory: panelScreen,
+    memory: memoryScreen,
     confirm: confirmModal,
     notice: noticeModal,
     progress: progressModal,

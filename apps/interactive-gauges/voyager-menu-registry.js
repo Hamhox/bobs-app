@@ -363,23 +363,34 @@ registerOverlay("m-ride-export-settings", {
 
 const MEMORY_ROWS = [
   { label: "TRACKS", value: "3 / 30", meter: 0.10 },
-  { label: "TRACK MEMORY", value: "31%", meter: 0.31 },
+  { label: "", value: "31%", meter: 0.31 },
+  { spacer: true },
   { label: "ROUTES", value: "4 / 300", meter: 0.013 },
-  { label: "ROUTE MEMORY", value: "17%", meter: 0.17 },
+  { label: "", value: "17%", meter: 0.17 },
+  { spacer: true },
   { label: "WAYPOINTS", value: "9 / 300", meter: 0.03 },
+  { spacer: true },
   { label: "MICROSD", value: "416 / 486MB", meter: 0.86 },
   { spacer: true },
   { label: "RESET RIDE MEMORY" },
 ];
-registerPageFamily({
-  ids: ["m-ride-memory-1", "m-ride-memory-2", "m-ride-memory-3", "m-ride-memory-4", "m-ride-memory-5", "m-ride-memory-6", "m-ride-memory-7"],
-  rows: MEMORY_ROWS, targets: [undefined, undefined, undefined, undefined, undefined, undefined, "m-ride-memory-reset"],
-  parentStateId: "m-ride2-8", kind: "memory", section: "ride", title: "MEMORY", compact: true,
+register("m-ride-memory-1", {
+  rows: MEMORY_ROWS, selectedIndex: MEMORY_ROWS.length - 1,
+  parentStateId: "m-ride2-8", kind: "memory", section: "ride", title: "MEMORY",
+}, {
+  menu: "m-ride2-8",
+  up: "m-ride-memory-1",
+  left: "m-ride2-8",
+  center: "m-ride-memory-reset",
+  right: "m-ride-memory-reset",
+  down: "m-ride-memory-1",
+  back: "m-ride2-8",
+  enter: "m-ride-memory-reset",
 });
 registerOverlay("m-ride-memory-reset", {
   kind: "confirm", section: "ride", title: "RESET RIDE MEMORY", outcome: "reset-ride-memory",
   lines: ["ERASE ALL TRACKS/ROUTES/WAYPOINTS", "AND RESET TRIP DST (1), (2)?", "UNSAVED DATA WILL BE LOST!"],
-}, "m-ride-memory-7");
+}, "m-ride-memory-1");
 
 const SET_ROWS = [
   { label: "UNIT SETTINGS", submenu: true },
