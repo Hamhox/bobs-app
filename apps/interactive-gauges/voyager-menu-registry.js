@@ -155,13 +155,16 @@ registerOverlay("m-main1-8-1", {
 }, "m-main1-8");
 
 const RIDE_ROWS = [
-  { label: "TRACKS", submenu: true },
-  { label: "ROUTES", submenu: true },
-  { label: "WAYPOINTS", submenu: true },
-  { label: "GRAPHS DISPLAY", submenu: true },
-  { label: "RESETS", submenu: true },
-  { label: "IMPORT / EXPORT", submenu: true },
-  { label: "MEMORY", value: "31%", meter: 0.31, submenu: true },
+  { label: `${VOYAGER_FONT_SYMBOLS.play} TRACKS` },
+  { label: `${VOYAGER_FONT_SYMBOLS.play} ROUTES` },
+  { label: `${VOYAGER_FONT_SYMBOLS.play} WAYPOINTS` },
+  { spacer: true },
+  { label: `${VOYAGER_FONT_SYMBOLS.play} GRAPHS DISPLAY` },
+  { spacer: true },
+  { label: `${VOYAGER_FONT_SYMBOLS.play} RESETS` },
+  { label: `${VOYAGER_FONT_SYMBOLS.play} IMPORT / EXPORT` },
+  { spacer: true },
+  { label: `${VOYAGER_FONT_SYMBOLS.play} MEMORY`, value: "31%", meter: 0.31 },
 ];
 const RIDE_IDS = ["m-ride2-2", "m-ride2-3", "m-ride2-4", "m-ride2-5", "m-ride2-6", "m-ride2-7", "m-ride2-8"];
 registerSection({
