@@ -124,6 +124,12 @@ function main() {
     || waypointToastMarkup.includes("voyager-menu__underlay-wash")) {
     throw new Error("quick-add waypoint toast is not the compact device notice");
   }
+  const destinationToastMarkup = renderVoyagerToastMarkup(["WAYPOINT SELECTED", "CMRA Trail Head"]);
+  if (!destinationToastMarkup.includes("WAYPOINT SELECTED")
+    || !destinationToastMarkup.includes("CMRA Trail Head")
+    || (destinationToastMarkup.match(/voyager-menu__toast-copy/g) ?? []).length !== 2) {
+    throw new Error("destination waypoint toast is not a two-line device notice");
+  }
   const graphDisplayMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-graph-temp-display"], new VoyagerMenuModel());
   if (!graphDisplayMarkup.includes("CURRENT TRACK") || !graphDisplayMarkup.includes("voyager-menu__summary")) {
     throw new Error("graph display modal is missing its source choices or displaying summary");
@@ -175,6 +181,8 @@ function main() {
     || !destinationMarkup.includes("CIRCLE E CAMP")
     || !destinationMarkup.includes("circle-digit-black")
     || !destinationMarkup.includes("voyager-menu__title--narrow")
+    || !destinationMarkup.includes('class="voyager-menu__modal" x="67" y="49" width="370"')
+    || !destinationMarkup.includes('class="voyager-menu__selection" x="73"')
     || destinationMarkup.includes("radio-16pt")) {
     throw new Error("navigation destination modal is incomplete");
   }

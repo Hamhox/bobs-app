@@ -149,11 +149,16 @@ function noteLines(lines, startY, className = "voyager-menu__note") {
 }
 
 export function renderVoyagerToastMarkup(message) {
+  const lines = (Array.isArray(message) ? message : [message]).map((line) => String(line ?? "")).filter(Boolean);
+  const width = lines.length > 1 ? 300 : 238;
+  const height = 58 + Math.max(0, lines.length - 1) * 24;
+  const x = Math.floor((504 - width) / 2);
+  const y = Math.floor((303 - height) / 2);
   return `
-    <g class="voyager-menu__toast" data-live-toast data-live-toast-message="${escapeMarkup(message)}">
-      <rect class="voyager-menu__modal-shadow" x="139" y="128" width="238" height="58" />
-      <rect class="voyager-menu__modal" x="133" y="122" width="238" height="58" />
-      <text class="voyager-live__text voyager-menu__toast-copy" x="252" y="158" text-anchor="middle">${escapeMarkup(message)}</text>
+    <g class="voyager-menu__toast" data-live-toast data-live-toast-message="${escapeMarkup(lines.join(" / "))}">
+      <rect class="voyager-menu__modal-shadow" x="${x + 6}" y="${y + 6}" width="${width}" height="${height}" />
+      <rect class="voyager-menu__modal" x="${x}" y="${y}" width="${width}" height="${height}" />
+      ${lines.map((line, index) => `<text class="voyager-live__text voyager-menu__toast-copy" x="252" y="${y + 36 + index * 24}" text-anchor="middle">${escapeMarkup(line)}</text>`).join("")}
     </g>`;
 }
 
@@ -259,7 +264,7 @@ function settingsModal(definition) {
       const waypointDigit = waypoint?.label ?? String(sourceIndex + 1);
       return `
         <g data-menu-option="${sourceIndex}" data-menu-waypoint-name="${escapeMarkup(option)}"${selected ? " data-menu-option-selected=\"true\"" : ""}>
-          ${selected ? `<rect class="voyager-menu__selection" x="83" y="${y - 23}" width="338" height="29" />` : ""}
+          ${selected ? `<rect class="voyager-menu__selection" x="73" y="${y - 23}" width="358" height="29" />` : ""}
           ${voyagerUiIcon("circle-digit-black", {
       x: 101,
       y: y - 22,
@@ -306,6 +311,11 @@ function settingsModal(definition) {
     y: 38,
     width: 376,
     height: 238,
+  } : destinationWaypointPicker ? {
+    x: 67,
+    y: 49,
+    width: 370,
+    height: 225,
   } : undefined);
 }
 

@@ -710,10 +710,14 @@ function graphMarkup(screen, variant) {
     </g>`;
 }
 
-function metricBlock(x, y, label, attribute, fallback) {
+function metricBlock(x, y, label, attribute, fallback, {
+  labelAttribute = "",
+  labelClass = "",
+  readoutClass = "",
+} = {}) {
   return `
-    <text class="voyager-live__text voyager-live__text--medium" x="${x}" y="${y}" text-anchor="middle">${label}</text>
-    <text class="voyager-live__text voyager-live__text--readout" x="${x}" y="${y + 58}" text-anchor="middle" ${attribute}>${fallback}</text>`;
+    <text class="voyager-live__text voyager-live__text--medium${labelClass ? ` ${labelClass}` : ""}" x="${x}" y="${y}" text-anchor="middle" ${labelAttribute}>${label}</text>
+    <text class="voyager-live__text voyager-live__text--readout${readoutClass ? ` ${readoutClass}` : ""}" x="${x}" y="${y + 58}" text-anchor="middle" ${attribute}>${fallback}</text>`;
 }
 
 function userTitleMarkup(title, tabsVisible) {
@@ -811,7 +815,11 @@ function navigationMarkup(screen, variant) {
     <g transform="translate(${hiddenOffset} 0)">
       <text class="voyager-live__text voyager-live__text--medium" x="467.5" y="47" text-anchor="start" data-live-heading-label>N</text>
       ${metricBlock(186, 30, "SPD MPH", "data-live-speed", "21")}
-      ${metricBlock(186, 127, "DEST DST MI", "data-live-destination", "700")}
+      ${metricBlock(186, 127, "DEST DST MI", "data-live-destination", "700", {
+    labelAttribute: "data-live-destination-label",
+    labelClass: "voyager-live__destination-label",
+    readoutClass: "voyager-live__destination-readout",
+  })}
       ${compassMarkup({ cx: 388.75, cy: 102, radius: 87.4, pointerAttribute: "data-live-nav-pointer" })}
       <text class="voyager-live__text voyager-live__text--medium" x="248" y="225" text-anchor="middle">STOP WATCH</text>
       <text class="voyager-live__text voyager-live__text--large voyager-live__text--clock" x="248" y="283" text-anchor="middle" data-live-stopwatch>00:00:00</text>
@@ -1111,6 +1119,7 @@ export class VoyagerLiveRuntime {
       this.#graphCursorProjection = null;
     }
     this.#mount.querySelector("svg")?.setAttribute("data-voyager-screen-id", state.id);
+    this.#syncDestinationLabel();
     this.#updateDynamicFields();
     this.#renderQueuedToast();
   }
@@ -1375,6 +1384,7 @@ export class VoyagerLiveRuntime {
     if (event.from === "m-nav-destination-primary" || event.from === "m-nav-destination-secondary") {
       const selectedName = this.#menuModel.values.destinationWaypoint;
       this.#selectedDestination = this.#destinationWaypoints().find((waypoint) => waypoint.name === selectedName) ?? null;
+      if (this.#selectedDestination) this.#queueToast(["WAYPOINT SELECTED", selectedName]);
     }
     if (event.from === "m-ride2-2-1" && telemetry) {
       this.#addWaypoint("CURRENT POSITION", telemetry.latitude, telemetry.longitude);
@@ -1457,6 +1467,16 @@ export class VoyagerLiveRuntime {
     this.#saveWaypoints();
     this.#invalidateMapProjection();
     return waypoint;
+  }
+
+  #destinationLabel() {
+    if (this.#selectedDestination?.name) return this.#selectedDestination.name;
+    if (this.#selectedDestination?.label) return `WAYPOINT ${this.#selectedDestination.label}`;
+    return "DEST DST MI";
+  }
+
+  #syncDestinationLabel() {
+    setElementText(this.#mount.querySelector("[data-live-destination-label]"), this.#destinationLabel());
   }
 
   #queueToast(message, durationMs = 5000) {

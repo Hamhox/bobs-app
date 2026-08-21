@@ -600,6 +600,11 @@
   font-size: 42px;
 }
 
+.voyager-live__destination-label,
+.voyager-live__destination-readout {
+  font-family: "Bobs Font 6 Pixel Narrow", "Bobs Font 6 Pixel", monospace;
+}
+
 .voyager-live__text--clock {
   font-size: 58px;
 }
