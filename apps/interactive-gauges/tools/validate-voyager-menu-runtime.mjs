@@ -177,6 +177,32 @@ function main() {
     throw new Error("export options modal incorrectly renders as a radio list");
   }
 
+  for (const stateId of ["m-main1-3-1", "m-ride-reset-memory", "m-ride-memory-reset"]) {
+    const resetMemory = VOYAGER_MENU_STATE_INDEX[stateId];
+    if (resetMemory.lines[0] !== "ERASE ALL"
+      || resetMemory.lines[1] !== "TRACKS/ROUTES/WAYPOINTS"
+      || !resetMemory.lines[2].includes(VOYAGER_FONT_SYMBOLS.circledDigitNarrow1)
+      || !resetMemory.lines[2].includes(VOYAGER_FONT_SYMBOLS.circledDigitNarrow2)
+      || resetMemory.lines.join(" ").includes("(1)")) {
+      throw new Error(`${stateId} does not use the device reset-memory copy and screen indicators`);
+    }
+  }
+  const resetTrip1 = VOYAGER_MENU_STATE_INDEX["m-ride-reset-trip-1"];
+  const resetTrip2 = VOYAGER_MENU_STATE_INDEX["m-ride-reset-trip-2"];
+  const resetStopwatch = VOYAGER_MENU_STATE_INDEX["m-ride-reset-stopwatch"];
+  if (!resetTrip1.lines[1].includes(VOYAGER_FONT_SYMBOLS.circledDigitNarrow1)
+    || resetTrip1.lines[2] !== "FROM MAIN & USER SCREEN)") {
+    throw new Error("trip-distance 1 reset copy is incomplete");
+  }
+  if (!resetTrip2.title.includes(VOYAGER_FONT_SYMBOLS.circledDigitNarrow2)
+    || !resetTrip2.lines[1].includes(VOYAGER_FONT_SYMBOLS.circledDigitNarrow2)
+    || resetTrip2.lines[2] !== "ONLY FROM USER SCREEN)") {
+    throw new Error("trip-distance 2 reset copy is incomplete");
+  }
+  if (resetStopwatch.lines.join("|") !== "RESET|STOP|WATCH?") {
+    throw new Error("stopwatch reset copy is not split across three lines");
+  }
+
   const quickMenuMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-main1-1"], new VoyagerMenuModel());
   if (!quickMenuMarkup.includes("QUICK MENU") || !quickMenuMarkup.includes(">QUICK</text>")) {
     throw new Error("quick menu naming is not reflected in the title and persistent sidebar");

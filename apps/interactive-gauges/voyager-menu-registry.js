@@ -4,6 +4,26 @@ const registry = {};
 const transitionIndex = {};
 const DESTINATION_WAYPOINT_OPTIONS = ["CMRA TRAIL HEAD", "TRAIL 1 BAILOUT", "CIRCLE E CAMP", "A-B RESET"];
 
+const TRIP_SCREEN_1 = VOYAGER_FONT_SYMBOLS.circledDigitNarrow1;
+const TRIP_SCREEN_2 = VOYAGER_FONT_SYMBOLS.circledDigitNarrow2;
+const RESET_RIDE_MEMORY_LINES = [
+  "ERASE ALL",
+  "TRACKS/ROUTES/WAYPOINTS",
+  `AND RESET TRIP DST ${TRIP_SCREEN_1}, ${TRIP_SCREEN_2}?`,
+  "UNSAVED DATA WILL BE LOST!",
+];
+const RESET_TRIP_1_LINES = [
+  "RESET TRIP DST/TIME?",
+  `(TRIP DST ${TRIP_SCREEN_1} IS VISIBLE`,
+  "FROM MAIN & USER SCREEN)",
+];
+const RESET_TRIP_2_LINES = [
+  "RESET TRIP DST/TIME?",
+  `(TRIP DST ${TRIP_SCREEN_2} IS VISIBLE`,
+  "ONLY FROM USER SCREEN)",
+];
+const RESET_STOPWATCH_LINES = ["RESET", "STOP", "WATCH?"];
+
 const OVERLAY_KINDS = new Set([
   "brightness",
   "checklist-modal",
@@ -136,11 +156,11 @@ registerOverlay("m-main1-2-1", {
 }, "m-main1-2");
 registerOverlay("m-main1-3-1", {
   kind: "confirm", section: "main", title: "RESET RIDE MEMORY", outcome: "reset-ride-memory",
-  lines: ["ERASE ALL TRACKS/ROUTES/WAYPOINTS", "AND RESET TRIP DST (1), (2)?", "UNSAVED DATA WILL BE LOST!"],
+  lines: RESET_RIDE_MEMORY_LINES,
 }, "m-main1-3");
 registerOverlay("m-main1-4-1", {
   kind: "confirm", section: "main", title: "RESET TRIP DIST", outcome: "reset-trip-1",
-  lines: ["RESET TRIP DST/TIME?", "TRIP DST (1) IS VISIBLE FROM", "MAIN & USER SCREEN."],
+  lines: RESET_TRIP_1_LINES,
 }, "m-main1-4");
 registerOverlay("m-main1-5-1", {
   kind: "settings-modal", section: "main", title: "SELECT FILE TO IMPORT", fileBrowser: true,
@@ -330,11 +350,11 @@ registerPageFamily({
 });
 registerOverlay("m-ride-reset-memory", {
   kind: "confirm", section: "ride", title: "RESET RIDE MEMORY", outcome: "reset-ride-memory",
-  lines: ["ERASE ALL TRACKS/ROUTES/WAYPOINTS", "AND RESET TRIP DST (1), (2)?", "UNSAVED DATA WILL BE LOST!"],
+  lines: RESET_RIDE_MEMORY_LINES,
 }, "m-ride-resets-1");
-registerOverlay("m-ride-reset-trip-1", { kind: "confirm", section: "ride", title: "RESET TRIP DIST", outcome: "reset-trip-1", lines: ["RESET TRIP DST/TIME?", "TRIP DST (1) IS VISIBLE FROM", "MAIN & USER SCREEN."] }, "m-ride-resets-2");
-registerOverlay("m-ride-reset-trip-2", { kind: "confirm", section: "ride", title: "RESET TRIP DIST (2)", outcome: "reset-trip-2", lines: ["RESET TRIP DST/TIME (2)?"] }, "m-ride-resets-3");
-registerOverlay("m-ride-reset-stopwatch", { kind: "confirm", section: "ride", title: "RESET STOP WATCH", outcome: "reset-stopwatch", lines: ["RESET STOP WATCH?"] }, "m-ride-resets-4");
+registerOverlay("m-ride-reset-trip-1", { kind: "confirm", section: "ride", title: "RESET TRIP DIST", outcome: "reset-trip-1", lines: RESET_TRIP_1_LINES }, "m-ride-resets-2");
+registerOverlay("m-ride-reset-trip-2", { kind: "confirm", section: "ride", title: `RESET TRIP DIST ${TRIP_SCREEN_2}`, outcome: "reset-trip-2", lines: RESET_TRIP_2_LINES }, "m-ride-resets-3");
+registerOverlay("m-ride-reset-stopwatch", { kind: "confirm", section: "ride", title: "RESET STOP WATCH", outcome: "reset-stopwatch", lines: RESET_STOPWATCH_LINES }, "m-ride-resets-4");
 
 const TRANSFER_ROWS = [
   { label: "IMPORT RIDE" },
@@ -418,7 +438,7 @@ register("m-ride-memory-1", {
 });
 registerOverlay("m-ride-memory-reset", {
   kind: "confirm", section: "ride", title: "RESET RIDE MEMORY", outcome: "reset-ride-memory",
-  lines: ["ERASE ALL TRACKS/ROUTES/WAYPOINTS", "AND RESET TRIP DST (1), (2)?", "UNSAVED DATA WILL BE LOST!"],
+  lines: RESET_RIDE_MEMORY_LINES,
 }, "m-ride-memory-1");
 
 const SET_ROWS = [
