@@ -355,8 +355,10 @@ function main() {
   wheelDisabledModel.prepareInput(VOYAGER_MENU_STATE_INDEX["m-set3-3-1"], "enter");
   const wheelDisabledPanel = wheelDisabledModel.resolve(VOYAGER_MENU_STATE_INDEX["m-set3-3-1"]);
   const wheelDisabledRows = Object.fromEntries(wheelDisabledPanel.rows.filter((row) => !row.spacer).map((row) => [row.label.trim(), row]));
-  if (wheelDisabledModel.values.speedSource !== "GPS"
-    || wheelDisabledModel.values.runTimeSource !== "ENG SENSOR"
+  if (wheelDisabledModel.values.speedSource !== "WHL SENSOR"
+    || wheelDisabledModel.values.runTimeSource !== "ENG OR WHL"
+    || wheelDisabledModel.effectiveValues.speedSource !== "GPS"
+    || wheelDisabledModel.effectiveValues.runTimeSource !== "ENG SENSOR"
     || !wheelDisabledRows["WHEEL SIZE"].disabled
     || !wheelDisabledRows["SPEED / DIST"].disabled
     || !wheelDisabledRows["ACCUM RUN TIME"].disabled
@@ -370,13 +372,13 @@ function main() {
   }
 
   wheelDisabledModel.prepareInput(VOYAGER_MENU_STATE_INDEX["m-set3-3-3"], "enter");
-  let sensorValues = wheelDisabledModel.values;
+  let sensorValues = wheelDisabledModel.effectiveValues;
   if (sensorValues.runTimeSource !== "GPS") throw new Error("both disabled sensors do not force GPS run time");
   wheelDisabledModel.prepareInput(VOYAGER_MENU_STATE_INDEX["m-set3-3-1"], "enter");
-  sensorValues = wheelDisabledModel.values;
+  sensorValues = wheelDisabledModel.effectiveValues;
   if (sensorValues.runTimeSource !== "WHL SENSOR") throw new Error("wheel-only mode does not force wheel run time");
   wheelDisabledModel.prepareInput(VOYAGER_MENU_STATE_INDEX["m-set3-3-3"], "enter");
-  sensorValues = wheelDisabledModel.values;
+  sensorValues = wheelDisabledModel.effectiveValues;
   if (sensorValues.runTimeSource !== "ENG OR WHL") throw new Error("re-enabled sensors do not restore combined run time");
 
   const wheelSizeMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-set3-3-size"], new VoyagerMenuModel());

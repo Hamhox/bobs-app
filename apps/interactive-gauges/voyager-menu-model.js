@@ -1,4 +1,9 @@
 import { VOYAGER_FONT_SYMBOLS } from "./voyager-font-symbols.js";
+import {
+  createVoyagerEffectiveSettings,
+  isVoyagerSettingAvailable,
+  normalizeVoyagerSettings,
+} from "./voyager-setting-rules.js";
 
 const MENU_STORAGE_KEY = "bobs-app:voyager-menu:v1";
 
@@ -159,6 +164,8 @@ function editableSlotCount(definition, value) {
 }
 
 function rowIsDisabled(row, values) {
+  const availabilityField = row?.availabilityField ?? row?.field ?? ROW_BINDINGS[row?.label];
+  if (availabilityField && !isVoyagerSettingAvailable(availabilityField, values)) return true;
   return row?.enabledWhen?.some(({ field, value }) => values[field] !== value) ?? false;
 }
 
@@ -187,6 +194,10 @@ export class VoyagerMenuModel {
     return { ...this.#values };
   }
 
+  get effectiveValues() {
+    return createVoyagerEffectiveSettings(this.#values);
+  }
+
   load() {
     try {
       const stored = JSON.parse(window.localStorage.getItem(MENU_STORAGE_KEY) ?? "{}");
@@ -208,17 +219,18 @@ export class VoyagerMenuModel {
 
   resolve(definition) {
     const draft = definition.presentation === "overlay" ? this.#draftFor(definition) : null;
+    const effectiveValues = this.effectiveValues;
     const resolved = {
       ...definition,
       rows: definition.rows?.map((row) => {
         const key = row.field ?? ROW_BINDINGS[row.label];
         const disabled = rowIsDisabled(row, this.#values);
-        return key ? { ...row, value: rowValue(key, this.#values[key]), disabled } : { ...row, disabled };
+        return key ? { ...row, value: rowValue(key, effectiveValues[key]), disabled } : { ...row, disabled };
       }),
     };
     if (definition.rowFields) {
       resolved.options = definition.rowFields.map((field, index) => field
-        ? rowValue(field, this.#values[field])
+        ? rowValue(field, effectiveValues[field])
         : definition.options[index]);
     }
     if (!draft) return resolved;
@@ -606,24 +618,8 @@ export class VoyagerMenuModel {
     this.#touch();
   }
 
-  #normalizeVehicleSensors() {
-    const wheelEnabled = this.#values.wheelSensor === "ENABLED";
-    const engineEnabled = this.#values.engineSensor === "ENABLED";
-    if (!wheelEnabled) this.#values.speedSource = "GPS";
-    if (wheelEnabled && engineEnabled) {
-      if (!["ENG OR WHL", "GPS"].includes(this.#values.runTimeSource)) this.#values.runTimeSource = "ENG OR WHL";
-    } else if (engineEnabled) {
-      this.#values.runTimeSource = "ENG SENSOR";
-    } else if (wheelEnabled) {
-      this.#values.runTimeSource = "WHL SENSOR";
-    } else {
-      this.#values.runTimeSource = "GPS";
-    }
-  }
-
   #normalizeSettings() {
-    this.#values.speedUnits = this.#values.distanceUnits === "KILOMETERS" ? "KM/H" : "MPH";
-    this.#normalizeVehicleSensors();
+    this.#values = normalizeVoyagerSettings(this.#values);
   }
 
   #discard(stateId) {

@@ -492,15 +492,15 @@ registerOverlay("m-set3-2-display", { kind: "settings-modal", section: "set", ti
 
 const VEHICLE_ROWS = [
   { label: "WHEEL SENSOR", field: "wheelSensor", value: "ENABLED", toggleValues: ["ENABLED", "DISABLED"] },
-  { label: "  WHEEL SIZE", field: "wheelSize", value: "2110 mm", enabledWhen: [{ field: "wheelSensor", value: "ENABLED" }] },
+  { label: "  WHEEL SIZE", field: "wheelSize", value: "2110 mm" },
   { spacer: true },
   { label: "ENGINE SENSOR", field: "engineSensor", value: "ENABLED", toggleValues: ["ENABLED", "DISABLED"] },
-  { label: "  PPR", field: "ppr", value: "1", enabledWhen: [{ field: "engineSensor", value: "ENABLED" }] },
-  { label: "  SENSITIVITY", field: "sensorSensitivity", value: "LOW", toggleValues: ["LOW", "HIGH"], enabledWhen: [{ field: "engineSensor", value: "ENABLED" }] },
-  { label: `  ${VOYAGER_FONT_SYMBOLS.play} TACHBAR`, enabledWhen: [{ field: "engineSensor", value: "ENABLED" }] },
+  { label: "  PPR", field: "ppr", value: "1" },
+  { label: "  SENSITIVITY", field: "sensorSensitivity", value: "LOW", toggleValues: ["LOW", "HIGH"] },
+  { label: `  ${VOYAGER_FONT_SYMBOLS.play} TACHBAR`, availabilityField: "tachbarScreen" },
   { spacer: true },
-  { label: "SPEED / DIST", field: "speedSource", value: "WHL SENSOR", toggleValues: ["WHL SENSOR", "GPS"], enabledWhen: [{ field: "wheelSensor", value: "ENABLED" }] },
-  { label: "ACCUM RUN TIME", field: "runTimeSource", value: "ENG OR WHL", toggleValues: ["ENG OR WHL", "GPS"], enabledWhen: [{ field: "wheelSensor", value: "ENABLED" }, { field: "engineSensor", value: "ENABLED" }] },
+  { label: "SPEED / DIST", field: "speedSource", value: "WHL SENSOR", toggleValues: ["WHL SENSOR", "GPS"] },
+  { label: "ACCUM RUN TIME", field: "runTimeSource", value: "ENG OR WHL", toggleValues: ["ENG OR WHL", "GPS"] },
   { spacer: true },
   { label: "RESTORE DEFAULTS" },
 ];

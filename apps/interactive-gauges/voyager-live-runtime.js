@@ -14,10 +14,8 @@ import {
   voyagerMenuState,
 } from "./voyager-menu-registry.js";
 import { VoyagerMenuModel } from "./voyager-menu-model.js";
-import {
-  createVoyagerDisplayProfile,
-  createVoyagerInventorySnapshot,
-} from "./voyager-device-runtime.js";
+import { createVoyagerDisplayProfile } from "./voyager-device-runtime.js";
+import { VoyagerRideCatalog } from "./voyager-ride-catalog.js";
 import {
   renderVoyagerMenuMarkup,
   renderVoyagerToastMarkup,
@@ -32,10 +30,6 @@ const VOYAGER_CONDUCTOR_SLOT_MS = 500;
 const VOYAGER_POWER_SAVE_SLOT_MS = 1000;
 const VOYAGER_SLEEP_CLOCK_MS = 1000;
 const VOYAGER_DEFAULT_SLEEP_AFTER_MS = 10 * 60 * 1000;
-const VOYAGER_TRACK_STORAGE_CAPACITY_BYTES = 1_940_000;
-const VOYAGER_ROUTE_STORAGE_CAPACITY_BYTES = 10_746_000;
-const VOYAGER_MICROSD_BASE_USED_BYTES = 414 * 1024 * 1024;
-const VOYAGER_MICROSD_CAPACITY_MB = 486;
 const SD_CARD_DEFAULT_RIDES = Object.freeze([
   { id: "SD-BAKER", name: "BAKER WEST", progress: 0, trackId: "baker-west-desert" },
   { id: "SD-JORDAN", name: "JORDAN CREEK", progress: 0, trackId: "jordan-creek" },
@@ -247,9 +241,7 @@ function formatLocalClock(timestamp = Date.now()) {
 }
 
 class VoyagerRideEngine {
-  #tracks = new Map();
-  #areas = new Map();
-  #resources = new Map();
+  #catalog;
   #currentTrack = null;
   #listeners = new Set();
   #conductorTimer = 0;
@@ -266,7 +258,10 @@ class VoyagerRideEngine {
   #powerSave = false;
   #loop = true;
   #telemetry = null;
-  #memorySummary = null;
+
+  constructor(catalog) {
+    this.#catalog = catalog;
+  }
 
   async load(trackDefinitions) {
     const loadedGroups = await Promise.all(
@@ -281,6 +276,7 @@ class VoyagerRideEngine {
             areaId: null,
             resource: {
               id: definition.id,
+              label: definition.label,
               bytes: resourceBytes,
               memoryRoles: definition.memoryRoles ?? [],
               waypoints: ride.waypoints,
@@ -293,6 +289,7 @@ class VoyagerRideEngine {
           areaId: definition.id,
           resource: {
             id: definition.id,
+            label: definition.label,
             bytes: resourceBytes,
             memoryRoles: definition.memoryRoles ?? [],
             waypoints: area.waypoints,
@@ -307,22 +304,9 @@ class VoyagerRideEngine {
         };
       }),
     );
-    const loadedTracks = [];
-    for (const group of loadedGroups) {
-      this.#resources.set(group.resource.id, group.resource);
-      for (const track of group.tracks) {
-        this.#tracks.set(track.id, track);
-        loadedTracks.push(track);
-      }
-      if (group.areaId) {
-        this.#areas.set(group.areaId, {
-          lastTrackId: null,
-          trackIds: group.tracks.map((track) => track.id),
-        });
-      }
-    }
+    this.#catalog.registerLoadedGroups(loadedGroups);
+    const loadedTracks = loadedGroups.flatMap((group) => group.tracks);
     this.#currentTrack = loadedTracks[0];
-    this.#memorySummary = this.#buildMemorySummary();
     this.#lastTimestamp = performance.now();
     this.#lastActivityTimestamp = this.#lastTimestamp;
     this.#emit({ kind: "full", mode: "active" });
@@ -354,38 +338,15 @@ class VoyagerRideEngine {
   }
 
   pointsFor(trackId) {
-    const area = this.#areas.get(trackId);
-    const resolvedTrackId = area?.lastTrackId ?? area?.trackIds[0] ?? trackId;
-    return this.#tracks.get(resolvedTrackId)?.points ?? [];
+    return this.#catalog.pointsFor(trackId);
   }
 
   get trackIds() {
-    return [...this.#tracks.keys(), ...this.#areas.keys()];
+    return this.#catalog.trackIds;
   }
 
   get memorySummary() {
-    return this.#memorySummary ?? this.#buildMemorySummary();
-  }
-
-  #buildMemorySummary() {
-    const resources = [...this.#resources.values()];
-    const resourcesFor = (role) => resources.filter(({ memoryRoles }) => memoryRoles.includes(role));
-    const trackResources = resourcesFor("track");
-    const routeResources = resourcesFor("route");
-    const waypointCount = resources.reduce((total, resource) => total + resource.waypoints.length, 0);
-    const totalResourceBytes = resources.reduce((total, resource) => total + resource.bytes, 0);
-    const trackBytes = trackResources.reduce((total, resource) => total + resource.bytes, 0);
-    const routeBytes = routeResources.reduce((total, resource) => total + resource.bytes, 0);
-    const microSdUsedMb = Math.round((VOYAGER_MICROSD_BASE_USED_BYTES + totalResourceBytes) / 1024 / 1024);
-    return Object.freeze({
-      trackCount: trackResources.length,
-      trackUsage: clamp(trackBytes / VOYAGER_TRACK_STORAGE_CAPACITY_BYTES, 0, 1),
-      routeCount: routeResources.length,
-      routeUsage: clamp(routeBytes / VOYAGER_ROUTE_STORAGE_CAPACITY_BYTES, 0, 1),
-      waypointCount,
-      microSdUsedMb,
-      microSdCapacityMb: VOYAGER_MICROSD_CAPACITY_MB,
-    });
+    return this.#catalog.memorySummary;
   }
 
   get telemetry() {
@@ -443,7 +404,7 @@ class VoyagerRideEngine {
 
   selectRide(trackId, { reset = true } = {}) {
     const resolvedTrackId = this.#selectAreaTrackId(trackId) ?? trackId;
-    const nextTrack = this.#tracks.get(resolvedTrackId);
+    const nextTrack = this.#catalog.track(resolvedTrackId);
     if (!nextTrack) throw new Error(`Unknown Voyager GPX ride: ${trackId}`);
     this.#currentTrack = nextTrack;
     if (reset) this.#progress = 0;
@@ -452,13 +413,7 @@ class VoyagerRideEngine {
   }
 
   #selectAreaTrackId(areaId) {
-    const area = this.#areas.get(areaId);
-    if (!area) return null;
-    const candidates = area.trackIds.filter((candidate) => candidate !== area.lastTrackId);
-    const selectionPool = candidates.length ? candidates : area.trackIds;
-    const resolvedTrackId = selectionPool[Math.floor(Math.random() * selectionPool.length)];
-    area.lastTrackId = resolvedTrackId;
-    return resolvedTrackId;
+    return this.#catalog.selectAreaTrackId(areaId);
   }
 
   play() {
@@ -517,7 +472,7 @@ class VoyagerRideEngine {
           this.#playing = false;
         } else if (this.#currentTrack.areaId) {
           const nextTrackId = this.#selectAreaTrackId(this.#currentTrack.areaId);
-          this.#currentTrack = this.#tracks.get(nextTrackId) ?? this.#currentTrack;
+          this.#currentTrack = this.#catalog.track(nextTrackId) ?? this.#currentTrack;
         }
       }
     }
@@ -1084,7 +1039,8 @@ export class VoyagerLiveRuntime {
   #mount;
   #stage;
   #appBase;
-  #ride = new VoyagerRideEngine();
+  #catalog;
+  #ride;
   #state = null;
   #screenState = null;
   #menuState = null;
@@ -1109,15 +1065,11 @@ export class VoyagerLiveRuntime {
   #stopwatchStartedAt = 0;
   #stopwatchRunning = false;
   #available = false;
-  #waypoints = [];
-  #savedRides = [];
   #selectedSavedRideIndex = 0;
   #overlayRideId = null;
   #selectedDestination = null;
   #toastMessage = "";
   #toastExpiresAt = 0;
-  #inventorySnapshot = null;
-  #inventorySnapshotKey = "";
   #appliedSettingsKey = "";
   #settingsSnapshot = null;
   #settingsRevision = -1;
@@ -1126,6 +1078,8 @@ export class VoyagerLiveRuntime {
     this.#mount = mount;
     this.#stage = stage;
     this.#appBase = appBase;
+    this.#catalog = new VoyagerRideCatalog();
+    this.#ride = new VoyagerRideEngine(this.#catalog);
   }
 
   async initialize() {
@@ -1255,7 +1209,7 @@ export class VoyagerLiveRuntime {
     this.#applyInteractiveInput(event);
 
     if (this.#menuState) {
-      const savedRideKey = this.#savedRides.slice(0, 4).map((ride) => `${ride.id}:${ride.name}`).join("|");
+      const savedRideKey = this.#catalog.savedRides.slice(0, 4).map((ride) => `${ride.id}:${ride.name}`).join("|");
       const inventory = this.#inventory();
       const layoutKey = `menu:${state.id}:${inventory.signature}:${this.#menuModel.revision}:${savedRideKey}:${this.#selectedSavedRideIndex}`;
       if (layoutKey !== this.#layoutKey) {
@@ -1330,14 +1284,14 @@ export class VoyagerLiveRuntime {
       };
     }
     if (/^m-ride2-6-4-[1-4]$/.test(resolved.id)) {
-      const cardRows = this.#savedRides.slice(0, 4).map((ride) => ({ label: ride.name }));
+      const cardRows = this.#catalog.savedRides.slice(0, 4).map((ride) => ({ label: ride.name }));
       while (cardRows.length < 4) cardRows.push({ label: "EMPTY SLOT" });
       resolved = { ...resolved, rows: cardRows };
     }
     if (/^m-ride2-6-4-1-[1-4](?:-1)?$/.test(resolved.id)) {
       resolved = {
         ...resolved,
-        title: this.#savedRides[this.#selectedSavedRideIndex]?.name ?? "EMPTY SLOT",
+        title: this.#catalog.savedRides[this.#selectedSavedRideIndex]?.name ?? "EMPTY SLOT",
       };
     }
     if (resolved.presentation !== "overlay") return renderVoyagerMenuMarkup(resolved);
@@ -1357,35 +1311,18 @@ export class VoyagerLiveRuntime {
   }
 
   #destinationWaypoints() {
-    const loadedWaypoints = this.#ride.waypoints;
-    const savedWaypoints = this.#waypoints.map((waypoint) => ({
-      name: `${waypoint.source} ${waypoint.label}`,
-      latitude: waypoint.latitude,
-      longitude: waypoint.longitude,
-    }));
-    return [...loadedWaypoints, ...savedWaypoints].slice(0, 4).map((waypoint, index) => ({
-      ...waypoint,
-      label: String(index + 1),
-    }));
+    return this.#catalog.destinationWaypoints(this.#ride.waypoints);
   }
 
   #settings() {
     if (this.#settingsRevision === this.#menuModel.revision && this.#settingsSnapshot) return this.#settingsSnapshot;
-    this.#settingsSnapshot = Object.freeze(this.#menuModel.values);
+    this.#settingsSnapshot = this.#menuModel.effectiveValues;
     this.#settingsRevision = this.#menuModel.revision;
     return this.#settingsSnapshot;
   }
 
   #inventory() {
-    const summary = this.#ride.memorySummary;
-    const key = `${summary.trackCount}:${summary.trackUsage}:${summary.routeCount}:${summary.routeUsage}:${summary.waypointCount}:${summary.microSdUsedMb}:${this.#waypoints.length}:${this.#savedRides.length}`;
-    if (key === this.#inventorySnapshotKey && this.#inventorySnapshot) return this.#inventorySnapshot;
-    this.#inventorySnapshot = createVoyagerInventorySnapshot(summary, {
-      savedRideCount: this.#savedRides.length,
-      savedWaypointCount: this.#waypoints.length,
-    });
-    this.#inventorySnapshotKey = key;
-    return this.#inventorySnapshot;
+    return this.#catalog.inventorySnapshot();
   }
 
   #contextualizeMenuDefinition(definition) {
@@ -1393,6 +1330,23 @@ export class VoyagerLiveRuntime {
       return {
         ...definition,
         rows: voyagerMemoryRows(this.#inventory()),
+      };
+    }
+    if (["m-ride-tracks-custom", "m-ride-tracks-rename"].includes(definition?.id)) {
+      const options = this.#catalog.labelsFor("track");
+      return {
+        ...definition,
+        options,
+        checkedOptions: options.map((_, index) => index),
+        optionTargets: definition.id === "m-ride-tracks-rename"
+          ? Object.fromEntries(options.map((_, index) => [index, "m-ride-track-name"]))
+          : definition.optionTargets,
+      };
+    }
+    if (definition?.id === "m-ride-routes-rename") {
+      return {
+        ...definition,
+        options: this.#catalog.labelsFor("route"),
       };
     }
     if (!definition?.destinationWaypointPicker) return definition;
@@ -1607,14 +1561,14 @@ export class VoyagerLiveRuntime {
       const waypoint = this.#addWaypoint("CROSSHAIRS", telemetry.latitude + 0.0012, telemetry.longitude + 0.0017);
       this.#queueToast(`Waypoint ${waypoint.label} added.`);
     }
-    if (definition?.outcome === "erase-waypoint" && this.#waypoints.length) {
-      this.#waypoints.pop();
+    if (definition?.outcome === "erase-waypoint" && this.#catalog.savedWaypoints.length) {
+      this.#catalog.removeLastSavedWaypoint();
       this.#saveWaypoints();
       this.#invalidateMapProjection();
       this.#queueToast("WAYPOINT ERASED");
     }
     if (definition?.outcome === "erase-waypoints") {
-      this.#waypoints = [];
+      this.#catalog.clearSavedWaypoints();
       this.#saveWaypoints();
       this.#invalidateMapProjection();
       this.#queueToast("ALL WAYPOINTS ERASED");
@@ -1625,7 +1579,7 @@ export class VoyagerLiveRuntime {
     }
     if (definition?.outcome === "reset-ride-memory") {
       this.#ride.reset();
-      this.#waypoints = [];
+      this.#catalog.clearSavedWaypoints();
       this.#selectedDestination = null;
       this.#stopwatchElapsedMs = 0;
       this.#stopwatchStartedAt = this.#stopwatchRunning ? performance.now() : 0;
@@ -1648,18 +1602,18 @@ export class VoyagerLiveRuntime {
   }
 
   #saveCurrentRide(telemetry) {
-    const name = this.#settings().rideName || `RIDE-${this.#savedRides.length + 32}`;
-    this.#savedRides = [{
+    const name = this.#settings().rideName || `RIDE-${this.#catalog.savedRides.length + 32}`;
+    this.#catalog.saveRide({
       id: `RIDE-${Date.now().toString(36).toUpperCase()}`,
       name,
       progress: telemetry.progress,
       trackId: telemetry.trackId,
-    }, ...this.#savedRides.filter((ride) => ride.name !== name)].slice(0, 8);
+    });
     this.#saveSavedRides();
   }
 
   #loadSavedRide() {
-    const ride = this.#savedRides[this.#selectedSavedRideIndex];
+    const ride = this.#catalog.savedRides[this.#selectedSavedRideIndex];
     if (!ride || !this.#ride.trackIds.includes(ride.trackId)) return;
     const selectedTrack = this.#ride.selectRide(ride.trackId);
     this.#ride.seek(ride.progress);
@@ -1673,9 +1627,9 @@ export class VoyagerLiveRuntime {
   }
 
   #deleteSavedRide() {
-    if (!this.#savedRides[this.#selectedSavedRideIndex]) return;
-    const [removed] = this.#savedRides.splice(this.#selectedSavedRideIndex, 1);
-    this.#selectedSavedRideIndex = clamp(this.#selectedSavedRideIndex, 0, Math.max(0, this.#savedRides.length - 1));
+    const removed = this.#catalog.removeSavedRide(this.#selectedSavedRideIndex);
+    if (!removed) return;
+    this.#selectedSavedRideIndex = clamp(this.#selectedSavedRideIndex, 0, Math.max(0, this.#catalog.savedRides.length - 1));
     if (this.#overlayRideId === removed.trackId) this.#overlayRideId = null;
     this.#saveSavedRides();
     this.#invalidateMapProjection();
@@ -1684,12 +1638,12 @@ export class VoyagerLiveRuntime {
   #addWaypoint(source, latitude, longitude) {
     const waypoint = {
       id: `WP-${Date.now().toString(36).toUpperCase()}`,
-      label: String(this.#waypoints.length + 5),
+      label: String(this.#catalog.savedWaypoints.length + 5),
       source,
       latitude,
       longitude,
     };
-    this.#waypoints.push(waypoint);
+    this.#catalog.addSavedWaypoint(waypoint);
     this.#saveWaypoints();
     this.#invalidateMapProjection();
     return waypoint;
@@ -1754,17 +1708,17 @@ export class VoyagerLiveRuntime {
   #loadWaypoints() {
     try {
       const stored = JSON.parse(window.localStorage.getItem(WAYPOINT_STORAGE_KEY) ?? "[]");
-      this.#waypoints = Array.isArray(stored)
+      this.#catalog.setSavedWaypoints(Array.isArray(stored)
         ? stored.filter((waypoint) => Number.isFinite(waypoint?.latitude) && Number.isFinite(waypoint?.longitude)).slice(-24)
-        : [];
+        : []);
     } catch {
-      this.#waypoints = [];
+      this.#catalog.setSavedWaypoints([]);
     }
   }
 
   #saveWaypoints() {
     try {
-      window.localStorage.setItem(WAYPOINT_STORAGE_KEY, JSON.stringify(this.#waypoints));
+      window.localStorage.setItem(WAYPOINT_STORAGE_KEY, JSON.stringify(this.#catalog.savedWaypoints));
     } catch {
       // The prototype remains usable if storage is unavailable.
     }
@@ -1777,18 +1731,18 @@ export class VoyagerLiveRuntime {
         ? stored.filter((ride) => typeof ride?.name === "string" && typeof ride?.trackId === "string")
         : [];
       const defaultTrackIds = new Set(SD_CARD_DEFAULT_RIDES.map((ride) => ride.trackId));
-      this.#savedRides = [
+      this.#catalog.setSavedRides([
         ...SD_CARD_DEFAULT_RIDES.map((ride) => ({ ...ride })),
         ...reviewedStoredRides.filter((ride) => !defaultTrackIds.has(ride.trackId)),
-      ].slice(0, 8);
+      ].slice(0, 8));
     } catch {
-      this.#savedRides = SD_CARD_DEFAULT_RIDES.map((ride) => ({ ...ride }));
+      this.#catalog.setSavedRides(SD_CARD_DEFAULT_RIDES.map((ride) => ({ ...ride })));
     }
   }
 
   #saveSavedRides() {
     try {
-      window.localStorage.setItem(SAVED_RIDE_STORAGE_KEY, JSON.stringify(this.#savedRides));
+      window.localStorage.setItem(SAVED_RIDE_STORAGE_KEY, JSON.stringify(this.#catalog.savedRides));
     } catch {
       // Saved-ride controls remain usable when storage is unavailable.
     }
@@ -1815,7 +1769,7 @@ export class VoyagerLiveRuntime {
       label: String(index + 1),
       saved: false,
     }));
-    const savedPositions = this.#waypoints.map((waypoint) => ({
+    const savedPositions = this.#catalog.savedWaypoints.map((waypoint) => ({
       point: projected[this.#nearestRidePointIndex(waypoint)] ?? current,
       label: waypoint.label,
       saved: true,
@@ -1840,7 +1794,7 @@ export class VoyagerLiveRuntime {
       pendingLayer.innerHTML = `
         <g transform="translate(${pendingPoint.x.toFixed(2)} ${pendingPoint.y.toFixed(2)})">
           <circle class="voyager-menu__map-pending" r="16" />
-          <text class="voyager-live__text" x="0" y="6" text-anchor="middle">${this.#menuState.mode.includes("delete") ? "−" : this.#waypoints.length + 5}</text>
+          <text class="voyager-live__text" x="0" y="6" text-anchor="middle">${this.#menuState.mode.includes("delete") ? "−" : this.#catalog.savedWaypoints.length + 5}</text>
         </g>`;
     }
   }

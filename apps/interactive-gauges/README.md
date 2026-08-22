@@ -79,6 +79,17 @@ distance, elevation, engine temperature, ambient temperature, graphs, and map po
 pause, reset, seek, playback speed, and loop behavior. Graph cursor input seeks that shared timeline rather than maintaining
 a disconnected display-only cursor.
 
+`voyager-ride-catalog.js` is the single content authority beneath the ride engine, map, SD-card screens, destination
+picker, and Memory panel. It owns loaded track/route resources, riding-area selections, saved rides, saved waypoints,
+content labels, byte totals, and a revision-cached immutable inventory snapshot. The menu's loaded-track and route lists
+are derived from that catalog rather than a second handwritten file list.
+
+Device preferences and active behavior are intentionally separate. `voyager-setting-rules.js` declares sensor
+requirements, derived values, and effective fallbacks. Disabling a sensor can therefore show and use the device's GPS,
+engine, or wheel fallback without erasing the rider's stored source preference; re-enabling the sensor restores that
+preference. The live renderer consumes one cached effective-settings snapshot per menu revision, so unchanged settings
+are not recalculated on conductor ticks.
+
 The checked-in real-ride files are reduced, publication-safe derivatives rather than copies of the source library. Rebuild
 them from a reviewed local GPX directory with:
 
