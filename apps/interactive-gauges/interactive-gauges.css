@@ -855,6 +855,10 @@
   shape-rendering: crispEdges;
 }
 
+.voyager-menu__meter-fill {
+  fill: #9e9e9e;
+}
+
 .voyager-menu__title {
   font-size: 25px;
 }

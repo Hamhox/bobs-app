@@ -10,6 +10,7 @@ import {
   VOYAGER_MENU_CANONICAL_STATE_IDS,
   VOYAGER_MENU_STABLE_STATE_ALIASES,
   VOYAGER_MENU_STATE_IDS,
+  voyagerMemoryRows,
   voyagerMenuState,
 } from "./voyager-menu-registry.js";
 import { VoyagerMenuModel } from "./voyager-menu-model.js";
@@ -27,6 +28,10 @@ const VOYAGER_CONDUCTOR_SLOT_MS = 500;
 const VOYAGER_POWER_SAVE_SLOT_MS = 1000;
 const VOYAGER_SLEEP_CLOCK_MS = 1000;
 const VOYAGER_DEFAULT_SLEEP_AFTER_MS = 10 * 60 * 1000;
+const VOYAGER_TRACK_STORAGE_CAPACITY_BYTES = 1_940_000;
+const VOYAGER_ROUTE_STORAGE_CAPACITY_BYTES = 10_746_000;
+const VOYAGER_MICROSD_BASE_USED_BYTES = 414 * 1024 * 1024;
+const VOYAGER_MICROSD_CAPACITY_MB = 486;
 const SD_CARD_DEFAULT_RIDES = Object.freeze([
   { id: "SD-BAKER", name: "BAKER WEST", progress: 0, trackId: "baker-west-desert" },
   { id: "SD-JORDAN", name: "JORDAN CREEK", progress: 0, trackId: "jordan-creek" },
@@ -246,6 +251,7 @@ function formatLocalClock(timestamp = Date.now()) {
 class VoyagerRideEngine {
   #tracks = new Map();
   #areas = new Map();
+  #resources = new Map();
   #currentTrack = null;
   #listeners = new Set();
   #conductorTimer = 0;
@@ -268,12 +274,30 @@ class VoyagerRideEngine {
       trackDefinitions.map(async (definition) => {
         const response = await fetch(definition.areaUrl ?? definition.url);
         if (!response.ok) throw new Error(`Voyager ride request failed with ${response.status}.`);
+        const payload = await response.text();
+        const resourceBytes = new TextEncoder().encode(payload).byteLength;
         if (!definition.areaUrl) {
-          return { areaId: null, tracks: [buildTrack(definition, parseGpx(await response.text()))] };
+          const ride = parseGpx(payload);
+          return {
+            areaId: null,
+            resource: {
+              id: definition.id,
+              bytes: resourceBytes,
+              memoryRoles: definition.memoryRoles ?? [],
+              waypoints: ride.waypoints,
+            },
+            tracks: [buildTrack(definition, ride)],
+          };
         }
-        const area = parseVoyagerRideArea(await response.json());
+        const area = parseVoyagerRideArea(JSON.parse(payload));
         return {
           areaId: definition.id,
+          resource: {
+            id: definition.id,
+            bytes: resourceBytes,
+            memoryRoles: definition.memoryRoles ?? [],
+            waypoints: area.waypoints,
+          },
           tracks: area.rides.map((ride) => buildTrack({
             ...definition,
             areaId: definition.id,
@@ -286,6 +310,7 @@ class VoyagerRideEngine {
     );
     const loadedTracks = [];
     for (const group of loadedGroups) {
+      this.#resources.set(group.resource.id, group.resource);
       for (const track of group.tracks) {
         this.#tracks.set(track.id, track);
         loadedTracks.push(track);
@@ -336,6 +361,27 @@ class VoyagerRideEngine {
 
   get trackIds() {
     return [...this.#tracks.keys(), ...this.#areas.keys()];
+  }
+
+  get memorySummary() {
+    const resources = [...this.#resources.values()];
+    const resourcesFor = (role) => resources.filter(({ memoryRoles }) => memoryRoles.includes(role));
+    const trackResources = resourcesFor("track");
+    const routeResources = resourcesFor("route");
+    const waypointCount = resources.reduce((total, resource) => total + resource.waypoints.length, 0);
+    const totalResourceBytes = resources.reduce((total, resource) => total + resource.bytes, 0);
+    const trackBytes = trackResources.reduce((total, resource) => total + resource.bytes, 0);
+    const routeBytes = routeResources.reduce((total, resource) => total + resource.bytes, 0);
+    const microSdUsedMb = Math.round((VOYAGER_MICROSD_BASE_USED_BYTES + totalResourceBytes) / 1024 / 1024);
+    return {
+      trackCount: trackResources.length,
+      trackUsage: clamp(trackBytes / VOYAGER_TRACK_STORAGE_CAPACITY_BYTES, 0, 1),
+      routeCount: routeResources.length,
+      routeUsage: clamp(routeBytes / VOYAGER_ROUTE_STORAGE_CAPACITY_BYTES, 0, 1),
+      waypointCount,
+      microSdUsedMb,
+      microSdCapacityMb: VOYAGER_MICROSD_CAPACITY_MB,
+    };
   }
 
   get telemetry() {
@@ -1083,12 +1129,12 @@ export class VoyagerLiveRuntime {
     await Promise.all([
       fontReady,
       this.#ride.load([
-        { id: "forest-loop", label: "FOREST LOOP", url: `${this.#appBase}/assets/rides/forest-loop.gpx` },
-        { id: "mountain-run", label: "MOUNTAIN RUN", url: `${this.#appBase}/assets/rides/mountain-run.gpx` },
-        { id: "cmra-trail-2", label: "CMRA TRAIL 2", url: `${this.#appBase}/assets/rides/cmra-trail-2.gpx` },
-        { id: "blackdog-2016", label: "2016 BLACKDOG", url: `${this.#appBase}/assets/rides/blackdog-2016.gpx` },
-        { id: "baker-west-desert", label: "BAKER WEST", areaUrl: `${this.#appBase}/assets/rides/baker-west-desert.voyager.json` },
-        { id: "jordan-creek", label: "JORDAN CREEK", areaUrl: `${this.#appBase}/assets/rides/jordan-creek.voyager.json` },
+        { id: "forest-loop", label: "FOREST LOOP", memoryRoles: ["track"], url: `${this.#appBase}/assets/rides/forest-loop.gpx` },
+        { id: "mountain-run", label: "MOUNTAIN RUN", memoryRoles: ["track"], url: `${this.#appBase}/assets/rides/mountain-run.gpx` },
+        { id: "cmra-trail-2", label: "CMRA TRAIL 2", memoryRoles: ["track", "route"], url: `${this.#appBase}/assets/rides/cmra-trail-2.gpx` },
+        { id: "blackdog-2016", label: "2016 BLACKDOG", memoryRoles: ["route"], url: `${this.#appBase}/assets/rides/blackdog-2016.gpx` },
+        { id: "baker-west-desert", label: "BAKER WEST", memoryRoles: ["route"], areaUrl: `${this.#appBase}/assets/rides/baker-west-desert.voyager.json` },
+        { id: "jordan-creek", label: "JORDAN CREEK", memoryRoles: ["route"], areaUrl: `${this.#appBase}/assets/rides/jordan-creek.voyager.json` },
       ]),
     ]);
     this.#loadWaypoints();
@@ -1306,6 +1352,16 @@ export class VoyagerLiveRuntime {
   }
 
   #contextualizeMenuDefinition(definition) {
+    if (definition?.kind === "memory") {
+      const summary = this.#ride.memorySummary;
+      return {
+        ...definition,
+        rows: voyagerMemoryRows({
+          ...summary,
+          waypointCount: summary.waypointCount + this.#waypoints.length,
+        }),
+      };
+    }
     if (!definition?.destinationWaypointPicker) return definition;
     const waypointOptions = this.#destinationWaypoints();
     if (!waypointOptions.length) return definition;

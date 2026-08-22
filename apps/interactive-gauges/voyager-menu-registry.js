@@ -361,19 +361,33 @@ registerOverlay("m-ride-export-settings", {
   kind: "progress", section: "ride", title: "EXPORT SETTINGS", lines: ["WRITING FILE..."], progress: 0.68, outcome: "export-settings", cancelOutcome: "cancel-export",
 }, "m-ride-transfer-4");
 
-const MEMORY_ROWS = [
-  { label: "TRACKS", value: "3 / 30", meter: 0.10 },
-  { label: "", value: "31%", meter: 0.31 },
-  { spacer: true },
-  { label: "ROUTES", value: "4 / 300", meter: 0.013 },
-  { label: "", value: "17%", meter: 0.17 },
-  { spacer: true },
-  { label: "WAYPOINTS", value: "9 / 300", meter: 0.03 },
-  { spacer: true },
-  { label: "MICROSD", value: "416 / 486MB", meter: 0.86 },
-  { spacer: true },
-  { label: "RESET RIDE MEMORY" },
-];
+const memoryRatio = (value, maximum) => Math.min(1, Math.max(0, value / maximum));
+
+export function voyagerMemoryRows({
+  trackCount = 3,
+  trackUsage = 0.31,
+  routeCount = 4,
+  routeUsage = 0.17,
+  waypointCount = 9,
+  microSdUsedMb = 416,
+  microSdCapacityMb = 486,
+} = {}) {
+  return [
+    { label: "TRACKS", value: `${trackCount} / 300`, meter: memoryRatio(trackCount, 300) },
+    { label: "", value: `${Math.round(trackUsage * 100)}%`, meter: trackUsage },
+    { spacer: true },
+    { label: "ROUTES", value: `${routeCount} / 300`, meter: memoryRatio(routeCount, 300) },
+    { label: "", value: `${Math.round(routeUsage * 100)}%`, meter: routeUsage },
+    { spacer: true },
+    { label: "WAYPOINTS", value: `${waypointCount} / 300`, meter: memoryRatio(waypointCount, 300) },
+    { spacer: true },
+    { label: "MICROSD", value: `${microSdUsedMb} / ${microSdCapacityMb}MB`, meter: memoryRatio(microSdUsedMb, microSdCapacityMb) },
+    { spacer: true },
+    { label: "RESET RIDE MEMORY" },
+  ];
+}
+
+const MEMORY_ROWS = voyagerMemoryRows();
 register("m-ride-memory-1", {
   rows: MEMORY_ROWS, selectedIndex: MEMORY_ROWS.length - 1,
   parentStateId: "m-ride2-8", kind: "memory", section: "ride", title: "MEMORY",

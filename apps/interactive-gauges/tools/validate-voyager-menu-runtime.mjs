@@ -116,6 +116,11 @@ function main() {
   const memoryTransitions = VOYAGER_MENU_TRANSITIONS[memoryDefinition.id];
   if (memoryMarkup.includes("TRACK MEMORY")
     || memoryMarkup.includes("ROUTE MEMORY")
+    || !memoryMarkup.includes("3 / 300")
+    || !memoryMarkup.includes("4 / 300")
+    || !memoryMarkup.includes("9 / 300")
+    || !memoryMarkup.includes("31%")
+    || !memoryMarkup.includes("17%")
     || (memoryMarkup.match(/voyager-menu__selection/g) ?? []).length !== 1
     || !memoryMarkup.includes('class="voyager-menu__panel" x="55" y="18" width="400" height="267"')
     || memoryTransitions.up !== memoryDefinition.id
