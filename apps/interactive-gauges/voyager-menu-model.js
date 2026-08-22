@@ -6,6 +6,8 @@ import {
 } from "./voyager-setting-rules.js";
 
 const MENU_STORAGE_KEY = "bobs-app:voyager-menu:v1";
+const SETTINGS_FILE_SCHEMA = "bobs-app:voyager-settings";
+const SETTINGS_FILE_VERSION = 1;
 
 const dataBlockVariant = (label, digit) => `${label} ${digit === 1
   ? VOYAGER_FONT_SYMBOLS.circledDigitNarrow1
@@ -100,6 +102,13 @@ const DEFAULT_VALUES = Object.freeze({
   yellowLedFlash: "000 °F",
   redLedFlash: "000 °F",
   rideName: "RIDE-32",
+  softwareFile: "VOYAGER-1.7.0.SWU",
+  personalName: "BOB",
+  personalAddress: "PORTLAND, OR",
+  personalPhone: "555-0146",
+  demoRideState: "RUNNING",
+  demoPlaybackSpeed: "1X",
+  demoLoop: "ON",
 });
 
 const ROW_BINDINGS = Object.freeze({
@@ -241,6 +250,68 @@ export class VoyagerMenuModel {
     return createVoyagerEffectiveSettings(this.#values);
   }
 
+  exportSnapshot() {
+    return {
+      schema: SETTINGS_FILE_SCHEMA,
+      version: SETTINGS_FILE_VERSION,
+      exportedAt: new Date().toISOString(),
+      settings: { ...this.#values },
+    };
+  }
+
+  importSnapshot(snapshot) {
+    const payload = typeof snapshot === "string" ? JSON.parse(snapshot) : snapshot;
+    if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+      throw new TypeError("Voyager settings file must contain a JSON object.");
+    }
+    if (payload.schema !== SETTINGS_FILE_SCHEMA || payload.version !== SETTINGS_FILE_VERSION) {
+      throw new TypeError("This is not a compatible Voyager settings file.");
+    }
+    const imported = payload.settings;
+    if (!imported || typeof imported !== "object" || Array.isArray(imported)) {
+      throw new TypeError("Voyager settings file does not contain settings.");
+    }
+
+    let accepted = 0;
+    const nextValues = { ...this.#values };
+    for (const [key, defaultValue] of Object.entries(DEFAULT_VALUES)) {
+      const value = imported[key];
+      if (Array.isArray(defaultValue)) {
+        if (!Array.isArray(value) || value.some((item) => typeof item !== "string")) continue;
+        nextValues[key] = value.slice(0, 300).map((item) => item.slice(0, 128));
+        accepted += 1;
+        continue;
+      }
+      if (typeof value !== typeof defaultValue) continue;
+      if (typeof value === "number" && !Number.isFinite(value)) continue;
+      nextValues[key] = typeof value === "string" ? value.slice(0, 128) : value;
+      accepted += 1;
+    }
+    if (!accepted) throw new TypeError("Voyager settings file does not contain recognized settings.");
+
+    this.#values = nextValues;
+    this.#drafts.clear();
+    this.#normalizeSettings();
+    this.#save();
+    this.#touch();
+    return { accepted, total: Object.keys(DEFAULT_VALUES).length };
+  }
+
+  restoreAllDefaults() {
+    this.#values = { ...DEFAULT_VALUES };
+    this.#drafts.clear();
+    this.#normalizeSettings();
+    this.#save();
+    this.#touch();
+  }
+
+  supportEntries() {
+    return Object.entries(this.effectiveValues).map(([key, value]) => ({
+      key,
+      value: Array.isArray(value) ? value.join(",") : String(value),
+    }));
+  }
+
   load() {
     try {
       const stored = JSON.parse(window.localStorage.getItem(MENU_STORAGE_KEY) ?? "{}");
@@ -301,7 +372,7 @@ export class VoyagerMenuModel {
   resolveInputAction(definition, action) {
     if (!definition || action !== "center") return action;
     const centerActivatesSelection = definition.presentation === "page"
-      || ["brightness", "checklist-modal", "confirm", "notice", "settings-modal", "user-layout"].includes(definition.kind);
+      || ["brightness", "checklist-modal", "confirm", "notice", "settings-modal", "status-modal", "user-layout"].includes(definition.kind);
     return centerActivatesSelection ? "enter" : action;
   }
 
@@ -601,6 +672,11 @@ export class VoyagerMenuModel {
   }
 
   #commit(definition, draft) {
+    if (definition.kind === "confirm" && definition.restoreAll) {
+      this.restoreAllDefaults();
+      this.#drafts.delete(definition.id);
+      return;
+    }
     if (definition.kind === "confirm" && definition.restoreGroup) {
       this.#restoreDefaults(definition.restoreGroup);
       this.#drafts.delete(definition.id);

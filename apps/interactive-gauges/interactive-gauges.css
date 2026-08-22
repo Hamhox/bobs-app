@@ -657,6 +657,19 @@
   display: none;
 }
 
+.voyager-live-screen[data-engine="running"] [data-live-engine-off],
+.voyager-live-screen[data-engine="off"] [data-live-engine-running] {
+  display: none;
+}
+
+.voyager-live__engine-off {
+  fill: none;
+  stroke: #242021;
+  stroke-width: 4;
+  stroke-linecap: square;
+  shape-rendering: crispEdges;
+}
+
 .voyager-live__status-throbber use {
   transform-box: fill-box;
   transform-origin: center;
@@ -879,6 +892,11 @@
   font-size: 16px;
 }
 
+.voyager-menu__status-value {
+  font-family: "Bobs Font 6 Pixel Narrow", "Bobs Font 6 Pixel", monospace;
+  font-size: 8px;
+}
+
 .voyager-menu__waypoint-digit {
   font-size: 15px;
 }
@@ -1010,6 +1028,22 @@
 
 .voyager-menu__brightness-fill {
   fill: #b8b7b3;
+}
+
+.voyager-menu__progress-fill--animated {
+  transform-box: fill-box;
+  transform-origin: left center;
+  animation: voyager-menu-progress-fill 1.2s steps(12, end) both;
+}
+
+@keyframes voyager-menu-progress-fill {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
 }
 
 .voyager-menu__brightness-thumb {

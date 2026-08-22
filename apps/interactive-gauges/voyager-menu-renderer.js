@@ -208,13 +208,29 @@ function noticeModal(definition) {
     ${selectedOkButton(202, 219)}`);
 }
 
+function statusModal(definition) {
+  const entries = definition.entries ?? [];
+  const columnCount = 4;
+  const rowsPerColumn = Math.max(1, Math.ceil(entries.length / columnCount));
+  const columnWidth = 110;
+  const rowHeight = Math.min(12, 207 / rowsPerColumn);
+  const markup = entries.map(({ key, value }, index) => {
+    const column = Math.floor(index / rowsPerColumn);
+    const row = index % rowsPerColumn;
+    const label = `${String(key).replace(/([a-z])([A-Z])/g, "$1_$2").toUpperCase()}:${value}`;
+    const textLength = label.length > 20 ? ` textLength="101" lengthAdjust="spacingAndGlyphs"` : "";
+    return `<text class="voyager-live__text voyager-menu__status-value" x="${35 + column * columnWidth}" y="${68 + row * rowHeight}"${textLength}>${escapeMarkup(label)}</text>`;
+  }).join("");
+  return modalFrame(definition, markup, { x: 14, y: 8, width: 476, height: 287 });
+}
+
 function progressModal(definition) {
   const progress = Math.max(0, Math.min(1, Number(definition.progress) || 0));
   return modalFrame(definition, `
     ${noteLines(definition.lines, 126, "voyager-menu__confirm-copy")}
     <rect class="voyager-menu__progress-track" x="116" y="158" width="272" height="27" />
-    <rect class="voyager-menu__progress-fill" x="120" y="162" width="${Math.round(264 * progress)}" height="19" />
-    <text class="voyager-live__text voyager-menu__note" x="252" y="226" text-anchor="middle">ENTER: COMPLETE · BACK: CANCEL</text>`);
+    <rect class="voyager-menu__progress-fill${definition.autoTransition ? " voyager-menu__progress-fill--animated" : ""}" x="120" y="162" width="${Math.round(264 * progress)}" height="19" />
+    ${definition.autoTransition ? "" : `<text class="voyager-live__text voyager-menu__note" x="252" y="226" text-anchor="middle">ENTER: COMPLETE · BACK: CANCEL</text>`}`);
 }
 
 function compactUserLayoutLabel(option) {
@@ -530,6 +546,7 @@ export function renderVoyagerMenuMarkup(definition, { underlayMarkup = "" } = {}
     memory: memoryScreen,
     confirm: confirmModal,
     notice: noticeModal,
+    "status-modal": statusModal,
     progress: progressModal,
     "settings-modal": settingsModal,
     "checklist-modal": checklistModal,

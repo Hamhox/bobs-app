@@ -33,6 +33,7 @@ const OVERLAY_KINDS = new Set([
   "progress",
   "settings-modal",
   "slot-input",
+  "status-modal",
   "toast",
   "user-layout",
 ]);
@@ -755,7 +756,7 @@ const UTILITY_ROWS = [
   { label: "SOFTWARE UPDATE" },
   { label: "PERSONAL INFORMATION", submenu: true },
   { label: "DEMO MENU", submenu: true },
-  { label: "SERVICE SCREEN", submenu: true },
+  { label: "SERVICE MENU", submenu: true },
   { label: "MANAGE SETTINGS", submenu: true },
 ];
 registerPageFamily({
@@ -763,12 +764,89 @@ registerPageFamily({
   targets: ["m-set3-8-status", "m-set3-8-flash", "m-set3-8-personal", "m-set3-8-demo", "m-set3-8-service", "m-set3-8-manage"],
   parentStateId: "m-set3-8", kind: "panel", section: "set", title: "UTILITY",
 });
-registerOverlay("m-set3-8-status", { kind: "notice", section: "set", title: "STATUS SCREEN", lines: ["GPS: 3D FIX", "MEMORY: 31%", "BATTERY: 86%", "SOFTWARE: V1.6"] }, "m-set3-8-1");
-registerOverlay("m-set3-8-flash", { kind: "settings-modal", section: "set", title: "SELECT FLASH FILE", options: ["VOYAGER-1.6.FLASH", "VOYAGER-1.5.FLASH"], selectedIndex: 0 }, "m-set3-8-2");
-registerOverlay("m-set3-8-personal", { kind: "notice", section: "set", title: "PERSONAL INFORMATION", lines: ["NAME: BOB", "ADDR: PORTLAND, OR", "PHONE: 555-0146"] }, "m-set3-8-3");
-registerOverlay("m-set3-8-demo", { kind: "settings-modal", section: "set", title: "DEMO MENU", options: ["PLAYBACK MODE: SINGLE FILE", "START PLAYBACK"], selectedIndex: 0 }, "m-set3-8-4");
-registerOverlay("m-set3-8-service", { kind: "keyboard", section: "set", title: "INPUT SERVICE PASSWORD", value: "" }, "m-set3-8-5");
-registerOverlay("m-set3-8-manage", { kind: "settings-modal", section: "set", title: "MANAGE SETTINGS", options: ["SAVE SETTINGS TO FILE", "LOAD SETTINGS FROM FILE", "RESTORE DEFAULT SETTINGS"], selectedIndex: 0 }, "m-set3-8-6");
+registerOverlay("m-set3-8-status", { kind: "status-modal", section: "set", title: "STATUS SCREEN" }, "m-set3-8-1");
+
+const SOFTWARE_FILES = ["VOYAGER-1.7.0.SWU", "VOYAGER-1.6.4.SWU", "VOYAGER-FACTORY.SWU"];
+registerOverlay("m-set3-8-flash", {
+  kind: "settings-modal", section: "set", title: "SELECT FLASH FILE", field: "softwareFile", fileBrowser: true,
+  options: SOFTWARE_FILES, selectedIndex: 0,
+  optionTargets: SOFTWARE_FILES.map(() => "m-set3-8-flash-progress"),
+}, "m-set3-8-2");
+registerOverlay("m-set3-8-flash-progress", {
+  kind: "progress", section: "set", title: "SOFTWARE UPDATE", lines: ["INSTALLING SELECTED SWU..."], progress: 1,
+  autoTransition: { active: true, target: "m-set3-8-flash-success", delayMs: 1400 },
+}, "m-set3-8-flash");
+registerOverlay("m-set3-8-flash-success", {
+  kind: "toast", section: "set", title: "SOFTWARE UPDATE", message: ["Software update", "faked successfully."],
+}, "m-set3-8-2");
+
+const PERSONAL_ROWS = [
+  { label: "NAME", field: "personalName", value: "BOB" },
+  { label: "ADDR", field: "personalAddress", value: "PORTLAND, OR" },
+  { label: "PHONE", field: "personalPhone", value: "555-0146" },
+];
+registerPageFamily({
+  ids: ["m-set3-8-personal", "m-set3-8-personal-2", "m-set3-8-personal-3"], rows: PERSONAL_ROWS,
+  targets: ["m-set3-8-personal-name", "m-set3-8-personal-address", "m-set3-8-personal-phone"],
+  parentStateId: "m-set3-8-3", kind: "panel", section: "set", title: "PERSONAL INFORMATION",
+});
+registerOverlay("m-set3-8-personal-name", { kind: "keyboard", section: "set", title: "EDIT NAME", field: "personalName" }, "m-set3-8-personal");
+registerOverlay("m-set3-8-personal-address", { kind: "keyboard", section: "set", title: "EDIT ADDRESS", field: "personalAddress" }, "m-set3-8-personal-2");
+registerOverlay("m-set3-8-personal-phone", { kind: "keyboard", section: "set", title: "EDIT PHONE", field: "personalPhone" }, "m-set3-8-personal-3");
+
+const DEMO_ROWS = [
+  { label: "TRACK RECORDING", field: "demoRideState", value: "RUNNING", toggleValues: ["RUNNING", "PAUSED"] },
+  { label: "PLAYBACK SPEED", field: "demoPlaybackSpeed", value: "1X" },
+  { label: "LOOP RIDING AREA", field: "demoLoop", value: "ON", toggleValues: ["ON", "OFF"] },
+  { spacer: true },
+  { label: "RESTART DEMO RIDE" },
+];
+registerPageFamily({
+  ids: ["m-set3-8-demo", "m-set3-8-demo-2", "m-set3-8-demo-3", "m-set3-8-demo-4"], rows: DEMO_ROWS,
+  targets: ["m-set3-8-demo", "m-set3-8-demo-speed", "m-set3-8-demo-3", "m-set3-8-demo-restarted"],
+  parentStateId: "m-set3-8-4", kind: "panel", section: "set", title: "DEMO MENU",
+});
+registry["m-set3-8-demo-4"].outcome = "restart-demo-ride";
+registerOverlay("m-set3-8-demo-speed", {
+  kind: "settings-modal", section: "set", title: "PLAYBACK SPEED", field: "demoPlaybackSpeed",
+  options: ["1X", "2X", "4X"], selectedIndex: 0,
+}, "m-set3-8-demo-2");
+registerOverlay("m-set3-8-demo-restarted", {
+  kind: "toast", section: "set", title: "DEMO RIDE RESTARTED", message: "DEMO RIDE RESTARTED",
+}, "m-set3-8-demo-4");
+
+registerPageFamily({
+  ids: ["m-set3-8-service"], rows: [{ label: "INPUT SERVICE PASSWORD" }],
+  targets: ["m-set3-8-service-password"], parentStateId: "m-set3-8-5",
+  kind: "panel", section: "set", title: "SERVICE MENU",
+});
+registerOverlay("m-set3-8-service-password", {
+  kind: "keyboard", section: "set", title: "INPUT SERVICE PASSWORD", value: "",
+}, "m-set3-8-service");
+
+const MANAGE_ROWS = [
+  { label: "SAVE SETTINGS TO FILE" },
+  { label: "LOAD SETTINGS FROM FILE" },
+  { spacer: true },
+  { label: "RESTORE DEFAULT SETTINGS" },
+];
+registerPageFamily({
+  ids: ["m-set3-8-manage", "m-set3-8-manage-2", "m-set3-8-manage-3"], rows: MANAGE_ROWS,
+  targets: ["m-set3-8-manage-saved", "m-set3-8-manage-loading", "m-set3-8-manage-restore"],
+  parentStateId: "m-set3-8-6", kind: "panel", section: "set", title: "MANAGE SETTINGS:",
+});
+registry["m-set3-8-manage"].outcome = "save-settings-file";
+registry["m-set3-8-manage-2"].outcome = "load-settings-file";
+registerOverlay("m-set3-8-manage-saved", {
+  kind: "toast", section: "set", title: "SETTINGS FILE DOWNLOADED", message: "SETTINGS FILE DOWNLOADED",
+}, "m-set3-8-manage");
+registerOverlay("m-set3-8-manage-loading", {
+  kind: "notice", section: "set", title: "LOAD SETTINGS", lines: ["SELECT A VOYAGER", "SETTINGS JSON FILE"],
+}, "m-set3-8-manage-2");
+registerOverlay("m-set3-8-manage-restore", {
+  kind: "confirm", section: "set", title: "RESTORE DEFAULT SETTINGS", restoreAll: true,
+  outcome: "restore-all-settings", lines: ["RESTORE ALL SETTINGS", "TO FACTORY DEFAULTS?"],
+}, "m-set3-8-manage-3");
 
 const USER_SCREEN_DATA_BLOCKS = [
   "<OFF>", "ALTITUDE", "MIN ALTITUDE", "MAX ALTITUDE", "WHEEL SPEED", "GPS SPEED", "WHEEL ODOMETER", "GPS ODOMETER",

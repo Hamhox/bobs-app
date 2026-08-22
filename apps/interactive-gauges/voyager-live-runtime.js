@@ -639,13 +639,19 @@ function statusBarMarkup(variant, display) {
         height: 19,
         attributes: 'data-live-logging-pause=""',
       })}
-      ${voyagerUiIcon("throbber-24pt", {
-        x: contentLeft + 38,
-        y: 7,
-        width: 23,
-        height: 25,
-        className: "voyager-live__status-throbber",
-      })}
+      <g data-live-engine-running>
+        ${voyagerUiIcon("throbber-24pt", {
+          x: contentLeft + 38,
+          y: 7,
+          width: 23,
+          height: 25,
+          className: "voyager-live__status-throbber",
+        })}
+      </g>
+      <g class="voyager-live__engine-off" data-live-engine-off>
+        <circle cx="${contentLeft + 49.5}" cy="19.5" r="9" />
+        <path d="M${contentLeft + 43} 13L${contentLeft + 56} 26" />
+      </g>
       ${voyagerUiIcon("battery-24pt-full", { x: contentLeft + 70, y: 10, width: 34, height: 19 })}
       ${voyagerUiIcon("signal-24pt-4bars", { x: contentLeft + 112, y: 10, width: 31, height: 19 })}
       <text class="voyager-live__text voyager-live__text--status" x="${contentLeft + 242}" y="34" text-anchor="middle" data-live-time>12:30</text>
@@ -1334,6 +1340,31 @@ export class VoyagerLiveRuntime {
   }
 
   #contextualizeMenuDefinition(definition) {
+    if (definition?.kind === "status-modal") {
+      const inventory = this.#inventory();
+      const telemetry = this.#telemetry;
+      return {
+        ...definition,
+        entries: [
+          { key: "software", value: "VOYAGER WEB 1.7.0" },
+          { key: "state", value: this.#state?.id ?? "BOOT" },
+          { key: "ride", value: telemetry?.trackLabel ?? "NO TRACK" },
+          { key: "rideProgress", value: `${Math.round((telemetry?.progress ?? 0) * 100)}%` },
+          { key: "engine", value: this.#ride.playing ? "RUNNING" : "STOPPED" },
+          { key: "gpsFix", value: "3D DGPS" },
+          { key: "latitude", value: telemetry?.latitude?.toFixed(6) ?? "--" },
+          { key: "longitude", value: telemetry?.longitude?.toFixed(6) ?? "--" },
+          { key: "altitudeFt", value: Math.round(telemetry?.elevationFeet ?? 0) },
+          { key: "speedMph", value: Math.round(telemetry?.speedMph ?? 0) },
+          { key: "heading", value: Math.round(telemetry?.heading ?? 0) },
+          { key: "tracks", value: `${inventory.trackCount}/300` },
+          { key: "routes", value: `${inventory.routeCount}/300` },
+          { key: "waypoints", value: `${inventory.waypointCount}/300` },
+          { key: "microSd", value: `${inventory.microSdUsedMb}/${inventory.microSdCapacityMb}MB` },
+          ...this.#menuModel.supportEntries(),
+        ],
+      };
+    }
     if (definition?.kind === "memory") {
       return {
         ...definition,
@@ -1464,19 +1495,28 @@ export class VoyagerLiveRuntime {
       setText("[data-live-longitude]", coordinateLabel(telemetry.longitude, "E", "W"));
       const powerSave = menuValues.gpsMode === "DISABLED (POWER SAVE)";
       const loggingEnabled = menuValues.gpsMode === "ENABLED (LOGGING ON)";
+      const demoRunning = menuValues.demoRideState === "RUNNING";
       setDatasetValue(this.#mount, "logging", this.#ride.playing && loggingEnabled ? "recording" : "paused");
+      setDatasetValue(this.#mount, "engine", demoRunning ? "running" : "off");
       setDatasetValue(this.#mount, "gps", powerSave ? "disabled" : "enabled");
       setDatasetValue(this.#mount, "stopwatch", this.#stopwatchRunning ? "running" : "paused");
       const settingsKey = [
         brightnessValue,
         menuValues.gpsMode,
+        menuValues.demoRideState,
+        menuValues.demoPlaybackSpeed,
+        menuValues.demoLoop,
         power.signature,
         menuValues.mapOrientation,
         display.signature,
       ].join(":");
       if (settingsKey !== this.#appliedSettingsKey) {
-        this.#ride.setPowerSave(powerSave);
+        this.#ride.setPowerSave(powerSave || !demoRunning);
         this.#ride.setSleepAfterMs(power.sleepAfterMs);
+        this.#ride.setPlaybackSpeed(Number.parseFloat(menuValues.demoPlaybackSpeed) || 1);
+        this.#ride.setLoop(menuValues.demoLoop === "ON");
+        if (demoRunning) this.#ride.play();
+        else this.#ride.pause();
         setDatasetValue(this.#mount, "mapOrientation", menuValues.mapOrientation === "NORTH UP" ? "north-up" : "track-up");
         this.#mount.style.setProperty("--voyager-screen-brightness", String(clamp(Number(brightnessValue) / 50, 0.35, 2)));
         this.#mount.style.setProperty("--voyager-screen-inversion", display.inverted ? "1" : "0");
@@ -1607,6 +1647,62 @@ export class VoyagerLiveRuntime {
     if (definition?.outcome === "erase-routes") this.#queueToast("ALL ROUTES ERASED");
     if (definition?.outcome === "export-ride") this.#queueToast("GPX SAVED TO SD CARD");
     if (definition?.outcome === "export-settings") this.#queueToast("SETTINGS SAVED TO SD CARD");
+    if (definition?.outcome === "restart-demo-ride") {
+      this.#ride.reset();
+      if (this.#settings().demoRideState === "RUNNING") this.#ride.play();
+    }
+    if (definition?.outcome === "save-settings-file") {
+      this.#downloadSettingsFile();
+    }
+    if (definition?.outcome === "load-settings-file") this.#chooseSettingsFile();
+    if (definition?.outcome === "restore-all-settings") {
+      this.#invalidateSettingsSnapshot();
+      this.#queueToast("DEFAULT SETTINGS RESTORED");
+    }
+  }
+
+  #downloadSettingsFile() {
+    const contents = `${JSON.stringify(this.#menuModel.exportSnapshot(), null, 2)}\n`;
+    const url = URL.createObjectURL(new Blob([contents], { type: "application/json" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "voyager-settings.json";
+    link.hidden = true;
+    document.body.append(link);
+    link.click();
+    link.remove();
+    queueMicrotask(() => URL.revokeObjectURL(url));
+  }
+
+  #chooseSettingsFile() {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".json,application/json";
+    input.hidden = true;
+    input.addEventListener("change", async () => {
+      const file = input.files?.[0];
+      input.remove();
+      if (!file) return;
+      try {
+        if (file.size > 262144) throw new TypeError("Settings file is too large.");
+        const result = this.#menuModel.importSnapshot(await file.text());
+        this.#invalidateSettingsSnapshot();
+        this.#queueToast(["SETTINGS FILE LOADED", `${result.accepted} VALUES RESTORED`]);
+      } catch {
+        this.#queueToast(["SETTINGS LOAD FAILED", "INVALID SETTINGS FILE"]);
+      }
+      this.#layoutKey = "";
+      if (this.#state) this.render(this.#state, { type: "settings-file" });
+    }, { once: true });
+    input.addEventListener("cancel", () => input.remove(), { once: true });
+    document.body.append(input);
+    input.click();
+  }
+
+  #invalidateSettingsSnapshot() {
+    this.#settingsSnapshot = null;
+    this.#settingsRevision = -1;
+    this.#appliedSettingsKey = "";
   }
 
   #saveCurrentRide(telemetry) {
