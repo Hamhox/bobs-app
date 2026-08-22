@@ -146,6 +146,20 @@ function main() {
     || transferMarkup.includes("&gt;</text>")) {
     throw new Error("ride transfer submenu rows do not use the device play symbol");
   }
+  const trackRows = VOYAGER_MENU_STATE_INDEX["m-ride-tracks-1"].rows;
+  const routeRows = VOYAGER_MENU_STATE_INDEX["m-ride-routes-1"].rows;
+  const waypointRows = VOYAGER_MENU_STATE_INDEX["m-ride-waypoints-1"].rows;
+  if (trackRows[2].label !== "START NEW TRACK SEGMENT" || !trackRows[3].spacer
+    || routeRows[1].label !== "RENAME A ROUTE" || !routeRows[2].spacer
+    || waypointRows[1].label !== "RENAME A WAYPOINT" || !waypointRows[2].spacer) {
+    throw new Error("track, route, or waypoint menu grouping is incomplete");
+  }
+  const waypointMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-ride-waypoints-5"], new VoyagerMenuModel());
+  if (!waypointMarkup.includes(`${VOYAGER_FONT_SYMBOLS.play} ADD WAYPOINT`)
+    || !waypointMarkup.includes(`${VOYAGER_FONT_SYMBOLS.play} ERASE WAYPOINT(S)`)
+    || waypointMarkup.includes("&gt;</text>")) {
+    throw new Error("waypoint submenu rows do not use the device play symbol");
+  }
   const readingDefinition = VOYAGER_MENU_STATE_INDEX["m-ride-import-reading"];
   const readingMarkup = renderDefinition(readingDefinition, new VoyagerMenuModel());
   if (!readingMarkup.includes("READING CARD...")

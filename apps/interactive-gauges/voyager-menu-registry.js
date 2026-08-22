@@ -203,6 +203,7 @@ const TRACK_ROWS = [
   { label: "TRACKS DISPLAY", field: "tracksDisplay", value: "ALL" },
   { label: "RENAME A TRACK" },
   { label: "START NEW TRACK SEGMENT" },
+  { spacer: true },
   { label: "ERASE ALL TRACKS" },
 ];
 registerPageFamily({
@@ -237,6 +238,7 @@ registerOverlay("m-ride-tracks-erase", {
 const ROUTE_ROWS = [
   { label: "ROUTES DISPLAY", field: "routesDisplay", value: "ALL" },
   { label: "RENAME A ROUTE" },
+  { spacer: true },
   { label: "ERASE ALL ROUTES" },
 ];
 registerPageFamily({
@@ -257,11 +259,12 @@ registerOverlay("m-ride-routes-erase", {
 const WAYPOINT_ROWS = [
   { label: "WAYPOINTS DISPLAY", field: "waypointsDisplay", value: "ALL" },
   { label: "RENAME A WAYPOINT" },
+  { spacer: true },
   { label: "SELECT DESTINATION" },
   { label: "RESET DESTINATION" },
   { spacer: true },
-  { label: "ADD WAYPOINT", submenu: true },
-  { label: "ERASE WAYPOINT(S)", submenu: true },
+  { label: `${VOYAGER_FONT_SYMBOLS.play} ADD WAYPOINT` },
+  { label: `${VOYAGER_FONT_SYMBOLS.play} ERASE WAYPOINT(S)` },
 ];
 registerPageFamily({
   ids: ["m-ride-waypoints-1", "m-ride-waypoints-2", "m-ride-waypoints-3", "m-ride-waypoints-4", "m-ride-waypoints-5", "m-ride-waypoints-6"],
