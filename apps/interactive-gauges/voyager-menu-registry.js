@@ -730,21 +730,25 @@ const WARNING_ROWS = [
   { label: "YELLOW LED FLASH", field: "yellowLedFlash", value: "DISABLED" },
   { label: "RED LED FLASH", field: "redLedFlash", value: "DISABLED" },
   { spacer: true },
-  { label: "RESTORE DEFAULTS" },
+  { label: "RESTORE DEFAULTS", requiresConfirmation: true },
 ];
 registerPageFamily({
   ids: ["m-set3-7-1", "m-set3-7-2", "m-set3-7-3", "m-set3-7-4", "m-set3-7-5"], rows: WARNING_ROWS,
-  targets: ["m-set3-7-yellow-on", "m-set3-7-red-on", "m-set3-7-yellow-flash", "m-set3-7-red-flash", "m-set3-7-5"],
+  targets: ["m-set3-7-yellow-on", "m-set3-7-red-on", "m-set3-7-yellow-flash", "m-set3-7-red-flash", "m-set3-7-restore"],
   parentStateId: "m-set3-7", kind: "panel", section: "set", title: "WARNING LED LIGHTS", restoreGroup: "WARNING LED LIGHTS",
 });
-const warningModal = (slug, title, field, parentStateId) => registerOverlay(`m-set3-7-${slug}`, {
-  kind: "slot-input", section: "set", title, field, value: "000", activeDigit: 1,
-  note: ["LIGHT WHEN EXCEEDED.", "000 = DISABLED", "DEFAULT: DISABLED"],
+const warningModal = (slug, title, field, parentStateId, action, side, color) => registerOverlay(`m-set3-7-${slug}`, {
+  kind: "slot-input", section: "set", title, field, value: "000 °F", activeDigit: 1,
+  note: [`${action} ${side} ${color} LED`, "WHEN EXCEEDED.", "(000 -> DISABLED)", "DEFAULT: DISABLED"],
 }, parentStateId);
-warningModal("yellow-on", "YELLOW LED ON", "yellowLedOn", "m-set3-7-1");
-warningModal("red-on", "RED LED ON", "redLedOn", "m-set3-7-2");
-warningModal("yellow-flash", "YELLOW LED FLASH", "yellowLedFlash", "m-set3-7-3");
-warningModal("red-flash", "RED LED FLASH", "redLedFlash", "m-set3-7-4");
+warningModal("yellow-on", "YELLOW LED ON", "yellowLedOn", "m-set3-7-1", "LIGHT", "LEFT", "YELLOW");
+warningModal("red-on", "RED LED ON", "redLedOn", "m-set3-7-2", "LIGHT", "RIGHT", "RED");
+warningModal("yellow-flash", "YELLOW LED FLASH", "yellowLedFlash", "m-set3-7-3", "FLASH", "LEFT", "YELLOW");
+warningModal("red-flash", "YELLOW LED FLASH", "redLedFlash", "m-set3-7-4", "FLASH", "RIGHT", "RED");
+registerOverlay("m-set3-7-restore", {
+  kind: "confirm", section: "set", title: "RESTORE DEFAULTS", restoreGroup: "WARNING LED LIGHTS",
+  lines: ["RESTORE LED SETTINGS", "TO FACTORY DEFAULTS?"],
+}, "m-set3-7-5");
 
 const UTILITY_ROWS = [
   { label: "STATUS SCREEN" },

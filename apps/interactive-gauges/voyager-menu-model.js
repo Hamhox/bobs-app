@@ -95,10 +95,10 @@ const DEFAULT_VALUES = Object.freeze({
   userScreen2Block5: "<OFF>",
   userScreen2Block6: "<OFF>",
   destinationWaypoint: "CMRA TRAIL HEAD",
-  yellowLedOn: "000",
-  redLedOn: "000",
-  yellowLedFlash: "000",
-  redLedFlash: "000",
+  yellowLedOn: "000 °F",
+  redLedOn: "000 °F",
+  yellowLedFlash: "000 °F",
+  redLedFlash: "000 °F",
   rideName: "RIDE-32",
 });
 
@@ -209,6 +209,10 @@ function rowValue(key, value) {
   if (["tabsTimeout", "backlightBattery", "backlightExternal", "sleepBattery", "sleepExternal", "turnOff", "panZoomTimeout"].includes(key)) {
     const match = String(value).match(/^(\d+)\s*(.*)$/);
     if (match) return Number(match[1]) === 0 ? "ALWAYS ON" : `${Number(match[1])} ${match[2]}`.trim();
+  }
+  if (["yellowLedOn", "redLedOn", "yellowLedFlash", "redLedFlash"].includes(key)) {
+    const threshold = Number.parseInt(value, 10);
+    return threshold === 0 ? "DISABLED" : `${threshold}°F`;
   }
   if (key === "chargeMode") return value === "ONLY WHEN MOTOR IS ON" ? "MOTOR ON" : value;
   if (key === "chargeLevel") return value === "TRICKLE CHARGE" ? "TRICKLE" : "FAST";

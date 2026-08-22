@@ -108,6 +108,10 @@ export function normalizeVoyagerSettings(values = {}) {
   normalized.sleepExternal = normalizeTimer(normalized.sleepExternal, 2, "MIN");
   normalized.turnOff = normalizeTimer(normalized.turnOff, 2, "MIN");
   normalized.panZoomTimeout = normalizeTimer(normalized.panZoomTimeout, 3, "SEC");
+  for (const field of ["yellowLedOn", "redLedOn", "yellowLedFlash", "redLedFlash"]) {
+    const threshold = Number.parseInt(normalized[field], 10);
+    normalized[field] = `${String(Number.isFinite(threshold) ? Math.min(999, Math.max(0, threshold)) : 0).padStart(3, "0")} °F`;
+  }
   return normalized;
 }
 

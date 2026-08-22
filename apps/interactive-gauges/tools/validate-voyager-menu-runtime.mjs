@@ -14,11 +14,11 @@ import {
 } from "../voyager-live-runtime.js";
 
 const EXPECTED_COUNTS = Object.freeze({
-  total: 223,
+  total: 224,
   pages: 116,
   workflows: 6,
-  overlays: 101,
-  menuOverlays: 95,
+  overlays: 102,
+  menuOverlays: 96,
 });
 const EDITOR_ACTIONS = ["up", "down", "left", "right", "center", "back", "enter"];
 
@@ -683,6 +683,58 @@ function main() {
     || mapModel.values.mapScreen2TrackLabels !== "OFF"
     || mapModel.values.panZoomTimeout !== "030 SEC") {
     throw new Error("confirmed Map Restore Defaults does not restore the device profile");
+  }
+
+  const warningModel = new VoyagerMenuModel();
+  const warningPageDefinition = VOYAGER_MENU_STATE_INDEX["m-set3-7-1"];
+  const warningPageMarkup = renderDefinition(warningPageDefinition, warningModel);
+  if ((warningPageMarkup.match(/DISABLED/g) ?? []).length !== 4) {
+    throw new Error("Warning LED panel does not render all four disabled defaults");
+  }
+  const warningDefinitions = [
+    ["m-set3-7-yellow-on", "YELLOW LED ON", "LIGHT LEFT YELLOW LED"],
+    ["m-set3-7-red-on", "RED LED ON", "LIGHT RIGHT RED LED"],
+    ["m-set3-7-yellow-flash", "YELLOW LED FLASH", "FLASH LEFT YELLOW LED"],
+    ["m-set3-7-red-flash", "YELLOW LED FLASH", "FLASH RIGHT RED LED"],
+  ];
+  for (const [stateId, title, instruction] of warningDefinitions) {
+    const definition = VOYAGER_MENU_STATE_INDEX[stateId];
+    const resolved = warningModel.resolve(definition);
+    const markup = renderDefinition(definition, warningModel);
+    if (definition.title !== title
+      || resolved.value !== "000 °F"
+      || (markup.match(/data-menu-slot=/g) ?? []).length !== 3
+      || !markup.includes("°F")
+      || !markup.includes(instruction)
+      || !markup.includes("WHEN EXCEEDED.")
+      || !markup.includes("(000 -&gt; DISABLED)")
+      || !markup.includes("DEFAULT: DISABLED")) {
+      throw new Error(`${stateId} threshold editor is incomplete`);
+    }
+  }
+  const yellowOnDefinition = VOYAGER_MENU_STATE_INDEX["m-set3-7-yellow-on"];
+  warningModel.prepareInput(yellowOnDefinition, "up");
+  warningModel.prepareInput(yellowOnDefinition, "enter");
+  if (warningModel.values.yellowLedOn !== "010 °F"
+    || !renderDefinition(warningPageDefinition, warningModel).includes("10°F")) {
+    throw new Error("Warning LED threshold does not persist its three-digit temperature value");
+  }
+  warningModel.prepareInput(VOYAGER_MENU_STATE_INDEX["m-set3-7-5"], "enter");
+  if (warningModel.values.yellowLedOn !== "010 °F"
+    || VOYAGER_MENU_TRANSITIONS["m-set3-7-5"].enter !== "m-set3-7-restore") {
+    throw new Error("Warning LED Restore Defaults applies before its confirmation dialog");
+  }
+  const warningRestoreDefinition = VOYAGER_MENU_STATE_INDEX["m-set3-7-restore"];
+  const warningRestoreMarkup = renderDefinition(warningRestoreDefinition, warningModel);
+  if (!warningRestoreMarkup.includes("RESTORE LED SETTINGS")
+    || !warningRestoreMarkup.includes("TO FACTORY DEFAULTS?")) {
+    throw new Error("Warning LED Restore Defaults confirmation is incomplete");
+  }
+  warningModel.prepareInput(warningRestoreDefinition, "right");
+  warningModel.prepareInput(warningRestoreDefinition, "enter");
+  if (["yellowLedOn", "redLedOn", "yellowLedFlash", "redLedFlash"]
+    .some((field) => warningModel.values[field] !== "000 °F")) {
+    throw new Error("confirmed Warning LED Restore Defaults does not restore all thresholds");
   }
 
   const tabsDefinition = VOYAGER_MENU_STATE_INDEX["m-set3-2-tabs"];
