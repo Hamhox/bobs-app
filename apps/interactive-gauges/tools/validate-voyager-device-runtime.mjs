@@ -3,6 +3,7 @@
 import {
   createVoyagerDisplayProfile,
   createVoyagerInventorySnapshot,
+  createVoyagerMapProfile,
   createVoyagerPowerProfile,
 } from "../voyager-device-runtime.js";
 import { VoyagerMenuModel } from "../voyager-menu-model.js";
@@ -91,6 +92,52 @@ assert(batteryPower.backlightTimeoutMs === 20 * 1000, "battery backlight timeout
 assert(batteryPower.sleepAfterMs === 3 * 60 * 1000, "battery sleep timeout is incorrect");
 assert(batteryPower.powerOffAfterMs === Number.POSITIVE_INFINITY, "00-minute power-off does not disable the timeout");
 assert(batteryPower.chargeMode === "WALL PLUG", "charge mode is missing from the power profile");
+
+const mapProfile = createVoyagerMapProfile({
+  tracksDisplay: "CUSTOM",
+  visibleTracks: ["BAKER WEST"],
+  routesDisplay: "NONE",
+  waypointsDisplay: "ALL",
+  mapOrientation: "NORTH UP",
+  pointerSize: "LARGE",
+  mapScreen1: "AUTO-CENTER",
+  mapScreen1TrackLabels: "LARGE",
+  mapScreen1TrackClipping: "1500 FT",
+  mapScreen1RouteLabels: "OFF",
+  mapScreen1WaypointIcons: "DOT",
+  mapScreen1WaypointLabels: "SMALL",
+  mapScreen1WaypointClipping: "NEVER",
+  mapScreen2: "DISABLED",
+  panZoomTimeout: "030 SEC",
+});
+const repeatedMapProfile = createVoyagerMapProfile({
+  tracksDisplay: "CUSTOM",
+  visibleTracks: ["BAKER WEST"],
+  routesDisplay: "NONE",
+  waypointsDisplay: "ALL",
+  mapOrientation: "NORTH UP",
+  pointerSize: "LARGE",
+  mapScreen1: "AUTO-CENTER",
+  mapScreen1TrackLabels: "LARGE",
+  mapScreen1TrackClipping: "1500 FT",
+  mapScreen1RouteLabels: "OFF",
+  mapScreen1WaypointIcons: "DOT",
+  mapScreen1WaypointLabels: "SMALL",
+  mapScreen1WaypointClipping: "NEVER",
+  mapScreen2: "DISABLED",
+  panZoomTimeout: "030 SEC",
+});
+assert(mapProfile === repeatedMapProfile, "map profiles are not cached by their stable settings signature");
+assert(mapProfile.orientation === "NORTH UP" && mapProfile.pointerScale > 1, "map orientation or pointer size is not represented");
+assert(mapProfile.resourceVisible("track", ["BAKER WEST"]), "custom track visibility dropped a selected resource");
+assert(!mapProfile.resourceVisible("track", ["JORDAN CREEK"]), "custom track visibility retained an unselected resource");
+assert(!mapProfile.resourceVisible("route", ["BAKER WEST"]), "route display NONE did not hide route resources");
+assert(mapProfile.screen2.enabled === false, "disabled map screen 2 remains enabled");
+assert(mapProfile.screen1.waypointIcons === "DOT", "waypoint icon mode is missing from the map profile");
+assert(!mapProfile.labelsVisible(1, "track", 4), "track labels ignored their zoom clipping threshold");
+assert(mapProfile.labelsVisible(1, "track", 8), "track labels do not appear inside their zoom clipping threshold");
+assert(mapProfile.labelsVisible(1, "waypoint", 1), "NEVER clipping did not preserve waypoint labels");
+assert(mapProfile.panZoomTimeoutMs === 30000, "map pan/zoom timeout is incorrect");
 
 const inventory = createVoyagerInventorySnapshot({
   trackCount: 3,
@@ -189,6 +236,7 @@ assert(globalThis.__voyagerDelay === 15000, "state engine ignored the configured
 
 console.log(JSON.stringify({
   profiles: [imperial.signature, metric.signature],
+  mapProfile: mapProfile.signature,
   inventory: inventory.signature,
   catalogInventory: catalog.inventorySnapshot().signature,
   effectiveSources: [model.effectiveValues.speedSource, model.effectiveValues.runTimeSource],

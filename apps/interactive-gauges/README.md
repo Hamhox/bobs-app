@@ -85,6 +85,12 @@ distance, elevation, engine temperature, ambient temperature, graphs, and map po
 pause, reset, seek, playback speed, and loop behavior. Graph cursor input seeks that shared timeline rather than maintaining
 a disconnected display-only cursor.
 
+Ride visibility and Map Settings now feed a revision-cached map presentation profile. That profile controls track, route,
+and waypoint visibility; North Up or Track Up rotation; constant-screen-size pointer and waypoint symbols; per-screen
+label size and zoom clipping; Auto-Center or Fixed behavior; the optional second map screen; and the shared pan/zoom
+timeout. The renderer only rebuilds projected geometry when the ride, catalog, screen, overlay, or presentation signature
+changes; ordinary telemetry ticks update the current position and recorded segment without re-reading menu rules.
+
 `voyager-ride-catalog.js` is the single content authority beneath the ride engine, map, SD-card screens, destination
 picker, and Memory panel. It owns loaded track/route resources, riding-area selections, saved rides, saved waypoints,
 content labels, byte totals, and a revision-cached immutable inventory snapshot. The menu's loaded-track and route lists

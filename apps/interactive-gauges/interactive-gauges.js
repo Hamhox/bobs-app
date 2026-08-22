@@ -128,6 +128,9 @@ function applyLiveTransitionOverrides(manifest) {
     archiveLinks: ["dir", "index", "sat"],
     referenceScreen: manifest.states.sat.referenceScreen,
   };
+  manifest.states.map2.autoTransition = { delayMs: 30000, target: "map", active: true };
+  manifest.states.map3.autoTransition = { delayMs: 30000, target: "map2-2", active: true };
+  manifest.states["map3-2"].autoTransition = { delayMs: 30000, target: "map2-2", active: true };
   for (const [stateId, transitions] of Object.entries(VOYAGER_LIVE_TRANSITION_OVERRIDES)) {
     const state = manifest.states[stateId];
     if (!state) throw new Error(`Voyager live transition override references missing state ${stateId}.`);
@@ -169,7 +172,11 @@ function commitState(engine, state, event) {
   const inputPolicyState = manifest.states[liveRuntime.getInputPolicyStateId(state.id)] ?? state;
   for (const control of controls) {
     const policyAction = liveRuntime.resolveInputAction(state.id, control.dataset.action);
-    const target = inputPolicyState.transitions[policyAction];
+    const target = liveRuntime.resolveInputTarget(
+      state.id,
+      policyAction,
+      inputPolicyState.transitions[policyAction],
+    );
     const noOp = target === null;
     control.toggleAttribute("data-noop", noOp);
     control.setAttribute("aria-disabled", String(noOp));

@@ -44,6 +44,10 @@ export class VoyagerRideCatalog {
     return this.#tracks.get(trackId) ?? null;
   }
 
+  resource(resourceId) {
+    return this.#resources.get(resourceId) ?? null;
+  }
+
   area(areaId) {
     return this.#areas.get(areaId) ?? null;
   }

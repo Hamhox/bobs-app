@@ -4,7 +4,10 @@ const FEET_TO_METERS = 0.3048;
 
 const profileCache = new Map();
 const powerProfileCache = new Map();
+const mapProfileCache = new Map();
 const BACKLIGHT_BRIGHTNESS_VALUES = Object.freeze({ OFF: 18, LOW: 30, MEDIUM: 40, HIGH: 50 });
+const MAP_POINTER_SCALES = Object.freeze({ SMALL: 0.78, MEDIUM: 1, LARGE: 1.28 });
+const MAP_LABEL_SCALES = Object.freeze({ OFF: 0, SMALL: 0.82, LARGE: 1 });
 
 function profileSignature(values = {}) {
   return [
@@ -116,6 +119,105 @@ export function createVoyagerPowerProfile(values = {}, { externalPower = true } 
   });
   if (powerProfileCache.size >= 16) powerProfileCache.delete(powerProfileCache.keys().next().value);
   powerProfileCache.set(signature, profile);
+  return profile;
+}
+
+function mapClippingFeet(value) {
+  if (value === "NEVER") return Number.POSITIVE_INFINITY;
+  const amount = Number.parseInt(value, 10);
+  if (!Number.isFinite(amount)) return 1500;
+  return String(value).includes("MI") ? amount * 5280 : amount;
+}
+
+function mapScreenProfile(values, screenNumber) {
+  const prefix = `mapScreen${screenNumber}`;
+  const mode = values[prefix] ?? "AUTO-CENTER";
+  const labelProfile = (kind) => {
+    const settingName = `${prefix}${kind}Labels`;
+    const clippingName = `${prefix}${kind}Clipping`;
+    const size = values[settingName] ?? (screenNumber === 1 ? "LARGE" : "OFF");
+    return Object.freeze({
+      size,
+      scale: MAP_LABEL_SCALES[size] ?? 0,
+      clippingFeet: mapClippingFeet(values[clippingName]),
+    });
+  };
+  return Object.freeze({
+    number: screenNumber,
+    enabled: screenNumber === 1 || mode !== "DISABLED",
+    mode,
+    autoCenter: mode === "AUTO-CENTER",
+    waypointIcons: values[`${prefix}WaypointIcons`] === "DOT" ? "DOT" : "ID#",
+    labels: Object.freeze({
+      track: labelProfile("Track"),
+      route: labelProfile("Route"),
+      waypoint: labelProfile("Waypoint"),
+    }),
+  });
+}
+
+export function createVoyagerMapProfile(values = {}) {
+  const selectedTracks = Array.isArray(values.visibleTracks) ? values.visibleTracks : [];
+  const signature = [
+    values.tracksDisplay ?? "ALL",
+    selectedTracks.join("|"),
+    values.routesDisplay ?? "ALL",
+    values.waypointsDisplay ?? "ALL",
+    values.mapOrientation ?? "TRACK UP",
+    values.pointerSize ?? "MEDIUM",
+    values.mapScreen1 ?? "AUTO-CENTER",
+    values.mapScreen1TrackLabels ?? "LARGE",
+    values.mapScreen1TrackClipping ?? "1500 FT",
+    values.mapScreen1RouteLabels ?? "LARGE",
+    values.mapScreen1RouteClipping ?? "1500 FT",
+    values.mapScreen1WaypointIcons ?? "ID#",
+    values.mapScreen1WaypointLabels ?? "LARGE",
+    values.mapScreen1WaypointClipping ?? "1500 FT",
+    values.mapScreen2 ?? "AUTO-CENTER",
+    values.mapScreen2TrackLabels ?? "OFF",
+    values.mapScreen2TrackClipping ?? "1500 FT",
+    values.mapScreen2RouteLabels ?? "OFF",
+    values.mapScreen2RouteClipping ?? "1500 FT",
+    values.mapScreen2WaypointIcons ?? "ID#",
+    values.mapScreen2WaypointLabels ?? "OFF",
+    values.mapScreen2WaypointClipping ?? "1500 FT",
+    values.panZoomTimeout ?? "030 SEC",
+  ].join(":");
+  const cached = mapProfileCache.get(signature);
+  if (cached) return cached;
+
+  const selectedTrackLabels = new Set(selectedTracks.map((label) => String(label).toUpperCase()));
+  const displayMode = (kind) => values[`${kind}sDisplay`] ?? "ALL";
+  const resourceVisible = (kind, labels = []) => {
+    const mode = displayMode(kind);
+    if (mode === "NONE") return false;
+    if (mode !== "CUSTOM") return true;
+    if (kind !== "track" || selectedTrackLabels.size === 0) return true;
+    return labels.some((label) => selectedTrackLabels.has(String(label).toUpperCase()));
+  };
+  const screen1 = mapScreenProfile(values, 1);
+  const screen2 = mapScreenProfile(values, 2);
+  const panZoomSeconds = Number.parseInt(values.panZoomTimeout, 10);
+  const profile = Object.freeze({
+    signature,
+    orientation: values.mapOrientation === "NORTH UP" ? "NORTH UP" : "TRACK UP",
+    pointerScale: MAP_POINTER_SCALES[values.pointerSize] ?? MAP_POINTER_SCALES.MEDIUM,
+    panZoomTimeoutMs: Number.isFinite(panZoomSeconds) && panZoomSeconds > 0
+      ? panZoomSeconds * 1000
+      : Number.POSITIVE_INFINITY,
+    screen1,
+    screen2,
+    screen: (number) => number === 2 ? screen2 : screen1,
+    resourceVisible,
+    labelsVisible: (screenNumber, kind, mapScale) => {
+      const label = (screenNumber === 2 ? screen2 : screen1).labels[kind];
+      if (!label?.scale) return false;
+      const scaleBarFeet = 2 * 5280 / Math.max(0.01, mapScale);
+      return scaleBarFeet <= label.clippingFeet;
+    },
+  });
+  if (mapProfileCache.size >= 32) mapProfileCache.delete(mapProfileCache.keys().next().value);
+  mapProfileCache.set(signature, profile);
   return profile;
 }
 

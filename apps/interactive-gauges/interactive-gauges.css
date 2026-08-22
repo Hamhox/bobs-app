@@ -822,6 +822,29 @@
   fill: #242021;
 }
 
+.voyager-live__waypoint-dot {
+  fill: #242021;
+}
+
+.voyager-live__map-label {
+  paint-order: stroke fill;
+  stroke: #f5f4ef;
+  stroke-linejoin: miter;
+  stroke-width: 4px;
+}
+
+.voyager-live__map-label--small {
+  font-size: 13px;
+}
+
+.voyager-live__map-label--large {
+  font-size: 16px;
+}
+
+.voyager-live__map-label--route {
+  fill: #817c7d;
+}
+
 .voyager-live__position {
   fill: #242021;
   stroke: #f5f4ef;
