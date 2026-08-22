@@ -32,11 +32,34 @@ export const VOYAGER_SETTING_RULES = Object.freeze({
       return "GPS";
     },
   }),
+  mapScreen1TrackClipping: Object.freeze({
+    available: (values) => values.mapScreen1TrackLabels !== "OFF",
+  }),
+  mapScreen1RouteClipping: Object.freeze({
+    available: (values) => values.mapScreen1RouteLabels !== "OFF",
+  }),
+  mapScreen1WaypointClipping: Object.freeze({
+    available: (values) => values.mapScreen1WaypointLabels !== "OFF",
+  }),
+  mapScreen2Options: Object.freeze({
+    available: (values) => values.mapScreen2 !== "DISABLED",
+  }),
+  mapScreen2TrackClipping: Object.freeze({
+    available: (values) => values.mapScreen2TrackLabels !== "OFF",
+  }),
+  mapScreen2RouteClipping: Object.freeze({
+    available: (values) => values.mapScreen2RouteLabels !== "OFF",
+  }),
+  mapScreen2WaypointClipping: Object.freeze({
+    available: (values) => values.mapScreen2WaypointLabels !== "OFF",
+  }),
 });
 
 export function isVoyagerSettingAvailable(field, values = {}) {
-  const requirements = VOYAGER_SETTING_RULES[field]?.requires ?? [];
-  return requirements.every(({ field: dependency, value }) => values[dependency] === value);
+  const rule = VOYAGER_SETTING_RULES[field];
+  const requirements = rule?.requires ?? [];
+  return requirements.every(({ field: dependency, value }) => values[dependency] === value)
+    && (rule?.available?.(values) ?? true);
 }
 
 export function normalizeVoyagerSettings(values = {}) {
@@ -62,11 +85,29 @@ export function normalizeVoyagerSettings(values = {}) {
   if (!["OFF", "1 MI GAP", "5 MI GAP", "10 MI GAP"].includes(normalized.autoSplit)) normalized.autoSplit = "5 MI GAP";
   if (!["DEG.DEC", "DEG, MIN.DEC", "DEG, MIN, SEC"].includes(normalized.coordFormat)) normalized.coordFormat = "DEG, MIN.DEC";
   if (!["ON", "OFF"].includes(normalized.signalBars)) normalized.signalBars = "OFF";
+  if (!["TRACK UP", "NORTH UP"].includes(normalized.mapOrientation)) normalized.mapOrientation = "TRACK UP";
+  if (!["SMALL", "MEDIUM", "LARGE"].includes(normalized.pointerSize)) normalized.pointerSize = "MEDIUM";
+  if (!["AUTO-CENTER", "FIXED"].includes(normalized.mapScreen1)) normalized.mapScreen1 = "AUTO-CENTER";
+  if (!["DISABLED", "FIXED", "AUTO-CENTER"].includes(normalized.mapScreen2)) normalized.mapScreen2 = "AUTO-CENTER";
+  const labelSizes = ["OFF", "SMALL", "LARGE"];
+  const clippingValues = ["750 FT", "1500 FT", "3000 FT", "1 MI", "2 MI", "NEVER"];
+  for (const screen of [1, 2]) {
+    for (const type of ["Track", "Route", "Waypoint"]) {
+      const labelField = `mapScreen${screen}${type}Labels`;
+      const clippingField = `mapScreen${screen}${type}Clipping`;
+      const labelDefault = screen === 1 ? "LARGE" : "OFF";
+      if (!labelSizes.includes(normalized[labelField])) normalized[labelField] = labelDefault;
+      if (!clippingValues.includes(normalized[clippingField])) normalized[clippingField] = "1500 FT";
+    }
+    const iconField = `mapScreen${screen}WaypointIcons`;
+    if (!["ID#", "DOT"].includes(normalized[iconField])) normalized[iconField] = "ID#";
+  }
   normalized.backlightBattery = normalizeTimer(normalized.backlightBattery, 3, "SEC");
   normalized.backlightExternal = normalizeTimer(normalized.backlightExternal, 3, "SEC");
   normalized.sleepBattery = normalizeTimer(normalized.sleepBattery, 2, "MIN");
   normalized.sleepExternal = normalizeTimer(normalized.sleepExternal, 2, "MIN");
   normalized.turnOff = normalizeTimer(normalized.turnOff, 2, "MIN");
+  normalized.panZoomTimeout = normalizeTimer(normalized.panZoomTimeout, 3, "SEC");
   return normalized;
 }
 

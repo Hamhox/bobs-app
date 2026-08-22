@@ -14,11 +14,11 @@ import {
 } from "../voyager-live-runtime.js";
 
 const EXPECTED_COUNTS = Object.freeze({
-  total: 200,
-  pages: 102,
+  total: 223,
+  pages: 116,
   workflows: 6,
-  overlays: 92,
-  menuOverlays: 86,
+  overlays: 101,
+  menuOverlays: 95,
 });
 const EDITOR_ACTIONS = ["up", "down", "left", "right", "center", "back", "enter"];
 
@@ -575,6 +575,114 @@ function main() {
     || gpsModel.values.coordFormat !== "DEG, MIN.DEC"
     || gpsModel.values.signalBars !== "OFF") {
     throw new Error("confirmed GPS Restore Defaults does not restore the device profile");
+  }
+
+  const mapModel = new VoyagerMenuModel();
+  const mapOrientationDefinition = VOYAGER_MENU_STATE_INDEX["m-set3-6-1"];
+  if (VOYAGER_MENU_STATE_INDEX["m-set3-6-orientation"]
+    || VOYAGER_MENU_STATE_INDEX["m-set3-6-screen1"]
+    || VOYAGER_MENU_TRANSITIONS["m-set3-6-1"].enter !== "m-set3-6-1"
+    || VOYAGER_MENU_TRANSITIONS["m-set3-6-3"].enter !== "m-set3-6-3") {
+    throw new Error("Map Settings direct toggles still open obsolete sub-modals");
+  }
+  mapModel.prepareInput(mapOrientationDefinition, "enter");
+  if (mapModel.values.mapOrientation !== "NORTH UP") throw new Error("Map Orientation does not toggle in place");
+  mapModel.prepareInput(VOYAGER_MENU_STATE_INDEX["m-set3-6-3"], "enter");
+  if (mapModel.values.mapScreen1 !== "FIXED") throw new Error("Map Screen 1 does not toggle to Fixed in place");
+
+  const pointerDefinition = VOYAGER_MENU_STATE_INDEX["m-set3-6-pointer"];
+  if (pointerDefinition.title !== "MAP POINTER SIZE"
+    || pointerDefinition.options.join("|") !== "SMALL|MEDIUM|LARGE"
+    || mapModel.resolve(pointerDefinition).selectedIndex !== 1) {
+    throw new Error("Map Pointer Size options or default are incorrect");
+  }
+  const mapScreen2Definition = VOYAGER_MENU_STATE_INDEX["m-set3-6-screen2"];
+  if (mapScreen2Definition.title !== "MAP SCREEN 2 MODE"
+    || mapScreen2Definition.options.join("|") !== "DISABLED|FIXED|AUTO-CENTER"
+    || mapModel.resolve(mapScreen2Definition).selectedIndex !== 2) {
+    throw new Error("Map Screen 2 Mode options or default are incorrect");
+  }
+
+  const screen1OptionsDefinition = VOYAGER_MENU_STATE_INDEX["m-set3-6-options1"];
+  const screen1OptionsMarkup = renderDefinition(screen1OptionsDefinition, mapModel);
+  if (screen1OptionsDefinition.title !== "MAP SCREEN 1 OPTIONS"
+    || !screen1OptionsMarkup.includes("TRACK LABELS")
+    || !screen1OptionsMarkup.includes("ROUTE LABELS")
+    || !screen1OptionsMarkup.includes("WAYPOINT ICONS")
+    || !screen1OptionsMarkup.includes("WAYPOINT LABELS")) {
+    throw new Error("Map Screen 1 Options panel is incomplete");
+  }
+  const trackLabels1 = VOYAGER_MENU_STATE_INDEX["m-set3-6-options1-track-labels"];
+  const trackClipping1 = VOYAGER_MENU_STATE_INDEX["m-set3-6-options1-track-clipping"];
+  if (trackLabels1.options.join("|") !== "OFF|SMALL|LARGE"
+    || mapModel.resolve(trackLabels1).selectedIndex !== 2
+    || trackClipping1.title !== "HIDE LABELS ABOVE:"
+    || trackClipping1.options.join("|") !== "750 FT|1500 FT|3000 FT|1 MI|2 MI|NEVER"
+    || mapModel.resolve(trackClipping1).selectedIndex !== 1) {
+    throw new Error("Map Screen 1 label or clipping options are incorrect");
+  }
+  mapModel.prepareInput(trackLabels1, "up");
+  mapModel.prepareInput(trackLabels1, "up");
+  mapModel.prepareInput(trackLabels1, "enter");
+  const disabledTrackClipping1 = mapModel.resolve(VOYAGER_MENU_STATE_INDEX["m-set3-6-options1-2"]);
+  if (mapModel.values.mapScreen1TrackLabels !== "OFF"
+    || !disabledTrackClipping1.rows[disabledTrackClipping1.selectedIndex].disabled) {
+    throw new Error("turning Track Labels off does not disable its clipping row");
+  }
+  mapModel.prepareInput(VOYAGER_MENU_STATE_INDEX["m-set3-6-options1-5"], "enter");
+  if (mapModel.values.mapScreen1WaypointIcons !== "DOT") throw new Error("Waypoint Icons does not toggle in place");
+
+  const screen2OptionsDefinition = VOYAGER_MENU_STATE_INDEX["m-set3-6-options2"];
+  const resolvedScreen2Options = mapModel.resolve(screen2OptionsDefinition);
+  if (resolvedScreen2Options.rows[0].value !== "OFF"
+    || !resolvedScreen2Options.rows[1].disabled
+    || resolvedScreen2Options.rows[3].value !== "OFF"
+    || !resolvedScreen2Options.rows[4].disabled
+    || resolvedScreen2Options.rows[7].value !== "OFF"
+    || !resolvedScreen2Options.rows[8].disabled) {
+    throw new Error("Map Screen 2 label defaults do not disable their clipping rows");
+  }
+  mapModel.prepareInput(mapScreen2Definition, "up");
+  mapModel.prepareInput(mapScreen2Definition, "up");
+  mapModel.prepareInput(mapScreen2Definition, "enter");
+  const disabledScreen2Options = mapModel.resolve(VOYAGER_MENU_STATE_INDEX["m-set3-6-6"]);
+  if (mapModel.values.mapScreen2 !== "DISABLED"
+    || !disabledScreen2Options.rows[disabledScreen2Options.selectedIndex].disabled
+    || mapModel.prepareInput(VOYAGER_MENU_STATE_INDEX["m-set3-6-5"], "down").targetStateId !== "m-set3-6-7") {
+    throw new Error("disabled Map Screen 2 does not disable and skip its Options row");
+  }
+
+  const timeoutDefinition = VOYAGER_MENU_STATE_INDEX["m-set3-6-timeout"];
+  const timeoutMarkup = renderDefinition(timeoutDefinition, mapModel);
+  if (timeoutDefinition.title !== "MAP PAN/ZOOM TIMEOUT"
+    || !timeoutMarkup.includes("SECONDS UNTIL MAP RESUMES")
+    || !timeoutMarkup.includes("(000 SEC -&gt; NEVER TIMEOUT)")
+    || !timeoutMarkup.includes("DEFAULT: 30 SEC")) {
+    throw new Error("Map Pan/Zoom Timeout editor copy is incomplete");
+  }
+
+  mapModel.prepareInput(VOYAGER_MENU_STATE_INDEX["m-set3-6-8"], "enter");
+  if (mapModel.values.mapOrientation !== "NORTH UP"
+    || VOYAGER_MENU_TRANSITIONS["m-set3-6-8"].enter !== "m-set3-6-restore") {
+    throw new Error("Map Restore Defaults applies before its confirmation dialog");
+  }
+  const mapRestoreDefinition = VOYAGER_MENU_STATE_INDEX["m-set3-6-restore"];
+  const mapRestoreMarkup = renderDefinition(mapRestoreDefinition, mapModel);
+  if (!mapRestoreMarkup.includes("RESTORE MAP SETTINGS")
+    || !mapRestoreMarkup.includes("TO FACTORY DEFAULTS?")) {
+    throw new Error("Map Restore Defaults confirmation is incomplete");
+  }
+  mapModel.prepareInput(mapRestoreDefinition, "right");
+  mapModel.prepareInput(mapRestoreDefinition, "enter");
+  if (mapModel.values.mapOrientation !== "TRACK UP"
+    || mapModel.values.pointerSize !== "MEDIUM"
+    || mapModel.values.mapScreen1 !== "AUTO-CENTER"
+    || mapModel.values.mapScreen1TrackLabels !== "LARGE"
+    || mapModel.values.mapScreen1WaypointIcons !== "ID#"
+    || mapModel.values.mapScreen2 !== "AUTO-CENTER"
+    || mapModel.values.mapScreen2TrackLabels !== "OFF"
+    || mapModel.values.panZoomTimeout !== "030 SEC") {
+    throw new Error("confirmed Map Restore Defaults does not restore the device profile");
   }
 
   const tabsDefinition = VOYAGER_MENU_STATE_INDEX["m-set3-2-tabs"];

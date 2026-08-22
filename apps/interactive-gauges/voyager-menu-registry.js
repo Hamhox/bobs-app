@@ -627,31 +627,101 @@ registerOverlay("m-set3-5-restore", {
 }, "m-set3-5-7");
 
 const MAP_ROWS = [
-  { label: "ORIENTATION", field: "mapOrientation", value: "TRACK UP" },
+  { label: "ORIENTATION", field: "mapOrientation", value: "TRACK UP", toggleValues: ["TRACK UP", "NORTH UP"] },
   { label: "POINTER SIZE", field: "pointerSize", value: "MEDIUM" },
   { spacer: true },
-  { label: "MAP SCREEN 1", field: "mapScreen1", value: "AUTO-CENTER" },
-  { label: "  OPTIONS", submenu: true },
+  { label: "MAP SCREEN 1", field: "mapScreen1", value: "AUTO-CENTER", toggleValues: ["AUTO-CENTER", "FIXED"] },
+  { label: "OPTIONS", submenu: true },
   { spacer: true },
   { label: "MAP SCREEN 2", field: "mapScreen2", value: "AUTO-CENTER" },
-  { label: "  OPTIONS", submenu: true },
+  { label: "OPTIONS", submenu: true, availabilityField: "mapScreen2Options" },
   { spacer: true },
   { label: "P/Z TIMEOUT", field: "panZoomTimeout", value: "30 SEC" },
   { spacer: true },
-  { label: "RESTORE DEFAULTS" },
+  { label: "RESTORE DEFAULTS", requiresConfirmation: true },
 ];
 registerPageFamily({
   ids: ["m-set3-6-1", "m-set3-6-2", "m-set3-6-3", "m-set3-6-4", "m-set3-6-5", "m-set3-6-6", "m-set3-6-7", "m-set3-6-8"], rows: MAP_ROWS,
-  targets: ["m-set3-6-orientation", "m-set3-6-pointer", "m-set3-6-screen1", "m-set3-6-options1", "m-set3-6-screen2", "m-set3-6-options2", "m-set3-6-timeout", "m-set3-6-8"],
+  targets: ["m-set3-6-1", "m-set3-6-pointer", "m-set3-6-3", "m-set3-6-options1", "m-set3-6-screen2", "m-set3-6-options2", "m-set3-6-timeout", "m-set3-6-restore"],
   parentStateId: "m-set3-6", kind: "panel", section: "set", title: "MAP SETTINGS", compact: true, restoreGroup: "MAP SETTINGS",
 });
-registerOverlay("m-set3-6-orientation", { kind: "settings-modal", section: "set", title: "MAP ORIENTATION", field: "mapOrientation", options: ["TRACK UP", "NORTH UP"], selectedIndex: 0 }, "m-set3-6-1");
-registerOverlay("m-set3-6-pointer", { kind: "settings-modal", section: "set", title: "POINTER SIZE", field: "pointerSize", options: ["SMALL", "MEDIUM", "LARGE"], selectedIndex: 1 }, "m-set3-6-2");
-registerOverlay("m-set3-6-screen1", { kind: "settings-modal", section: "set", title: "MAP SCREEN 1", field: "mapScreen1", options: ["AUTO-CENTER", "FREE PAN"], selectedIndex: 0 }, "m-set3-6-3");
-registerOverlay("m-set3-6-options1", { kind: "settings-modal", section: "set", title: "MAP SCREEN 1 OPTIONS", options: ["SHOW TRACKS", "SHOW ROUTES", "SHOW WAYPOINTS"], selectedIndex: 0 }, "m-set3-6-4");
-registerOverlay("m-set3-6-screen2", { kind: "settings-modal", section: "set", title: "MAP SCREEN 2", field: "mapScreen2", options: ["AUTO-CENTER", "FREE PAN"], selectedIndex: 0 }, "m-set3-6-5");
-registerOverlay("m-set3-6-options2", { kind: "settings-modal", section: "set", title: "MAP SCREEN 2 OPTIONS", options: ["SHOW TRACKS", "SHOW ROUTES", "SHOW WAYPOINTS"], selectedIndex: 0 }, "m-set3-6-6");
-registerOverlay("m-set3-6-timeout", { kind: "slot-input", section: "set", title: "P/Z TIMEOUT", field: "panZoomTimeout", value: "030 SEC", activeDigit: 1 }, "m-set3-6-7");
+registerOverlay("m-set3-6-pointer", {
+  kind: "settings-modal", section: "set", title: "MAP POINTER SIZE", field: "pointerSize",
+  options: ["SMALL", "MEDIUM", "LARGE"], selectedIndex: 1,
+}, "m-set3-6-2");
+registerOverlay("m-set3-6-screen2", {
+  kind: "settings-modal", section: "set", title: "MAP SCREEN 2 MODE", field: "mapScreen2",
+  options: ["DISABLED", "FIXED", "AUTO-CENTER"], selectedIndex: 2,
+}, "m-set3-6-5");
+
+const MAP_LABEL_OPTIONS = ["OFF", "SMALL", "LARGE"];
+const MAP_CLIPPING_OPTIONS = ["750 FT", "1500 FT", "3000 FT", "1 MI", "2 MI", "NEVER"];
+
+function registerMapScreenOptions(screen) {
+  const prefix = `mapScreen${screen}`;
+  const statePrefix = `m-set3-6-options${screen}`;
+  const rows = [
+    { label: "TRACK LABELS", field: `${prefix}TrackLabels`, value: screen === 1 ? "LARGE" : "OFF" },
+    { label: "  CLIPPING", field: `${prefix}TrackClipping`, value: "1500 FT" },
+    { spacer: true },
+    { label: "ROUTE LABELS", field: `${prefix}RouteLabels`, value: screen === 1 ? "LARGE" : "OFF" },
+    { label: "  CLIPPING", field: `${prefix}RouteClipping`, value: "1500 FT" },
+    { spacer: true },
+    { label: "WAYPOINT ICONS", field: `${prefix}WaypointIcons`, value: "ID#", toggleValues: ["ID#", "DOT"] },
+    { label: "WAYPOINT LABELS", field: `${prefix}WaypointLabels`, value: screen === 1 ? "LARGE" : "OFF" },
+    { label: "  CLIPPING", field: `${prefix}WaypointClipping`, value: "1500 FT" },
+  ];
+  const ids = [statePrefix, ...Array.from({ length: 6 }, (_, index) => `${statePrefix}-${index + 2}`)];
+  const targets = [
+    `${statePrefix}-track-labels`,
+    `${statePrefix}-track-clipping`,
+    `${statePrefix}-route-labels`,
+    `${statePrefix}-route-clipping`,
+    ids[4],
+    `${statePrefix}-waypoint-labels`,
+    `${statePrefix}-waypoint-clipping`,
+  ];
+  registerPageFamily({
+    ids, rows, targets, parentStateId: `m-set3-6-${screen === 1 ? 4 : 6}`,
+    kind: "panel", section: "set", title: `MAP SCREEN ${screen} OPTIONS`, compact: true,
+  });
+  registerOverlay(`${statePrefix}-track-labels`, {
+    kind: "settings-modal", section: "set", title: "TRACK LABELS", field: `${prefix}TrackLabels`,
+    options: MAP_LABEL_OPTIONS, selectedIndex: screen === 1 ? 2 : 0,
+  }, ids[0]);
+  registerOverlay(`${statePrefix}-track-clipping`, {
+    kind: "settings-modal", section: "set", title: "HIDE LABELS ABOVE:", field: `${prefix}TrackClipping`,
+    options: MAP_CLIPPING_OPTIONS, selectedIndex: 1,
+  }, ids[1]);
+  registerOverlay(`${statePrefix}-route-labels`, {
+    kind: "settings-modal", section: "set", title: "ROUTE LABELS", field: `${prefix}RouteLabels`,
+    options: MAP_LABEL_OPTIONS, selectedIndex: screen === 1 ? 2 : 0,
+  }, ids[2]);
+  registerOverlay(`${statePrefix}-route-clipping`, {
+    kind: "settings-modal", section: "set", title: "HIDE LABELS ABOVE:", field: `${prefix}RouteClipping`,
+    options: MAP_CLIPPING_OPTIONS, selectedIndex: 1,
+  }, ids[3]);
+  registerOverlay(`${statePrefix}-waypoint-labels`, {
+    kind: "settings-modal", section: "set", title: "WAYPOINT LABELS", field: `${prefix}WaypointLabels`,
+    options: MAP_LABEL_OPTIONS, selectedIndex: screen === 1 ? 2 : 0,
+  }, ids[5]);
+  registerOverlay(`${statePrefix}-waypoint-clipping`, {
+    kind: "settings-modal", section: "set", title: "HIDE LABELS ABOVE:", field: `${prefix}WaypointClipping`,
+    options: MAP_CLIPPING_OPTIONS, selectedIndex: 1,
+  }, ids[6]);
+}
+
+registerMapScreenOptions(1);
+registerMapScreenOptions(2);
+
+registerOverlay("m-set3-6-timeout", {
+  kind: "slot-input", section: "set", title: "MAP PAN/ZOOM TIMEOUT", field: "panZoomTimeout", value: "030 SEC", activeDigit: 1,
+  note: ["SECONDS UNTIL MAP RESUMES", "NORMAL MODE, IF NO KEYPRESS", "(000 SEC -> NEVER TIMEOUT)", "DEFAULT: 30 SEC"],
+}, "m-set3-6-7");
+registerOverlay("m-set3-6-restore", {
+  kind: "confirm", section: "set", title: "RESTORE DEFAULTS", restoreGroup: "MAP SETTINGS",
+  lines: ["RESTORE MAP SETTINGS", "TO FACTORY DEFAULTS?"],
+}, "m-set3-6-8");
 
 const WARNING_ROWS = [
   { label: "YELLOW LED ON", field: "yellowLedOn", value: "DISABLED" },

@@ -56,7 +56,21 @@ const DEFAULT_VALUES = Object.freeze({
   mapOrientation: "TRACK UP",
   pointerSize: "MEDIUM",
   mapScreen1: "AUTO-CENTER",
+  mapScreen1TrackLabels: "LARGE",
+  mapScreen1TrackClipping: "1500 FT",
+  mapScreen1RouteLabels: "LARGE",
+  mapScreen1RouteClipping: "1500 FT",
+  mapScreen1WaypointIcons: "ID#",
+  mapScreen1WaypointLabels: "LARGE",
+  mapScreen1WaypointClipping: "1500 FT",
   mapScreen2: "AUTO-CENTER",
+  mapScreen2TrackLabels: "OFF",
+  mapScreen2TrackClipping: "1500 FT",
+  mapScreen2RouteLabels: "OFF",
+  mapScreen2RouteClipping: "1500 FT",
+  mapScreen2WaypointIcons: "ID#",
+  mapScreen2WaypointLabels: "OFF",
+  mapScreen2WaypointClipping: "1500 FT",
   panZoomTimeout: "030 SEC",
   mapAutoZoom: "ON",
   logAfterStop: "030 SEC",
@@ -126,7 +140,27 @@ const RESET_GROUPS = Object.freeze({
   "POWER SETTINGS": ["backlightLevel", "backlightBattery", "backlightExternal", "sleepBattery", "sleepExternal", "turnOff", "chargeMode"],
   "SYSTEM SETTINGS": ["brightness", "backlightBattery", "backlightExternal", "safeModeTimer", "sleepModeTimer", "chargeMode", "chargeLevel"],
   "GPS SETTINGS": ["logMethod", "logFrequency", "logOption", "autoSplit", "coordFormat", "signalBars"],
-  "MAP SETTINGS": ["mapOrientation", "pointerSize", "mapScreen1", "mapScreen2", "panZoomTimeout"],
+  "MAP SETTINGS": [
+    "mapOrientation",
+    "pointerSize",
+    "mapScreen1",
+    "mapScreen1TrackLabels",
+    "mapScreen1TrackClipping",
+    "mapScreen1RouteLabels",
+    "mapScreen1RouteClipping",
+    "mapScreen1WaypointIcons",
+    "mapScreen1WaypointLabels",
+    "mapScreen1WaypointClipping",
+    "mapScreen2",
+    "mapScreen2TrackLabels",
+    "mapScreen2TrackClipping",
+    "mapScreen2RouteLabels",
+    "mapScreen2RouteClipping",
+    "mapScreen2WaypointIcons",
+    "mapScreen2WaypointLabels",
+    "mapScreen2WaypointClipping",
+    "panZoomTimeout",
+  ],
   "USER SCREEN 1 SETTINGS": [
     "userScreenTitle",
     "userScreen1Title",
@@ -172,7 +206,7 @@ function rowIsDisabled(row, values) {
 function rowValue(key, value) {
   if (key === "brightness") return `${value}%`;
   if (key === "distanceUnits") return String(value).startsWith("MILES") ? "MILES" : "KILOMETERS";
-  if (["tabsTimeout", "backlightBattery", "backlightExternal", "sleepBattery", "sleepExternal", "turnOff"].includes(key)) {
+  if (["tabsTimeout", "backlightBattery", "backlightExternal", "sleepBattery", "sleepExternal", "turnOff", "panZoomTimeout"].includes(key)) {
     const match = String(value).match(/^(\d+)\s*(.*)$/);
     if (match) return Number(match[1]) === 0 ? "ALWAYS ON" : `${Number(match[1])} ${match[2]}`.trim();
   }
