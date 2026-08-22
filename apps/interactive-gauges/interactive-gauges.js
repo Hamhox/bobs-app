@@ -9,8 +9,10 @@ import { VoyagerStateEngine } from "./voyager-state-engine.js";
 const APP_BASE = "/apps/interactive-gauges";
 const VOYAGER_URL_PARAMETER = "voyager";
 const VOYAGER_LIVE_TRANSITION_OVERRIDES = {
-  index: { menu: "m-main1-1" },
-  index2: { menu: "m-main1-1" },
+  index: { menu: "m-main1-1", left: "index3", right: "index2", enter: "index2" },
+  index2: { menu: "m-main1-1", left: "index", right: "index3", enter: "index3" },
+  index3: { menu: "m-main1-1", left: "index2", right: "index", enter: "index" },
+  "index3-2": { menu: "m-main1-1", left: "index2", right: "index", enter: "index" },
   map: { menu: "m-ride2-1", left: null, center: "map", right: "map2-2", enter: "map2" },
   "map1-2": { menu: "m-ride2-1", left: null, center: "map1-2", right: "map2-2", enter: "map2" },
   map2: { menu: "m-ride2-1", up: "map2", left: "map2", center: "map2", right: "map2", down: "map2", back: "map", enter: "map2" },
@@ -69,6 +71,38 @@ function writeVoyagerStateToUrl(screenId, mode = "replace") {
 }
 
 function applyLiveTransitionOverrides(manifest) {
+  manifest.states.index3 = {
+    id: "index3",
+    transitions: {
+      menu: "m-main1-1",
+      up: "sat",
+      left: "index2",
+      center: "index3",
+      right: "index",
+      down: "map",
+      back: "index",
+      enter: "index",
+    },
+    autoTransition: { delayMs: 20000, target: "index3-2", active: true },
+    archiveLinks: ["index", "index2", "index3-2", "map", "sat", "m-main1-1"],
+    referenceScreen: manifest.states.index2.referenceScreen,
+  };
+  manifest.states["index3-2"] = {
+    id: "index3-2",
+    transitions: {
+      menu: "m-main1-1",
+      up: "sat",
+      left: "index2",
+      center: "index3-2",
+      right: "index",
+      down: "map",
+      back: "index3",
+      enter: "index",
+    },
+    autoTransition: null,
+    archiveLinks: ["index", "index2", "index3", "map", "sat", "m-main1-1"],
+    referenceScreen: manifest.states.index2.referenceScreen,
+  };
   for (const [id, definition] of Object.entries(VOYAGER_MENU_STATE_INDEX)) {
     const previousState = manifest.states[id];
     const parentState = manifest.states[definition.parentStateId];

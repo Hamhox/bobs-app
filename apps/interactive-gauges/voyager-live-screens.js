@@ -28,6 +28,8 @@ export const VOYAGER_SCREEN_REGISTRY = {
       "index1-2": { view: "primary", tabsVisible: false, sideArrows: true },
       index2: { view: "secondary", tabsVisible: true, sideArrows: true },
       "index2-2": { view: "secondary", tabsVisible: false, sideArrows: true },
+      index3: { view: "tachbar", tabsVisible: true, sideArrows: true },
+      "index3-2": { view: "tachbar", tabsVisible: false, sideArrows: true },
     },
   },
   map: {
@@ -121,6 +123,7 @@ export const VOYAGER_LIVE_STATE_IDS = new Set(Object.keys(VOYAGER_LIVE_STATE_IND
 export const VOYAGER_INPUT_POLICY_ALIASES = {
   "index1-2": "index",
   "index2-2": "index2",
+  "index3-2": "index3",
   "map1-2": "map",
   "map3-2": "map3",
   "eng1-2": "eng",
@@ -137,6 +140,8 @@ export const VOYAGER_STABLE_STATE_ALIASES = {
   "gauge.main.primary": "index",
   "gauge.main.primary.tabs-hidden": "index1-2",
   "gauge.main.secondary": "index2",
+  "gauge.main.tachbar": "index3",
+  "gauge.main.tachbar.tabs-hidden": "index3-2",
   "gauge.map.overview": "map",
   "gauge.map.overview.tabs-hidden": "map1-2",
   "gauge.map.detail": "map2-2",

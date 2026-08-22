@@ -37,6 +37,12 @@ chrome, primary and secondary views, captured map controls, graph interactions, 
 confirmation, waypoint-map, keyboard, digit-input, settings-list, and brightness renderers. The timed startup frame uses
 the approved Trail Tech wordmark as live vector geometry, so the production runtime has no screen-image fallback.
 
+The live MAIN family also includes the device's optional third tachbar page in tabs-visible and tabs-hidden forms. Its
+15-segment arc, temperature, clock, speed, and RPM fill are rendered as live SVG; recorded GPX RPM wins when present and
+the emulator derives a deterministic engine-speed fallback for older ride files without sensor extensions. Vehicle
+Sensors > Tachbar Screen removes the page from the physical-control cycle when disabled, while Tach Scale controls its
+fill thresholds. The manual BMP captures remain external visual references and are not shipped as runtime assets.
+
 The three Add Waypoint paths now produce persistent local waypoint records: current position samples the shared ride
 engine, latitude/longitude uses the entered archive coordinate, and crosshairs samples the displayed track position.
 Saved waypoints appear in both the menu map flows and the live gauge map. Delete Waypoint and New Ride update the same

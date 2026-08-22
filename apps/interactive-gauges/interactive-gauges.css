@@ -581,6 +581,45 @@
   font-size: 42px;
 }
 
+.voyager-live__tach-segment {
+  fill: #f5f4ef;
+  stroke: #242021;
+  stroke-width: 2px;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+  shape-rendering: crispEdges;
+  vector-effect: non-scaling-stroke;
+}
+
+.voyager-live__tach-segment.is-active {
+  fill: #242021;
+}
+
+.voyager-live__tach-label {
+  font-size: 17px;
+  pointer-events: none;
+}
+
+.voyager-live__tach-label.is-active {
+  fill: #f5f4ef;
+}
+
+.voyager-live__tach-temperature-readout {
+  font-size: 38px;
+}
+
+.voyager-live__tach-time {
+  font-size: 28px;
+}
+
+.voyager-live__tach-speed {
+  font-size: 92px;
+}
+
+.voyager-live__tach-speed-unit {
+  font-size: 22px;
+}
+
 .voyager-live__text--inverse {
   fill: #f5f4ef;
 }

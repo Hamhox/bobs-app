@@ -54,6 +54,15 @@ export function voyagerDestinationTextLength(value) {
   return String(value).length > 7 ? 196 : null;
 }
 
+export function voyagerMainScreenTarget(stateId, action, tachbarEnabled = true) {
+  if (!["index", "index2", "index3"].includes(stateId)
+    || !["left", "right", "enter"].includes(action)) return null;
+  const mainScreens = tachbarEnabled ? ["index", "index2", "index3"] : ["index", "index2"];
+  const currentIndex = Math.max(0, mainScreens.indexOf(stateId));
+  const direction = action === "left" ? -1 : 1;
+  return mainScreens[(currentIndex + direction + mainScreens.length) % mainScreens.length];
+}
+
 function haversineMeters(a, b) {
   const earthRadius = 6371000;
   const latitudeDelta = radians(b.latitude - a.latitude);
@@ -540,6 +549,8 @@ class VoyagerRideEngine {
     const calculatedSpeedMph = speedDistance / speedSeconds * 2.23694;
     const recordedSpeedMph = interpolateSensor("speedKph") * 0.621371;
     const speedMph = Number.isFinite(recordedSpeedMph) ? recordedSpeedMph : calculatedSpeedMph;
+    const recordedRpm = interpolateSensor("rpm");
+    const simulatedRpm = 1150 + speedMph * 185 + Math.sin(progress * Math.PI * 18) * 350;
     const completedMeters = track.distances[index] + haversineMeters(start, end) * amount;
     const elevationFeet = Math.round(interpolate("elevation") * 3.28084);
     return {
@@ -564,7 +575,7 @@ class VoyagerRideEngine {
       engineTemperatureF: Number.isFinite(interpolateSensor("engineTemperatureC"))
         ? Math.round(interpolateSensor("engineTemperatureC") * 9 / 5 + 32)
         : engineTemperatureAt(progress, elevationFeet),
-      rpm: Number.isFinite(interpolateSensor("rpm")) ? Math.round(interpolateSensor("rpm")) : 0,
+      rpm: Math.round(clamp(Number.isFinite(recordedRpm) ? recordedRpm : simulatedRpm, 0, 15000)),
       elapsedSeconds: progress * this.#durationMs / 1000,
       elapsedLabel: formatDuration(progress * this.#durationMs / 1000),
     };
@@ -690,8 +701,51 @@ function compassMarkup({ cx, cy, radius, pointerAttribute = "data-live-compass-p
     </g>`;
 }
 
-function mainMarkup(screen, variant, { display }) {
+function tachbarSegmentsMarkup(contentLeft, tachScale) {
+  const segmentCount = 15;
+  const left = contentLeft + 8;
+  const right = 486;
+  const width = right - left;
+  const topAt = (progress) => 38 + 203 * ((1 - progress) ** 2);
+  const bottomAt = (progress) => 77 + 199 * ((1 - progress) ** 2);
+  const segmentMarkup = Array.from({ length: segmentCount }, (_, index) => {
+    const progressStart = index / segmentCount;
+    const progressEnd = (index + 1) / segmentCount;
+    const xStart = left + width * progressStart + 1.5;
+    const xEnd = left + width * progressEnd - 1.5;
+    const threshold = Math.round(tachScale * (index + 1) / segmentCount);
+    return `<path class="voyager-live__tach-segment" data-live-tach-segment data-rpm-threshold="${threshold}" d="M${xStart.toFixed(2)} ${topAt(progressStart).toFixed(2)}L${xEnd.toFixed(2)} ${topAt(progressEnd).toFixed(2)}L${xEnd.toFixed(2)} ${bottomAt(progressEnd).toFixed(2)}L${xStart.toFixed(2)} ${bottomAt(progressStart).toFixed(2)}Z" />`;
+  }).join("");
+  const labelMarkup = Array.from({ length: 7 }, (_, index) => {
+    const value = (index + 1) * 2;
+    const progress = value / segmentCount;
+    const x = left + width * progress;
+    const y = (topAt(progress) + bottomAt(progress)) / 2 + 6;
+    const threshold = Math.round(tachScale * value / segmentCount);
+    return `<text class="voyager-live__text voyager-live__tach-label" x="${x.toFixed(2)}" y="${y.toFixed(2)}" text-anchor="middle" data-live-tach-label data-rpm-threshold="${threshold}">${value}</text>`;
+  }).join("");
+  return `<g class="voyager-live__tachbar" data-live-tachbar>${segmentMarkup}${labelMarkup}</g>`;
+}
+
+function tachbarMarkup(screen, variant, menuValues, display) {
+  const contentLeft = variant.tabsVisible ? 67 : 0;
+  const tachScale = Math.max(1000, Number.parseInt(menuValues.tachScale, 10) || 15000);
+  return `
+    <rect class="voyager-live__surface" width="504" height="303" />
+    ${screenChromeMarkup(screen, variant)}
+    ${tachbarSegmentsMarkup(contentLeft, tachScale)}
+    <g class="voyager-live__tach-temperature">
+      <text class="voyager-live__text voyager-live__tach-temperature-readout" x="${contentLeft + 11}" y="57" data-live-temperature>71${display.temperatureUnit}</text>
+      ${temperatureIcon(contentLeft + 104, 18, 1.34)}
+    </g>
+    <text class="voyager-live__text voyager-live__tach-time" x="${contentLeft + 10}" y="288" data-live-time>09:50</text>
+    <text class="voyager-live__text voyager-live__tach-speed" x="444" y="287" text-anchor="end" data-live-speed>0</text>
+    <text class="voyager-live__text voyager-live__tach-speed-unit" x="488" y="287" text-anchor="end">${display.speedUnit}</text>`;
+}
+
+function mainMarkup(screen, variant, { display, menuValues }) {
   const hiddenOffset = variant.tabsVisible ? 0 : -47;
+  if (variant.view === "tachbar") return tachbarMarkup(screen, variant, menuValues, display);
   if (variant.view === "secondary") {
     const contentCenter = variant.tabsVisible ? 285 : 252;
     const maxCenter = variant.tabsVisible ? 173 : 126;
@@ -872,7 +926,7 @@ export function voyagerUserMetricDefinition(selection, display) {
     "COMPASS DIRECTION": ["COMPASS DIRECTION", "data-live-heading-label", "NNE"],
     "INPUT VOLTAGE": ["INPUT VOLTAGE", "", "13.8"],
     "INTERNAL BATTERY VOLTAGE": ["BATTERY VOLTAGE", "", "4.1"],
-    TACHOMETER: ["TACHOMETER RPM", "", "3250"],
+    TACHOMETER: ["TACHOMETER RPM", "data-live-rpm", "3250"],
     "WHEEL DISTANCE": [`WHEEL DST${variantSuffix} ${display.distanceUnit}`, "data-live-trip-distance", "0.0"],
     "GPS DISTANCE": [`GPS DST${variantSuffix} ${display.distanceUnit}`, "data-live-distance", "0.0"],
     "ENGINE TRIP TIME": [`ENGINE TRIP TIME${variantSuffix}`, "data-live-elapsed", "00:00:00"],
@@ -1194,6 +1248,13 @@ export class VoyagerLiveRuntime {
 
   prepareInput(stateId, action) {
     this.#clearToast();
+    const policyStateId = VOYAGER_INPUT_POLICY_ALIASES[stateId] ?? stateId;
+    const mainScreenTarget = voyagerMainScreenTarget(
+      policyStateId,
+      action,
+      this.#settings().tachbarScreen === "ENABLED",
+    );
+    if (mainScreenTarget) return { action, targetStateId: mainScreenTarget };
     const definition = this.#contextualizeMenuDefinition(voyagerMenuState(stateId));
     const prepared = this.#menuModel.prepareInput(definition, action);
     const rootMenu = stateId === "m-main1-1" || stateId === "m-ride2-1" || stateId === "m-set3-1";
@@ -1254,8 +1315,10 @@ export class VoyagerLiveRuntime {
       : variant;
     const menuValues = this.#settings();
     const displayProfile = createVoyagerDisplayProfile(menuValues);
-    const userLayoutRevision = screen.renderer === "user" ? this.#menuModel.revision : "static";
-    const layoutKey = `${screen.id}:${variant.view}:${variant.mapView ?? "default"}:${variant.tabsVisible}:${renderedVariant.interaction ?? "browse"}:${displayProfile.signature}:${userLayoutRevision}`;
+    const settingsLayoutRevision = screen.renderer === "user" || variant.view === "tachbar"
+      ? this.#menuModel.revision
+      : "static";
+    const layoutKey = `${screen.id}:${variant.view}:${variant.mapView ?? "default"}:${variant.tabsVisible}:${renderedVariant.interaction ?? "browse"}:${displayProfile.signature}:${settingsLayoutRevision}`;
     if (layoutKey !== this.#layoutKey) {
       this.#mount.innerHTML = `
         <svg class="voyager-live" viewBox="0 0 504 303" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Live Voyager ${screen.tabLabel.toLowerCase()} ${variant.view} screen">
@@ -1494,6 +1557,13 @@ export class VoyagerLiveRuntime {
       }
       setText("[data-live-elapsed]", telemetry.elapsedLabel);
       setText("[data-live-ride-label]", telemetry.trackLabel);
+      const liveRpm = menuValues.engineSensor === "ENABLED" && menuValues.demoRideState === "RUNNING"
+        ? telemetry.rpm
+        : 0;
+      setText("[data-live-rpm]", liveRpm);
+      for (const element of this.#mount.querySelectorAll("[data-live-tach-segment], [data-live-tach-label]")) {
+        element.classList.toggle("is-active", liveRpm >= Number(element.dataset.rpmThreshold));
+      }
     }
     if (refreshStatus) {
       const completedMiles = telemetry.distanceKm / 1.609344;

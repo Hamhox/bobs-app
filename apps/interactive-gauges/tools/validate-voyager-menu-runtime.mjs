@@ -10,15 +10,16 @@ import { renderVoyagerMenuMarkup, renderVoyagerToastMarkup } from "../voyager-me
 import {
   formatVoyagerDestinationDistance,
   voyagerDestinationTextLength,
+  voyagerMainScreenTarget,
   voyagerUserMetricDefinition,
 } from "../voyager-live-runtime.js";
 
 const EXPECTED_COUNTS = Object.freeze({
-  total: 224,
-  pages: 116,
+  total: 246,
+  pages: 127,
   workflows: 6,
-  overlays: 102,
-  menuOverlays: 96,
+  overlays: 113,
+  menuOverlays: 107,
 });
 const EDITOR_ACTIONS = ["up", "down", "left", "right", "center", "back", "enter"];
 
@@ -44,6 +45,17 @@ function main() {
     overlays: definitions.filter(({ presentation }) => presentation === "overlay").length,
     menuOverlays: definitions.filter(({ presentation, section }) => presentation === "overlay" && section !== "graph").length,
   };
+
+  const tachbarCycle = [
+    voyagerMainScreenTarget("index", "right", true),
+    voyagerMainScreenTarget("index2", "right", true),
+    voyagerMainScreenTarget("index3", "right", true),
+  ];
+  if (tachbarCycle.join(",") !== "index2,index3,index"
+    || voyagerMainScreenTarget("index2", "right", false) !== "index"
+    || voyagerMainScreenTarget("index", "left", false) !== "index2") {
+    throw new Error("main-screen navigation does not include or correctly skip the tachbar screen");
+  }
 
   for (const [key, expected] of Object.entries(EXPECTED_COUNTS)) {
     if (report[key] !== expected) throw new Error(`${key}: received ${report[key]}, expected ${expected}`);
