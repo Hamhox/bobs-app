@@ -164,10 +164,10 @@ function modalFrame(definition, innerMarkup, { x = 77, y = 49, width = 350, heig
     </g>`;
 }
 
-function noteLines(lines, startY, className = "voyager-menu__note") {
+function noteLines(lines, startY, className = "voyager-menu__note", step = 20) {
   const normalized = Array.isArray(lines) ? lines : [lines];
   return normalized.filter(Boolean).map((line, index) =>
-    `<text class="voyager-live__text ${className}" x="252" y="${startY + index * 20}" text-anchor="middle">${escapeMarkup(line)}</text>`,
+    `<text class="voyager-live__text ${className}" x="252" y="${startY + index * step}" text-anchor="middle">${escapeMarkup(line)}</text>`,
   ).join("");
 }
 
@@ -413,6 +413,8 @@ function slotInputTokens(definition) {
 
 function slotInputModal(definition) {
   const tokens = slotInputTokens(definition);
+  const noteCount = Array.isArray(definition.note) ? definition.note.filter(Boolean).length : definition.note ? 1 : 0;
+  const denseNotes = noteCount > 3;
   const totalWidth = tokens.reduce((sum, token) => sum + token.width, 0);
   let tokenX = 252 - totalWidth / 2;
   const value = tokens.map((token) => {
@@ -433,8 +435,8 @@ function slotInputModal(definition) {
   }).join("");
   return modalFrame(definition, `
     ${value}
-    ${definition.note ? noteLines(definition.note, 188) : ""}
-    ${noteLines("L/R: DIGIT · U/D: VALUE · ENTER: SAVE", definition.note ? 254 : 218, "voyager-menu__slot-help")}`);
+    ${definition.note ? noteLines(definition.note, denseNotes ? 179 : 188, "voyager-menu__note", denseNotes ? 17 : 20) : ""}
+    ${noteLines("L/R: DIGIT · U/D: VALUE · ENTER: SAVE", definition.note ? (denseNotes ? 264 : 254) : 218, "voyager-menu__slot-help")}`);
 }
 
 function brightnessModal(definition) {

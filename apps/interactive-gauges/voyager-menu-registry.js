@@ -543,22 +543,43 @@ const POWER_ROWS = [
   { spacer: true },
   { label: "TURN OFF", field: "turnOff", value: "60 MIN" },
   { spacer: true },
-  { label: "CHARGE MODE", field: "chargeMode", value: "VEHICLE" },
+  { label: "CHARGE MODE", field: "chargeMode", value: "VEHICLE", toggleValues: ["VEHICLE", "WALL PLUG"] },
   { spacer: true },
-  { label: "RESTORE DEFAULTS" },
+  { label: "RESTORE DEFAULTS", requiresConfirmation: true },
 ];
 registerPageFamily({
   ids: ["m-set3-4-1", "m-set3-4-2", "m-set3-4-3", "m-set3-4-4", "m-set3-4-5", "m-set3-4-6", "m-set3-4-7", "m-set3-4-8"], rows: POWER_ROWS,
-  targets: ["m-set3-4-level", "m-set3-4-battery", "m-set3-4-external", "m-set3-4-sleep-battery", "m-set3-4-sleep-external", "m-set3-4-turnoff", "m-set3-4-charge", "m-set3-4-8"],
+  targets: ["m-set3-4-level", "m-set3-4-battery", "m-set3-4-external", "m-set3-4-sleep-battery", "m-set3-4-sleep-external", "m-set3-4-turnoff", "m-set3-4-7", "m-set3-4-restore"],
   parentStateId: "m-set3-4", kind: "panel", section: "set", title: "POWER SETTINGS", compact: true, restoreGroup: "POWER SETTINGS",
 });
-registerOverlay("m-set3-4-level", { kind: "settings-modal", section: "set", title: "BACKLIGHT LEVEL", field: "backlightLevel", options: ["LOW", "MEDIUM", "HIGH"], selectedIndex: 2 }, "m-set3-4-1");
-registerOverlay("m-set3-4-battery", { kind: "slot-input", section: "set", title: "TIMEOUT (BATTERY)", field: "backlightBattery", value: "020 SEC", activeDigit: 1 }, "m-set3-4-2");
-registerOverlay("m-set3-4-external", { kind: "slot-input", section: "set", title: "TIMEOUT (EXTERNAL)", field: "backlightExternal", value: "000 SEC", activeDigit: 1, note: "000 = ALWAYS ON" }, "m-set3-4-3");
-registerOverlay("m-set3-4-sleep-battery", { kind: "slot-input", section: "set", title: "SLEEP (BATTERY)", field: "sleepBattery", value: "003 MIN", activeDigit: 1 }, "m-set3-4-4");
-registerOverlay("m-set3-4-sleep-external", { kind: "slot-input", section: "set", title: "SLEEP (EXT POWER)", field: "sleepExternal", value: "020 MIN", activeDigit: 1 }, "m-set3-4-5");
-registerOverlay("m-set3-4-turnoff", { kind: "slot-input", section: "set", title: "TURN OFF", field: "turnOff", value: "060 MIN", activeDigit: 1 }, "m-set3-4-6");
-registerOverlay("m-set3-4-charge", { kind: "settings-modal", section: "set", title: "CHARGE MODE", field: "chargeMode", options: ["VEHICLE", "ALWAYS", "OFF"], selectedIndex: 0 }, "m-set3-4-7");
+registerOverlay("m-set3-4-level", {
+  kind: "settings-modal", section: "set", title: "BACKLIGHT", field: "backlightLevel",
+  options: ["OFF", "LOW", "MEDIUM", "HIGH"], selectedIndex: 3,
+}, "m-set3-4-1");
+registerOverlay("m-set3-4-battery", {
+  kind: "slot-input", section: "set", title: "BACKLIGHT (BATTERY)", field: "backlightBattery", value: "020 SEC", activeDigit: 1,
+  note: ["SECONDS BACKLIGHT LIGHTS", "WHEN USING INTERNAL BATTERY", "(000 SEC -> ALWAYS ON)", "DEFAULT: 20 SEC"],
+}, "m-set3-4-2");
+registerOverlay("m-set3-4-external", {
+  kind: "slot-input", section: "set", title: "BACKLIGHT (EXTERNAL)", field: "backlightExternal", value: "000 SEC", activeDigit: 1,
+  note: ["SECONDS BACKLIGHT LIGHTS", "WHEN USING EXTERNAL POWER", "(000 SEC -> ALWAYS ON)", "DEFAULT: ALWAYS ON"],
+}, "m-set3-4-3");
+registerOverlay("m-set3-4-sleep-battery", {
+  kind: "slot-input", section: "set", title: "SLEEP MODE TIMEOUT", field: "sleepBattery", value: "03 MIN", activeDigit: 0,
+  note: ["MINUTES UNTIL SLEEP MODE", "AFTER LAST KEY/SENSOR INPUT", "WHEN USING BATTERY POWER", "(00 MIN -> ALWAYS ON)", "DEFAULT: 3 MIN"],
+}, "m-set3-4-4");
+registerOverlay("m-set3-4-sleep-external", {
+  kind: "slot-input", section: "set", title: "SLEEP MODE TIMEOUT", field: "sleepExternal", value: "20 MIN", activeDigit: 0,
+  note: ["MINUTES UNTIL SLEEP MODE", "AFTER LAST KEY/SENSOR INPUT", "WHEN USING EXTERNAL POWER", "(00 MIN -> ALWAYS ON)", "DEFAULT: 20 MIN"],
+}, "m-set3-4-5");
+registerOverlay("m-set3-4-turnoff", {
+  kind: "slot-input", section: "set", title: "POWER OFF TIMEOUT", field: "turnOff", value: "60 MIN", activeDigit: 0,
+  note: ["MINUTES UNTIL POWER OFF", "AFTER LAST KEY/SENSOR INPUT", "(00 MIN -> ALWAYS ON)", "DEFAULT: 60 MIN"],
+}, "m-set3-4-6");
+registerOverlay("m-set3-4-restore", {
+  kind: "confirm", section: "set", title: "RESTORE DEFAULTS", restoreGroup: "POWER SETTINGS",
+  lines: ["RESTORE POWER SETTINGS", "TO FACTORY DEFAULTS?"],
+}, "m-set3-4-8");
 
 const GPS_ROWS = [
   { label: "LOG METHOD", field: "logMethod", value: "TIME" },

@@ -14,7 +14,7 @@ import {
   voyagerMenuState,
 } from "./voyager-menu-registry.js";
 import { VoyagerMenuModel } from "./voyager-menu-model.js";
-import { createVoyagerDisplayProfile } from "./voyager-device-runtime.js";
+import { createVoyagerDisplayProfile, createVoyagerPowerProfile } from "./voyager-device-runtime.js";
 import { VoyagerRideCatalog } from "./voyager-ride-catalog.js";
 import {
   renderVoyagerMenuMarkup,
@@ -1428,9 +1428,10 @@ export class VoyagerLiveRuntime {
     const refreshStopwatch = refreshAll || cadence === 0 || cadence === 2;
     const menuValues = this.#settings();
     const display = createVoyagerDisplayProfile(menuValues);
+    const power = createVoyagerPowerProfile(menuValues);
     const brightnessValue = this.#menuState?.kind === "brightness"
       ? this.#menuModel.resolve(this.#menuState).value
-      : menuValues.brightness;
+      : power.backlightBrightnessValue;
     const sourceSpeedMph = () => menuValues.speedSource === "GPS"
       ? Math.max(0, telemetry.speedMph - 2)
       : telemetry.speedMph;
@@ -1469,14 +1470,13 @@ export class VoyagerLiveRuntime {
       const settingsKey = [
         brightnessValue,
         menuValues.gpsMode,
-        menuValues.sleepModeTimer,
+        power.signature,
         menuValues.mapOrientation,
         display.signature,
       ].join(":");
       if (settingsKey !== this.#appliedSettingsKey) {
-        const sleepMinutes = Number.parseInt(menuValues.sleepModeTimer, 10);
         this.#ride.setPowerSave(powerSave);
-        this.#ride.setSleepAfterMs(sleepMinutes * 60 * 1000);
+        this.#ride.setSleepAfterMs(power.sleepAfterMs);
         setDatasetValue(this.#mount, "mapOrientation", menuValues.mapOrientation === "NORTH UP" ? "north-up" : "track-up");
         this.#mount.style.setProperty("--voyager-screen-brightness", String(clamp(Number(brightnessValue) / 50, 0.35, 2)));
         this.#mount.style.setProperty("--voyager-screen-inversion", display.inverted ? "1" : "0");

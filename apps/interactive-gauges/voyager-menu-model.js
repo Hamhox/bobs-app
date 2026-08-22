@@ -40,9 +40,9 @@ const DEFAULT_VALUES = Object.freeze({
   backlightLevel: "HIGH",
   backlightBattery: "020 SEC",
   backlightExternal: "000 SEC",
-  sleepBattery: "003 MIN",
-  sleepExternal: "020 MIN",
-  turnOff: "060 MIN",
+  sleepBattery: "03 MIN",
+  sleepExternal: "20 MIN",
+  turnOff: "60 MIN",
   safeModeTimer: "020 SEC",
   sleepModeTimer: "10 MIN",
   chargeMode: "VEHICLE",
@@ -172,7 +172,7 @@ function rowIsDisabled(row, values) {
 function rowValue(key, value) {
   if (key === "brightness") return `${value}%`;
   if (key === "distanceUnits") return String(value).startsWith("MILES") ? "MILES" : "KILOMETERS";
-  if (key === "tabsTimeout") {
+  if (["tabsTimeout", "backlightBattery", "backlightExternal", "sleepBattery", "sleepExternal", "turnOff"].includes(key)) {
     const match = String(value).match(/^(\d+)\s*(.*)$/);
     if (match) return Number(match[1]) === 0 ? "ALWAYS ON" : `${Number(match[1])} ${match[2]}`.trim();
   }
@@ -556,6 +556,11 @@ export class VoyagerMenuModel {
   }
 
   #commit(definition, draft) {
+    if (definition.kind === "confirm" && definition.restoreGroup) {
+      this.#restoreDefaults(definition.restoreGroup);
+      this.#drafts.delete(definition.id);
+      return;
+    }
     if (definition.kind === "checklist-modal") {
       const binding = this.#bindingFor(definition);
       if (binding) this.#values[binding] = draft.checkedOptions.map((index) => definition.options[index]);
@@ -611,8 +616,12 @@ export class VoyagerMenuModel {
       this.#touch();
       return;
     }
-    if (selectedRow?.label !== "RESTORE DEFAULTS") return;
-    for (const key of RESET_GROUPS[definition.restoreGroup ?? definition.title] ?? []) this.#values[key] = DEFAULT_VALUES[key];
+    if (selectedRow?.label !== "RESTORE DEFAULTS" || selectedRow.requiresConfirmation) return;
+    this.#restoreDefaults(definition.restoreGroup ?? definition.title);
+  }
+
+  #restoreDefaults(group) {
+    for (const key of RESET_GROUPS[group] ?? []) this.#values[key] = DEFAULT_VALUES[key];
     this.#normalizeSettings();
     this.#save();
     this.#touch();

@@ -41,9 +41,21 @@ export function isVoyagerSettingAvailable(field, values = {}) {
 
 export function normalizeVoyagerSettings(values = {}) {
   const normalized = { ...values };
+  const normalizeTimer = (value, digits, unit) => {
+    const parsed = Number.parseInt(value, 10);
+    if (!Number.isFinite(parsed)) return value;
+    return `${String(Math.max(0, parsed)).padStart(digits, "0")} ${unit}`;
+  };
   normalized.speedUnits = VOYAGER_SETTING_RULES.speedUnits.derive(normalized);
   if (!["WHL SENSOR", "GPS"].includes(normalized.speedSource)) normalized.speedSource = "WHL SENSOR";
   if (!["ENG OR WHL", "GPS"].includes(normalized.runTimeSource)) normalized.runTimeSource = "ENG OR WHL";
+  if (!["OFF", "LOW", "MEDIUM", "HIGH"].includes(normalized.backlightLevel)) normalized.backlightLevel = "HIGH";
+  if (!["VEHICLE", "WALL PLUG"].includes(normalized.chargeMode)) normalized.chargeMode = "VEHICLE";
+  normalized.backlightBattery = normalizeTimer(normalized.backlightBattery, 3, "SEC");
+  normalized.backlightExternal = normalizeTimer(normalized.backlightExternal, 3, "SEC");
+  normalized.sleepBattery = normalizeTimer(normalized.sleepBattery, 2, "MIN");
+  normalized.sleepExternal = normalizeTimer(normalized.sleepExternal, 2, "MIN");
+  normalized.turnOff = normalizeTimer(normalized.turnOff, 2, "MIN");
   return normalized;
 }
 

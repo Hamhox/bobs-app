@@ -3,6 +3,7 @@
 import {
   createVoyagerDisplayProfile,
   createVoyagerInventorySnapshot,
+  createVoyagerPowerProfile,
 } from "../voyager-device-runtime.js";
 import { VoyagerMenuModel } from "../voyager-menu-model.js";
 import { VoyagerRideCatalog } from "../voyager-ride-catalog.js";
@@ -52,6 +53,44 @@ assert(metric.altitudeUnit === "M" && metric.altitudeFromFeet(1000) === 305, "me
 assert(metric.temperatureUnit === "°C" && metric.temperatureFromF(68) === 20, "Celsius profile is incorrect");
 assert(metric.clockAtElapsedSeconds(60) === "19:43", "24-hour device clock formatting is incorrect");
 assert(metric.inverted, "inverted display mode is missing from the profile");
+
+const externalPower = createVoyagerPowerProfile({
+  backlightLevel: "HIGH",
+  backlightBattery: "020 SEC",
+  backlightExternal: "000 SEC",
+  sleepBattery: "03 MIN",
+  sleepExternal: "20 MIN",
+  turnOff: "60 MIN",
+  chargeMode: "VEHICLE",
+});
+const repeatedExternalPower = createVoyagerPowerProfile({
+  backlightLevel: "HIGH",
+  backlightBattery: "020 SEC",
+  backlightExternal: "000 SEC",
+  sleepBattery: "03 MIN",
+  sleepExternal: "20 MIN",
+  turnOff: "60 MIN",
+  chargeMode: "VEHICLE",
+});
+assert(externalPower === repeatedExternalPower, "power profiles are not cached by their stable settings signature");
+assert(externalPower.backlightBrightnessValue === 50, "default High backlight changed the approved screen brightness");
+assert(externalPower.backlightTimeoutMs === Number.POSITIVE_INFINITY, "external Always On backlight has a finite timeout");
+assert(externalPower.sleepAfterMs === 20 * 60 * 1000, "external sleep timeout does not use Power Settings");
+assert(externalPower.powerOffAfterMs === 60 * 60 * 1000, "power-off timeout does not use Power Settings");
+const batteryPower = createVoyagerPowerProfile({
+  backlightLevel: "OFF",
+  backlightBattery: "020 SEC",
+  backlightExternal: "000 SEC",
+  sleepBattery: "03 MIN",
+  sleepExternal: "20 MIN",
+  turnOff: "00 MIN",
+  chargeMode: "WALL PLUG",
+}, { externalPower: false });
+assert(batteryPower.backlightBrightnessValue === 18, "Off backlight does not retain a readable passive LCD");
+assert(batteryPower.backlightTimeoutMs === 20 * 1000, "battery backlight timeout is incorrect");
+assert(batteryPower.sleepAfterMs === 3 * 60 * 1000, "battery sleep timeout is incorrect");
+assert(batteryPower.powerOffAfterMs === Number.POSITIVE_INFINITY, "00-minute power-off does not disable the timeout");
+assert(batteryPower.chargeMode === "WALL PLUG", "charge mode is missing from the power profile");
 
 const inventory = createVoyagerInventorySnapshot({
   trackCount: 3,

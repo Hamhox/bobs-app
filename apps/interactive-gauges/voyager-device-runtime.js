@@ -3,6 +3,8 @@ const MILES_TO_KILOMETERS = 1.609344;
 const FEET_TO_METERS = 0.3048;
 
 const profileCache = new Map();
+const powerProfileCache = new Map();
+const BACKLIGHT_BRIGHTNESS_VALUES = Object.freeze({ OFF: 18, LOW: 30, MEDIUM: 40, HIGH: 50 });
 
 function profileSignature(values = {}) {
   return [
@@ -75,6 +77,45 @@ export function createVoyagerDisplayProfile(values = {}) {
   });
   if (profileCache.size >= 16) profileCache.delete(profileCache.keys().next().value);
   profileCache.set(signature, profile);
+  return profile;
+}
+
+function durationMilliseconds(value, multiplier) {
+  const amount = Number.parseInt(value, 10);
+  return Number.isFinite(amount) && amount > 0 ? amount * multiplier : Number.POSITIVE_INFINITY;
+}
+
+export function createVoyagerPowerProfile(values = {}, { externalPower = true } = {}) {
+  const signature = [
+    externalPower ? "external" : "battery",
+    values.backlightLevel ?? "HIGH",
+    values.backlightBattery ?? "020 SEC",
+    values.backlightExternal ?? "000 SEC",
+    values.sleepBattery ?? "03 MIN",
+    values.sleepExternal ?? "20 MIN",
+    values.turnOff ?? "60 MIN",
+    values.chargeMode ?? "VEHICLE",
+  ].join(":");
+  const cached = powerProfileCache.get(signature);
+  if (cached) return cached;
+
+  const profile = Object.freeze({
+    signature,
+    externalPower,
+    backlightBrightnessValue: BACKLIGHT_BRIGHTNESS_VALUES[values.backlightLevel] ?? BACKLIGHT_BRIGHTNESS_VALUES.HIGH,
+    backlightTimeoutMs: durationMilliseconds(
+      externalPower ? values.backlightExternal : values.backlightBattery,
+      1000,
+    ),
+    sleepAfterMs: durationMilliseconds(
+      externalPower ? values.sleepExternal : values.sleepBattery,
+      60 * 1000,
+    ),
+    powerOffAfterMs: durationMilliseconds(values.turnOff, 60 * 1000),
+    chargeMode: values.chargeMode === "WALL PLUG" ? "WALL PLUG" : "VEHICLE",
+  });
+  if (powerProfileCache.size >= 16) powerProfileCache.delete(powerProfileCache.keys().next().value);
+  powerProfileCache.set(signature, profile);
   return profile;
 }
 

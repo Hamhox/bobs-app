@@ -442,6 +442,64 @@ function main() {
     throw new Error("Tach scale does not open its five-digit MAX RPM editor");
   }
 
+  const powerModel = new VoyagerMenuModel();
+  const powerPageMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-set3-4-1"], powerModel);
+  if (!powerPageMarkup.includes("20 SEC")
+    || !powerPageMarkup.includes("ALWAYS ON")
+    || !powerPageMarkup.includes("3 MIN")
+    || !powerPageMarkup.includes("60 MIN")) {
+    throw new Error("power-settings rows do not format stored timeout values for the device");
+  }
+  const backlightDefinition = VOYAGER_MENU_STATE_INDEX["m-set3-4-level"];
+  const backlightMarkup = renderDefinition(backlightDefinition, powerModel);
+  if (backlightDefinition.title !== "BACKLIGHT"
+    || (backlightMarkup.match(/radio-16pt/g) ?? []).length !== 4
+    || !backlightMarkup.includes("OFF")
+    || !backlightMarkup.includes("HIGH")) {
+    throw new Error("backlight level is not a four-option device radio group");
+  }
+  const powerSlotExpectations = [
+    ["m-set3-4-battery", 3, "BACKLIGHT (BATTERY)", "WHEN USING INTERNAL BATTERY", "DEFAULT: 20 SEC"],
+    ["m-set3-4-external", 3, "BACKLIGHT (EXTERNAL)", "WHEN USING EXTERNAL POWER", "DEFAULT: ALWAYS ON"],
+    ["m-set3-4-sleep-battery", 2, "SLEEP MODE TIMEOUT", "WHEN USING BATTERY POWER", "DEFAULT: 3 MIN"],
+    ["m-set3-4-sleep-external", 2, "SLEEP MODE TIMEOUT", "WHEN USING EXTERNAL POWER", "DEFAULT: 20 MIN"],
+    ["m-set3-4-turnoff", 2, "POWER OFF TIMEOUT", "MINUTES UNTIL POWER OFF", "DEFAULT: 60 MIN"],
+  ];
+  for (const [stateId, slotCount, title, copy, defaultCopy] of powerSlotExpectations) {
+    const definition = VOYAGER_MENU_STATE_INDEX[stateId];
+    const markup = renderDefinition(definition, new VoyagerMenuModel());
+    if (definition.title !== title
+      || (markup.match(/data-menu-slot=/g) ?? []).length !== slotCount
+      || !markup.includes(copy)
+      || !markup.includes(defaultCopy)) {
+      throw new Error(`${stateId} power timeout copy or slot geometry is incomplete`);
+    }
+  }
+  powerModel.prepareInput(VOYAGER_MENU_STATE_INDEX["m-set3-4-7"], "enter");
+  if (powerModel.values.chargeMode !== "WALL PLUG") throw new Error("charge mode does not toggle to Wall Plug in place");
+  powerModel.prepareInput(backlightDefinition, "up");
+  powerModel.prepareInput(backlightDefinition, "enter");
+  if (powerModel.values.backlightLevel !== "MEDIUM") throw new Error("backlight radio selection does not persist");
+  powerModel.prepareInput(VOYAGER_MENU_STATE_INDEX["m-set3-4-8"], "enter");
+  if (powerModel.values.backlightLevel !== "MEDIUM"
+    || VOYAGER_MENU_TRANSITIONS["m-set3-4-8"].enter !== "m-set3-4-restore") {
+    throw new Error("Restore Defaults applies before its confirmation dialog");
+  }
+  const restoreDefinition = VOYAGER_MENU_STATE_INDEX["m-set3-4-restore"];
+  const restoreMarkup = renderDefinition(restoreDefinition, powerModel);
+  if (!restoreMarkup.includes("RESTORE POWER SETTINGS")
+    || !restoreMarkup.includes("TO FACTORY DEFAULTS?")
+    || !restoreMarkup.includes("btn-cancel-selected")) {
+    throw new Error("power Restore Defaults confirmation is incomplete");
+  }
+  powerModel.prepareInput(restoreDefinition, "right");
+  powerModel.prepareInput(restoreDefinition, "enter");
+  if (powerModel.values.backlightLevel !== "HIGH"
+    || powerModel.values.chargeMode !== "VEHICLE"
+    || powerModel.values.sleepBattery !== "03 MIN") {
+    throw new Error("confirmed power Restore Defaults does not restore the device profile");
+  }
+
   const tabsDefinition = VOYAGER_MENU_STATE_INDEX["m-set3-2-tabs"];
   const tabsMarkup = renderDefinition(tabsDefinition, new VoyagerMenuModel());
   if (!tabsMarkup.includes("SECONDSUNTIL TABS HIDE")
