@@ -27,6 +27,9 @@ const DEFAULT_VALUES = Object.freeze({
   engineSensor: "ENABLED",
   ppr: "1",
   sensorSensitivity: "LOW",
+  tachbarScreen: "ENABLED",
+  tachScale: "15000",
+  mainScreenMode: "TACHBAR",
   runTimeSource: "ENG OR WHL",
   brightness: 50,
   backlightLevel: "HIGH",
@@ -114,7 +117,7 @@ const ROW_BINDINGS = Object.freeze({
 
 const RESET_GROUPS = Object.freeze({
   "UNIT SETTINGS": ["distanceUnits", "altitudeUnits", "clockFormat", "timeOfDay", "temperatureUnits", "tabsTimeout", "displayMode"],
-  "VEHICLE SENSORS": ["wheelSensor", "wheelSize", "engineSensor", "ppr", "sensorSensitivity", "speedSource", "runTimeSource"],
+  "VEHICLE SENSORS": ["wheelSensor", "wheelSize", "engineSensor", "ppr", "sensorSensitivity", "tachbarScreen", "tachScale", "mainScreenMode", "speedSource", "runTimeSource"],
   "POWER SETTINGS": ["backlightLevel", "backlightBattery", "backlightExternal", "sleepBattery", "sleepExternal", "turnOff", "chargeMode"],
   "SYSTEM SETTINGS": ["brightness", "backlightBattery", "backlightExternal", "safeModeTimer", "sleepModeTimer", "chargeMode", "chargeLevel"],
   "GPS SETTINGS": ["logMethod", "logFrequency", "logOption", "autoSplit", "coordFormat", "signalBars"],
@@ -153,6 +156,10 @@ function editableDigitIndexes(value) {
 function editableSlotCount(definition, value) {
   const meridiemSlot = definition.slotType === "time" && /\s(?:AM|PM)$/.test(String(value)) ? 1 : 0;
   return editableDigitIndexes(value).length + meridiemSlot;
+}
+
+function rowIsDisabled(row, values) {
+  return row?.enabledWhen?.some(({ field, value }) => values[field] !== value) ?? false;
 }
 
 function rowValue(key, value) {
@@ -195,6 +202,7 @@ export class VoyagerMenuModel {
     } catch {
       this.#values = { ...DEFAULT_VALUES };
     }
+    this.#normalizeVehicleSensors();
     return this;
   }
 
@@ -204,9 +212,15 @@ export class VoyagerMenuModel {
       ...definition,
       rows: definition.rows?.map((row) => {
         const key = row.field ?? ROW_BINDINGS[row.label];
-        return key ? { ...row, value: rowValue(key, this.#values[key]) } : { ...row };
+        const disabled = rowIsDisabled(row, this.#values);
+        return key ? { ...row, value: rowValue(key, this.#values[key]), disabled } : { ...row, disabled };
       }),
     };
+    if (definition.rowFields) {
+      resolved.options = definition.rowFields.map((field, index) => field
+        ? rowValue(field, this.#values[field])
+        : definition.options[index]);
+    }
     if (!draft) return resolved;
     if (definition.kind === "settings-modal" || definition.kind === "checklist-modal") resolved.selectedIndex = draft.selectedIndex;
     if (definition.kind === "checklist-modal") resolved.checkedOptions = [...draft.checkedOptions];
@@ -247,6 +261,23 @@ export class VoyagerMenuModel {
     }
     const preparedAction = this.resolveInputAction(definition, action);
     if (definition.presentation !== "overlay") {
+      const selectedRow = definition.rows?.[definition.selectedIndex];
+      if ((preparedAction === "enter" || preparedAction === "right") && rowIsDisabled(selectedRow, this.#values)) {
+        return { action: preparedAction, targetStateId: definition.id };
+      }
+      if ((preparedAction === "up" || preparedAction === "down") && definition.rowStateIds?.length) {
+        const selectableRows = definition.rows.flatMap((row, index) => row.spacer ? [] : [index]);
+        const currentStateIndex = definition.rowStateIds.indexOf(definition.id);
+        if (currentStateIndex >= 0 && selectableRows.some((rowIndex) => rowIsDisabled(definition.rows[rowIndex], this.#values))) {
+          const delta = preparedAction === "up" ? -1 : 1;
+          for (let step = 1; step <= definition.rowStateIds.length; step += 1) {
+            const candidate = (currentStateIndex + delta * step + definition.rowStateIds.length) % definition.rowStateIds.length;
+            if (!rowIsDisabled(definition.rows[selectableRows[candidate]], this.#values)) {
+              return { action: preparedAction, targetStateId: definition.rowStateIds[candidate] };
+            }
+          }
+        }
+      }
       if (preparedAction === "enter") this.#applyPageAction(definition);
       return { action: preparedAction };
     }
@@ -336,7 +367,19 @@ export class VoyagerMenuModel {
     if (definition.kind === "keyboard") this.#editKeyboard(draft, preparedAction);
 
     if (preparedAction === "enter" && definition.kind === "settings-modal") {
-      if (definition.optionLabels) return { action: preparedAction, targetStateId: definition.id };
+      if (definition.optionLabels) {
+        const targetStateId = definition.optionTargets?.[draft.selectedIndex];
+        if (targetStateId) return { action: preparedAction, targetStateId };
+        const field = definition.rowFields?.[draft.selectedIndex];
+        const toggleValues = definition.rowToggleValues?.[draft.selectedIndex];
+        if (field && toggleValues?.length) {
+          const currentIndex = toggleValues.indexOf(this.#values[field]);
+          this.#values[field] = toggleValues[(currentIndex + 1) % toggleValues.length];
+          this.#save();
+          this.#touch();
+        }
+        return { action: preparedAction, targetStateId: definition.id };
+      }
       const targetStateId = definition.optionTargets?.[draft.selectedIndex];
       this.#commit(definition, draft);
       if (targetStateId) return { action: preparedAction, targetStateId };
@@ -545,17 +588,35 @@ export class VoyagerMenuModel {
 
   #applyPageAction(definition) {
     const selectedRow = definition.rows?.[definition.selectedIndex];
+    if (rowIsDisabled(selectedRow, this.#values)) return;
     if (selectedRow?.field && selectedRow.toggleValues?.length) {
       const currentIndex = selectedRow.toggleValues.indexOf(this.#values[selectedRow.field]);
       this.#values[selectedRow.field] = selectedRow.toggleValues[(currentIndex + 1) % selectedRow.toggleValues.length];
+      this.#normalizeVehicleSensors();
       this.#save();
       this.#touch();
       return;
     }
     if (selectedRow?.label !== "RESTORE DEFAULTS") return;
     for (const key of RESET_GROUPS[definition.restoreGroup ?? definition.title] ?? []) this.#values[key] = DEFAULT_VALUES[key];
+    this.#normalizeVehicleSensors();
     this.#save();
     this.#touch();
+  }
+
+  #normalizeVehicleSensors() {
+    const wheelEnabled = this.#values.wheelSensor === "ENABLED";
+    const engineEnabled = this.#values.engineSensor === "ENABLED";
+    if (!wheelEnabled) this.#values.speedSource = "GPS";
+    if (wheelEnabled && engineEnabled) {
+      if (!["ENG OR WHL", "GPS"].includes(this.#values.runTimeSource)) this.#values.runTimeSource = "ENG OR WHL";
+    } else if (engineEnabled) {
+      this.#values.runTimeSource = "ENG SENSOR";
+    } else if (wheelEnabled) {
+      this.#values.runTimeSource = "WHL SENSOR";
+    } else {
+      this.#values.runTimeSource = "GPS";
+    }
   }
 
   #discard(stateId) {

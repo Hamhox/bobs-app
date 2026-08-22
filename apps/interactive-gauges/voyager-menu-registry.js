@@ -73,6 +73,7 @@ function registerPageFamily({ ids, rows, targets = [], parentStateId, ...definit
     register(id, {
       ...definition,
       rows,
+      rowStateIds: ids,
       parentStateId,
       selectedIndex: rowIndexes[index],
     }, {
@@ -490,30 +491,45 @@ registerOverlay("m-set3-2-tabs", {
 registerOverlay("m-set3-2-display", { kind: "settings-modal", section: "set", title: "DISPLAY MODE", field: "displayMode", options: ["NORMAL", "INVERTED"], selectedIndex: 0 }, "m-set3-2-7");
 
 const VEHICLE_ROWS = [
-  { label: "WHEEL SENSOR", field: "wheelSensor", value: "ENABLED" },
-  { label: "  WHEEL SIZE", field: "wheelSize", value: "2110 mm" },
+  { label: "WHEEL SENSOR", field: "wheelSensor", value: "ENABLED", toggleValues: ["ENABLED", "DISABLED"] },
+  { label: "  WHEEL SIZE", field: "wheelSize", value: "2110 mm", enabledWhen: [{ field: "wheelSensor", value: "ENABLED" }] },
   { spacer: true },
-  { label: "ENGINE SENSOR", field: "engineSensor", value: "ENABLED" },
-  { label: "  PPR", field: "ppr", value: "1" },
-  { label: "  SENSITIVITY", field: "sensorSensitivity", value: "LOW" },
-  { label: "  TACHBAR", submenu: true },
+  { label: "ENGINE SENSOR", field: "engineSensor", value: "ENABLED", toggleValues: ["ENABLED", "DISABLED"] },
+  { label: "  PPR", field: "ppr", value: "1", enabledWhen: [{ field: "engineSensor", value: "ENABLED" }] },
+  { label: "  SENSITIVITY", field: "sensorSensitivity", value: "LOW", toggleValues: ["LOW", "HIGH"], enabledWhen: [{ field: "engineSensor", value: "ENABLED" }] },
+  { label: `  ${VOYAGER_FONT_SYMBOLS.play} TACHBAR`, enabledWhen: [{ field: "engineSensor", value: "ENABLED" }] },
   { spacer: true },
-  { label: "SPEED / DIST", field: "speedSource", value: "WHL SENSOR" },
-  { label: "ACCUM RUN TIME", field: "runTimeSource", value: "ENG OR WHL" },
+  { label: "SPEED / DIST", field: "speedSource", value: "WHL SENSOR", toggleValues: ["WHL SENSOR", "GPS"], enabledWhen: [{ field: "wheelSensor", value: "ENABLED" }] },
+  { label: "ACCUM RUN TIME", field: "runTimeSource", value: "ENG OR WHL", toggleValues: ["ENG OR WHL", "GPS"], enabledWhen: [{ field: "wheelSensor", value: "ENABLED" }, { field: "engineSensor", value: "ENABLED" }] },
   { spacer: true },
   { label: "RESTORE DEFAULTS" },
 ];
 registerPageFamily({
   ids: ["m-set3-3-1", "m-set3-3-2", "m-set3-3-3", "m-set3-3-4", "m-set3-3-5", "m-set3-3-6", "m-set3-3-7", "m-set3-3-8", "m-set3-3-9"], rows: VEHICLE_ROWS,
-  targets: ["m-set3-3-wheel", "m-set3-3-size", "m-set3-3-engine", "m-set3-3-ppr", "m-set3-3-sensitivity", "m-set3-3-tachbar", "m-set3-3-source", "m-set3-3-runtime", "m-set3-3-9"],
+  targets: ["m-set3-3-1", "m-set3-3-size", "m-set3-3-3", "m-set3-3-ppr", "m-set3-3-5", "m-set3-3-tachbar", "m-set3-3-7", "m-set3-3-8", "m-set3-3-9"],
   parentStateId: "m-set3-3", kind: "panel", section: "set", title: "VEHICLE SENSORS", compact: true, restoreGroup: "VEHICLE SENSORS",
 });
 registerOverlay("m-set3-3-wheel", { kind: "settings-modal", section: "set", title: "WHEEL SENSOR", field: "wheelSensor", options: ["ENABLED", "DISABLED"], selectedIndex: 0 }, "m-set3-3-1");
-registerOverlay("m-set3-3-size", { kind: "slot-input", section: "set", title: "WHEEL SIZE", field: "wheelSize", value: "2110 mm", activeDigit: 1 }, "m-set3-3-2");
+registerOverlay("m-set3-3-size", {
+  kind: "slot-input", section: "set", title: "WHEEL SIZE", field: "wheelSize", value: "2110 mm", activeDigit: 1,
+  note: ["MOTORCYCLE: 2110 mm", "ATV: 1675 mm", "DEFAULT: 2110 mm"],
+}, "m-set3-3-2");
 registerOverlay("m-set3-3-engine", { kind: "settings-modal", section: "set", title: "ENGINE SENSOR", field: "engineSensor", options: ["ENABLED", "DISABLED"], selectedIndex: 0 }, "m-set3-3-3");
-registerOverlay("m-set3-3-ppr", { kind: "slot-input", section: "set", title: "PULSES PER REVOLUTION", field: "ppr", value: "1", activeDigit: 0 }, "m-set3-3-4");
+registerOverlay("m-set3-3-ppr", { kind: "settings-modal", section: "set", title: "PULSES PER REVOLUTION", field: "ppr", options: ["1", "2", "1/2"], selectedIndex: 0 }, "m-set3-3-4");
 registerOverlay("m-set3-3-sensitivity", { kind: "settings-modal", section: "set", title: "SENSITIVITY", field: "sensorSensitivity", options: ["LOW", "MEDIUM", "HIGH"], selectedIndex: 0 }, "m-set3-3-5");
-registerOverlay("m-set3-3-tachbar", { kind: "settings-modal", section: "set", title: "TACHBAR OPTIONS", options: ["TACHBAR SCREEN: ENABLED", "TACH SCALE: 15000 RPM", "MAIN SCREEN: TACHBAR"], selectedIndex: 0 }, "m-set3-3-6");
+registerOverlay("m-set3-3-tachbar", {
+  kind: "settings-modal", section: "set", title: "TACHBAR OPTIONS",
+  optionLabels: ["TACHBAR SCREEN", "TACH SCALE", "MAIN SCREEN"],
+  rowFields: ["tachbarScreen", "tachScale", "mainScreenMode"],
+  rowToggleValues: [["ENABLED", "DISABLED"], null, ["TACHBAR", "DEFAULT"]],
+  optionTargets: { 1: "m-set3-3-tach-scale" },
+  options: ["ENABLED", "15000", "TACHBAR"], selectedIndex: 0,
+}, "m-set3-3-6", {
+  right: "m-set3-3-tachbar", enter: "m-set3-3-tachbar",
+});
+registerOverlay("m-set3-3-tach-scale", {
+  kind: "slot-input", section: "set", title: "MAX RPM SCALE", field: "tachScale", value: "15000", activeDigit: 2,
+}, "m-set3-3-tachbar");
 registerOverlay("m-set3-3-source", { kind: "settings-modal", section: "set", title: "SPEED / DIST", field: "speedSource", options: ["WHL SENSOR", "GPS"], selectedIndex: 0 }, "m-set3-3-7");
 registerOverlay("m-set3-3-runtime", { kind: "settings-modal", section: "set", title: "ACCUM RUN TIME", field: "runTimeSource", options: ["ENG OR WHL", "ENGINE", "WHEEL", "GPS"], selectedIndex: 0 }, "m-set3-3-8");
 

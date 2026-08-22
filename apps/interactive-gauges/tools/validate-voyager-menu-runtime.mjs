@@ -13,11 +13,11 @@ import {
 } from "../voyager-live-runtime.js";
 
 const EXPECTED_COUNTS = Object.freeze({
-  total: 200,
+  total: 201,
   pages: 102,
   workflows: 6,
-  overlays: 92,
-  menuOverlays: 86,
+  overlays: 93,
+  menuOverlays: 87,
 });
 const EDITOR_ACTIONS = ["up", "down", "left", "right", "center", "back", "enter"];
 
@@ -334,6 +334,85 @@ function main() {
     if (toggleModel.values[field] !== expected || VOYAGER_MENU_TRANSITIONS[stateId].enter !== stateId) {
       throw new Error(`${stateId} does not toggle ${field} directly in Unit Settings`);
     }
+  }
+
+  const vehicleDirectToggleCases = [
+    ["m-set3-3-1", "wheelSensor", "DISABLED"],
+    ["m-set3-3-3", "engineSensor", "DISABLED"],
+    ["m-set3-3-5", "sensorSensitivity", "HIGH"],
+    ["m-set3-3-7", "speedSource", "GPS"],
+    ["m-set3-3-8", "runTimeSource", "GPS"],
+  ];
+  for (const [stateId, field, expected] of vehicleDirectToggleCases) {
+    const toggleModel = new VoyagerMenuModel();
+    toggleModel.prepareInput(VOYAGER_MENU_STATE_INDEX[stateId], "enter");
+    if (toggleModel.values[field] !== expected || VOYAGER_MENU_TRANSITIONS[stateId].enter !== stateId) {
+      throw new Error(`${stateId} does not toggle ${field} directly in Vehicle Sensors`);
+    }
+  }
+
+  const wheelDisabledModel = new VoyagerMenuModel();
+  wheelDisabledModel.prepareInput(VOYAGER_MENU_STATE_INDEX["m-set3-3-1"], "enter");
+  const wheelDisabledPanel = wheelDisabledModel.resolve(VOYAGER_MENU_STATE_INDEX["m-set3-3-1"]);
+  const wheelDisabledRows = Object.fromEntries(wheelDisabledPanel.rows.filter((row) => !row.spacer).map((row) => [row.label.trim(), row]));
+  if (wheelDisabledModel.values.speedSource !== "GPS"
+    || wheelDisabledModel.values.runTimeSource !== "ENG SENSOR"
+    || !wheelDisabledRows["WHEEL SIZE"].disabled
+    || !wheelDisabledRows["SPEED / DIST"].disabled
+    || !wheelDisabledRows["ACCUM RUN TIME"].disabled
+    || wheelDisabledRows.PPR.disabled) {
+    throw new Error("wheel-sensor dependencies do not match the device");
+  }
+  const skipWheelSize = wheelDisabledModel.prepareInput(VOYAGER_MENU_STATE_INDEX["m-set3-3-1"], "down");
+  const blockWheelSize = wheelDisabledModel.prepareInput(VOYAGER_MENU_STATE_INDEX["m-set3-3-2"], "enter");
+  if (skipWheelSize.targetStateId !== "m-set3-3-3" || blockWheelSize.targetStateId !== "m-set3-3-2") {
+    throw new Error("disabled vehicle rows remain interactive or are not skipped");
+  }
+
+  wheelDisabledModel.prepareInput(VOYAGER_MENU_STATE_INDEX["m-set3-3-3"], "enter");
+  let sensorValues = wheelDisabledModel.values;
+  if (sensorValues.runTimeSource !== "GPS") throw new Error("both disabled sensors do not force GPS run time");
+  wheelDisabledModel.prepareInput(VOYAGER_MENU_STATE_INDEX["m-set3-3-1"], "enter");
+  sensorValues = wheelDisabledModel.values;
+  if (sensorValues.runTimeSource !== "WHL SENSOR") throw new Error("wheel-only mode does not force wheel run time");
+  wheelDisabledModel.prepareInput(VOYAGER_MENU_STATE_INDEX["m-set3-3-3"], "enter");
+  sensorValues = wheelDisabledModel.values;
+  if (sensorValues.runTimeSource !== "ENG OR WHL") throw new Error("re-enabled sensors do not restore combined run time");
+
+  const wheelSizeMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-set3-3-size"], new VoyagerMenuModel());
+  if (!wheelSizeMarkup.includes("MOTORCYCLE: 2110 mm")
+    || !wheelSizeMarkup.includes("ATV: 1675 mm")
+    || !wheelSizeMarkup.includes("DEFAULT: 2110 mm")) {
+    throw new Error("wheel-size reference notes are incomplete");
+  }
+  const pprDefinition = VOYAGER_MENU_STATE_INDEX["m-set3-3-ppr"];
+  const pprMarkup = renderDefinition(pprDefinition, new VoyagerMenuModel());
+  if ((pprMarkup.match(/radio-16pt/g) ?? []).length !== 3 || pprMarkup.includes("data-menu-slot")) {
+    throw new Error("PPR is not rendered as a three-option radio group");
+  }
+  const pprModel = new VoyagerMenuModel();
+  pprModel.prepareInput(pprDefinition, "down");
+  pprModel.prepareInput(pprDefinition, "enter");
+  if (pprModel.values.ppr !== "2") throw new Error("PPR radio selection does not persist");
+
+  const vehicleMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-set3-3-6"], new VoyagerMenuModel());
+  if (!vehicleMarkup.includes("▶ TACHBAR") || vehicleMarkup.includes("&gt;</text>")) {
+    throw new Error("Tachbar row does not use the font play icon");
+  }
+  const tachbarDefinition = VOYAGER_MENU_STATE_INDEX["m-set3-3-tachbar"];
+  const tachbarModel = new VoyagerMenuModel();
+  let tachbarMarkup = renderDefinition(tachbarDefinition, tachbarModel);
+  if (!tachbarMarkup.includes("TACHBAR SCREEN") || !tachbarMarkup.includes("TACH SCALE") || !tachbarMarkup.includes("MAIN SCREEN")) {
+    throw new Error("Tachbar options rows are incomplete");
+  }
+  tachbarModel.prepareInput(tachbarDefinition, "enter");
+  tachbarMarkup = renderDefinition(tachbarDefinition, tachbarModel);
+  if (!tachbarMarkup.includes("DISABLED")) throw new Error("Tachbar screen row does not toggle in place");
+  tachbarModel.prepareInput(tachbarDefinition, "down");
+  const tachScaleTarget = tachbarModel.prepareInput(tachbarDefinition, "enter");
+  if (tachScaleTarget.targetStateId !== "m-set3-3-tach-scale"
+    || (renderDefinition(VOYAGER_MENU_STATE_INDEX["m-set3-3-tach-scale"], tachbarModel).match(/data-menu-slot=/g) ?? []).length !== 5) {
+    throw new Error("Tach scale does not open its five-digit MAX RPM editor");
   }
 
   const tabsDefinition = VOYAGER_MENU_STATE_INDEX["m-set3-2-tabs"];

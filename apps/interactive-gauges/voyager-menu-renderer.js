@@ -73,13 +73,15 @@ function rowsMarkup(definition, {
     }
     const y = top + visualRow * lineHeight;
     const selected = sourceIndex === definition.selectedIndex;
+    const active = selected && !row.disabled;
+    const rowClass = `voyager-live__text voyager-menu__row${active ? " voyager-live__text--inverse" : ""}${row.disabled ? " voyager-menu__row--disabled" : ""}`;
     visualRow += 1;
     return `
-      <g data-menu-row="${sourceIndex}">
-        ${selected ? `<rect class="voyager-menu__selection" x="${selectionLeft}" y="${y - selectionOffset}" width="${selectionWidth}" height="${selectionHeight}" />` : ""}
-        <text class="voyager-live__text voyager-menu__row${selected ? " voyager-live__text--inverse" : ""}" x="${left}" y="${y}">${escapeMarkup(row.label)}</text>
-        ${row.value ? `<text class="voyager-live__text voyager-menu__row${selected ? " voyager-live__text--inverse" : ""}" x="${left + (row.meter ? 202 : width)}" y="${y}" text-anchor="end">${escapeMarkup(row.value)}</text>` : ""}
-        ${row.submenu ? `<text class="voyager-live__text voyager-menu__row${selected ? " voyager-live__text--inverse" : ""}" x="${left + width}" y="${y}" text-anchor="end">&gt;</text>` : ""}
+      <g data-menu-row="${sourceIndex}"${row.disabled ? " data-menu-row-disabled=\"true\" aria-disabled=\"true\"" : ""}>
+        ${active ? `<rect class="voyager-menu__selection" x="${selectionLeft}" y="${y - selectionOffset}" width="${selectionWidth}" height="${selectionHeight}" />` : ""}
+        <text class="${rowClass}" x="${left}" y="${y}">${escapeMarkup(row.label)}</text>
+        ${row.value ? `<text class="${rowClass}" x="${left + (row.meter ? 202 : width)}" y="${y}" text-anchor="end">${escapeMarkup(row.value)}</text>` : ""}
+        ${row.submenu ? `<text class="${rowClass}" x="${left + width}" y="${y}" text-anchor="end">&gt;</text>` : ""}
         ${row.meter ? `
           <rect class="voyager-menu__meter" x="${left + 216}" y="${y - 15}" width="${width - 219}" height="17" />
           <rect class="voyager-menu__meter-fill" x="${left + 218}" y="${y - 13}" width="${Math.round((width - 223) * row.meter)}" height="13" />` : ""}
