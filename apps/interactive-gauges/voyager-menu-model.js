@@ -102,6 +102,7 @@ const DEFAULT_VALUES = Object.freeze({
   yellowLedFlash: "000 °F",
   redLedFlash: "000 °F",
   rideName: "RIDE-32",
+  importRideFile: "BAKER-WEST.GPX",
   softwareFile: "VOYAGER-1.7.0.SWU",
   personalName: "BOB",
   personalAddress: "PORTLAND, OR",

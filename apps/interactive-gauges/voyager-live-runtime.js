@@ -37,6 +37,12 @@ const SD_CARD_DEFAULT_RIDES = Object.freeze([
   { id: "SD-CMRA-T2", name: "CMRA TRAIL 2", progress: 0, trackId: "cmra-trail-2" },
   { id: "SD-BLACKDOG", name: "2016 BLACKDOG", progress: 0, trackId: "blackdog-2016" },
 ]);
+const SD_CARD_RIDE_FILES = Object.freeze({
+  "BAKER-WEST.GPX": { trackId: "baker-west-desert", label: "BAKER WEST" },
+  "JORDAN-CREEK.GPX": { trackId: "jordan-creek", label: "JORDAN CREEK" },
+  "CMRA-TRAIL-2.GPX": { trackId: "cmra-trail-2", label: "CMRA TRAIL 2" },
+  "2016-BLACKDOG.GPX": { trackId: "blackdog-2016", label: "2016 BLACKDOG" },
+});
 const clamp = (value, minimum, maximum) => Math.min(maximum, Math.max(minimum, value));
 const radians = (degrees) => (degrees * Math.PI) / 180;
 
@@ -1082,6 +1088,7 @@ export class VoyagerLiveRuntime {
   #selectedSavedRideIndex = 0;
   #overlayRideId = null;
   #selectedDestination = null;
+  #lastImportedRideLabel = "";
   #toastMessage = "";
   #toastExpiresAt = 0;
   #appliedSettingsKey = "";
@@ -1340,6 +1347,12 @@ export class VoyagerLiveRuntime {
   }
 
   #contextualizeMenuDefinition(definition) {
+    if (["m-main1-5-success", "m-ride-import-success"].includes(definition?.id)) {
+      return {
+        ...definition,
+        message: ["TRACK LOADED", this.#lastImportedRideLabel || "OPEN MAP TO VIEW"],
+      };
+    }
     if (definition?.kind === "status-modal") {
       const inventory = this.#inventory();
       const telemetry = this.#telemetry;
@@ -1645,6 +1658,7 @@ export class VoyagerLiveRuntime {
     if (definition?.outcome === "start-track-segment") this.#queueToast("NEW TRACK SEGMENT STARTED");
     if (definition?.outcome === "erase-tracks") this.#queueToast("ALL TRACKS ERASED");
     if (definition?.outcome === "erase-routes") this.#queueToast("ALL ROUTES ERASED");
+    if (definition?.outcome === "import-ride") this.#importRideFromCard();
     if (definition?.outcome === "export-ride") this.#queueToast("GPX SAVED TO SD CARD");
     if (definition?.outcome === "export-settings") this.#queueToast("SETTINGS SAVED TO SD CARD");
     if (definition?.outcome === "restart-demo-ride") {
@@ -1703,6 +1717,24 @@ export class VoyagerLiveRuntime {
     this.#settingsSnapshot = null;
     this.#settingsRevision = -1;
     this.#appliedSettingsKey = "";
+  }
+
+  #importRideFromCard() {
+    const selectedFile = this.#settings().importRideFile;
+    const importedRide = SD_CARD_RIDE_FILES[selectedFile];
+    if (!importedRide) {
+      this.#lastImportedRideLabel = "IMPORT FAILED";
+      return;
+    }
+    this.#ride.selectRide(importedRide.trackId);
+    if (this.#settings().demoRideState === "RUNNING") this.#ride.play();
+    this.#overlayRideId = null;
+    this.#selectedDestination = null;
+    this.#graphScale = 1;
+    this.#mapViews.overview = { pan: { x: 0, y: 0 }, scale: 1, mode: "pan", followPosition: false };
+    this.#mapViews.detail = { pan: { x: 0, y: 0 }, scale: 2.1, mode: "pan", followPosition: true };
+    this.#lastImportedRideLabel = importedRide.label;
+    this.#invalidateMapProjection();
   }
 
   #saveCurrentRide(telemetry) {

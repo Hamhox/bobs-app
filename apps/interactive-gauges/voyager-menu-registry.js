@@ -165,8 +165,17 @@ registerOverlay("m-main1-4-1", {
   lines: RESET_TRIP_1_LINES,
 }, "m-main1-4");
 registerOverlay("m-main1-5-1", {
-  kind: "settings-modal", section: "main", title: "SELECT FILE TO IMPORT", fileBrowser: true,
+  kind: "settings-modal", section: "main", title: "SELECT FILE TO IMPORT", field: "importRideFile", fileBrowser: true,
   options: ["BAKER-WEST.GPX", "JORDAN-CREEK.GPX", "CMRA-TRAIL-2.GPX", "2016-BLACKDOG.GPX"], selectedIndex: 0, scroll: true,
+  outcome: "import-ride",
+}, "m-main1-5", { enter: "m-main1-5-progress" });
+registerOverlay("m-main1-5-progress", {
+  kind: "progress", section: "main", title: "IMPORTING GPX", lines: ["LOADING TRACK..."], progress: 1,
+  autoTransition: { active: true, target: "m-main1-5-success", delayMs: 1400 },
+}, "m-main1-5");
+registerOverlay("m-main1-5-success", {
+  kind: "toast", section: "main", title: "TRACK LOADED", message: ["TRACK LOADED", "OPEN MAP TO VIEW"],
+  autoTransition: { active: true, target: "m-main1-5", delayMs: 1800 },
 }, "m-main1-5");
 registerOverlay("m-main1-6-1", {
   kind: "progress", section: "main", title: "EXPORTING GPX", lines: ["WRITING FILE..."], progress: 0.68,
@@ -380,8 +389,17 @@ registerOverlay("m-ride-import-reading", {
   left: "m-ride-import-reading", center: "m-ride-import-reading", right: "m-ride-import-reading", enter: "m-ride-import-reading",
 });
 registerOverlay("m-ride-import-file", {
-  kind: "settings-modal", section: "ride", title: "SELECT FILE TO IMPORT", fileBrowser: true,
+  kind: "settings-modal", section: "ride", title: "SELECT FILE TO IMPORT", field: "importRideFile", fileBrowser: true,
   options: ["BAKER-WEST.GPX", "JORDAN-CREEK.GPX", "CMRA-TRAIL-2.GPX", "2016-BLACKDOG.GPX"], selectedIndex: 0, scroll: true,
+  outcome: "import-ride",
+}, "m-ride-transfer-1", { enter: "m-ride-import-progress" });
+registerOverlay("m-ride-import-progress", {
+  kind: "progress", section: "ride", title: "IMPORTING GPX", lines: ["LOADING TRACK..."], progress: 1,
+  autoTransition: { active: true, target: "m-ride-import-success", delayMs: 1400 },
+}, "m-ride-transfer-1");
+registerOverlay("m-ride-import-success", {
+  kind: "toast", section: "ride", title: "TRACK LOADED", message: ["TRACK LOADED", "OPEN MAP TO VIEW"],
+  autoTransition: { active: true, target: "m-ride-transfer-1", delayMs: 1800 },
 }, "m-ride-transfer-1");
 registerOverlay("m-ride-import-settings", {
   kind: "settings-modal", section: "ride", title: "IMPORT OPTIONS",
