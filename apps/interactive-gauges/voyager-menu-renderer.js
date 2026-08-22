@@ -372,13 +372,63 @@ function checklistModal(definition) {
   return modalFrame(definition, `${options}${noteLines("ENTER: TOGGLE · BACK: SAVE", 253)}`);
 }
 
+function slotInputTokens(definition) {
+  const characters = [...String(definition.value)];
+  const tokens = [];
+  let slotIndex = 0;
+  for (let index = 0; index < characters.length;) {
+    const timeSuffix = definition.slotType === "time"
+      ? characters.slice(index).join("").match(/^\s(AM|PM)$/)
+      : null;
+    if (timeSuffix) {
+      tokens.push({ text: "", width: 14, kind: "space" });
+      tokens.push({ text: timeSuffix[1], width: 56, kind: "meridiem", slotIndex });
+      slotIndex += 1;
+      break;
+    }
+    if (/\d/.test(characters[index])) {
+      tokens.push({ text: characters[index], width: 31, kind: "digit", slotIndex });
+      slotIndex += 1;
+      index += 1;
+      continue;
+    }
+    let end = index + 1;
+    while (end < characters.length && !/\d/.test(characters[end])) {
+      if (definition.slotType === "time" && /^\s(?:AM|PM)$/.test(characters.slice(end).join(""))) break;
+      end += 1;
+    }
+    const text = characters.slice(index, end).join("");
+    const punctuation = /^[.:]+$/.test(text);
+    tokens.push({ text, width: punctuation ? text.length * 18 : text.length * 23, kind: "affix" });
+    index = end;
+  }
+  return tokens;
+}
+
 function slotInputModal(definition) {
-  const value = escapeMarkup(definition.value);
+  const tokens = slotInputTokens(definition);
+  const totalWidth = tokens.reduce((sum, token) => sum + token.width, 0);
+  let tokenX = 252 - totalWidth / 2;
+  const value = tokens.map((token) => {
+    const x = tokenX;
+    tokenX += token.width;
+    if (token.kind === "space") return "";
+    const selected = token.slotIndex === definition.activeDigit;
+    const editable = token.slotIndex !== undefined;
+    const className = token.kind === "digit"
+      ? "voyager-menu__slot-value"
+      : token.kind === "meridiem" ? "voyager-menu__slot-meridiem" : "voyager-menu__slot-affix";
+    return `
+      <g${editable ? ` data-menu-slot="${token.slotIndex}"` : ""}${selected ? " data-menu-slot-selected=\"true\"" : ""}>
+        ${selected ? `<rect class="voyager-menu__slot-selection" x="${x - 2}" y="107" width="${token.width + 4}" height="54" />` : ""}
+        <text class="voyager-live__text ${className}${selected ? " voyager-live__text--inverse" : ""}" x="${x + token.width / 2}" y="151" text-anchor="middle">${escapeMarkup(token.text)}</text>
+        ${editable ? `<path class="voyager-menu__slot-underline" d="M${x + 3} 163H${x + token.width - 3}" />` : ""}
+      </g>`;
+  }).join("");
   return modalFrame(definition, `
-    <text class="voyager-live__text voyager-menu__slot-value" x="252" y="151" text-anchor="middle">${value}</text>
-    <path class="voyager-menu__slot-underline" d="M181 161H323" />
-    <path class="voyager-menu__slot-cursor" d="M${214 + definition.activeDigit * 12} 117h18v43h-18Z" />
-    ${definition.note ? noteLines(definition.note, 196) : ""}`);
+    ${value}
+    ${definition.note ? noteLines(definition.note, 188) : ""}
+    ${noteLines("L/R: DIGIT · U/D: VALUE · ENTER: SAVE", definition.note ? 254 : 218, "voyager-menu__slot-help")}`);
 }
 
 function brightnessModal(definition) {

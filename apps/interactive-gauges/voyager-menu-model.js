@@ -150,9 +150,18 @@ function editableDigitIndexes(value) {
   return [...String(value)].flatMap((character, index) => /\d/.test(character) ? [index] : []);
 }
 
+function editableSlotCount(definition, value) {
+  const meridiemSlot = definition.slotType === "time" && /\s(?:AM|PM)$/.test(String(value)) ? 1 : 0;
+  return editableDigitIndexes(value).length + meridiemSlot;
+}
+
 function rowValue(key, value) {
   if (key === "brightness") return `${value}%`;
   if (key === "distanceUnits") return String(value).startsWith("MILES") ? "MILES" : "KILOMETERS";
+  if (key === "tabsTimeout") {
+    const match = String(value).match(/^(\d+)\s*(.*)$/);
+    if (match) return Number(match[1]) === 0 ? "ALWAYS ON" : `${Number(match[1])} ${match[2]}`.trim();
+  }
   if (key === "chargeMode") return value === "ONLY WHEN MOTOR IS ON" ? "MOTOR ON" : value;
   if (key === "chargeLevel") return value === "TRICKLE CHARGE" ? "TRICKLE" : "FAST";
   return String(value);
@@ -243,7 +252,7 @@ export class VoyagerMenuModel {
     }
 
     const draft = this.#draftFor(definition);
-    if (preparedAction === "left" && ["brightness", "settings-modal", "slot-input"].includes(definition.kind)) {
+    if (preparedAction === "left" && ["brightness", "settings-modal"].includes(definition.kind)) {
       this.#discard(definition.id);
       return { action: preparedAction };
     }
@@ -322,7 +331,7 @@ export class VoyagerMenuModel {
       return { action: "enter" };
     }
 
-    if (definition.kind === "slot-input") this.#editSlot(draft, preparedAction);
+    if (definition.kind === "slot-input") this.#editSlot(definition, draft, preparedAction);
     if (definition.kind === "brightness") this.#editBrightness(draft, preparedAction);
     if (definition.kind === "keyboard") this.#editKeyboard(draft, preparedAction);
 
@@ -348,9 +357,9 @@ export class VoyagerMenuModel {
       ? Math.max(0, definition.options.indexOf(String(storedValue)))
       : definition.selectedIndex ?? 0;
     const value = storedValue ?? definition.value ?? "";
-    const digitIndexes = editableDigitIndexes(value);
+    const slotCount = editableSlotCount(definition, value);
     const draft = {
-      activeDigit: clamp(definition.activeDigit ?? 0, 0, Math.max(0, digitIndexes.length - 1)),
+      activeDigit: clamp(definition.activeDigit ?? 0, 0, Math.max(0, slotCount - 1)),
       keyboardCursor: [...String(value)].length,
       keyboardIndex: 0,
       selectedConfirmation: definition.kind === "keyboard" ? -1 : 0,
@@ -391,19 +400,42 @@ export class VoyagerMenuModel {
     return definition.field;
   }
 
-  #editSlot(draft, action) {
+  #editSlot(definition, draft, action) {
     const indexes = editableDigitIndexes(draft.value);
-    if (!indexes.length) return;
-    if (action === "center" || action === "right") {
-      draft.activeDigit = clamp(draft.activeDigit + (action === "center" ? -1 : 1), 0, indexes.length - 1);
+    const slotCount = editableSlotCount(definition, draft.value);
+    if (!slotCount) return;
+    if (action === "left" || action === "right" || action === "center") {
+      const delta = action === "left" ? -1 : 1;
+      draft.activeDigit = (draft.activeDigit + delta + slotCount) % slotCount;
       this.#touch();
       return;
     }
     if (action !== "up" && action !== "down") return;
+    const direction = action === "up" ? 1 : -1;
     const characters = [...String(draft.value)];
+
+    if (definition.slotType === "time" && draft.activeDigit === indexes.length) {
+      const suffix = characters.slice(-2).join("");
+      if (suffix === "AM" || suffix === "PM") characters.splice(-2, 2, ...(suffix === "AM" ? "PM" : "AM"));
+      draft.value = characters.join("");
+      this.#touch();
+      return;
+    }
+
     const index = indexes[draft.activeDigit];
     const digit = Number(characters[index]);
-    characters[index] = String((digit + (action === "up" ? 1 : 9)) % 10);
+    if (definition.slotType === "time" && draft.activeDigit < 2) {
+      for (let step = 1; step <= 10; step += 1) {
+        const candidate = String((digit + direction * step + 100) % 10);
+        characters[index] = candidate;
+        const hour = Number(`${characters[indexes[0]]}${characters[indexes[1]]}`);
+        if (hour >= 1 && hour <= 12) break;
+      }
+    } else if (definition.slotType === "time" && (draft.activeDigit === 2 || draft.activeDigit === 4)) {
+      characters[index] = String((digit + direction + 6) % 6);
+    } else {
+      characters[index] = String((digit + direction + 10) % 10);
+    }
     draft.value = characters.join("");
     this.#touch();
   }
@@ -513,6 +545,13 @@ export class VoyagerMenuModel {
 
   #applyPageAction(definition) {
     const selectedRow = definition.rows?.[definition.selectedIndex];
+    if (selectedRow?.field && selectedRow.toggleValues?.length) {
+      const currentIndex = selectedRow.toggleValues.indexOf(this.#values[selectedRow.field]);
+      this.#values[selectedRow.field] = selectedRow.toggleValues[(currentIndex + 1) % selectedRow.toggleValues.length];
+      this.#save();
+      this.#touch();
+      return;
+    }
     if (selectedRow?.label !== "RESTORE DEFAULTS") return;
     for (const key of RESET_GROUPS[definition.restoreGroup ?? definition.title] ?? []) this.#values[key] = DEFAULT_VALUES[key];
     this.#save();

@@ -986,12 +986,22 @@
 
 .voyager-menu__slot-value {
   font-size: 48px;
-  letter-spacing: 0.02em;
 }
 
-.voyager-menu__slot-cursor {
+.voyager-menu__slot-affix {
+  font-size: 28px;
+}
+
+.voyager-menu__slot-meridiem {
+  font-size: 30px;
+}
+
+.voyager-menu__slot-selection {
   fill: #242021;
-  opacity: 0.18;
+}
+
+.voyager-menu__slot-help {
+  font-size: 12px;
 }
 
 .voyager-menu__brightness-fill {

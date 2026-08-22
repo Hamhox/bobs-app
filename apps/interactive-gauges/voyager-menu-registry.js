@@ -461,29 +461,32 @@ registerSection({
 });
 
 const UNIT_ROWS = [
-  { label: "SPEED / DIST UNITS", field: "distanceUnits", value: "MILES" },
-  { label: "ALTITUDE UNITS", field: "altitudeUnits", value: "FEET" },
-  { label: "TEMP. UNITS", field: "temperatureUnits", value: "FAHRENHEIT" },
+  { label: "SPEED/DST UNITS", field: "distanceUnits", value: "MILES", toggleValues: ["MILES", "KILOMETERS"] },
+  { label: "ALTITUDE UNITS", field: "altitudeUnits", value: "FEET", toggleValues: ["FEET", "METERS"] },
+  { label: "TEMP. UNITS", field: "temperatureUnits", value: "FAHRENHEIT", toggleValues: ["FAHRENHEIT", "CELSIUS"] },
   { spacer: true },
-  { label: "CLOCK FORMAT", field: "clockFormat", value: "12 HOUR" },
+  { label: "CLOCK FORMAT", field: "clockFormat", value: "12 HOUR", toggleValues: ["12 HOUR", "24 HOUR"] },
   { label: "TIME OF DAY", field: "timeOfDay", value: "12:42:04 PM" },
   { spacer: true },
   { label: "TABS TIMEOUT", field: "tabsTimeout", value: "15 SEC" },
-  { label: "DISPLAY MODE", field: "displayMode", value: "NORMAL" },
+  { label: "DISPLAY MODE", field: "displayMode", value: "NORMAL", toggleValues: ["NORMAL", "INVERTED"] },
   { spacer: true },
   { label: "RESTORE DEFAULTS" },
 ];
 registerPageFamily({
   ids: ["m-set3-2-1", "m-set3-2-2", "m-set3-2-3", "m-set3-2-4", "m-set3-2-5", "m-set3-2-6", "m-set3-2-7", "m-set3-2-8"], rows: UNIT_ROWS,
-  targets: ["m-set3-2-units", "m-set3-2-altitude", "m-set3-2-temperature", "m-set3-2-clock", "m-set3-2-time", "m-set3-2-tabs", "m-set3-2-display", "m-set3-2-8"],
+  targets: ["m-set3-2-1", "m-set3-2-2", "m-set3-2-3", "m-set3-2-4", "m-set3-2-time", "m-set3-2-tabs", "m-set3-2-7", "m-set3-2-8"],
   parentStateId: "m-set3-2", kind: "panel", section: "set", title: "UNIT SETTINGS", compact: true, restoreGroup: "UNIT SETTINGS",
 });
 registerOverlay("m-set3-2-units", { kind: "settings-modal", section: "set", title: "SPEED / DIST UNITS", field: "distanceUnits", options: ["MILES", "KILOMETERS"], selectedIndex: 0 }, "m-set3-2-1");
 registerOverlay("m-set3-2-altitude", { kind: "settings-modal", section: "set", title: "ALTITUDE UNITS", field: "altitudeUnits", options: ["FEET", "METERS"], selectedIndex: 0 }, "m-set3-2-2");
 registerOverlay("m-set3-2-temperature", { kind: "settings-modal", section: "set", title: "TEMPERATURE UNITS", field: "temperatureUnits", options: ["FAHRENHEIT", "CELSIUS"], selectedIndex: 0 }, "m-set3-2-3");
 registerOverlay("m-set3-2-clock", { kind: "settings-modal", section: "set", title: "CLOCK FORMAT", field: "clockFormat", options: ["12 HOUR", "24 HOUR"], selectedIndex: 0 }, "m-set3-2-4");
-registerOverlay("m-set3-2-time", { kind: "slot-input", section: "set", title: "TIME OF DAY", field: "timeOfDay", value: "12:42:04 PM", activeDigit: 1 }, "m-set3-2-5");
-registerOverlay("m-set3-2-tabs", { kind: "slot-input", section: "set", title: "TABS TIMEOUT", field: "tabsTimeout", value: "015 SEC", activeDigit: 1 }, "m-set3-2-6");
+registerOverlay("m-set3-2-time", { kind: "slot-input", section: "set", title: "TIME OF DAY", field: "timeOfDay", value: "12:42:04 PM", activeDigit: 1, slotType: "time" }, "m-set3-2-5");
+registerOverlay("m-set3-2-tabs", {
+  kind: "slot-input", section: "set", title: "TABS TIMEOUT", field: "tabsTimeout", value: "015 SEC", activeDigit: 1,
+  note: ["SECONDSUNTIL TABS HIDE", "(000 SEC -> ALWAYS ON)", "DEFAULT: 15 SEC"],
+}, "m-set3-2-6");
 registerOverlay("m-set3-2-display", { kind: "settings-modal", section: "set", title: "DISPLAY MODE", field: "displayMode", options: ["NORMAL", "INVERTED"], selectedIndex: 0 }, "m-set3-2-7");
 
 const VEHICLE_ROWS = [

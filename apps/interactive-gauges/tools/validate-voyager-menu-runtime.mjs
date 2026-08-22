@@ -321,6 +321,59 @@ function main() {
     throw new Error("center no longer retains its digit-editor behavior");
   }
 
+  const directToggleCases = [
+    ["m-set3-2-1", "distanceUnits", "KILOMETERS"],
+    ["m-set3-2-2", "altitudeUnits", "METERS"],
+    ["m-set3-2-3", "temperatureUnits", "CELSIUS"],
+    ["m-set3-2-4", "clockFormat", "24 HOUR"],
+    ["m-set3-2-7", "displayMode", "INVERTED"],
+  ];
+  for (const [stateId, field, expected] of directToggleCases) {
+    const toggleModel = new VoyagerMenuModel();
+    toggleModel.prepareInput(VOYAGER_MENU_STATE_INDEX[stateId], "enter");
+    if (toggleModel.values[field] !== expected || VOYAGER_MENU_TRANSITIONS[stateId].enter !== stateId) {
+      throw new Error(`${stateId} does not toggle ${field} directly in Unit Settings`);
+    }
+  }
+
+  const tabsDefinition = VOYAGER_MENU_STATE_INDEX["m-set3-2-tabs"];
+  const tabsMarkup = renderDefinition(tabsDefinition, new VoyagerMenuModel());
+  if (!tabsMarkup.includes("SECONDSUNTIL TABS HIDE")
+    || !tabsMarkup.includes("(000 SEC -&gt; ALWAYS ON)")
+    || !tabsMarkup.includes("DEFAULT: 15 SEC")
+    || (tabsMarkup.match(/data-menu-slot=/g) ?? []).length !== 3
+    || (tabsMarkup.match(/voyager-menu__slot-underline/g) ?? []).length !== 3) {
+    throw new Error("tabs-timeout slot editor copy or digit geometry is incomplete");
+  }
+  const tabsModel = new VoyagerMenuModel();
+  tabsModel.prepareInput(tabsDefinition, "right");
+  tabsModel.prepareInput(tabsDefinition, "right");
+  if (tabsModel.resolve(tabsDefinition).activeDigit !== 0) throw new Error("slot selection does not wrap right");
+  tabsModel.prepareInput(tabsDefinition, "left");
+  tabsModel.prepareInput(tabsDefinition, "up");
+  if (tabsModel.resolve(tabsDefinition).value !== "016 SEC") throw new Error("tabs-timeout digit did not increment");
+  tabsModel.prepareInput(tabsDefinition, "down");
+  tabsModel.prepareInput(tabsDefinition, "enter");
+  if (tabsModel.values.tabsTimeout !== "015 SEC") throw new Error("tabs-timeout editor did not save with Enter");
+
+  const timeDefinition = VOYAGER_MENU_STATE_INDEX["m-set3-2-time"];
+  const timeMarkup = renderDefinition(timeDefinition, new VoyagerMenuModel());
+  if ((timeMarkup.match(/data-menu-slot=/g) ?? []).length !== 7
+    || !timeMarkup.includes("voyager-menu__slot-meridiem")
+    || !timeMarkup.includes("data-menu-slot-selected=\"true\"")) {
+    throw new Error("time-of-day slot editor is missing its digits or meridiem slot");
+  }
+  const timeModel = new VoyagerMenuModel();
+  timeModel.prepareInput(timeDefinition, "right");
+  timeModel.prepareInput(timeDefinition, "up");
+  timeModel.prepareInput(timeDefinition, "up");
+  if (timeModel.resolve(timeDefinition).value !== "12:02:04 PM") {
+    throw new Error("time-of-day minute tens do not stay within 00-59");
+  }
+  for (let index = 0; index < 4; index += 1) timeModel.prepareInput(timeDefinition, "right");
+  timeModel.prepareInput(timeDefinition, "up");
+  if (!timeModel.resolve(timeDefinition).value.endsWith("AM")) throw new Error("time-of-day meridiem is not editable");
+
   const keyboardDefinition = VOYAGER_MENU_STATE_INDEX["m-user-screen-1-name"];
   const keyboardModel = new VoyagerMenuModel();
   const keyboardMarkup = renderDefinition(keyboardDefinition, keyboardModel);
