@@ -51,6 +51,17 @@ export function normalizeVoyagerSettings(values = {}) {
   if (!["ENG OR WHL", "GPS"].includes(normalized.runTimeSource)) normalized.runTimeSource = "ENG OR WHL";
   if (!["OFF", "LOW", "MEDIUM", "HIGH"].includes(normalized.backlightLevel)) normalized.backlightLevel = "HIGH";
   if (!["VEHICLE", "WALL PLUG"].includes(normalized.chargeMode)) normalized.chargeMode = "VEHICLE";
+  if (!["TIME", "DISTANCE"].includes(normalized.logMethod)) normalized.logMethod = "TIME";
+  const logFrequencies = normalized.logMethod === "DISTANCE"
+    ? ["1 FT", "10 FT", "50 FT"]
+    : ["1 SEC", "2 SEC", "5 SEC"];
+  if (!logFrequencies.includes(normalized.logFrequency)) {
+    normalized.logFrequency = normalized.logMethod === "DISTANCE" ? "10 FT" : "2 SEC";
+  }
+  if (!["ALWAYS", "ENG SENSOR", "WHL SENSOR", "ENG OR WHL"].includes(normalized.logOption)) normalized.logOption = "ENG OR WHL";
+  if (!["OFF", "1 MI GAP", "5 MI GAP", "10 MI GAP"].includes(normalized.autoSplit)) normalized.autoSplit = "5 MI GAP";
+  if (!["DEG.DEC", "DEG, MIN.DEC", "DEG, MIN, SEC"].includes(normalized.coordFormat)) normalized.coordFormat = "DEG, MIN.DEC";
+  if (!["ON", "OFF"].includes(normalized.signalBars)) normalized.signalBars = "OFF";
   normalized.backlightBattery = normalizeTimer(normalized.backlightBattery, 3, "SEC");
   normalized.backlightExternal = normalizeTimer(normalized.backlightExternal, 3, "SEC");
   normalized.sleepBattery = normalizeTimer(normalized.sleepBattery, 2, "MIN");

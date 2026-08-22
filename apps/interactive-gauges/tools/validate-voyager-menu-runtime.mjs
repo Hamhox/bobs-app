@@ -14,11 +14,11 @@ import {
 } from "../voyager-live-runtime.js";
 
 const EXPECTED_COUNTS = Object.freeze({
-  total: 201,
+  total: 200,
   pages: 102,
   workflows: 6,
-  overlays: 93,
-  menuOverlays: 87,
+  overlays: 92,
+  menuOverlays: 86,
 });
 const EDITOR_ACTIONS = ["up", "down", "left", "right", "center", "back", "enter"];
 
@@ -498,6 +498,83 @@ function main() {
     || powerModel.values.chargeMode !== "VEHICLE"
     || powerModel.values.sleepBattery !== "03 MIN") {
     throw new Error("confirmed power Restore Defaults does not restore the device profile");
+  }
+
+  const gpsModel = new VoyagerMenuModel();
+  const gpsPageDefinition = VOYAGER_MENU_STATE_INDEX["m-set3-5-1"];
+  const gpsPageMarkup = renderDefinition(gpsPageDefinition, gpsModel);
+  if (!gpsPageMarkup.includes("LOG METHOD")
+    || !gpsPageMarkup.includes("2 SEC")
+    || !gpsPageMarkup.includes("5 MI GAP")
+    || !gpsPageMarkup.includes("DEG, MIN.DEC")
+    || !gpsPageMarkup.includes("OFF")) {
+    throw new Error("GPS Settings does not render the device defaults");
+  }
+  if (VOYAGER_MENU_STATE_INDEX["m-set3-5-method"]
+    || VOYAGER_MENU_STATE_INDEX["m-set3-5-bars"]
+    || VOYAGER_MENU_TRANSITIONS["m-set3-5-1"].enter !== "m-set3-5-1"
+    || VOYAGER_MENU_TRANSITIONS["m-set3-5-6"].enter !== "m-set3-5-6") {
+    throw new Error("GPS toggles still open obsolete sub-modals");
+  }
+  gpsModel.prepareInput(gpsPageDefinition, "enter");
+  if (gpsModel.values.logMethod !== "DISTANCE" || gpsModel.values.logFrequency !== "10 FT") {
+    throw new Error("Distance logging does not install its 10 FT default frequency");
+  }
+  const frequencyDefinition = VOYAGER_MENU_STATE_INDEX["m-set3-5-frequency"];
+  const distanceFrequency = gpsModel.resolve(frequencyDefinition);
+  if (distanceFrequency.options.join("|") !== "1 FT|10 FT|50 FT" || distanceFrequency.selectedIndex !== 1) {
+    throw new Error("Distance logging does not expose the three FT frequency choices");
+  }
+  gpsModel.prepareInput(frequencyDefinition, "down");
+  gpsModel.prepareInput(frequencyDefinition, "enter");
+  if (gpsModel.values.logFrequency !== "50 FT") throw new Error("Distance frequency selection does not persist");
+  gpsModel.prepareInput(gpsPageDefinition, "enter");
+  const timeFrequency = gpsModel.resolve(frequencyDefinition);
+  if (gpsModel.values.logMethod !== "TIME"
+    || gpsModel.values.logFrequency !== "2 SEC"
+    || timeFrequency.options.join("|") !== "1 SEC|2 SEC|5 SEC"
+    || timeFrequency.selectedIndex !== 1) {
+    throw new Error("Time logging does not restore its SEC frequency choices and default");
+  }
+  const logOptionDefinition = VOYAGER_MENU_STATE_INDEX["m-set3-5-option"];
+  if (logOptionDefinition.options.join("|") !== "ALWAYS|ENG SENSOR|WHL SENSOR|ENG OR WHL"
+    || gpsModel.resolve(logOptionDefinition).selectedIndex !== 3) {
+    throw new Error("Log Option radio order or default is incorrect");
+  }
+  const autoSplitDefinition = VOYAGER_MENU_STATE_INDEX["m-set3-5-split"];
+  const autoSplitMarkup = renderDefinition(autoSplitDefinition, gpsModel);
+  if (autoSplitDefinition.title !== "LOG AUTO-SPLIT"
+    || autoSplitDefinition.options.join("|") !== "OFF|1 MI GAP|5 MI GAP|10 MI GAP"
+    || (autoSplitMarkup.match(/radio-16pt/g) ?? []).length !== 4
+    || gpsModel.resolve(autoSplitDefinition).selectedIndex !== 2) {
+    throw new Error("Log Auto-Split is not the four-option device radio group");
+  }
+  const coordinateDefinition = VOYAGER_MENU_STATE_INDEX["m-set3-5-coords"];
+  if (coordinateDefinition.title !== "COORDINATE DISPLAY"
+    || coordinateDefinition.options.join("|") !== "DEG.DEC|DEG, MIN.DEC|DEG, MIN, SEC"
+    || gpsModel.resolve(coordinateDefinition).selectedIndex !== 1) {
+    throw new Error("Coordinate Display options or default are incorrect");
+  }
+  gpsModel.prepareInput(VOYAGER_MENU_STATE_INDEX["m-set3-5-6"], "enter");
+  if (gpsModel.values.signalBars !== "ON") throw new Error("Signal Bars does not toggle in place");
+  gpsModel.prepareInput(VOYAGER_MENU_STATE_INDEX["m-set3-5-7"], "enter");
+  if (gpsModel.values.signalBars !== "ON"
+    || VOYAGER_MENU_TRANSITIONS["m-set3-5-7"].enter !== "m-set3-5-restore") {
+    throw new Error("GPS Restore Defaults applies before its confirmation dialog");
+  }
+  const gpsRestoreDefinition = VOYAGER_MENU_STATE_INDEX["m-set3-5-restore"];
+  const gpsRestoreMarkup = renderDefinition(gpsRestoreDefinition, gpsModel);
+  if (!gpsRestoreMarkup.includes("RESTORE GPS SETTINGS")
+    || !gpsRestoreMarkup.includes("TO FACTORY DEFAULTS?")) {
+    throw new Error("GPS Restore Defaults confirmation is incomplete");
+  }
+  gpsModel.prepareInput(gpsRestoreDefinition, "right");
+  gpsModel.prepareInput(gpsRestoreDefinition, "enter");
+  if (gpsModel.values.logMethod !== "TIME"
+    || gpsModel.values.logFrequency !== "2 SEC"
+    || gpsModel.values.coordFormat !== "DEG, MIN.DEC"
+    || gpsModel.values.signalBars !== "OFF") {
+    throw new Error("confirmed GPS Restore Defaults does not restore the device profile");
   }
 
   const tabsDefinition = VOYAGER_MENU_STATE_INDEX["m-set3-2-tabs"];

@@ -582,27 +582,49 @@ registerOverlay("m-set3-4-restore", {
 }, "m-set3-4-8");
 
 const GPS_ROWS = [
-  { label: "LOG METHOD", field: "logMethod", value: "TIME" },
+  {
+    label: "LOG METHOD", field: "logMethod", value: "TIME", toggleValues: ["TIME", "DISTANCE"],
+    dependentValues: { logFrequency: { TIME: "2 SEC", DISTANCE: "10 FT" } },
+  },
   { label: "LOG FREQUENCY", field: "logFrequency", value: "2 SEC" },
   { label: "LOG OPTION", field: "logOption", value: "ENG OR WHL" },
   { label: "AUTO-SPLIT", field: "autoSplit", value: "5 MI GAP" },
   { spacer: true },
-  { label: "COORD FORMAT", field: "coordFormat", value: "DEG.DEC" },
-  { label: "SIGNAL BARS", field: "signalBars", value: "ON" },
+  { label: "COORD FORMAT", field: "coordFormat", value: "DEG, MIN.DEC" },
+  { label: "SIGNAL BARS", field: "signalBars", value: "OFF", toggleValues: ["OFF", "ON"] },
   { spacer: true },
-  { label: "RESTORE DEFAULTS" },
+  { label: "RESTORE DEFAULTS", requiresConfirmation: true },
 ];
 registerPageFamily({
   ids: ["m-set3-5-1", "m-set3-5-2", "m-set3-5-3", "m-set3-5-4", "m-set3-5-5", "m-set3-5-6", "m-set3-5-7"], rows: GPS_ROWS,
-  targets: ["m-set3-5-method", "m-set3-5-frequency", "m-set3-5-option", "m-set3-5-split", "m-set3-5-coords", "m-set3-5-bars", "m-set3-5-7"],
+  targets: ["m-set3-5-1", "m-set3-5-frequency", "m-set3-5-option", "m-set3-5-split", "m-set3-5-coords", "m-set3-5-6", "m-set3-5-restore"],
   parentStateId: "m-set3-5", kind: "panel", section: "set", title: "GPS SETTINGS", compact: true, restoreGroup: "GPS SETTINGS",
 });
-registerOverlay("m-set3-5-method", { kind: "settings-modal", section: "set", title: "LOG METHOD", field: "logMethod", options: ["TIME", "DISTANCE"], selectedIndex: 0 }, "m-set3-5-1");
-registerOverlay("m-set3-5-frequency", { kind: "settings-modal", section: "set", title: "LOG FREQUENCY", field: "logFrequency", options: ["1 SEC", "2 SEC", "5 SEC", "10 SEC"], selectedIndex: 1 }, "m-set3-5-2");
-registerOverlay("m-set3-5-option", { kind: "settings-modal", section: "set", title: "LOG OPTION", field: "logOption", options: ["ENG OR WHL", "ENGINE", "WHEEL", "ALWAYS"], selectedIndex: 0 }, "m-set3-5-3");
-registerOverlay("m-set3-5-split", { kind: "slot-input", section: "set", title: "AUTO-SPLIT", field: "autoSplit", value: "005 MI GAP", activeDigit: 1 }, "m-set3-5-4");
-registerOverlay("m-set3-5-coords", { kind: "settings-modal", section: "set", title: "COORD FORMAT", field: "coordFormat", options: ["DEG.DEC", "DEG MIN", "DEG MIN SEC"], selectedIndex: 0 }, "m-set3-5-5");
-registerOverlay("m-set3-5-bars", { kind: "settings-modal", section: "set", title: "SIGNAL BARS", field: "signalBars", options: ["ON", "OFF"], selectedIndex: 0 }, "m-set3-5-6");
+registerOverlay("m-set3-5-frequency", {
+  kind: "settings-modal", section: "set", title: "LOG FREQUENCY", field: "logFrequency",
+  options: ["1 SEC", "2 SEC", "5 SEC"], selectedIndex: 1,
+  optionField: "logMethod",
+  optionsByValue: {
+    TIME: ["1 SEC", "2 SEC", "5 SEC"],
+    DISTANCE: ["1 FT", "10 FT", "50 FT"],
+  },
+}, "m-set3-5-2");
+registerOverlay("m-set3-5-option", {
+  kind: "settings-modal", section: "set", title: "LOG OPTION", field: "logOption",
+  options: ["ALWAYS", "ENG SENSOR", "WHL SENSOR", "ENG OR WHL"], selectedIndex: 3,
+}, "m-set3-5-3");
+registerOverlay("m-set3-5-split", {
+  kind: "settings-modal", section: "set", title: "LOG AUTO-SPLIT", field: "autoSplit",
+  options: ["OFF", "1 MI GAP", "5 MI GAP", "10 MI GAP"], selectedIndex: 2,
+}, "m-set3-5-4");
+registerOverlay("m-set3-5-coords", {
+  kind: "settings-modal", section: "set", title: "COORDINATE DISPLAY", field: "coordFormat",
+  options: ["DEG.DEC", "DEG, MIN.DEC", "DEG, MIN, SEC"], selectedIndex: 1,
+}, "m-set3-5-5");
+registerOverlay("m-set3-5-restore", {
+  kind: "confirm", section: "set", title: "RESTORE DEFAULTS", restoreGroup: "GPS SETTINGS",
+  lines: ["RESTORE GPS SETTINGS", "TO FACTORY DEFAULTS?"],
+}, "m-set3-5-7");
 
 const MAP_ROWS = [
   { label: "ORIENTATION", field: "mapOrientation", value: "TRACK UP" },

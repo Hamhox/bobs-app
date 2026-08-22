@@ -65,7 +65,7 @@ const FLOWCHART_STATE_MAP = {
   "warning-led-lights-screen": "m-set3-7-1",
   "map-orientation": "m-set3-6-orientation",
   "map-auto-zoom": "m-set3-6-screen1",
-  "record-method": "m-set3-5-method",
+  "record-method": "m-set3-5-1",
   "log-after-stop": "m-set3-5-frequency",
   "wrap-when-full": "m-set3-5-option",
   "sample-frequency": "m-set3-5-frequency",

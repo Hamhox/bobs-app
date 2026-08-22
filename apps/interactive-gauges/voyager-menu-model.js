@@ -50,9 +50,9 @@ const DEFAULT_VALUES = Object.freeze({
   logMethod: "TIME",
   logFrequency: "2 SEC",
   logOption: "ENG OR WHL",
-  autoSplit: "005 MI GAP",
-  coordFormat: "DEG.DEC",
-  signalBars: "ON",
+  autoSplit: "5 MI GAP",
+  coordFormat: "DEG, MIN.DEC",
+  signalBars: "OFF",
   mapOrientation: "TRACK UP",
   pointerSize: "MEDIUM",
   mapScreen1: "AUTO-CENTER",
@@ -181,6 +181,11 @@ function rowValue(key, value) {
   return String(value);
 }
 
+function withContextualOptions(definition, values) {
+  const options = definition.optionsByValue?.[values[definition.optionField]];
+  return options ? { ...definition, options } : definition;
+}
+
 export class VoyagerMenuModel {
   #values = { ...DEFAULT_VALUES };
   #drafts = new Map();
@@ -218,6 +223,7 @@ export class VoyagerMenuModel {
   }
 
   resolve(definition) {
+    definition = withContextualOptions(definition, this.#values);
     const draft = definition.presentation === "overlay" ? this.#draftFor(definition) : null;
     const effectiveValues = this.effectiveValues;
     const resolved = {
@@ -263,6 +269,7 @@ export class VoyagerMenuModel {
 
   prepareInput(definition, action) {
     if (!definition) return { action };
+    definition = withContextualOptions(definition, this.#values);
     if (action === "back" || action === "menu") {
       if (action === "back" && definition.kind === "checklist-modal") {
         this.#commit(definition, this.#draftFor(definition));
@@ -610,7 +617,11 @@ export class VoyagerMenuModel {
     if (rowIsDisabled(selectedRow, this.#values)) return;
     if (selectedRow?.field && selectedRow.toggleValues?.length) {
       const currentIndex = selectedRow.toggleValues.indexOf(this.#values[selectedRow.field]);
-      this.#values[selectedRow.field] = selectedRow.toggleValues[(currentIndex + 1) % selectedRow.toggleValues.length];
+      const nextValue = selectedRow.toggleValues[(currentIndex + 1) % selectedRow.toggleValues.length];
+      this.#values[selectedRow.field] = nextValue;
+      for (const [field, valuesByToggle] of Object.entries(selectedRow.dependentValues ?? {})) {
+        if (valuesByToggle[nextValue] !== undefined) this.#values[field] = valuesByToggle[nextValue];
+      }
       this.#normalizeSettings();
       this.#save();
       this.#touch();
