@@ -1,0 +1,2976 @@
+{
+  "schemaVersion": 1,
+  "sourceManifest": "voyager-states.json",
+  "rendererPolicy": "Every production-reachable state uses the live SVG renderer. Historical screen filenames remain metadata only.",
+  "mapScope": "Track-only: current recording and loaded GPX tracks/routes. No basemap, terrain, tiles, roads, or place labels.",
+  "totals": {
+    "knownStates": 146,
+    "liveStates": 146,
+    "nonLiveStates": 0
+  },
+  "states": [
+    {
+      "id": "alt",
+      "family": "altitude",
+      "renderer": "live-svg",
+      "status": "pass-2-live",
+      "referenceScreen": "s-alt1-1.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "center",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [],
+      "autoTransition": {
+        "delayMs": 20000,
+        "target": "alt1-2",
+        "active": true
+      }
+    },
+    {
+      "id": "alt1-2",
+      "family": "altitude",
+      "renderer": "live-svg",
+      "status": "pass-2-live",
+      "referenceScreen": "s-alt1-2.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "center",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [],
+      "autoTransition": {
+        "delayMs": 20000,
+        "target": "alt1-2",
+        "active": true
+      }
+    },
+    {
+      "id": "alt2",
+      "family": "altitude",
+      "renderer": "live-svg",
+      "status": "pass-2-live",
+      "referenceScreen": "s-alt2.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "alt3",
+      "family": "altitude",
+      "renderer": "live-svg",
+      "status": "pass-2-live",
+      "referenceScreen": "s-alt3.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "cstm",
+      "family": "user-screen",
+      "renderer": "live-svg",
+      "status": "pass-2-live",
+      "referenceScreen": "s-cstm1-1.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "center",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [],
+      "autoTransition": {
+        "delayMs": 20000,
+        "target": "cstm1-2",
+        "active": true
+      }
+    },
+    {
+      "id": "cstm1-2",
+      "family": "user-screen",
+      "renderer": "live-svg",
+      "status": "pass-2-live",
+      "referenceScreen": "s-cstm1-2.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "center",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [],
+      "autoTransition": null
+    },
+    {
+      "id": "cstm2",
+      "family": "user-screen",
+      "renderer": "live-svg",
+      "status": "pass-2-live",
+      "referenceScreen": "s-cstm2-1.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "center",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [],
+      "autoTransition": {
+        "delayMs": 20000,
+        "target": "cstm2-2",
+        "active": true
+      }
+    },
+    {
+      "id": "cstm2-2",
+      "family": "user-screen",
+      "renderer": "live-svg",
+      "status": "pass-2-live",
+      "referenceScreen": "s-cstm2-2.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "center",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [],
+      "autoTransition": null
+    },
+    {
+      "id": "dir",
+      "family": "navigation",
+      "renderer": "live-svg",
+      "status": "pass-2-live",
+      "referenceScreen": "s-dir1-1.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "center",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "left",
+        "right"
+      ],
+      "autoTransition": {
+        "delayMs": 20000,
+        "target": "dir1-2",
+        "active": true
+      }
+    },
+    {
+      "id": "dir1-2",
+      "family": "navigation",
+      "renderer": "live-svg",
+      "status": "pass-2-live",
+      "referenceScreen": "s-dir1-2.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "center",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [],
+      "autoTransition": {
+        "delayMs": 20000,
+        "target": "dir1-2",
+        "active": true
+      }
+    },
+    {
+      "id": "dir2",
+      "family": "navigation",
+      "renderer": "live-svg",
+      "status": "pass-2-live",
+      "referenceScreen": "s-dir2.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "center",
+        "down",
+        "enter"
+      ],
+      "noOpInputs": [
+        "left",
+        "right",
+        "back"
+      ],
+      "autoTransition": {
+        "delayMs": 20000,
+        "target": "dir3",
+        "active": true
+      }
+    },
+    {
+      "id": "dir3",
+      "family": "navigation",
+      "renderer": "live-svg",
+      "status": "pass-2-live",
+      "referenceScreen": "s-dir3.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "center",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [],
+      "autoTransition": {
+        "delayMs": 20000,
+        "target": "dir3",
+        "active": true
+      }
+    },
+    {
+      "id": "eng",
+      "family": "temperature",
+      "renderer": "live-svg",
+      "status": "pass-2-live",
+      "referenceScreen": "s-eng1-1.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "center",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [],
+      "autoTransition": {
+        "delayMs": 20000,
+        "target": "eng1-2",
+        "active": true
+      }
+    },
+    {
+      "id": "eng1-2",
+      "family": "temperature",
+      "renderer": "live-svg",
+      "status": "pass-2-live",
+      "referenceScreen": "s-eng1-2.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "center",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [],
+      "autoTransition": null
+    },
+    {
+      "id": "eng2",
+      "family": "temperature",
+      "renderer": "live-svg",
+      "status": "pass-2-live",
+      "referenceScreen": "s-eng2.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "eng3",
+      "family": "temperature",
+      "renderer": "live-svg",
+      "status": "pass-2-live",
+      "referenceScreen": "s-eng3.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "index",
+      "family": "main-gauge",
+      "renderer": "live-svg",
+      "status": "pass-2-live",
+      "referenceScreen": "s-main1-1.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "center",
+        "right",
+        "down",
+        "enter"
+      ],
+      "noOpInputs": [
+        "back"
+      ],
+      "autoTransition": {
+        "delayMs": 20000,
+        "target": "index1-2",
+        "active": true
+      }
+    },
+    {
+      "id": "index1-2",
+      "family": "main-gauge",
+      "renderer": "live-svg",
+      "status": "pass-2-live",
+      "referenceScreen": "s-main1-2.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "center",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [],
+      "autoTransition": null
+    },
+    {
+      "id": "index2",
+      "family": "main-gauge",
+      "renderer": "live-svg",
+      "status": "pass-2-live",
+      "referenceScreen": "s-main2-1.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "center",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [],
+      "autoTransition": {
+        "delayMs": 20000,
+        "target": "index2-2",
+        "active": true
+      }
+    },
+    {
+      "id": "index2-2",
+      "family": "main-gauge",
+      "renderer": "live-svg",
+      "status": "pass-2-live",
+      "referenceScreen": "s-main2-2.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "center",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [],
+      "autoTransition": {
+        "delayMs": 20000,
+        "target": "index2-2",
+        "active": true
+      }
+    },
+    {
+      "id": "m-main1-1",
+      "family": "main-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-main1-1.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "left",
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-main1-2",
+      "family": "main-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-main1-2.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-main1-2-1",
+      "family": "main-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-main1-2-1.gif",
+      "reachableInputs": [
+        "menu",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "left",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-main1-3",
+      "family": "main-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-main1-3.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-main1-3-1",
+      "family": "main-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-main1-3-1.gif",
+      "reachableInputs": [
+        "menu",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "left",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-main1-4",
+      "family": "main-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-main1-4.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center",
+        "right"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-main1-5",
+      "family": "main-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-main1-5.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-main1-5-1",
+      "family": "main-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-main1-5-1.gif",
+      "reachableInputs": [
+        "menu",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "left",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-main1-5-1-1",
+      "family": "main-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-main1-5-1-1.gif",
+      "reachableInputs": [
+        "menu",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "left",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-main1-6",
+      "family": "main-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-main1-6.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-main1-6-1",
+      "family": "main-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-main1-6-1.gif",
+      "reachableInputs": [
+        "menu",
+        "left",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-main1-7",
+      "family": "main-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-main1-7.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-main1-7-1",
+      "family": "main-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-main1-7-1.gif",
+      "reachableInputs": [
+        "menu",
+        "left",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-1",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-1.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "left",
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-2",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-2.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-2-1",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-2-1.gif",
+      "reachableInputs": [
+        "menu",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "left",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-3",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-3.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-3-1",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-3-1.gif",
+      "reachableInputs": [
+        "menu",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "left",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-3-1-1",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-3-1-1.gif",
+      "reachableInputs": [
+        "menu",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "left",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-3-1-1-1",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-3-1-1-1.gif",
+      "reachableInputs": [
+        "menu",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "left",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-4",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-4.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-4-1",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-4-1.gif",
+      "reachableInputs": [
+        "menu",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "left",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-4-1-1",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-4-1-1.gif",
+      "reachableInputs": [
+        "menu",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "left",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-5",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-5.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-5-1",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-5-1.gif",
+      "reachableInputs": [
+        "menu",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "left",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-5-1-1",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-5-1-1.gif",
+      "reachableInputs": [
+        "menu",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "left",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-6",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-6.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-6-1",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-6-1.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-6-1-1",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-6-1-1.gif",
+      "reachableInputs": [
+        "menu",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "left",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-6-2",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-6-2.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-6-2-1",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-6-2-1.gif",
+      "reachableInputs": [
+        "menu",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "left",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-6-2-1-1",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-6-2-1-1.gif",
+      "reachableInputs": [
+        "menu",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "left",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-6-2-1-1-1",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-6-2-1-1-1.gif",
+      "reachableInputs": [
+        "menu",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "left",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-6-3",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-6-3.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-6-3-1",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-6-3-1.gif",
+      "reachableInputs": [
+        "menu",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "left",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-6-4",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-6-4.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-6-4-1",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-6-4-1.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-6-4-1-1",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-6-4-1-1.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-6-4-1-1-1",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-6-4-1-1-1.gif",
+      "reachableInputs": [
+        "menu",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "left",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-6-4-1-2",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-6-4-1-2.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-6-4-1-2-1",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-6-4-1-2-1.gif",
+      "reachableInputs": [
+        "menu",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "left",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-6-4-1-3",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-6-4-1-3.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-6-4-1-3-1",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-6-4-1-3-1.gif",
+      "reachableInputs": [
+        "menu",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "left",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-6-4-1-4",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-6-4-1-4.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-6-4-1-4-1",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-6-4-1-4-1.gif",
+      "reachableInputs": [
+        "menu",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "left",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-6-4-2",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-6-4-2.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-6-4-3",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-6-4-3.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-ride2-6-4-4",
+      "family": "ride-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-ride2-6-4-4.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-1",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-1.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "left",
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-2",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-2.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-2-1",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-2-1.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-2-1-1",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-2-1-1.gif",
+      "reachableInputs": [
+        "menu",
+        "left",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-2-2",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-2-2.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-2-2-1",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-2-2-1.gif",
+      "reachableInputs": [
+        "menu",
+        "left",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-2-3",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-2-3.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-2-3-1",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-2-3-1.gif",
+      "reachableInputs": [
+        "menu",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "left",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-2-4",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-2-4.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-2-4-1",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-2-4-1.gif",
+      "reachableInputs": [
+        "menu",
+        "left",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-2-5",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-2-5.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-2-5-1",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-2-5-1.gif",
+      "reachableInputs": [
+        "menu",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "left",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-2-6",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-2-6.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-2-6-1",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-2-6-1.gif",
+      "reachableInputs": [
+        "menu",
+        "left",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-2-7",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-2-7.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "down",
+        "back"
+      ],
+      "noOpInputs": [
+        "left",
+        "center",
+        "right",
+        "enter"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-3",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-3.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-3-1",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-3-1.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-3-1-1",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-3-1-1.gif",
+      "reachableInputs": [
+        "menu",
+        "left",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-3-2",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-3-2.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-3-2-1",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-3-2-1.gif",
+      "reachableInputs": [
+        "menu",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "left",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-3-3",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-3-3.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-3-3-1",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-3-3-1.gif",
+      "reachableInputs": [
+        "menu",
+        "left",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-3-4",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-3-4.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-3-4-1",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-3-4-1.gif",
+      "reachableInputs": [
+        "menu",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "left",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-3-5",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-3-5.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-3-5-1",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-3-5-1.gif",
+      "reachableInputs": [
+        "menu",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "left",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-3-6",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-3-6.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-3-6-1",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-3-6-1.gif",
+      "reachableInputs": [
+        "menu",
+        "left",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-3-7",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-3-7.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-3-7-1",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-3-7-1.gif",
+      "reachableInputs": [
+        "menu",
+        "left",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-3-8",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-3-8.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "down",
+        "back"
+      ],
+      "noOpInputs": [
+        "center",
+        "right",
+        "enter"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-4",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-4.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-4-1",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-4-1.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-4-1-1",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-4-1-1.gif",
+      "reachableInputs": [
+        "menu",
+        "left",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-4-2",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-4-2.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-4-2-1",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-4-2-1.gif",
+      "reachableInputs": [
+        "menu",
+        "left",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-4-3",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-4-3.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-4-3-1",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-4-3-1.gif",
+      "reachableInputs": [
+        "menu",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "left",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-4-4",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-4-4.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-4-4-1",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-4-4-1.gif",
+      "reachableInputs": [
+        "menu",
+        "left",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-4-5",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-4-5.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-4-5-1",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-4-5-1.gif",
+      "reachableInputs": [
+        "menu",
+        "left",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-4-6",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-4-6.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-4-6-1",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-4-6-1.gif",
+      "reachableInputs": [
+        "menu",
+        "left",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-4-7",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-4-7.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "down",
+        "back"
+      ],
+      "noOpInputs": [
+        "center",
+        "right",
+        "enter"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-5",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-5.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-5-1",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-5-1.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-5-1-1",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-5-1-1.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-5-1-1-1",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-5-1-1-1.gif",
+      "reachableInputs": [
+        "menu",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "left",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-5-1-2",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-5-1-2.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-5-1-2-1",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-5-1-2-1.gif",
+      "reachableInputs": [
+        "menu",
+        "left",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-5-1-3",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-5-1-3.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-5-1-3-1",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-5-1-3-1.gif",
+      "reachableInputs": [
+        "menu",
+        "left",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-5-1-4",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-5-1-4.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-5-1-5",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-5-1-5.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-5-1-6",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-5-1-6.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-5-1-7",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-5-1-7.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "down",
+        "back"
+      ],
+      "noOpInputs": [
+        "center",
+        "right",
+        "enter"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-5-2",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-5-2.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-5-3",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-5-3.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "down",
+        "back"
+      ],
+      "noOpInputs": [
+        "center",
+        "right",
+        "enter"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-6",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-6.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-6-1",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-6-1.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-6-1-1",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-6-1-1.gif",
+      "reachableInputs": [
+        "menu",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "left",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-6-2",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-6-2.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-6-2-1",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-6-2-1.gif",
+      "reachableInputs": [
+        "menu",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "left",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-6-3",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-6-3.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-6-3-1",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-6-3-1.gif",
+      "reachableInputs": [
+        "menu",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "left",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-6-4",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-6-4.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-6-4-1",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-6-4-1.gif",
+      "reachableInputs": [
+        "menu",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "up",
+        "left",
+        "center",
+        "right",
+        "down"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "m-set3-6-5",
+      "family": "settings-menu",
+      "renderer": "live-svg",
+      "status": "pass-3-live",
+      "referenceScreen": "m-set3-6-5.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "down",
+        "back"
+      ],
+      "noOpInputs": [
+        "center",
+        "right",
+        "enter"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "map",
+      "family": "track-map",
+      "renderer": "live-svg",
+      "status": "pass-2-live",
+      "referenceScreen": "s-map1-1.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "center",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [],
+      "autoTransition": {
+        "delayMs": 20000,
+        "target": "map1-2",
+        "active": true
+      }
+    },
+    {
+      "id": "map1-2",
+      "family": "track-map",
+      "renderer": "live-svg",
+      "status": "pass-2-live",
+      "referenceScreen": "s-map1-2.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "center",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [],
+      "autoTransition": null
+    },
+    {
+      "id": "map2",
+      "family": "track-map",
+      "renderer": "live-svg",
+      "status": "pass-2-live",
+      "referenceScreen": "s-map2.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "map2-2",
+      "family": "track-map",
+      "renderer": "live-svg",
+      "status": "pass-2-live",
+      "referenceScreen": "s-map2-2.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "map3",
+      "family": "track-map",
+      "renderer": "live-svg",
+      "status": "pass-2-live",
+      "referenceScreen": "s-map3.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "map3-2",
+      "family": "track-map",
+      "renderer": "live-svg",
+      "status": "pass-2-live",
+      "referenceScreen": "s-map3-2.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [
+        "center"
+      ],
+      "autoTransition": null
+    },
+    {
+      "id": "sat",
+      "family": "satellite",
+      "renderer": "live-svg",
+      "status": "pass-2-live",
+      "referenceScreen": "s-sat1-1.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "center",
+        "down",
+        "back"
+      ],
+      "noOpInputs": [
+        "left",
+        "right",
+        "enter"
+      ],
+      "autoTransition": {
+        "delayMs": 20000,
+        "target": "sat1-2",
+        "active": true
+      }
+    },
+    {
+      "id": "sat1-2",
+      "family": "satellite",
+      "renderer": "live-svg",
+      "status": "pass-2-live",
+      "referenceScreen": "s-sat1-2.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "center",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [],
+      "autoTransition": null
+    },
+    {
+      "id": "startup",
+      "family": "startup",
+      "renderer": "live-svg",
+      "status": "pass-5-live",
+      "referenceScreen": "s-startup.gif",
+      "reachableInputs": [
+        "menu",
+        "up",
+        "left",
+        "center",
+        "right",
+        "down",
+        "back",
+        "enter"
+      ],
+      "noOpInputs": [],
+      "autoTransition": {
+        "delayMs": 10000,
+        "target": "index",
+        "active": false
+      }
+    }
+  ]
+}

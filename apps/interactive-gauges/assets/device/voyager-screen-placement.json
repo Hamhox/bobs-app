@@ -1,0 +1,38 @@
+{
+  "coordinateSource": "voyager-straight-photo.webp; alpha-preserving WebP conversion of the publication-approved straight-on device photograph",
+  "activeHousing": {
+    "width": 3750,
+    "height": 2063,
+    "aspectRatio": "3750 / 2063",
+    "screenOpening": {
+      "x": 901,
+      "y": 455,
+      "width": 1956,
+      "height": 1169
+    },
+    "liveScreen": {
+      "sourceAspectRatio": "504 / 303",
+      "x": 906.762,
+      "y": 455,
+      "width": 1944.475,
+      "height": 1169,
+      "fit": "contain within the transparent opening; white fill covers the narrow side remainder; never stretch or crop"
+    },
+    "controls": {
+      "menu": { "x": 285, "y": 427, "width": 330, "height": 330, "center": [450, 592] },
+      "back": { "x": 293, "y": 1142, "width": 315, "height": 309, "center": [450.5, 1296.5] },
+      "up": { "x": 3229, "y": 314, "width": 201, "height": 215, "center": [3329.5, 421.5] },
+      "left": { "x": 3052, "y": 474, "width": 212, "height": 219, "center": [3158, 583.5] },
+      "center": { "x": 3231, "y": 472, "width": 197, "height": 223, "center": [3329.5, 583.5] },
+      "right": { "x": 3398, "y": 474, "width": 212, "height": 219, "center": [3504, 583.5] },
+      "down": { "x": 3229, "y": 648, "width": 201, "height": 215, "center": [3329.5, 755.5] },
+      "enter": { "x": 3116, "y": 1129, "width": 338, "height": 330, "center": [3285, 1294] }
+    }
+  },
+  "originalDeviceSource": {
+    "width": 739,
+    "height": 422,
+    "aspectRatio": "739 / 422",
+    "screen": { "x": 176, "y": 93, "width": 384, "height": 240 }
+  }
+}
