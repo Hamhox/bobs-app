@@ -122,8 +122,14 @@ function commitState(engine, state, event) {
   const manifest = engine.getManifest();
   liveRuntime.render(state, event);
   stateCode.textContent = state.id;
-  timerStatus.textContent = state.autoTransition?.active
-    ? `${Math.round(state.autoTransition.delayMs / 1000)} sec`
+  const configuredAutoTransitionDelay = state.autoTransition?.active
+    ? liveRuntime.resolveAutoTransitionDelay(state, state.autoTransition)
+    : null;
+  const autoTransitionDelay = configuredAutoTransitionDelay === undefined
+    ? state.autoTransition?.delayMs
+    : configuredAutoTransitionDelay;
+  timerStatus.textContent = Number.isFinite(autoTransitionDelay)
+    ? `${Math.round(autoTransitionDelay / 1000)} sec`
     : "None";
 
   const inputPolicyState = manifest.states[liveRuntime.getInputPolicyStateId(state.id)] ?? state;
@@ -224,7 +230,9 @@ async function initializeVoyager() {
     const manifest = await response.json();
     applyLiveTransitionOverrides(manifest);
     await liveRuntime.initialize();
-    const engine = new VoyagerStateEngine(manifest);
+    const engine = new VoyagerStateEngine(manifest, {
+      resolveAutoTransitionDelay: (state, transition) => liveRuntime.resolveAutoTransitionDelay(state, transition),
+    });
     let guide;
     const syncDestinationHighlights = (stateId) => {
       for (const destination of document.querySelectorAll("[data-voyager-state]")) {

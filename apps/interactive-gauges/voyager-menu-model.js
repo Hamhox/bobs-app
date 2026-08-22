@@ -116,7 +116,7 @@ const ROW_BINDINGS = Object.freeze({
 });
 
 const RESET_GROUPS = Object.freeze({
-  "UNIT SETTINGS": ["distanceUnits", "altitudeUnits", "clockFormat", "timeOfDay", "temperatureUnits", "tabsTimeout", "displayMode"],
+  "UNIT SETTINGS": ["speedUnits", "distanceUnits", "altitudeUnits", "clockFormat", "timeOfDay", "temperatureUnits", "tabsTimeout", "displayMode"],
   "VEHICLE SENSORS": ["wheelSensor", "wheelSize", "engineSensor", "ppr", "sensorSensitivity", "tachbarScreen", "tachScale", "mainScreenMode", "speedSource", "runTimeSource"],
   "POWER SETTINGS": ["backlightLevel", "backlightBattery", "backlightExternal", "sleepBattery", "sleepExternal", "turnOff", "chargeMode"],
   "SYSTEM SETTINGS": ["brightness", "backlightBattery", "backlightExternal", "safeModeTimer", "sleepModeTimer", "chargeMode", "chargeLevel"],
@@ -202,7 +202,7 @@ export class VoyagerMenuModel {
     } catch {
       this.#values = { ...DEFAULT_VALUES };
     }
-    this.#normalizeVehicleSensors();
+    this.#normalizeSettings();
     return this;
   }
 
@@ -375,6 +375,7 @@ export class VoyagerMenuModel {
         if (field && toggleValues?.length) {
           const currentIndex = toggleValues.indexOf(this.#values[field]);
           this.#values[field] = toggleValues[(currentIndex + 1) % toggleValues.length];
+          this.#normalizeSettings();
           this.#save();
           this.#touch();
         }
@@ -580,6 +581,7 @@ export class VoyagerMenuModel {
     if (binding) {
       if (definition.kind === "settings-modal") this.#values[binding] = definition.options[draft.selectedIndex];
       else this.#values[binding] = draft.value;
+      this.#normalizeSettings();
       this.#save();
     }
     this.#drafts.delete(definition.id);
@@ -592,14 +594,14 @@ export class VoyagerMenuModel {
     if (selectedRow?.field && selectedRow.toggleValues?.length) {
       const currentIndex = selectedRow.toggleValues.indexOf(this.#values[selectedRow.field]);
       this.#values[selectedRow.field] = selectedRow.toggleValues[(currentIndex + 1) % selectedRow.toggleValues.length];
-      this.#normalizeVehicleSensors();
+      this.#normalizeSettings();
       this.#save();
       this.#touch();
       return;
     }
     if (selectedRow?.label !== "RESTORE DEFAULTS") return;
     for (const key of RESET_GROUPS[definition.restoreGroup ?? definition.title] ?? []) this.#values[key] = DEFAULT_VALUES[key];
-    this.#normalizeVehicleSensors();
+    this.#normalizeSettings();
     this.#save();
     this.#touch();
   }
@@ -617,6 +619,11 @@ export class VoyagerMenuModel {
     } else {
       this.#values.runTimeSource = "GPS";
     }
+  }
+
+  #normalizeSettings() {
+    this.#values.speedUnits = this.#values.distanceUnits === "KILOMETERS" ? "KM/H" : "MPH";
+    this.#normalizeVehicleSensors();
   }
 
   #discard(stateId) {

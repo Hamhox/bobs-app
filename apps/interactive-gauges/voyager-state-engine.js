@@ -4,12 +4,14 @@ export class VoyagerStateEngine {
   #listeners = new Set();
   #timer = null;
   #autoTransitionsEnabled = true;
+  #resolveAutoTransitionDelay;
 
-  constructor(manifest) {
+  constructor(manifest, { resolveAutoTransitionDelay } = {}) {
     if (!manifest?.states?.[manifest.initialState]) {
       throw new Error("Voyager manifest does not contain its initial state.");
     }
     this.#manifest = manifest;
+    this.#resolveAutoTransitionDelay = resolveAutoTransitionDelay;
     this.#stateId = manifest.initialState;
     this.#scheduleAutoTransition();
   }
@@ -74,9 +76,12 @@ export class VoyagerStateEngine {
   #scheduleAutoTransition() {
     const transition = this.getState().autoTransition;
     if (!this.#autoTransitionsEnabled || !transition?.active) return;
+    const configuredDelay = this.#resolveAutoTransitionDelay?.(this.getState(), transition);
+    const delayMs = configuredDelay === undefined ? transition.delayMs : configuredDelay;
+    if (!Number.isFinite(delayMs) || delayMs <= 0) return;
     this.#timer = window.setTimeout(() => {
       this.#moveTo(transition.target, { type: "auto", source: "archive-timer" });
-    }, transition.delayMs);
+    }, delayMs);
   }
 
   #clearAutoTransition() {

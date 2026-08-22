@@ -15,6 +15,10 @@ import {
 } from "./voyager-menu-registry.js";
 import { VoyagerMenuModel } from "./voyager-menu-model.js";
 import {
+  createVoyagerDisplayProfile,
+  createVoyagerInventorySnapshot,
+} from "./voyager-device-runtime.js";
+import {
   renderVoyagerMenuMarkup,
   renderVoyagerToastMarkup,
   voyagerMenuAriaLabel,
@@ -42,7 +46,7 @@ const clamp = (value, minimum, maximum) => Math.min(maximum, Math.max(minimum, v
 const radians = (degrees) => (degrees * Math.PI) / 180;
 
 export function formatVoyagerDestinationDistance(destinationMeters, metricDistance) {
-  return String(Math.round(metricDistance ? destinationMeters : destinationMeters / 1609.344));
+  return String(Math.round(metricDistance ? destinationMeters / 1000 : destinationMeters / 1609.344));
 }
 
 export function voyagerDestinationTextLength(value) {
@@ -230,12 +234,6 @@ function buildTrack(definition, { points, waypoints }) {
   };
 }
 
-function formatClock(timestamp) {
-  if (!Number.isFinite(timestamp)) return "12:30";
-  const date = new Date(timestamp);
-  return `${String(date.getUTCHours()).padStart(2, "0")}:${String(date.getUTCMinutes()).padStart(2, "0")}`;
-}
-
 function formatDuration(totalSeconds) {
   const seconds = Math.max(0, Math.floor(totalSeconds));
   const hours = Math.floor(seconds / 3600);
@@ -268,6 +266,7 @@ class VoyagerRideEngine {
   #powerSave = false;
   #loop = true;
   #telemetry = null;
+  #memorySummary = null;
 
   async load(trackDefinitions) {
     const loadedGroups = await Promise.all(
@@ -323,6 +322,7 @@ class VoyagerRideEngine {
       }
     }
     this.#currentTrack = loadedTracks[0];
+    this.#memorySummary = this.#buildMemorySummary();
     this.#lastTimestamp = performance.now();
     this.#lastActivityTimestamp = this.#lastTimestamp;
     this.#emit({ kind: "full", mode: "active" });
@@ -364,6 +364,10 @@ class VoyagerRideEngine {
   }
 
   get memorySummary() {
+    return this.#memorySummary ?? this.#buildMemorySummary();
+  }
+
+  #buildMemorySummary() {
     const resources = [...this.#resources.values()];
     const resourcesFor = (role) => resources.filter(({ memoryRoles }) => memoryRoles.includes(role));
     const trackResources = resourcesFor("track");
@@ -373,7 +377,7 @@ class VoyagerRideEngine {
     const trackBytes = trackResources.reduce((total, resource) => total + resource.bytes, 0);
     const routeBytes = routeResources.reduce((total, resource) => total + resource.bytes, 0);
     const microSdUsedMb = Math.round((VOYAGER_MICROSD_BASE_USED_BYTES + totalResourceBytes) / 1024 / 1024);
-    return {
+    return Object.freeze({
       trackCount: trackResources.length,
       trackUsage: clamp(trackBytes / VOYAGER_TRACK_STORAGE_CAPACITY_BYTES, 0, 1),
       routeCount: routeResources.length,
@@ -381,7 +385,7 @@ class VoyagerRideEngine {
       waypointCount,
       microSdUsedMb,
       microSdCapacityMb: VOYAGER_MICROSD_CAPACITY_MB,
-    };
+    });
   }
 
   get telemetry() {
@@ -576,9 +580,6 @@ class VoyagerRideEngine {
     const speedMph = Number.isFinite(recordedSpeedMph) ? recordedSpeedMph : calculatedSpeedMph;
     const completedMeters = track.distances[index] + haversineMeters(start, end) * amount;
     const elevationFeet = Math.round(interpolate("elevation") * 3.28084);
-    const interpolatedTime = Number.isFinite(start.time + end.time)
-      ? start.time + (end.time - start.time) * amount
-      : Number.NaN;
     return {
       trackId: track.id,
       areaId: track.areaId ?? null,
@@ -602,7 +603,7 @@ class VoyagerRideEngine {
         ? Math.round(interpolateSensor("engineTemperatureC") * 9 / 5 + 32)
         : engineTemperatureAt(progress, elevationFeet),
       rpm: Number.isFinite(interpolateSensor("rpm")) ? Math.round(interpolateSensor("rpm")) : 0,
-      timeLabel: formatClock(interpolatedTime),
+      elapsedSeconds: progress * this.#durationMs / 1000,
       elapsedLabel: formatDuration(progress * this.#durationMs / 1000),
     };
   }
@@ -664,7 +665,7 @@ function screenChromeMarkup(screen, variant) {
   return `${variant.tabsVisible ? tabsMarkup(screen.id) : ""}${variant.sideArrows ? sideArrowsMarkup(screen, variant) : ""}`;
 }
 
-function statusBarMarkup(variant) {
+function statusBarMarkup(variant, display) {
   const contentLeft = variant.tabsVisible ? 67 : 0;
   return `
     <g class="voyager-live__status-bar">
@@ -692,7 +693,7 @@ function statusBarMarkup(variant) {
       ${voyagerUiIcon("battery-24pt-full", { x: contentLeft + 70, y: 10, width: 34, height: 19 })}
       ${voyagerUiIcon("signal-24pt-4bars", { x: contentLeft + 112, y: 10, width: 31, height: 19 })}
       <text class="voyager-live__text voyager-live__text--status" x="${contentLeft + 242}" y="34" text-anchor="middle" data-live-time>12:30</text>
-      <text class="voyager-live__text voyager-live__text--status" x="493" y="34" text-anchor="end" data-live-temperature>75°F</text>
+      <text class="voyager-live__text voyager-live__text--status" x="493" y="34" text-anchor="end" data-live-temperature>75${display.temperatureUnit}</text>
     </g>`;
 }
 
@@ -721,7 +722,7 @@ function compassMarkup({ cx, cy, radius, pointerAttribute = "data-live-compass-p
     </g>`;
 }
 
-function mainMarkup(screen, variant) {
+function mainMarkup(screen, variant, { display }) {
   const hiddenOffset = variant.tabsVisible ? 0 : -47;
   if (variant.view === "secondary") {
     const contentCenter = variant.tabsVisible ? 285 : 252;
@@ -731,12 +732,12 @@ function mainMarkup(screen, variant) {
       <rect class="voyager-live__surface" width="504" height="303" />
       ${screenChromeMarkup(screen, variant)}
       <g>
-        <text class="voyager-live__text voyager-live__text--medium" x="${contentCenter}" y="30" text-anchor="middle">ODOMETER MI</text>
+        <text class="voyager-live__text voyager-live__text--medium" x="${contentCenter}" y="30" text-anchor="middle">ODOMETER ${display.distanceUnit}</text>
         <text class="voyager-live__text voyager-live__text--readout" x="${contentCenter}" y="88" text-anchor="middle" data-live-odometer-miles>523.7</text>
-        <text class="voyager-live__text voyager-live__text--medium" x="${maxCenter}" y="127" text-anchor="middle">MAX SPD MPH</text>
+        <text class="voyager-live__text voyager-live__text--medium" x="${maxCenter}" y="127" text-anchor="middle">MAX SPD ${display.speedUnit}</text>
         <text class="voyager-live__text voyager-live__text--readout" x="${maxCenter}" y="185" text-anchor="middle" data-live-max-speed>25</text>
         <path class="voyager-live__line voyager-live__line--secondary-main" d="M${contentCenter} 102V195" />
-        <text class="voyager-live__text voyager-live__text--medium" x="${avgCenter}" y="127" text-anchor="middle">AVG SPD MPH</text>
+        <text class="voyager-live__text voyager-live__text--medium" x="${avgCenter}" y="127" text-anchor="middle">AVG SPD ${display.speedUnit}</text>
         <text class="voyager-live__text voyager-live__text--readout" x="${avgCenter}" y="185" text-anchor="middle" data-live-avg-speed>12</text>
         <text class="voyager-live__text voyager-live__text--medium" x="${contentCenter}" y="225" text-anchor="middle">ACCUMULATED RUN TIME</text>
         <text class="voyager-live__text voyager-live__text--large voyager-live__text--clock" x="${contentCenter}" y="283" text-anchor="middle" data-live-elapsed>00:00:00</text>
@@ -745,17 +746,17 @@ function mainMarkup(screen, variant) {
   return `
     <rect class="voyager-live__surface" width="504" height="303" />
     ${screenChromeMarkup(screen, variant)}
-    ${statusBarMarkup(variant)}
+    ${statusBarMarkup(variant, display)}
     <g transform="translate(${hiddenOffset} 0)">
-      <text class="voyager-live__text voyager-live__text--medium" x="198" y="67" text-anchor="middle">MPH</text>
+      <text class="voyager-live__text voyager-live__text--medium" x="198" y="67" text-anchor="middle">${display.speedUnit}</text>
       <text class="voyager-live__text voyager-live__text--speed" x="199" y="188" text-anchor="middle" data-live-speed>28</text>
       ${compassMarkup({ cx: 399, cy: 133, radius: 73 })}
-      <text class="voyager-live__text" x="100" y="236">ALT FT</text>
+      <text class="voyager-live__text" x="100" y="236">ALT ${display.altitudeUnit}</text>
       <text class="voyager-live__text voyager-live__text--metric" x="91" y="286" data-live-altitude>1089</text>
-      <text class="voyager-live__text" x="261" y="236">DST MI</text>
+      <text class="voyager-live__text" x="261" y="236">DST ${display.distanceUnit}</text>
       <text class="voyager-live__text voyager-live__text--metric" x="254" y="286" data-live-distance>12.0</text>
       ${temperatureIcon(408, 213, 0.84)}
-      <text class="voyager-live__text" x="449" y="236">°F</text>
+      <text class="voyager-live__text" x="449" y="236">${display.temperatureUnit}</text>
       <text class="voyager-live__text voyager-live__text--metric" x="407" y="286" data-live-engine-temperature>168</text>
     </g>`;
 }
@@ -772,8 +773,8 @@ function controlHintMarkup(interaction) {
     ${voyagerUiIcon("panzoom-pill", { x: 442, y: 230, width: 62, height: 42 })}`;
 }
 
-function mapMarkup(screen, variant) {
-  const status = variant.interaction ? "" : statusBarMarkup(variant);
+function mapMarkup(screen, variant, { display }) {
+  const status = variant.interaction ? "" : statusBarMarkup(variant, display);
   return `
     <rect class="voyager-live__surface" width="504" height="303" />
     <clipPath id="voyager-live-map-clip"><rect width="504" height="303" /></clipPath>
@@ -791,7 +792,7 @@ function mapMarkup(screen, variant) {
     ${status}
     ${controlHintMarkup(variant.interaction)}
     <path class="voyager-live__scale-line" d="M${variant.tabsVisible ? 80 : 20} 279v13h142v-13" />
-    <text class="voyager-live__text voyager-live__text--medium" x="${variant.tabsVisible ? 126 : 66}" y="286">2 mi</text>
+    <text class="voyager-live__text voyager-live__text--medium" x="${variant.tabsVisible ? 126 : 66}" y="286">${display.distanceUnit === "KM" ? "3 km" : "2 mi"}</text>
     <text class="voyager-live__text voyager-live__text--medium" x="${variant.interaction ? 405 : 455}" y="289">N</text>
     ${voyagerUiIcon("compass-indicator-24pt", { x: variant.interaction ? 427 : 477, y: 274, width: 14, height: 19 })}`;
 }
@@ -809,7 +810,7 @@ function graphGridMarkup(left, right, top, bottom) {
     <text class="voyager-live__text voyager-live__text--medium voyager-live__graph-scale-label" x="${left + 4}" y="${bottom - 5}" data-live-graph-scale-label="3"></text>`;
 }
 
-function graphMarkup(screen, variant) {
+function graphMarkup(screen, variant, { display }) {
   const left = variant.tabsVisible ? 87 : 23;
   const right = 483;
   const top = 44;
@@ -820,11 +821,11 @@ function graphMarkup(screen, variant) {
     <rect class="voyager-live__surface" width="504" height="303" />
     ${screenChromeMarkup(screen, variant)}
     ${primary ? `
-      <text class="voyager-live__text voyager-live__text--medium" x="${left}" y="34" data-live-graph-current>${isTemperature ? "ENG:168°F" : "ALT:700 FT"}</text>
-      <text class="voyager-live__text voyager-live__text--medium" x="${left + (right - left) * 0.5}" y="34" text-anchor="middle" data-live-graph-max>MAX:243°F</text>
-      <text class="voyager-live__text voyager-live__text--medium" x="${right}" y="34" text-anchor="end" data-live-graph-average>AVG:172°F</text>
+      <text class="voyager-live__text voyager-live__text--medium" x="${left}" y="34" data-live-graph-current>${isTemperature ? `ENG:168${display.temperatureUnit}` : `ALT:700 ${display.altitudeUnit}`}</text>
+      <text class="voyager-live__text voyager-live__text--medium" x="${left + (right - left) * 0.5}" y="34" text-anchor="middle" data-live-graph-max>MAX:243${isTemperature ? display.temperatureUnit : ` ${display.altitudeUnit}`}</text>
+      <text class="voyager-live__text voyager-live__text--medium" x="${right}" y="34" text-anchor="end" data-live-graph-average>AVG:172${isTemperature ? display.temperatureUnit : ` ${display.altitudeUnit}`}</text>
     ` : `
-      <text class="voyager-live__text voyager-live__text--medium" x="23" y="34" data-live-graph-readout>${isTemperature ? "ENGINE TEMP: 168°F" : "ALTITUDE: 700 FT"}</text>
+      <text class="voyager-live__text voyager-live__text--medium" x="23" y="34" data-live-graph-readout>${isTemperature ? `ENGINE TEMP: 168${display.temperatureUnit}` : `ALTITUDE: 700 ${display.altitudeUnit}`}</text>
     `}
     <clipPath id="voyager-live-graph-clip"><rect x="${left}" y="${top}" width="${right - left}" height="${bottom - top}" /></clipPath>
     <clipPath id="voyager-live-graph-fill-clip"><path data-live-graph-fill-clip /></clipPath>
@@ -873,23 +874,23 @@ const DEFAULT_USER_SCREEN_BLOCKS = Object.freeze({
   2: ["ENGINE ACC. RUN TIME", "MAX WHEEL SPEED", "AVG WHEEL SPEED", "<OFF>", "<OFF>", "<OFF>"],
 });
 
-function userMetricDefinition(selection) {
+function userMetricDefinition(selection, display) {
   const normalized = selection.replace(/[\uE10B\uE10C]/g, "").trim();
   const variantSuffix = selection.includes("\uE10C") ? " 1" : selection.includes("\uE10B") ? " 2" : "";
   const definitions = {
-    ALTITUDE: ["ALT FT", "data-live-altitude", "1089"],
-    "MIN ALTITUDE": ["MIN ALT FT", "", "914"],
-    "MAX ALTITUDE": ["MAX ALT FT", "", "1234"],
-    "WHEEL SPEED": ["WHEEL SPD MPH", "data-live-speed", "25"],
-    "GPS SPEED": ["GPS SPD MPH", "data-live-gps-speed", "22"],
-    "WHEEL ODOMETER": ["ODOMETER MI", "data-live-odometer-miles", "523.7"],
-    "GPS ODOMETER": ["GPS ODO MI", "data-live-odometer", "1200"],
+    ALTITUDE: [`ALT ${display.altitudeUnit}`, "data-live-altitude", "1089"],
+    "MIN ALTITUDE": [`MIN ALT ${display.altitudeUnit}`, "", "914"],
+    "MAX ALTITUDE": [`MAX ALT ${display.altitudeUnit}`, "", "1234"],
+    "WHEEL SPEED": [`WHEEL SPD ${display.speedUnit}`, "data-live-speed", "25"],
+    "GPS SPEED": [`GPS SPD ${display.speedUnit}`, "data-live-gps-speed", "22"],
+    "WHEEL ODOMETER": [`ODOMETER ${display.distanceUnit}`, "data-live-odometer-miles", "523.7"],
+    "GPS ODOMETER": [`GPS ODO ${display.distanceUnit}`, "data-live-odometer", "1200"],
     "ENGINE ACC. RUN TIME": ["ACCUMULATED RUN TIME", "data-live-elapsed", "00:00:00"],
     "GPS ACC. RUN TIME": ["GPS RUN TIME", "data-live-elapsed", "00:00:00"],
-    "AIR TEMPERATURE": ["AIR TEMP °F", "data-live-temperature", "75°F"],
-    "ENGINE TEMPERATURE": ["ENGINE TEMP °F", "data-live-engine-temperature", "168"],
-    "MAX ENGINE TEMPERATURE": ["MAX ENGINE TEMP °F", "", "179"],
-    "AVG ENGINE TEMPERATURE": ["AVG ENGINE TEMP °F", "", "169"],
+    "AIR TEMPERATURE": [`AIR TEMP ${display.temperatureUnit}`, "data-live-temperature", `75${display.temperatureUnit}`],
+    "ENGINE TEMPERATURE": [`ENGINE TEMP ${display.temperatureUnit}`, "data-live-engine-temperature", "168"],
+    "MAX ENGINE TEMPERATURE": [`MAX ENGINE TEMP ${display.temperatureUnit}`, "", "179"],
+    "AVG ENGINE TEMPERATURE": [`AVG ENGINE TEMP ${display.temperatureUnit}`, "", "169"],
     CLOCK: ["CLOCK", "data-live-time", "12:35"],
     "STOP WATCH": ["STOP WATCH", "data-live-stopwatch", "00:00:00"],
     HEADING: ["HEADING", "data-live-heading-label", "NNE"],
@@ -897,29 +898,29 @@ function userMetricDefinition(selection) {
     "INPUT VOLTAGE": ["INPUT VOLTAGE", "", "13.8"],
     "INTERNAL BATTERY VOLTAGE": ["BATTERY VOLTAGE", "", "4.1"],
     TACHOMETER: ["TACHOMETER RPM", "", "3250"],
-    "WHEEL DISTANCE": [`WHEEL DST${variantSuffix} MI`, "data-live-trip-distance", "0.0"],
-    "GPS DISTANCE": [`GPS DST${variantSuffix} MI`, "data-live-distance", "0.0"],
+    "WHEEL DISTANCE": [`WHEEL DST${variantSuffix} ${display.distanceUnit}`, "data-live-trip-distance", "0.0"],
+    "GPS DISTANCE": [`GPS DST${variantSuffix} ${display.distanceUnit}`, "data-live-distance", "0.0"],
     "ENGINE TRIP TIME": [`ENGINE TRIP TIME${variantSuffix}`, "data-live-elapsed", "00:00:00"],
     "GPS TRIP TIME": [`GPS TRIP TIME${variantSuffix}`, "data-live-elapsed", "00:00:00"],
-    "MAX WHEEL SPEED": [`MAX WHEEL SPD${variantSuffix} MPH`, "data-live-max-speed", "25"],
-    "MAX GPS SPEED": [`MAX GPS SPD${variantSuffix} MPH`, "data-live-max-speed", "25"],
-    "AVG WHEEL SPEED": [`AVG WHEEL SPD${variantSuffix} MPH`, "data-live-avg-speed", "12"],
-    "AVG GPS SPEED": [`AVG GPS SPD${variantSuffix} MPH`, "data-live-avg-speed", "12"],
+    "MAX WHEEL SPEED": [`MAX WHEEL SPD${variantSuffix} ${display.speedUnit}`, "data-live-max-speed", "25"],
+    "MAX GPS SPEED": [`MAX GPS SPD${variantSuffix} ${display.speedUnit}`, "data-live-max-speed", "25"],
+    "AVG WHEEL SPEED": [`AVG WHEEL SPD${variantSuffix} ${display.speedUnit}`, "data-live-avg-speed", "12"],
+    "AVG GPS SPEED": [`AVG GPS SPD${variantSuffix} ${display.speedUnit}`, "data-live-avg-speed", "12"],
     "CURRENT (BATTERY CHARGER)": ["CHARGER CURRENT", "", "0.8"],
   };
   const [label, attribute, fallback] = definitions[normalized] ?? [normalized, "", "--"];
   return { label, attribute, fallback };
 }
 
-function userMetricBlock(x, y, selection) {
-  const metric = userMetricDefinition(selection);
+function userMetricBlock(x, y, selection, display) {
+  const metric = userMetricDefinition(selection, display);
   const readoutClass = metric.fallback === "00:00:00" ? " voyager-live__user-metric-readout--clock" : "";
   return `
     <text class="voyager-live__text voyager-live__text--medium voyager-live__user-metric-label" x="${x}" y="${y}" text-anchor="middle">${metric.label}</text>
     <text class="voyager-live__text voyager-live__text--readout${readoutClass}" x="${x}" y="${y + 58}" text-anchor="middle" ${metric.attribute}>${metric.fallback}</text>`;
 }
 
-function userMarkup(screen, variant, menuValues = {}) {
+function userMarkup(screen, variant, { menuValues, display }) {
   const screenNumber = variant.view === "secondary" ? 2 : 1;
   const selections = Array.from({ length: 6 }, (_, index) => (
     menuValues[`userScreen${screenNumber}Block${index + 1}`]
@@ -936,7 +937,7 @@ function userMarkup(screen, variant, menuValues = {}) {
     const row = Math.floor(index / 2);
     const alone = index === selections.length - 1 && selections.length % 2 === 1;
     const x = alone ? center : index % 2 === 0 ? leftCenter : rightCenter;
-    return userMetricBlock(x, rowLabels[row], selection);
+    return userMetricBlock(x, rowLabels[row], selection, display);
   }).join("");
   return `
     <rect class="voyager-live__surface" width="504" height="303" />
@@ -945,15 +946,15 @@ function userMarkup(screen, variant, menuValues = {}) {
     ${blocks || `<text class="voyager-live__text voyager-live__text--medium" x="${center}" y="170" text-anchor="middle">NO DATA BLOCKS</text>`}`;
 }
 
-function navigationMarkup(screen, variant) {
+function navigationMarkup(screen, variant, { display }) {
   const hiddenOffset = variant.tabsVisible ? 0 : -34;
   return `
     <rect class="voyager-live__surface" width="504" height="303" />
     ${screenChromeMarkup(screen, variant)}
     <g transform="translate(${hiddenOffset} 0)">
       <text class="voyager-live__text voyager-live__text--medium" x="467.5" y="47" text-anchor="start" data-live-heading-label>N</text>
-      ${metricBlock(186, 30, "SPD MPH", "data-live-speed", "21")}
-      ${metricBlock(186, 127, "DEST DST MI", "data-live-destination", "700", {
+      ${metricBlock(186, 30, `SPD ${display.speedUnit}`, "data-live-speed", "21")}
+      ${metricBlock(186, 127, `DEST DST ${display.distanceUnit}`, "data-live-destination", "700", {
     labelAttribute: "data-live-destination-label",
     labelClass: "voyager-live__destination-label",
     readoutClass: "voyager-live__destination-readout",
@@ -1044,7 +1045,10 @@ function renderScreenMarkup(screen, variant, menuValues = {}) {
     navigation: navigationMarkup,
     satellite: satelliteMarkup,
   };
-  return renderers[screen.renderer](screen, variant, menuValues);
+  return renderers[screen.renderer](screen, variant, {
+    menuValues,
+    display: createVoyagerDisplayProfile(menuValues),
+  });
 }
 
 function projectTrack(points, bounds, extentPoints = points) {
@@ -1112,6 +1116,11 @@ export class VoyagerLiveRuntime {
   #selectedDestination = null;
   #toastMessage = "";
   #toastExpiresAt = 0;
+  #inventorySnapshot = null;
+  #inventorySnapshotKey = "";
+  #appliedSettingsKey = "";
+  #settingsSnapshot = null;
+  #settingsRevision = -1;
 
   constructor({ mount, stage, appBase }) {
     this.#mount = mount;
@@ -1192,6 +1201,12 @@ export class VoyagerLiveRuntime {
     return VOYAGER_CANONICAL_STATE_IDS[stateId] ?? VOYAGER_MENU_CANONICAL_STATE_IDS[stateId] ?? stateId;
   }
 
+  resolveAutoTransitionDelay(_state, transition) {
+    if (transition.delayMs !== 20000) return undefined;
+    const seconds = Number.parseInt(this.#settings().tabsTimeout, 10);
+    return Number.isFinite(seconds) && seconds > 0 ? seconds * 1000 : null;
+  }
+
   applyNavigationParameters(parameters = {}) {
     const rideId = parameters.rideId ?? parameters.trackId;
     if (rideId) this.#ride.selectRide(rideId, { reset: parameters.resetRide !== false });
@@ -1241,7 +1256,8 @@ export class VoyagerLiveRuntime {
 
     if (this.#menuState) {
       const savedRideKey = this.#savedRides.slice(0, 4).map((ride) => `${ride.id}:${ride.name}`).join("|");
-      const layoutKey = `menu:${state.id}:${this.#waypoints.length}:${this.#menuModel.revision}:${savedRideKey}:${this.#selectedSavedRideIndex}`;
+      const inventory = this.#inventory();
+      const layoutKey = `menu:${state.id}:${inventory.signature}:${this.#menuModel.revision}:${savedRideKey}:${this.#selectedSavedRideIndex}`;
       if (layoutKey !== this.#layoutKey) {
         this.#mount.innerHTML = `
           <svg class="voyager-live voyager-menu" viewBox="0 0 504 303" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${voyagerMenuAriaLabel(this.#menuState)}">
@@ -1261,12 +1277,14 @@ export class VoyagerLiveRuntime {
     const renderedVariant = mapView && variant.editing
       ? { ...variant, interaction: mapView.mode }
       : variant;
+    const menuValues = this.#settings();
+    const displayProfile = createVoyagerDisplayProfile(menuValues);
     const userLayoutRevision = screen.renderer === "user" ? this.#menuModel.revision : "static";
-    const layoutKey = `${screen.id}:${variant.view}:${variant.mapView ?? "default"}:${variant.tabsVisible}:${renderedVariant.interaction ?? "browse"}:${userLayoutRevision}`;
+    const layoutKey = `${screen.id}:${variant.view}:${variant.mapView ?? "default"}:${variant.tabsVisible}:${renderedVariant.interaction ?? "browse"}:${displayProfile.signature}:${userLayoutRevision}`;
     if (layoutKey !== this.#layoutKey) {
       this.#mount.innerHTML = `
         <svg class="voyager-live" viewBox="0 0 504 303" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Live Voyager ${screen.tabLabel.toLowerCase()} ${variant.view} screen">
-          ${renderScreenMarkup(screen, renderedVariant, this.#menuModel.values)}
+          ${renderScreenMarkup(screen, renderedVariant, menuValues)}
         </svg>`;
       this.#layoutKey = layoutKey;
       this.#projectedTrack = [];
@@ -1332,7 +1350,7 @@ export class VoyagerLiveRuntime {
       const screenParent = voyagerScreenState(resolved.parentStateId);
       if (screenParent) {
         this.#menuUnderlayScreenState = screenParent;
-        underlayMarkup = renderScreenMarkup(screenParent.screen, screenParent.variant, this.#menuModel.values);
+        underlayMarkup = renderScreenMarkup(screenParent.screen, screenParent.variant, this.#settings());
       }
     }
     return renderVoyagerMenuMarkup(resolved, { underlayMarkup });
@@ -1351,15 +1369,30 @@ export class VoyagerLiveRuntime {
     }));
   }
 
+  #settings() {
+    if (this.#settingsRevision === this.#menuModel.revision && this.#settingsSnapshot) return this.#settingsSnapshot;
+    this.#settingsSnapshot = Object.freeze(this.#menuModel.values);
+    this.#settingsRevision = this.#menuModel.revision;
+    return this.#settingsSnapshot;
+  }
+
+  #inventory() {
+    const summary = this.#ride.memorySummary;
+    const key = `${summary.trackCount}:${summary.trackUsage}:${summary.routeCount}:${summary.routeUsage}:${summary.waypointCount}:${summary.microSdUsedMb}:${this.#waypoints.length}:${this.#savedRides.length}`;
+    if (key === this.#inventorySnapshotKey && this.#inventorySnapshot) return this.#inventorySnapshot;
+    this.#inventorySnapshot = createVoyagerInventorySnapshot(summary, {
+      savedRideCount: this.#savedRides.length,
+      savedWaypointCount: this.#waypoints.length,
+    });
+    this.#inventorySnapshotKey = key;
+    return this.#inventorySnapshot;
+  }
+
   #contextualizeMenuDefinition(definition) {
     if (definition?.kind === "memory") {
-      const summary = this.#ride.memorySummary;
       return {
         ...definition,
-        rows: voyagerMemoryRows({
-          ...summary,
-          waypointCount: summary.waypointCount + this.#waypoints.length,
-        }),
+        rows: voyagerMemoryRows(this.#inventory()),
       };
     }
     if (!definition?.destinationWaypointPicker) return definition;
@@ -1420,7 +1453,10 @@ export class VoyagerLiveRuntime {
     this.#expireToast();
     if (!this.#telemetry || !this.#state || this.#mount.hidden) return;
     const setText = (selector, value) => {
-      for (const element of this.#mount.querySelectorAll(selector)) element.textContent = value;
+      const elements = this.#mount.querySelectorAll(selector);
+      if (!elements.length) return;
+      const nextValue = String(typeof value === "function" ? value() : value);
+      for (const element of elements) setElementText(element, nextValue);
     };
     const telemetry = this.#telemetry;
     const refreshAll = cadence === "all";
@@ -1428,58 +1464,62 @@ export class VoyagerLiveRuntime {
     const refreshCompass = refreshAll || cadence === 1 || cadence === 3;
     const refreshStatus = refreshAll || cadence === 2;
     const refreshStopwatch = refreshAll || cadence === 0 || cadence === 2;
-    const menuValues = this.#menuModel.values;
+    const menuValues = this.#settings();
+    const display = createVoyagerDisplayProfile(menuValues);
     const brightnessValue = this.#menuState?.kind === "brightness"
       ? this.#menuModel.resolve(this.#menuState).value
       : menuValues.brightness;
-    const metricSpeed = menuValues.speedUnits === "KM/H";
-    const metricDistance = menuValues.distanceUnits === "KILOMETERS / METERS";
-    const fahrenheit = menuValues.temperatureUnits === "FAHRENHEIT";
-    const sourceSpeedMph = menuValues.speedSource === "GPS"
+    const sourceSpeedMph = () => menuValues.speedSource === "GPS"
       ? Math.max(0, telemetry.speedMph - 2)
       : telemetry.speedMph;
-    const displaySpeed = metricSpeed ? Math.round(sourceSpeedMph * 1.60934) : sourceSpeedMph;
-    const gpsSpeed = metricSpeed
-      ? Math.round(Math.max(0, telemetry.speedMph - 2) * 1.60934)
-      : Math.max(0, telemetry.speedMph - 2);
-    const ambientTemperature = fahrenheit
-      ? `${telemetry.ambientTemperatureF}°F`
-      : `${Math.round((telemetry.ambientTemperatureF - 32) * 5 / 9)}°C`;
-    const destinationMeters = this.#selectedDestination
-      ? haversineMeters(telemetry, this.#selectedDestination)
-      : telemetry.destinationMeters;
     if (refreshMotion) {
-      setText("[data-live-speed]", String(displaySpeed));
-      setText("[data-live-gps-speed]", String(gpsSpeed));
-      setText("[data-live-altitude]", String(telemetry.elevationFeet));
-      setText("[data-live-distance]", metricDistance ? telemetry.distanceKm.toFixed(1) : (telemetry.distanceKm * 0.621371).toFixed(1));
-      setText("[data-live-trip-distance]", String(Math.round((metricDistance ? telemetry.distanceKm : telemetry.distanceKm * 0.621371) * 10)));
-      this.#updateDestinationDistance(formatVoyagerDestinationDistance(destinationMeters, metricDistance));
+      setText("[data-live-speed]", () => display.speedFromMph(sourceSpeedMph()));
+      setText("[data-live-gps-speed]", () => display.speedFromMph(Math.max(0, telemetry.speedMph - 2)));
+      setText("[data-live-altitude]", () => display.altitudeFromFeet(telemetry.elevationFeet));
+      setText("[data-live-distance]", () => display.distanceFromKm(telemetry.distanceKm).toFixed(1));
+      setText("[data-live-trip-distance]", () => display.distanceFromKm(telemetry.distanceKm).toFixed(1));
+      const destinationReadout = this.#mount.querySelector("[data-live-destination]");
+      if (destinationReadout) {
+        const destinationMeters = this.#selectedDestination
+          ? haversineMeters(telemetry, this.#selectedDestination)
+          : telemetry.destinationMeters;
+        this.#updateDestinationDistance(String(display.destinationFromMeters(destinationMeters)));
+      }
       setText("[data-live-elapsed]", telemetry.elapsedLabel);
       setText("[data-live-ride-label]", telemetry.trackLabel);
     }
     if (refreshStatus) {
-      setText("[data-live-odometer]", String(Math.round(1200 + telemetry.distanceKm)));
-      setText("[data-live-temperature]", ambientTemperature);
-      setText("[data-live-engine-temperature]", String(fahrenheit ? telemetry.engineTemperatureF : Math.round((telemetry.engineTemperatureF - 32) * 5 / 9)));
-      setText("[data-live-time]", telemetry.timeLabel);
-      setText("[data-live-max-kph]", String(Math.round(telemetry.maxSpeedMph * 1.60934)));
-      setText("[data-live-avg-kph]", String(Math.round(telemetry.averageSpeedMph * 1.60934)));
-      setText("[data-live-odometer-miles]", (523.7 + telemetry.distanceKm * 0.621371).toFixed(1));
-      setText("[data-live-max-speed]", String(telemetry.maxSpeedMph));
-      setText("[data-live-avg-speed]", String(telemetry.averageSpeedMph));
+      const completedMiles = telemetry.distanceKm / 1.609344;
+      setText("[data-live-odometer]", () => Math.round(display.distanceFromMiles(1200 + completedMiles)));
+      setText("[data-live-temperature]", () => `${display.temperatureFromF(telemetry.ambientTemperatureF)}${display.temperatureUnit}`);
+      setText("[data-live-engine-temperature]", () => display.temperatureFromF(telemetry.engineTemperatureF));
+      setText("[data-live-time]", () => display.clockAtElapsedSeconds(telemetry.elapsedSeconds));
+      setText("[data-live-odometer-miles]", () => display.distanceFromMiles(523.7 + completedMiles).toFixed(1));
+      setText("[data-live-max-speed]", () => display.speedFromMph(telemetry.maxSpeedMph));
+      setText("[data-live-avg-speed]", () => display.speedFromMph(telemetry.averageSpeedMph));
       setText("[data-live-latitude]", coordinateLabel(telemetry.latitude, "N", "S"));
       setText("[data-live-longitude]", coordinateLabel(telemetry.longitude, "E", "W"));
       const powerSave = menuValues.gpsMode === "DISABLED (POWER SAVE)";
-      const sleepMinutes = Number.parseInt(menuValues.sleepModeTimer, 10);
-      this.#ride.setPowerSave(powerSave);
-      this.#ride.setSleepAfterMs(sleepMinutes * 60 * 1000);
       const loggingEnabled = menuValues.gpsMode === "ENABLED (LOGGING ON)";
-      this.#mount.dataset.logging = this.#ride.playing && loggingEnabled ? "recording" : "paused";
-      this.#mount.dataset.gps = powerSave ? "disabled" : "enabled";
-      this.#mount.dataset.stopwatch = this.#stopwatchRunning ? "running" : "paused";
-      this.#mount.dataset.mapOrientation = menuValues.mapOrientation === "NORTH UP" ? "north-up" : "track-up";
-      this.#mount.style.setProperty("--voyager-screen-brightness", String(clamp(Number(brightnessValue) / 50, 0.35, 2)));
+      setDatasetValue(this.#mount, "logging", this.#ride.playing && loggingEnabled ? "recording" : "paused");
+      setDatasetValue(this.#mount, "gps", powerSave ? "disabled" : "enabled");
+      setDatasetValue(this.#mount, "stopwatch", this.#stopwatchRunning ? "running" : "paused");
+      const settingsKey = [
+        brightnessValue,
+        menuValues.gpsMode,
+        menuValues.sleepModeTimer,
+        menuValues.mapOrientation,
+        display.signature,
+      ].join(":");
+      if (settingsKey !== this.#appliedSettingsKey) {
+        const sleepMinutes = Number.parseInt(menuValues.sleepModeTimer, 10);
+        this.#ride.setPowerSave(powerSave);
+        this.#ride.setSleepAfterMs(sleepMinutes * 60 * 1000);
+        setDatasetValue(this.#mount, "mapOrientation", menuValues.mapOrientation === "NORTH UP" ? "north-up" : "track-up");
+        this.#mount.style.setProperty("--voyager-screen-brightness", String(clamp(Number(brightnessValue) / 50, 0.35, 2)));
+        this.#mount.style.setProperty("--voyager-screen-inversion", display.inverted ? "1" : "0");
+        this.#appliedSettingsKey = settingsKey;
+      }
     }
     if (refreshStopwatch) {
       setText("[data-live-stopwatch]", formatDuration(this.#stopwatchMilliseconds() / 1000));
@@ -1551,7 +1591,7 @@ export class VoyagerLiveRuntime {
     if (definition?.outcome === "select-destination"
       || event.from === "m-nav-destination-primary"
       || event.from === "m-nav-destination-secondary") {
-      const selectedName = this.#menuModel.values.destinationWaypoint;
+      const selectedName = this.#settings().destinationWaypoint;
       this.#selectedDestination = this.#destinationWaypoints().find((waypoint) => waypoint.name === selectedName) ?? null;
       if (this.#selectedDestination) this.#queueToast(["WAYPOINT SELECTED", selectedName]);
     }
@@ -1608,7 +1648,7 @@ export class VoyagerLiveRuntime {
   }
 
   #saveCurrentRide(telemetry) {
-    const name = this.#menuModel.values.rideName || `RIDE-${this.#savedRides.length + 32}`;
+    const name = this.#settings().rideName || `RIDE-${this.#savedRides.length + 32}`;
     this.#savedRides = [{
       id: `RIDE-${Date.now().toString(36).toUpperCase()}`,
       name,
@@ -1658,7 +1698,7 @@ export class VoyagerLiveRuntime {
   #destinationLabel() {
     if (this.#selectedDestination?.name) return this.#selectedDestination.name;
     if (this.#selectedDestination?.label) return `WAYPOINT ${this.#selectedDestination.label}`;
-    return "DEST DST MI";
+    return `DEST DST ${createVoyagerDisplayProfile(this.#settings()).distanceUnit}`;
   }
 
   #syncDestinationLabel() {
@@ -1875,7 +1915,7 @@ export class VoyagerLiveRuntime {
         `translate(${marker.dataset.mapX} ${marker.dataset.mapY}) scale(${(1 / mapView.scale).toFixed(4)})`,
       );
     }
-    const mapRotation = this.#menuModel.values.mapOrientation === "TRACK UP" ? -this.#telemetry.heading : 0;
+    const mapRotation = this.#settings().mapOrientation === "TRACK UP" ? -this.#telemetry.heading : 0;
     this.#mount.querySelector("[data-live-map-transform]")?.setAttribute(
       "transform",
       `translate(${mapView.pan.x.toFixed(2)} ${mapView.pan.y.toFixed(2)}) translate(252 150) rotate(${mapRotation.toFixed(2)}) scale(${mapView.scale.toFixed(2)}) translate(-252 -150)`,
@@ -1889,6 +1929,7 @@ export class VoyagerLiveRuntime {
     const top = 44;
     const bottom = 284;
     const isTemperature = screen.graphMetric === "temperature";
+    const display = createVoyagerDisplayProfile(this.#settings());
     const allValues = this.#ride.graphValues(screen.graphMetric);
     if (allValues.length < 2) return;
 
@@ -1913,26 +1954,28 @@ export class VoyagerLiveRuntime {
     this.#mount.querySelector("[data-live-graph-fill-clip]")?.setAttribute("d", fillPath);
 
     const currentGraphValue = graphValueAtProgress(allValues, this.#telemetry.progress);
-    const currentValue = Math.round(currentGraphValue);
+    const convertValue = isTemperature ? display.temperatureFromF : display.altitudeFromFeet;
+    const currentValue = convertValue(currentGraphValue);
     const { maximum: allMaximum, average } = graphStats;
-    const unit = isTemperature ? "°F" : " FT";
+    const unit = isTemperature ? display.temperatureUnit : ` ${display.altitudeUnit}`;
     const prefix = isTemperature ? "ENG" : "ALT";
     setElementText(this.#mount.querySelector("[data-live-graph-current]"), `${prefix}:${currentValue}${unit}`);
-    setElementText(this.#mount.querySelector("[data-live-graph-max]"), `MAX:${Math.round(allMaximum)}${unit}`);
-    setElementText(this.#mount.querySelector("[data-live-graph-average]"), `AVG:${average}${unit}`);
+    setElementText(this.#mount.querySelector("[data-live-graph-max]"), `MAX:${convertValue(allMaximum)}${unit}`);
+    setElementText(this.#mount.querySelector("[data-live-graph-average]"), `AVG:${convertValue(average)}${unit}`);
     setElementText(
       this.#mount.querySelector("[data-live-graph-readout]"),
       `${isTemperature ? "ENGINE TEMP" : "ALTITUDE"}: ${currentValue}${unit}`,
     );
 
-    const labelStep = isTemperature ? 5 : 50;
+    const labelStep = isTemperature ? 5 : display.altitudeUnit === "M" ? 20 : 50;
     const scaleValues = [0.75, 0.5, 0.25, 0].map((amount) => {
       const value = minimum + range * amount;
-      return Math.round(value / labelStep) * labelStep;
+      const converted = convertValue(value);
+      return Math.round(converted / labelStep) * labelStep;
     });
     for (const labelElement of this.#mount.querySelectorAll("[data-live-graph-scale-label]")) {
       const index = Number(labelElement.dataset.liveGraphScaleLabel);
-      labelElement.textContent = `${scaleValues[index]}${isTemperature ? "" : " FT"}`;
+      setElementText(labelElement, `${scaleValues[index]}${isTemperature ? "" : ` ${display.altitudeUnit}`}`);
     }
 
     this.#graphCursorProjection = {
@@ -2003,5 +2046,11 @@ export class VoyagerLiveRuntime {
 }
 
 function setElementText(element, value) {
-  if (element) element.textContent = value;
+  if (!element) return;
+  const nextValue = String(value);
+  if (element.textContent !== nextValue) element.textContent = nextValue;
+}
+
+function setDatasetValue(element, key, value) {
+  if (element.dataset[key] !== value) element.dataset[key] = value;
 }
