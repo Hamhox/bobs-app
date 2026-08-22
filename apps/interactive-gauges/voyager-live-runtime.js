@@ -22,6 +22,7 @@ import {
   voyagerMenuAriaLabel,
 } from "./voyager-menu-renderer.js";
 import { VOYAGER_COMPASS_VIEW_BOX, voyagerUiIcon } from "./voyager-ui-icons.js";
+import { VOYAGER_FONT_SYMBOLS } from "./voyager-font-symbols.js";
 
 const DIRECTION_INPUTS = new Set(["up", "down", "left", "right"]);
 const WAYPOINT_STORAGE_KEY = "bobs-app:voyager-waypoints:v1";
@@ -829,9 +830,16 @@ const DEFAULT_USER_SCREEN_BLOCKS = Object.freeze({
   2: ["ENGINE ACC. RUN TIME", "MAX WHEEL SPEED", "AVG WHEEL SPEED", "<OFF>", "<OFF>", "<OFF>"],
 });
 
-function userMetricDefinition(selection, display) {
-  const normalized = selection.replace(/[\uE10B\uE10C]/g, "").trim();
-  const variantSuffix = selection.includes("\uE10C") ? " 1" : selection.includes("\uE10B") ? " 2" : "";
+export function voyagerUserMetricDefinition(selection, display) {
+  const normalized = selection.replace(/[\uE109-\uE10C]/g, "").trim();
+  const screenIndicator = selection.includes(VOYAGER_FONT_SYMBOLS.circledDigitNarrow1)
+    || selection.includes(VOYAGER_FONT_SYMBOLS.circledDigitWide1)
+    ? VOYAGER_FONT_SYMBOLS.circledDigitNarrow1
+    : selection.includes(VOYAGER_FONT_SYMBOLS.circledDigitNarrow2)
+      || selection.includes(VOYAGER_FONT_SYMBOLS.circledDigitWide2)
+      ? VOYAGER_FONT_SYMBOLS.circledDigitNarrow2
+      : "";
+  const variantSuffix = screenIndicator ? ` ${screenIndicator}` : "";
   const definitions = {
     ALTITUDE: [`ALT ${display.altitudeUnit}`, "data-live-altitude", "1089"],
     "MIN ALTITUDE": [`MIN ALT ${display.altitudeUnit}`, "", "914"],
@@ -868,7 +876,7 @@ function userMetricDefinition(selection, display) {
 }
 
 function userMetricBlock(x, y, selection, display) {
-  const metric = userMetricDefinition(selection, display);
+  const metric = voyagerUserMetricDefinition(selection, display);
   const readoutClass = metric.fallback === "00:00:00" ? " voyager-live__user-metric-readout--clock" : "";
   return `
     <text class="voyager-live__text voyager-live__text--medium voyager-live__user-metric-label" x="${x}" y="${y}" text-anchor="middle">${metric.label}</text>

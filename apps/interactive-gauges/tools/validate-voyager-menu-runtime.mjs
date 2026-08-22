@@ -10,6 +10,7 @@ import { renderVoyagerMenuMarkup, renderVoyagerToastMarkup } from "../voyager-me
 import {
   formatVoyagerDestinationDistance,
   voyagerDestinationTextLength,
+  voyagerUserMetricDefinition,
 } from "../voyager-live-runtime.js";
 
 const EXPECTED_COUNTS = Object.freeze({
@@ -81,6 +82,17 @@ function main() {
   if (!dataBlockSelector.options.some((option) => option.includes("\uE10B"))) {
     throw new Error("data-block options are missing the v1.003 circled 2 glyph");
   }
+  if (dataBlockSelector.options.some((option) => /\([12]\)/.test(option))) {
+    throw new Error("data-block options contain text screen numbers instead of font indicators");
+  }
+  const userMetric = voyagerUserMetricDefinition(
+    `AVG WHEEL SPEED ${VOYAGER_FONT_SYMBOLS.circledDigitNarrow1}`,
+    { speedUnit: "KM/H" },
+  );
+  if (userMetric.label !== `AVG WHEEL SPD ${VOYAGER_FONT_SYMBOLS.circledDigitNarrow1} KM/H`
+    || userMetric.label.includes("SPD 1")) {
+    throw new Error("user-screen readouts do not retain the font screen indicator");
+  }
 
   if (VOYAGER_KEYBOARD_ROWS.length !== 4 || VOYAGER_KEYBOARD_ROWS.some((row) => row.length !== 13)) {
     throw new Error("keyboard is not a full four-by-thirteen device grid");
@@ -104,6 +116,19 @@ function main() {
   const selectedMenuMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-set3-2"], new VoyagerMenuModel());
   if (!selectedMenuMarkup.includes('class="voyager-menu__selection" x="68"')) {
     throw new Error("top-level menu selection does not span the content pane");
+  }
+  const submenuDefinitions = Object.values(VOYAGER_MENU_STATE_INDEX)
+    .filter((definition) => definition.rows?.some((row) => row.submenu));
+  for (const definition of submenuDefinitions) {
+    const submenuMarkup = renderDefinition(definition, new VoyagerMenuModel());
+    if (submenuMarkup.includes("&gt;</text>")) {
+      throw new Error(`${definition.id} still renders a text submenu arrow`);
+    }
+    for (const row of definition.rows.filter((candidate) => candidate.submenu)) {
+      if (!submenuMarkup.includes(`${VOYAGER_FONT_SYMBOLS.play} ${row.label.trimStart()}`)) {
+        throw new Error(`${definition.id} is missing a play-icon submenu label`);
+      }
+    }
   }
   const panelMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-set3-2-1"], new VoyagerMenuModel());
   if (!panelMarkup.includes("voyager-menu__panel-shadow") || !panelMarkup.includes("voyager-menu__title-band")) {

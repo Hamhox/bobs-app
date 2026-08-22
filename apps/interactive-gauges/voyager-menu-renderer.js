@@ -1,5 +1,6 @@
 import { voyagerUiIcon } from "./voyager-ui-icons.js";
 import { VOYAGER_KEYBOARD_ROWS } from "./voyager-menu-model.js";
+import { VOYAGER_FONT_SYMBOLS } from "./voyager-font-symbols.js";
 
 const escapeMarkup = (value) => String(value ?? "")
   .replaceAll("&", "&amp;")
@@ -75,13 +76,16 @@ function rowsMarkup(definition, {
     const selected = sourceIndex === definition.selectedIndex;
     const active = selected && !row.disabled;
     const rowClass = `voyager-live__text voyager-menu__row${active ? " voyager-live__text--inverse" : ""}${row.disabled ? " voyager-menu__row--disabled" : ""}`;
+    const leadingSpace = row.label.match(/^\s*/)?.[0] ?? "";
+    const rowLabel = row.submenu && !row.label.includes(VOYAGER_FONT_SYMBOLS.play)
+      ? `${leadingSpace}${VOYAGER_FONT_SYMBOLS.play} ${row.label.trimStart()}`
+      : row.label;
     visualRow += 1;
     return `
       <g data-menu-row="${sourceIndex}"${row.disabled ? " data-menu-row-disabled=\"true\" aria-disabled=\"true\"" : ""}>
         ${active ? `<rect class="voyager-menu__selection" x="${selectionLeft}" y="${y - selectionOffset}" width="${selectionWidth}" height="${selectionHeight}" />` : ""}
-        <text class="${rowClass}" x="${left}" y="${y}">${escapeMarkup(row.label)}</text>
+        <text class="${rowClass}" x="${left}" y="${y}">${escapeMarkup(rowLabel)}</text>
         ${row.value ? `<text class="${rowClass}" x="${left + (row.meter ? 202 : width)}" y="${y}" text-anchor="end">${escapeMarkup(row.value)}</text>` : ""}
-        ${row.submenu ? `<text class="${rowClass}" x="${left + width}" y="${y}" text-anchor="end">&gt;</text>` : ""}
         ${row.meter ? `
           <rect class="voyager-menu__meter" x="${left + 216}" y="${y - 15}" width="${width - 219}" height="17" />
           <rect class="voyager-menu__meter-fill" x="${left + 218}" y="${y - 13}" width="${Math.round((width - 223) * row.meter)}" height="13" />` : ""}
