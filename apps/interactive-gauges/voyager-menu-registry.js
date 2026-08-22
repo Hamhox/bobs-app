@@ -13,6 +13,7 @@ const OVERLAY_KINDS = new Set([
   "progress",
   "settings-modal",
   "slot-input",
+  "toast",
   "user-layout",
 ]);
 
@@ -337,29 +338,43 @@ registerOverlay("m-ride-reset-stopwatch", { kind: "confirm", section: "ride", ti
 
 const TRANSFER_ROWS = [
   { label: "IMPORT RIDE" },
-  { label: "IMPORT SETTINGS", submenu: true },
+  { label: `${VOYAGER_FONT_SYMBOLS.play} IMPORT SETTINGS` },
   { spacer: true },
   { label: "EXPORT RIDE" },
-  { label: "EXPORT SETTINGS", submenu: true },
+  { label: `${VOYAGER_FONT_SYMBOLS.play} EXPORT SETTINGS` },
 ];
 registerPageFamily({
   ids: ["m-ride-transfer-1", "m-ride-transfer-2", "m-ride-transfer-3", "m-ride-transfer-4"], rows: TRANSFER_ROWS,
-  targets: ["m-ride-import-file", "m-ride-import-settings", "m-ride-export-progress", "m-ride-export-settings"],
+  targets: ["m-ride-import-reading", "m-ride-import-settings", "m-ride-export-progress", "m-ride-export-settings"],
   parentStateId: "m-ride2-7", kind: "panel", section: "ride", title: "IMPORT / EXPORT",
+});
+registerOverlay("m-ride-import-reading", {
+  kind: "toast", section: "ride", title: "READING CARD...", message: "READING CARD...",
+  autoTransition: { active: true, target: "m-ride-import-file", delayMs: 900 },
+}, "m-ride-transfer-1", {
+  left: "m-ride-import-reading", center: "m-ride-import-reading", right: "m-ride-import-reading", enter: "m-ride-import-reading",
 });
 registerOverlay("m-ride-import-file", {
   kind: "settings-modal", section: "ride", title: "SELECT FILE TO IMPORT", fileBrowser: true,
   options: ["BAKER-WEST.GPX", "JORDAN-CREEK.GPX", "CMRA-TRAIL-2.GPX", "2016-BLACKDOG.GPX"], selectedIndex: 0, scroll: true,
 }, "m-ride-transfer-1");
 registerOverlay("m-ride-import-settings", {
-  kind: "settings-modal", section: "ride", title: "IMPORT SETTINGS", options: ["RIDE DATA", "USER SCREENS", "DEVICE SETTINGS", "ALL SETTINGS"], selectedIndex: 3,
-}, "m-ride-transfer-2");
+  kind: "settings-modal", section: "ride", title: "IMPORT OPTIONS",
+  optionLabels: ["FILE TYPE", "TRACKS", "ROUTES", "WAYPOINTS", "RESOLUTION"],
+  options: ["ALL", "AS TRACKS", "AS ROUTES", "ON", "FULL"], selectedIndex: 0,
+}, "m-ride-transfer-2", {
+  right: "m-ride-import-settings", enter: "m-ride-import-settings",
+});
 registerOverlay("m-ride-export-progress", {
-  kind: "progress", section: "ride", title: "EXPORTING GPX", lines: ["WRITING FILE..."], progress: 0.68, outcome: "export-ride", cancelOutcome: "cancel-export",
+  kind: "progress", section: "ride", title: "EXPORT GPX", lines: ["WRITING FILE..."], progress: 0.68, outcome: "export-ride", cancelOutcome: "cancel-export",
 }, "m-ride-transfer-3");
 registerOverlay("m-ride-export-settings", {
-  kind: "progress", section: "ride", title: "EXPORT SETTINGS", lines: ["WRITING FILE..."], progress: 0.68, outcome: "export-settings", cancelOutcome: "cancel-export",
-}, "m-ride-transfer-4");
+  kind: "settings-modal", section: "ride", title: "EXPORT OPTIONS",
+  optionLabels: ["FILE TYPE", "TRACKS", "ROUTES", "WAYPOINTS", "RESOLUTION"],
+  optionGroupBreaks: [1, 4], options: ["GPX", "AS TRACKS", "AS ROUTES", "ON", "FULL"], selectedIndex: 0,
+}, "m-ride-transfer-4", {
+  right: "m-ride-export-settings", enter: "m-ride-export-settings",
+});
 
 const memoryRatio = (value, maximum) => Math.min(1, Math.max(0, value / maximum));
 

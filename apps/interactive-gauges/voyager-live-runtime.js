@@ -1537,7 +1537,7 @@ export class VoyagerLiveRuntime {
   #applyMenuOutcome(event) {
     const definition = voyagerMenuState(event.from);
     if (event.action === "back" && definition?.cancelOutcome === "cancel-export") {
-      this.#queueToast("CANCELLED");
+      this.#queueToast("CANCELLED...");
       return;
     }
     if (event.action !== "enter") return;

@@ -4,6 +4,7 @@ import {
   VOYAGER_MENU_STATE_INDEX,
   VOYAGER_MENU_TRANSITIONS,
 } from "../voyager-menu-registry.js";
+import { VOYAGER_FONT_SYMBOLS } from "../voyager-font-symbols.js";
 import { VOYAGER_KEYBOARD_ROWS, VoyagerMenuModel } from "../voyager-menu-model.js";
 import { renderVoyagerMenuMarkup, renderVoyagerToastMarkup } from "../voyager-menu-renderer.js";
 import {
@@ -12,11 +13,11 @@ import {
 } from "../voyager-live-runtime.js";
 
 const EXPECTED_COUNTS = Object.freeze({
-  total: 199,
+  total: 200,
   pages: 102,
   workflows: 6,
-  overlays: 91,
-  menuOverlays: 85,
+  overlays: 92,
+  menuOverlays: 86,
 });
 const EDITOR_ACTIONS = ["up", "down", "left", "right", "center", "back", "enter"];
 
@@ -137,6 +138,43 @@ function main() {
   }
   if (!modalMarkup.includes('class="voyager-menu__selection" x="83"')) {
     throw new Error("settings selection does not span the inner modal");
+  }
+
+  const transferMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-ride-transfer-2"], new VoyagerMenuModel());
+  if (!transferMarkup.includes(`${VOYAGER_FONT_SYMBOLS.play} IMPORT SETTINGS`)
+    || !transferMarkup.includes(`${VOYAGER_FONT_SYMBOLS.play} EXPORT SETTINGS`)
+    || transferMarkup.includes("&gt;</text>")) {
+    throw new Error("ride transfer submenu rows do not use the device play symbol");
+  }
+  const readingDefinition = VOYAGER_MENU_STATE_INDEX["m-ride-import-reading"];
+  const readingMarkup = renderDefinition(readingDefinition, new VoyagerMenuModel());
+  if (!readingMarkup.includes("READING CARD...")
+    || !readingMarkup.includes("voyager-menu__toast")
+    || readingMarkup.includes("voyager-menu__underlay-wash")
+    || readingDefinition.autoTransition?.target !== "m-ride-import-file"
+    || VOYAGER_MENU_TRANSITIONS["m-ride-transfer-1"].enter !== "m-ride-import-reading") {
+    throw new Error("ride import no longer pauses at the reading-card toast before the file browser");
+  }
+  const importOptionsMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-ride-import-settings"], new VoyagerMenuModel());
+  for (const expected of ["IMPORT OPTIONS", "FILE TYPE", "ALL", "TRACKS", "AS TRACKS", "ROUTES", "AS ROUTES", "WAYPOINTS", "ON", "RESOLUTION", "FULL"]) {
+    if (!importOptionsMarkup.includes(expected)) throw new Error(`import options modal is missing ${expected}`);
+  }
+  if (importOptionsMarkup.includes("radio-16pt")) {
+    throw new Error("import options modal incorrectly renders as a radio list");
+  }
+  const exportProgressMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-ride-export-progress"], new VoyagerMenuModel());
+  if (!exportProgressMarkup.includes("EXPORT GPX")
+    || !exportProgressMarkup.includes("WRITING FILE...")
+    || !exportProgressMarkup.includes("voyager-menu__progress-track")
+    || !exportProgressMarkup.includes("voyager-menu__progress-fill")) {
+    throw new Error("ride export progress modal is incomplete");
+  }
+  const exportOptionsMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-ride-export-settings"], new VoyagerMenuModel());
+  for (const expected of ["EXPORT OPTIONS", "FILE TYPE", "GPX", "TRACKS", "AS TRACKS", "ROUTES", "AS ROUTES", "WAYPOINTS", "ON", "RESOLUTION", "FULL"]) {
+    if (!exportOptionsMarkup.includes(expected)) throw new Error(`export options modal is missing ${expected}`);
+  }
+  if (exportOptionsMarkup.includes("radio-16pt")) {
+    throw new Error("export options modal incorrectly renders as a radio list");
   }
 
   const quickMenuMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-main1-1"], new VoyagerMenuModel());

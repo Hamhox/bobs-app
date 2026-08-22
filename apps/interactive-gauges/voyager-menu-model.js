@@ -327,6 +327,7 @@ export class VoyagerMenuModel {
     if (definition.kind === "keyboard") this.#editKeyboard(draft, preparedAction);
 
     if (preparedAction === "enter" && definition.kind === "settings-modal") {
+      if (definition.optionLabels) return { action: preparedAction, targetStateId: definition.id };
       const targetStateId = definition.optionTargets?.[draft.selectedIndex];
       this.#commit(definition, draft);
       if (targetStateId) return { action: preparedAction, targetStateId };

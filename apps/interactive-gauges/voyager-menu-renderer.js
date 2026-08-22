@@ -275,7 +275,10 @@ function settingsModal(definition) {
   const visibleOptions = definition.options.slice(windowStart, windowStart + visibleCount);
   const options = visibleOptions.map((option, visibleIndex) => {
     const sourceIndex = windowStart + visibleIndex;
-    const y = top + visibleIndex * lineHeight;
+    const groupOffset = (definition.optionGroupBreaks ?? [])
+      .filter((breakBeforeIndex) => sourceIndex >= breakBeforeIndex)
+      .length * 10;
+    const y = top + visibleIndex * lineHeight + groupOffset;
     const selected = sourceIndex === definition.selectedIndex;
     const selectionX = dataBlockPicker ? 73 : 83;
     const selectionWidth = dataBlockPicker ? 354 : 338;
@@ -285,6 +288,14 @@ function settingsModal(definition) {
     const selectionHeight = dataBlockPicker ? 21 : 24;
     const radioY = dataBlockPicker ? y - 17 : y - 18;
     const radioSize = dataBlockPicker ? 17 : 18;
+    if (definition.optionLabels) {
+      return `
+        <g data-menu-option="${sourceIndex}"${selected ? " data-menu-option-selected=\"true\"" : ""}>
+          ${selected ? `<rect class="voyager-menu__selection" x="83" y="${selectionY}" width="338" height="${selectionHeight}" />` : ""}
+          <text class="voyager-live__text voyager-menu__row${selected ? " voyager-live__text--inverse" : ""}" x="101" y="${y}">${escapeMarkup(definition.optionLabels[sourceIndex])}</text>
+          <text class="voyager-live__text voyager-menu__row${selected ? " voyager-live__text--inverse" : ""}" x="404" y="${y}" text-anchor="end">${escapeMarkup(option)}</text>
+        </g>`;
+    }
     if (destinationWaypointPicker) {
       const waypoint = definition.waypointOptions?.[sourceIndex];
       const waypointDigit = waypoint?.label ?? String(sourceIndex + 1);
@@ -380,6 +391,13 @@ function brightnessModal(definition) {
     <text class="voyager-live__text voyager-menu__slot-value" x="252" y="222" text-anchor="middle">${definition.value}%</text>`);
 }
 
+function toastModal(definition) {
+  return `
+    <g data-menu-overlay="${definition.id}" data-menu-parent="${definition.parentStateId ?? ""}">
+      ${renderVoyagerToastMarkup(definition.message ?? definition.title)}
+    </g>`;
+}
+
 const KEYBOARD_ICON_MAP = Object.freeze({
   BACKSPACE: { id: "keyboard-16pt-backspace", width: 24 },
   SPACE: { id: "keyboard-16pt-space", width: 24 },
@@ -458,6 +476,7 @@ export function renderVoyagerMenuMarkup(definition, { underlayMarkup = "" } = {}
     "settings-modal": settingsModal,
     "checklist-modal": checklistModal,
     "slot-input": slotInputModal,
+    toast: toastModal,
     "user-layout": userLayoutModal,
     brightness: brightnessModal,
     keyboard: keyboardModal,
@@ -467,6 +486,7 @@ export function renderVoyagerMenuMarkup(definition, { underlayMarkup = "" } = {}
   if (definition.presentation !== "overlay") return markup;
   const underlay = underlayMarkup
     || `<rect class="voyager-live__surface" width="504" height="303" />${sectionChrome(definition.section)}`;
+  if (definition.kind === "toast") return `${underlay}${markup}`;
   return `${underlay}<rect class="voyager-menu__underlay-wash" width="504" height="303" />${markup}`;
 }
 

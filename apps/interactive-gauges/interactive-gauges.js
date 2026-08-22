@@ -75,10 +75,11 @@ function applyLiveTransitionOverrides(manifest) {
     manifest.states[id] = {
       id,
       transitions: { ...VOYAGER_MENU_TRANSITIONS[id] },
-      autoTransition: null,
+      autoTransition: definition.autoTransition ?? null,
       archiveLinks: [...new Set([
         definition.parentStateId,
         ...Object.values(VOYAGER_MENU_TRANSITIONS[id]),
+        definition.autoTransition?.target,
         manifest.initialState,
       ].filter((target) => typeof target === "string"))],
       referenceScreen: previousState?.referenceScreen
