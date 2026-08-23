@@ -46,6 +46,7 @@ const demoElements = {
   label: document.querySelector("#guide-label"),
   instruction: document.querySelector("#guide-instruction"),
   live: document.querySelector("#guide-live"),
+  liveScreen,
   stage,
   cursor: document.querySelector("#voyager-demo-cursor"),
   toggle: demoToggleButton,
@@ -209,6 +210,7 @@ function dispatchAction(action, source, engine) {
 function applyPointerPlan(plan, engine, source = "touchscreen") {
   if (!plan) return null;
   liveRuntime.recordActivity();
+  if (plan.handled) return plan;
   let result = null;
   if (plan.targetStateId) {
     result = engine.reset(plan.targetStateId, `${source}:target`);
@@ -403,6 +405,7 @@ async function initializeVoyager() {
         if (result) pulseControl(action, result.to !== null);
         return result;
       },
+      performEffect: (effect, context) => liveRuntime.performDemoEffect(effect, context),
     });
     window.navigateToVoyagerState = navigateToState;
 

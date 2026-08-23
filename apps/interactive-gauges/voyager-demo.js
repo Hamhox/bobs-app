@@ -1,6 +1,6 @@
-const DEFAULT_YIELD_MS = 11000;
-const DEFAULT_MOVE_MS = 720;
-const DEFAULT_DWELL_MS = 1550;
+const DEFAULT_YIELD_MS = 12000;
+const DEFAULT_MOVE_MS = 790;
+const DEFAULT_DWELL_MS = 1900;
 
 export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
   {
@@ -11,7 +11,7 @@ export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
     target: "#voyager-live-screen",
     intent: "Return to live ride data",
     presentation: "Viewing speed, heading, and ride telemetry",
-    dwellMs: 1350,
+    dwellMs: 1800,
   },
   {
     id: "present-main",
@@ -20,24 +20,78 @@ export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
     target: "[data-live-speed]",
     intent: "Inspect the primary ride screen",
     presentation: "Live ride data updates on the device cadence",
+    dwellMs: 2200,
   },
   {
-    id: "open-map",
+    id: "warning-led-cycle",
     expectedStates: ["index"],
+    kind: "effect",
+    effect: "warning-led-cycle",
+    target: '[data-voyager-warning-led="yellow"]',
+    intent: ({ loopIndex }) => loopIndex % 2 === 0
+      ? "Arm the temperature warning LEDs"
+      : "Rest the warning LEDs for this loop",
+    presentation: ({ effectResult }) => effectResult?.enabled
+      ? "Stored warning thresholds trigger two hardware-style flashes"
+      : "The next loop will arm the warning lights again",
+    dwellMs: 2300,
+  },
+  {
+    id: "open-quick-menu",
+    expectedStates: ["index"],
+    kind: "physical",
+    action: "menu",
+    target: ".voyager-control--menu",
+    intent: "Open the Quick menu",
+    presentation: "The demo can operate the same controls as a rider",
+    dwellMs: 1900,
+  },
+  {
+    id: "open-log-track",
+    expectedStates: ["m-main1-1"],
     kind: "touch",
-    target: '[data-tab="map"]',
-    intent: "Switch to the map screen",
-    presentation: "Viewing the Baker trail network",
+    target: '[data-menu-row="0"]',
+    intent: "Open ride logging",
+    presentation: "Logging is a real stored Voyager setting",
     dwellMs: 1800,
+  },
+  {
+    id: "toggle-log-track",
+    expectedStates: ["m-main1-2-1"],
+    kind: "touch",
+    target: "[data-menu-option]",
+    targetMode: "opposite-option",
+    intent: "Toggle ride logging for this loop",
+    presentation: "The recording state now belongs to the live gauge",
+    dwellMs: 2100,
+  },
+  {
+    id: "open-import-ride",
+    expectedStates: ["m-main1-2"],
+    kind: "touch",
+    target: '[data-menu-row="5"]',
+    intent: "Open the fake SD card",
+    presentation: "Four real ride files are ready to load",
+    dwellMs: 1800,
+  },
+  {
+    id: "load-next-map",
+    expectedStates: ["m-main1-5-1"],
+    kind: "touch",
+    target: "[data-menu-option]",
+    targetMode: "next-option",
+    intent: "Load the next ride from the SD card",
+    presentation: "Voyager is reading the selected GPX ride",
+    dwellMs: 2300,
   },
   {
     id: "present-map",
     expectedStates: ["map"],
     kind: "present",
     target: "[data-live-position]",
-    intent: "Follow the rider through the loaded track",
-    presentation: "The recorded line follows the rider, not a terrain map",
-    dwellMs: 1850,
+    intent: "Follow the rider through the newly loaded map",
+    presentation: "The recorded line follows the rider across real trail geometry",
+    dwellMs: 2400,
   },
   {
     id: "open-map-detail",
@@ -46,7 +100,7 @@ export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
     target: "[data-live-secondary-screen]",
     intent: "Open the nearby trail view",
     presentation: "Map screen two keeps a separate detail zoom",
-    dwellMs: 1800,
+    dwellMs: 2100,
   },
   {
     id: "return-map-overview",
@@ -56,6 +110,7 @@ export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
     target: ".voyager-control--back",
     intent: "Return to the riding-area overview",
     presentation: "Overview and detail views remain independently useful",
+    dwellMs: 1800,
   },
   {
     id: "open-navigation",
@@ -64,7 +119,7 @@ export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
     target: '[data-tab="nav"]',
     intent: "Switch to navigation",
     presentation: "Navigation combines destination, heading, and stopwatch data",
-    dwellMs: 1800,
+    dwellMs: 2100,
   },
   {
     id: "open-destination-picker",
@@ -73,17 +128,17 @@ export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
     target: "[data-live-nav-destination]",
     intent: "Open the destination waypoint picker",
     presentation: "Loaded GPX waypoints are ready for navigation",
-    dwellMs: 1800,
+    dwellMs: 1900,
   },
   {
-    id: "close-destination-picker",
+    id: "select-destination",
     expectedStates: ["m-nav-destination-primary"],
-    kind: "physical",
-    action: "back",
-    target: ".voyager-control--back",
-    intent: "Leave the waypoint list unchanged",
-    presentation: "The demo never commits a destination for you",
-    dwellMs: 1200,
+    kind: "touch",
+    target: "[data-menu-option]",
+    targetMode: "next-option",
+    intent: "Choose the next loaded destination",
+    presentation: "The navigation screen now owns a real waypoint",
+    dwellMs: 2100,
   },
   {
     id: "start-stopwatch",
@@ -92,7 +147,7 @@ export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
     target: "[data-live-stopwatch-toggle]",
     intent: "Start the ride stopwatch",
     presentation: "The stopwatch is running on a one-second cadence",
-    dwellMs: 2600,
+    dwellMs: 2800,
   },
   {
     id: "stop-stopwatch",
@@ -101,7 +156,7 @@ export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
     target: "[data-live-stopwatch-toggle]",
     intent: "Pause the ride stopwatch",
     presentation: "Stopwatch time is held without resetting the ride",
-    dwellMs: 1250,
+    dwellMs: 1900,
   },
   {
     id: "open-user-screen",
@@ -110,7 +165,7 @@ export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
     target: '[data-tab="user"]',
     intent: "Switch to a custom user screen",
     presentation: "Six readouts share the same embedded-device grid",
-    dwellMs: 1700,
+    dwellMs: 2100,
   },
   {
     id: "open-readout-picker",
@@ -119,27 +174,26 @@ export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
     target: "[data-live-user-readout]",
     intent: "Choose a user-screen readout",
     presentation: "Every data block can be reassigned independently",
-    dwellMs: 1750,
+    dwellMs: 1900,
   },
   {
-    id: "leave-readout-picker",
+    id: "choose-readout",
     expectedStates: ["m-user-screen-1-data-block"],
-    kind: "physical",
-    action: "back",
-    target: ".voyager-control--back",
-    intent: "Return without changing the readout",
-    presentation: "The original user-screen layout remains intact",
-    dwellMs: 900,
+    kind: "touch",
+    target: "[data-menu-option]",
+    targetMode: "next-option-nonzero",
+    intent: "Assign a different data block",
+    presentation: "The selected readout is staged in the user layout",
+    dwellMs: 1800,
   },
   {
-    id: "leave-user-layout",
+    id: "commit-user-layout",
     expectedStates: ["m-user-screen-1-layout"],
-    kind: "physical",
-    action: "back",
-    target: ".voyager-control--back",
-    intent: "Close the layout editor",
-    presentation: "Back returns directly to the live user screen",
-    dwellMs: 1100,
+    kind: "touch",
+    target: '[data-menu-confirmation="1"]',
+    intent: "Save the user-screen layout",
+    presentation: "The changed readout is now live on the gauge",
+    dwellMs: 2200,
   },
   {
     id: "open-satellites",
@@ -148,7 +202,7 @@ export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
     target: '[data-tab="sat"]',
     intent: "Switch to satellite status",
     presentation: "Signal pills and bars show the current GPS fix",
-    dwellMs: 1900,
+    dwellMs: 2200,
   },
   {
     id: "open-satellite-detail",
@@ -157,7 +211,7 @@ export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
     target: "[data-live-secondary-screen]",
     intent: "Open detailed satellite data",
     presentation: "Latitude, longitude, and dilution values remain readable",
-    dwellMs: 1850,
+    dwellMs: 2100,
   },
   {
     id: "return-satellites",
@@ -166,36 +220,7 @@ export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
     target: "[data-live-secondary-screen]",
     intent: "Return to the satellite radar",
     presentation: "Primary and detailed satellite screens stay one click apart",
-    dwellMs: 1250,
-  },
-  {
-    id: "open-quick-menu",
-    expectedStates: ["sat"],
-    kind: "physical",
-    action: "menu",
-    target: ".voyager-control--menu",
-    intent: "Open the Quick menu",
-    presentation: "Common ride actions are available without leaving the gauge",
     dwellMs: 1900,
-  },
-  {
-    id: "present-quick-menu",
-    expectedStates: ["m-main1-1"],
-    kind: "present",
-    target: '[data-menu-row="0"]',
-    intent: "Inspect the live menu structure",
-    presentation: "The same rows work with buttons, keyboard, or touch",
-    dwellMs: 1850,
-  },
-  {
-    id: "close-quick-menu",
-    expectedStates: ["m-main1-1"],
-    kind: "physical",
-    action: "back",
-    target: ".voyager-control--back",
-    intent: "Close the Quick menu",
-    presentation: "Returning preserves the satellite screen underneath",
-    dwellMs: 1100,
   },
   {
     id: "return-main",
@@ -204,7 +229,7 @@ export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
     target: '[data-tab="main"]',
     intent: "Return to the main ride screen",
     presentation: "The autonomous tour will continue from the live gauge",
-    dwellMs: 1900,
+    dwellMs: 2300,
   },
 ]);
 
@@ -212,6 +237,13 @@ function elementIsVisible(element) {
   if (!element) return false;
   const bounds = element.getBoundingClientRect();
   return bounds.width > 0 && bounds.height > 0;
+}
+
+function mutationContainsToast(records) {
+  return records.some((record) => [...record.addedNodes, ...record.removedNodes].some((node) =>
+    node?.nodeType === 1
+      && (node.matches?.("[data-live-toast]") || node.querySelector?.("[data-live-toast]")),
+  ));
 }
 
 export function compatibleDemoStepIndex(sequence, stateId, startIndex = 0) {
@@ -233,13 +265,17 @@ export class VoyagerDemoDirector {
   #navigate;
   #activateTarget;
   #performAction;
+  #performEffect;
   #sequence;
   #index = 0;
+  #loopIndex = 0;
   #timer = null;
   #animation = null;
   #runToken = 0;
   #playing = false;
   #yielding = false;
+  #overlayBlocked = false;
+  #overlaySyncQueued = false;
   #stageVisible = true;
   #documentVisible = !document.hidden;
   #stateId;
@@ -251,6 +287,7 @@ export class VoyagerDemoDirector {
   #intersectionObserver;
   #visibilityListener;
   #motionListener;
+  #overlayObserver;
 
   constructor({
     engine,
@@ -258,6 +295,7 @@ export class VoyagerDemoDirector {
     navigate,
     activateTarget,
     performAction,
+    performEffect,
     sequence = VOYAGER_DEMO_SEQUENCE,
     yieldMs = DEFAULT_YIELD_MS,
     moveMs = DEFAULT_MOVE_MS,
@@ -267,6 +305,7 @@ export class VoyagerDemoDirector {
     this.#navigate = navigate;
     this.#activateTarget = activateTarget;
     this.#performAction = performAction;
+    this.#performEffect = performEffect;
     this.#sequence = sequence;
     this.#yieldMs = yieldMs;
     this.#moveMs = moveMs;
@@ -292,6 +331,13 @@ export class VoyagerDemoDirector {
       }, { threshold: [0, 0.35, 0.7] });
       this.#intersectionObserver.observe(this.#elements.stage);
     }
+
+    if ("MutationObserver" in window && this.#elements.liveScreen) {
+      this.#overlayObserver = new MutationObserver((records) => {
+        if (mutationContainsToast(records)) this.#queueOverlaySync();
+      });
+      this.#overlayObserver.observe(this.#elements.liveScreen, { childList: true, subtree: true });
+    }
   }
 
   get playing() {
@@ -303,10 +349,13 @@ export class VoyagerDemoDirector {
   }
 
   start({ restart = false } = {}) {
-    if (restart) this.#index = 0;
+    if (restart) {
+      this.#index = 0;
+      this.#loopIndex = 0;
+    }
     this.#playing = true;
     this.#yielding = false;
-    this.#engine.setAutoTransitionsEnabled(false);
+    this.#engine.setAutoTransitionsEnabled(true);
     this.#elements.stage.dataset.demoState = "playing";
     this.#elements.panel.dataset.mode = "active";
     this.#elements.toggle.setAttribute("aria-pressed", "true");
@@ -314,7 +363,8 @@ export class VoyagerDemoDirector {
     this.#renderCue("Starting the autonomous Voyager demo", "playing");
     this.#cancelRun();
     this.#index = compatibleDemoStepIndex(this.#sequence, this.#stateId, this.#index);
-    this.#schedule(this.#reducedMotion.matches ? 120 : 520);
+    this.#syncBlockingOverlay();
+    if (!this.#overlayBlocked) this.#schedule(this.#reducedMotion.matches ? 120 : 520);
   }
 
   pause({ message = "Demo paused. Explore freely or resume when ready." } = {}) {
@@ -358,6 +408,7 @@ export class VoyagerDemoDirector {
 
   observe(state) {
     this.#stateId = state.id;
+    this.#queueOverlaySync();
   }
 
   destroy() {
@@ -365,11 +416,13 @@ export class VoyagerDemoDirector {
     document.removeEventListener("visibilitychange", this.#visibilityListener);
     this.#reducedMotion.removeEventListener?.("change", this.#motionListener);
     this.#intersectionObserver?.disconnect();
+    this.#overlayObserver?.disconnect();
   }
 
   #canRun() {
     return this.#playing
       && !this.#yielding
+      && !this.#overlayBlocked
       && this.#stageVisible
       && this.#documentVisible;
   }
@@ -381,6 +434,36 @@ export class VoyagerDemoDirector {
       return;
     }
     if (this.#timer === null && this.#animation === null) this.#schedule(450);
+  }
+
+  #queueOverlaySync() {
+    if (this.#overlaySyncQueued) return;
+    this.#overlaySyncQueued = true;
+    queueMicrotask(() => {
+      this.#overlaySyncQueued = false;
+      this.#syncBlockingOverlay();
+    });
+  }
+
+  #syncBlockingOverlay() {
+    const toast = this.#elements.liveScreen?.querySelector("[data-live-toast]");
+    const blocked = Boolean(toast);
+    if (blocked === this.#overlayBlocked) return;
+    this.#overlayBlocked = blocked;
+    if (blocked) {
+      if (!this.#playing) return;
+      this.#cancelRun();
+      this.#hideCursor();
+      this.#elements.stage.dataset.demoState = "waiting";
+      const message = toast.dataset.liveToastMessage?.replaceAll(" / ", ": ") || "Voyager message in progress";
+      this.#renderCue(`Waiting for Voyager: ${message}`, "waiting");
+      return;
+    }
+    if (!this.#playing || this.#yielding || !this.#stageVisible || !this.#documentVisible) return;
+    this.#elements.stage.dataset.demoState = "playing";
+    this.#index = compatibleDemoStepIndex(this.#sequence, this.#stateId, this.#index);
+    this.#renderCue("Continuing after the Voyager message", "playing");
+    this.#schedule(650);
   }
 
   #cancelRun() {
@@ -408,9 +491,9 @@ export class VoyagerDemoDirector {
     if (compatibleIndex !== this.#index) this.#index = compatibleIndex;
     const step = this.#sequence[this.#index];
     const token = ++this.#runToken;
-    this.#renderCue(step.intent, "intent");
+    this.#renderCue(this.#resolveCopy(step.intent), "intent");
 
-    const target = this.#findTarget(step.target);
+    const target = this.#findTarget(step);
     if (step.target && !target) {
       this.#missingTargetRetries += 1;
       if (this.#missingTargetRetries <= 2) {
@@ -432,6 +515,7 @@ export class VoyagerDemoDirector {
       if (!this.#canRun() || token !== this.#runToken) return;
     }
 
+    let effectResult = null;
     try {
       if (step.kind === "navigate") {
         await this.#navigate(step.destination, {
@@ -443,6 +527,8 @@ export class VoyagerDemoDirector {
         this.#activateTarget(target, "demo");
       } else if (step.kind === "physical") {
         this.#performAction(step.action, "demo");
+      } else if (step.kind === "effect") {
+        effectResult = this.#performEffect?.(step.effect, { loopIndex: this.#loopIndex }) ?? null;
       }
     } catch (error) {
       this.#renderCue(`Demo recovered from: ${error.message}`, "waiting");
@@ -452,14 +538,41 @@ export class VoyagerDemoDirector {
     }
 
     if (!this.#canRun() || token !== this.#runToken) return;
-    this.#renderCue(step.presentation, "presenting");
-    this.#index = (this.#index + 1) % this.#sequence.length;
+    this.#renderCue(this.#resolveCopy(step.presentation, effectResult), "presenting");
+    this.#advanceStep();
     this.#schedule(step.dwellMs ?? DEFAULT_DWELL_MS);
   }
 
-  #findTarget(selector) {
+  #findTarget(step) {
+    const selector = step.target;
     if (!selector) return null;
-    return [...this.#elements.stage.querySelectorAll(selector)].find(elementIsVisible) ?? null;
+    let candidates = [...this.#elements.stage.querySelectorAll(selector)].filter(elementIsVisible);
+    if (!candidates.length) return null;
+    if (step.targetMode === "opposite-option") {
+      return candidates.find((candidate) => !candidate.hasAttribute("data-menu-option-selected")) ?? candidates[0];
+    }
+    if (["next-option", "next-option-nonzero"].includes(step.targetMode)) {
+      candidates = candidates
+        .filter((candidate) => step.targetMode !== "next-option-nonzero" || Number(candidate.dataset.menuOption) > 0)
+        .sort((left, right) => Number(left.dataset.menuOption) - Number(right.dataset.menuOption));
+      if (!candidates.length) return null;
+      const selected = [...this.#elements.stage.querySelectorAll(`${selector}[data-menu-option-selected]`)]
+        .find(elementIsVisible);
+      const selectedIndex = Number(selected?.dataset.menuOption);
+      return candidates.find((candidate) => Number(candidate.dataset.menuOption) > selectedIndex) ?? candidates[0];
+    }
+    return candidates[0];
+  }
+
+  #advanceStep() {
+    this.#index = (this.#index + 1) % this.#sequence.length;
+    if (this.#index === 0) this.#loopIndex += 1;
+  }
+
+  #resolveCopy(copy, effectResult = null) {
+    return typeof copy === "function"
+      ? copy({ loopIndex: this.#loopIndex, effectResult })
+      : copy;
   }
 
   async #moveCursor(target, token) {

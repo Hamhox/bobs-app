@@ -892,6 +892,18 @@ function main() {
     throw new Error("keyboard Down did not move from the confirmation buttons to the top row");
   }
 
+  const destinationOverlayMarkup = renderDefinition(
+    VOYAGER_MENU_STATE_INDEX["m-nav-destination-primary"],
+    new VoyagerMenuModel(),
+  );
+  if (!destinationOverlayMarkup.includes("data-menu-backdrop")) {
+    throw new Error("menu overlays do not expose a screen-background Back target");
+  }
+  const dismissibleToastMarkup = renderVoyagerToastMarkup("WAYPOINT SELECTED");
+  if (!dismissibleToastMarkup.includes("data-live-toast-dismiss")) {
+    throw new Error("live toasts do not expose a full-screen dismissal target");
+  }
+
   console.log(JSON.stringify(report, null, 2));
 }
 

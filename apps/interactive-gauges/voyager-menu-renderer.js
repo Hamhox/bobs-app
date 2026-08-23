@@ -181,6 +181,7 @@ export function renderVoyagerToastMarkup(message) {
   const y = Math.floor((303 - height) / 2);
   return `
     <g class="voyager-menu__toast" data-live-toast data-live-toast-message="${escapeMarkup(lines.join(" / "))}">
+      <rect class="voyager-live__touch-hit voyager-menu__toast-dismiss-hit" data-live-toast-dismiss width="504" height="303" />
       <rect class="voyager-menu__modal-shadow" x="${x + 6}" y="${y + 6}" width="${width}" height="${height}" />
       <rect class="voyager-menu__modal" x="${x}" y="${y}" width="${width}" height="${height}" />
       ${lines.map((line, index) => `<text class="voyager-live__text voyager-menu__toast-copy" x="252" y="${y + 36 + index * 24}" text-anchor="middle">${escapeMarkup(line)}</text>`).join("")}
@@ -338,6 +339,14 @@ function settingsModal(definition) {
     if (destinationWaypointPicker) {
       const waypoint = definition.waypointOptions?.[sourceIndex];
       const waypointDigit = waypoint?.label ?? String(sourceIndex + 1);
+      if (definition.destinationUnavailable && !waypoint) {
+        return `
+          <g data-menu-option="${sourceIndex}" data-menu-waypoint-name="${escapeMarkup(option)}"${selected ? " data-menu-option-selected=\"true\"" : ""}>
+            <rect class="voyager-live__touch-hit" x="73" y="${y - 23}" width="358" height="29" />
+            ${selected ? `<rect class="voyager-menu__selection" x="73" y="${y - 23}" width="358" height="29" />` : ""}
+            <text class="voyager-live__text voyager-menu__row voyager-menu__row--option${selected ? " voyager-live__text--inverse" : ""}" x="101" y="${y}">${escapeMarkup(option)}</text>
+          </g>`;
+      }
       return `
         <g data-menu-option="${sourceIndex}" data-menu-waypoint-name="${escapeMarkup(option)}"${selected ? " data-menu-option-selected=\"true\"" : ""}>
           <rect class="voyager-live__touch-hit" x="73" y="${y - 23}" width="358" height="29" />
@@ -590,7 +599,7 @@ export function renderVoyagerMenuMarkup(definition, { underlayMarkup = "" } = {}
   const underlay = underlayMarkup
     || `<rect class="voyager-live__surface" width="504" height="303" />${sectionChrome(definition.section)}`;
   if (definition.kind === "toast") return `${underlay}${markup}`;
-  return `${underlay}<rect class="voyager-menu__underlay-wash" width="504" height="303" />${markup}`;
+  return `${underlay}<rect class="voyager-menu__underlay-wash" width="504" height="303" /><rect class="voyager-live__touch-hit voyager-menu__backdrop-hit" data-menu-backdrop width="504" height="303" />${markup}`;
 }
 
 export function voyagerMenuAriaLabel(definition) {

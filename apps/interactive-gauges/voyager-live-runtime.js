@@ -1484,6 +1484,48 @@ export class VoyagerLiveRuntime {
     this.#ride.recordActivity();
   }
 
+  performDemoEffect(effect, { loopIndex = 0 } = {}) {
+    if (effect !== "warning-led-cycle") return null;
+    const enabled = loopIndex % 2 === 0;
+    const snapshot = this.#menuModel.exportSnapshot();
+    snapshot.settings = {
+      ...snapshot.settings,
+      yellowLedOn: enabled ? "120 °F" : "000 °F",
+      redLedOn: enabled ? "155 °F" : "000 °F",
+      yellowLedFlash: enabled ? "145 °F" : "000 °F",
+      redLedFlash: enabled ? "170 °F" : "000 °F",
+    };
+    this.#menuModel.importSnapshot(snapshot);
+    this.#invalidateSettingsSnapshot();
+    this.#layoutKey = "";
+    this.#stage.dataset.demoWarningLights = enabled ? "armed" : "off";
+    if (this.#state) this.render(this.#state, { type: "demo-effect", effect });
+
+    const lights = [...this.#stage.querySelectorAll("[data-voyager-warning-led]")];
+    for (const light of lights) light.getAnimations().forEach((animation) => animation.cancel());
+    if (enabled) {
+      for (const [index, light] of lights.entries()) {
+        light.animate(
+          [
+            { opacity: 0, offset: 0 },
+            { opacity: 0.96, offset: 0.12 },
+            { opacity: 0, offset: 0.3 },
+            { opacity: 0, offset: 0.48 },
+            { opacity: 0.96, offset: 0.6 },
+            { opacity: 0, offset: 0.8 },
+            { opacity: 0, offset: 1 },
+          ],
+          {
+            delay: index * 180,
+            duration: 1700,
+            easing: "steps(1, end)",
+          },
+        );
+      }
+    }
+    return Object.freeze({ enabled });
+  }
+
   supports(stateId) {
     return this.#available && (VOYAGER_LIVE_STATE_IDS.has(stateId) || VOYAGER_MENU_STATE_IDS.has(stateId));
   }
@@ -1553,8 +1595,14 @@ export class VoyagerLiveRuntime {
   }
 
   preparePointerInput(stateId, target, pointer = {}) {
-    this.#clearToast();
     if (!target?.closest) return null;
+    if (target.closest("[data-live-toast]")) {
+      this.#clearToast();
+      return { handled: true };
+    }
+    this.#clearToast();
+
+    if (target.closest("[data-menu-backdrop]")) return { action: "back" };
 
     const menuTab = target.closest("[data-menu-tab]");
     if (menuTab) {
@@ -1892,7 +1940,14 @@ export class VoyagerLiveRuntime {
     }
     if (!definition?.destinationWaypointPicker) return definition;
     const waypointOptions = this.#destinationWaypoints();
-    if (!waypointOptions.length) return definition;
+    if (!waypointOptions.length) {
+      return {
+        ...definition,
+        options: ["<NONE>"],
+        waypointOptions: [],
+        destinationUnavailable: true,
+      };
+    }
     return {
       ...definition,
       options: waypointOptions.map((waypoint) => waypoint.name),
@@ -2108,6 +2163,7 @@ export class VoyagerLiveRuntime {
       const selectedName = this.#settings().destinationWaypoint;
       this.#selectedDestination = this.#destinationWaypoints().find((waypoint) => waypoint.name === selectedName) ?? null;
       if (this.#selectedDestination) this.#queueToast(["WAYPOINT SELECTED", selectedName]);
+      else this.#queueToast("DESTINATION CLEARED");
     }
     if (definition?.outcome === "add-waypoint-current" && telemetry) {
       const waypoint = this.#addWaypoint("CURRENT POSITION", telemetry.latitude, telemetry.longitude);

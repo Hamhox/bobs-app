@@ -355,6 +355,11 @@
   cursor: pointer;
 }
 
+[data-menu-backdrop],
+[data-live-toast] {
+  cursor: pointer;
+}
+
 .voyager-shell {
   position: absolute;
   z-index: 2;
@@ -365,6 +370,30 @@
   object-fit: contain;
   pointer-events: none;
   user-select: none;
+}
+
+.voyager-warning-led {
+  position: absolute;
+  z-index: 4;
+  top: 12.2%;
+  width: 6.2%;
+  height: 6.7%;
+  border-radius: 48%;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateZ(0);
+}
+
+.voyager-warning-led--yellow {
+  left: 23.35%;
+  background: rgb(255 211 60 / 0.86);
+  box-shadow: 0 0 0.55rem rgb(255 219 70 / 0.95), 0 0 1.35rem rgb(255 154 31 / 0.72);
+}
+
+.voyager-warning-led--red {
+  right: 23.35%;
+  background: rgb(255 74 61 / 0.88);
+  box-shadow: 0 0 0.55rem rgb(255 78 61 / 0.95), 0 0 1.35rem rgb(255 26 58 / 0.72);
 }
 
 .voyager-demo-cursor {
@@ -980,6 +1009,11 @@
   opacity: 0.52;
   pointer-events: none;
   shape-rendering: crispEdges;
+}
+
+.voyager-menu__backdrop-hit,
+.voyager-menu__toast-dismiss-hit {
+  pointer-events: all;
 }
 
 .voyager-menu__title-band {
