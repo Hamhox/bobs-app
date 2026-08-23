@@ -178,6 +178,16 @@
   background: linear-gradient(135deg, var(--brand-purple-glow), #7f21e8);
 }
 
+#voyager-demo-toggle {
+  min-width: 10.5rem;
+}
+
+#voyager-demo-toggle[aria-pressed="false"] {
+  background: rgb(53 42 69 / 0.92);
+  box-shadow: inset 0 0 0 1px rgb(168 85 247 / 0.52);
+  color: #d9c4f6;
+}
+
 .gauges-button--text {
   min-height: 2.75rem;
   padding: 0.6rem 0.35rem;
@@ -246,6 +256,10 @@
 .guide-panel[data-mode="active"] .guide-panel__number,
 .guide-panel[data-mode="complete"] .guide-panel__number {
   color: var(--gauge-guide);
+}
+
+.guide-panel[data-demo-phase="presenting"] .guide-panel__number {
+  color: var(--brand-purple-glow);
 }
 
 .voyager-experience {
@@ -353,6 +367,80 @@
   user-select: none;
 }
 
+.voyager-demo-cursor {
+  position: absolute;
+  z-index: 5;
+  top: 0;
+  left: 0;
+  width: clamp(1.65rem, 3.25%, 2.75rem);
+  aspect-ratio: 1;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(50%, 50%, 0);
+  transform-origin: 0 0;
+  will-change: transform, opacity;
+}
+
+.voyager-demo-cursor__pointer {
+  position: absolute;
+  z-index: 2;
+  top: -0.08rem;
+  left: -0.08rem;
+  width: 78%;
+  height: 92%;
+  background: linear-gradient(142deg, #fff 0 12%, #d8b4fe 25%, #a855f7 54%, #ff981f 100%);
+  clip-path: polygon(0 0, 100% 52%, 60% 61%, 47% 100%);
+  filter:
+    drop-shadow(0 0 0.08rem #fff)
+    drop-shadow(0 0 0.42rem rgb(168 85 247 / 0.95))
+    drop-shadow(0 0 0.8rem rgb(255 152 31 / 0.58));
+}
+
+.voyager-demo-cursor__halo {
+  position: absolute;
+  z-index: 1;
+  top: -0.82rem;
+  left: -0.82rem;
+  width: 1.8rem;
+  height: 1.8rem;
+  border: 1px solid rgb(216 180 254 / 0.78);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(168 85 247 / 0.42), transparent 68%);
+  box-shadow:
+    0 0 0.65rem rgb(168 85 247 / 0.82),
+    0 0 1.2rem rgb(255 152 31 / 0.32);
+  animation: voyager-demo-halo 1.8s ease-in-out infinite;
+}
+
+.voyager-demo-cursor__spark {
+  position: absolute;
+  z-index: 3;
+  top: -0.24rem;
+  left: -0.24rem;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0.7rem 0.2rem rgb(255 255 255 / 0.88);
+}
+
+.voyager-demo-cursor:not([data-visible="true"]) {
+  visibility: hidden;
+}
+
+.voyager-demo-cursor[data-clicking="true"] .voyager-demo-cursor__halo {
+  border-color: #fff;
+  background: radial-gradient(circle, rgb(255 255 255 / 0.7), rgb(255 152 31 / 0.3) 34%, transparent 70%);
+  box-shadow:
+    0 0 0.9rem rgb(255 255 255 / 0.95),
+    0 0 1.7rem rgb(255 152 31 / 0.8);
+}
+
+.voyager-stage[data-demo-state="waiting"] .voyager-demo-cursor,
+.voyager-stage[data-demo-state="paused"] .voyager-demo-cursor {
+  visibility: hidden;
+}
+
 .voyager-control {
   position: absolute;
   z-index: 3;
@@ -386,7 +474,6 @@
 }
 
 .voyager-control:is(:hover, :focus-visible)::after,
-.voyager-control[data-guided="active"]::after,
 .voyager-control[data-pressed="true"]::after {
   border-color: var(--gauge-guide);
   background: var(--gauge-guide-soft);
@@ -399,22 +486,6 @@
   background: rgb(154 166 178 / 0.18);
   box-shadow: 0 0 1rem 0.2rem rgb(154 166 178 / 0.3);
   opacity: 1;
-}
-
-.voyager-control[data-guided="active"]::after {
-  animation: guide-pulse 1.25s ease-in-out infinite;
-}
-
-.voyager-stage[data-guide-active="true"]
-  .voyager-control:not([data-guided]):is(:hover, :focus-visible)::after {
-  border-color: transparent;
-  background: transparent;
-  box-shadow: none;
-  opacity: 0;
-}
-
-.voyager-stage[data-guide-active="true"] .voyager-control:not([data-guided]):focus-visible {
-  outline-color: transparent;
 }
 
 .voyager-control--menu {
@@ -2013,16 +2084,6 @@
   text-transform: uppercase;
 }
 
-@keyframes guide-pulse {
-  0%,
-  100% {
-    opacity: 0.72;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
 @media (max-width: 1180px) {
   .gauges-hero__inner {
     grid-template-columns: minmax(16rem, 0.55fr) minmax(31rem, 1.45fr);
@@ -2259,6 +2320,19 @@
   }
 }
 
+@keyframes voyager-demo-halo {
+  0%,
+  100% {
+    opacity: 0.58;
+    transform: scale(0.82);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.18);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -2268,7 +2342,7 @@
     transition: none;
   }
 
-  .voyager-control[data-guided="active"]::after {
+  .voyager-demo-cursor__halo {
     animation: none;
   }
 

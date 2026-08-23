@@ -1,5 +1,5 @@
 import { initializeFontPlayground } from "./font-playground.js";
-import { VoyagerGuide } from "./voyager-guide.js";
+import { VoyagerDemoDirector } from "./voyager-demo.js";
 import { VoyagerLiveRuntime } from "./voyager-live-runtime.js";
 import { VOYAGER_MENU_STATE_INDEX, VOYAGER_MENU_TRANSITIONS } from "./voyager-menu-registry.js";
 import { initializeVoyagerManual } from "./voyager-manual.js";
@@ -38,16 +38,17 @@ const stateCode = document.querySelector("#voyager-state-code");
 const timerStatus = document.querySelector("#voyager-timer-status");
 const interactionLive = document.querySelector("#interaction-live");
 const controls = [...document.querySelectorAll("[data-action]")];
-const startGuideButton = document.querySelector("#start-guided-ride");
+const demoToggleButton = document.querySelector("#voyager-demo-toggle");
 const exploreButton = document.querySelector("#explore-freely");
-const guideElements = {
+const demoElements = {
   panel: document.querySelector("#guide-panel"),
   number: document.querySelector("#guide-number"),
   label: document.querySelector("#guide-label"),
   instruction: document.querySelector("#guide-instruction"),
   live: document.querySelector("#guide-live"),
-  controls,
   stage,
+  cursor: document.querySelector("#voyager-demo-cursor"),
+  toggle: demoToggleButton,
 };
 const liveRuntime = new VoyagerLiveRuntime({
   mount: liveScreen,
@@ -138,8 +139,9 @@ function applyLiveTransitionOverrides(manifest) {
   }
 }
 
-function focusGauge() {
+function focusGauge({ scroll = true } = {}) {
   stage.focus({ preventScroll: true });
+  if (!scroll) return;
   stage.scrollIntoView({
     behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
     block: "center",
@@ -149,7 +151,6 @@ function focusGauge() {
 function pulseControl(action, moved) {
   liveRuntime.pulseInput(action);
   for (const control of controls.filter((item) => item.dataset.action === action)) {
-    if (stage.dataset.guideActive === "true" && !control.hasAttribute("data-guided")) continue;
     control.dataset.pressed = moved ? "true" : "noop";
     window.setTimeout(() => control.removeAttribute("data-pressed"), 180);
   }
@@ -229,17 +230,39 @@ function pointerPositionInSvg(event) {
   return { x: local.x, y: local.y };
 }
 
+function targetPositionInSvg(target) {
+  const svg = target.closest?.("svg");
+  const matrix = svg?.getScreenCTM?.();
+  if (!svg || !matrix) return {};
+  const bounds = target.getBoundingClientRect();
+  const point = svg.createSVGPoint();
+  point.x = bounds.left + bounds.width / 2;
+  point.y = bounds.top + bounds.height / 2;
+  const local = point.matrixTransform(matrix.inverse());
+  return { x: local.x, y: local.y };
+}
+
+function activatePointerTarget(target, engine, source = "touchscreen", pointer = {}) {
+  if (!target) return null;
+  const stateId = engine.getState().id;
+  const plan = liveRuntime.preparePointerInput(
+    stateId,
+    target,
+    { ...targetPositionInSvg(target), ...pointer, activate: pointer.activate ?? true },
+  );
+  return applyPointerPlan(plan, engine, source);
+}
+
 function bindTouchscreen(engine) {
   liveScreen.addEventListener("click", (event) => {
-    const stateId = engine.getState().id;
-    const plan = liveRuntime.preparePointerInput(
-      stateId,
+    const result = activatePointerTarget(
       event.target,
+      engine,
+      "touchscreen",
       { ...pointerPositionInSvg(event), activate: true },
     );
-    if (!plan) return;
+    if (!result) return;
     event.preventDefault();
-    applyPointerPlan(plan, engine);
   });
 
   let hoveredConfirmation = "";
@@ -295,27 +318,38 @@ function bindKeyboard(engine) {
   });
 }
 
-function enableInterface(engine, guide) {
+function enableInterface(engine, demo) {
   for (const control of controls) {
     control.disabled = false;
     bindControl(control, engine);
   }
-  startGuideButton.disabled = false;
+  demoToggleButton.disabled = false;
   exploreButton.disabled = false;
   bindKeyboard(engine);
   bindTouchscreen(engine);
-  guide.exit();
 
-  startGuideButton.addEventListener("click", () => {
+  stage.addEventListener("pointerdown", () => {
+    demo.noteUserActivity();
+  }, { capture: true });
+  stage.addEventListener("keydown", () => {
+    demo.noteUserActivity();
+  }, { capture: true });
+
+  demoToggleButton.addEventListener("click", () => {
     liveRuntime.recordActivity();
-    guide.start().catch((error) => {
-      interactionLive.textContent = error.message;
-    });
+    demo.toggle();
   });
   exploreButton.addEventListener("click", () => {
     liveRuntime.recordActivity();
-    guide.exit();
+    demo.explore();
+    focusGauge({ scroll: false });
   });
+
+  if (demo.reducedMotion) {
+    demo.pause({ message: "Demo paused for reduced-motion preferences." });
+  } else {
+    demo.start({ restart: true });
+  }
 }
 
 async function initializeVoyager() {
@@ -329,7 +363,7 @@ async function initializeVoyager() {
     const engine = new VoyagerStateEngine(manifest, {
       resolveAutoTransitionDelay: (state, transition) => liveRuntime.resolveAutoTransitionDelay(state, transition),
     });
-    let guide;
+    let demo;
     const syncDestinationHighlights = (stateId) => {
       for (const destination of document.querySelectorAll("[data-voyager-state]")) {
         const active = liveRuntime.resolveStateId(destination.dataset.voyagerState) === stateId;
@@ -344,7 +378,7 @@ async function initializeVoyager() {
       const {
         focus = false,
         history = "push",
-        preserveGuide = false,
+        preserveDemo = false,
         source = "public-api",
         ...runtimeParameters
       } = parameters;
@@ -352,14 +386,24 @@ async function initializeVoyager() {
       const stateId = liveRuntime.resolveStateId(screenId);
       if (!manifest.states[stateId]) throw new Error(`Unknown Voyager state: ${screenId}`);
       if (!liveRuntime.supports(stateId)) throw new Error(`Voyager state ${screenId} does not have a live renderer.`);
-      if (!preserveGuide) guide.exit();
+      if (!preserveDemo) demo?.pause({ message: "Demo paused for manual navigation." });
       liveRuntime.applyNavigationParameters(runtimeParameters);
       pendingHistoryMode = history;
       const result = engine.reset(stateId, source);
       if (focus) focusGauge();
       return result;
     };
-    guide = new VoyagerGuide(engine, guideElements, navigateToState);
+    demo = new VoyagerDemoDirector({
+      engine,
+      elements: demoElements,
+      navigate: navigateToState,
+      activateTarget: (target, source) => activatePointerTarget(target, engine, source),
+      performAction: (action, source) => {
+        const result = dispatchAction(action, source, engine);
+        if (result) pulseControl(action, result.to !== null);
+        return result;
+      },
+    });
     window.navigateToVoyagerState = navigateToState;
 
     document.addEventListener("click", (event) => {
@@ -409,7 +453,7 @@ async function initializeVoyager() {
 
     engine.subscribe((state, event) => {
       commitState(engine, state, event);
-      guide.observe(state, event);
+      demo.observe(state, event);
       mapViewer.setActiveState(state.id);
       syncDestinationHighlights(state.id);
       const stableId = liveRuntime.getStableStateId(state.id);
@@ -432,7 +476,7 @@ async function initializeVoyager() {
       });
     });
     document.querySelector("#voyager-load-status").textContent = "Ready";
-    enableInterface(engine, guide);
+    enableInterface(engine, demo);
   } catch (error) {
     document.querySelector("#voyager-load-status").textContent = "Unavailable";
     interactionLive.textContent = error.message;

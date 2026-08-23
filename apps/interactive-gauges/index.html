@@ -56,8 +56,15 @@
               and tactile interface.
             </p>
             <div class="gauges-actions">
-              <button class="gauges-button gauges-button--primary" id="start-guided-ride" type="button" disabled>
-                Start guided ride <span aria-hidden="true">&#8594;</span>
+              <button
+                class="gauges-button gauges-button--primary"
+                id="voyager-demo-toggle"
+                type="button"
+                aria-controls="voyager-stage"
+                aria-pressed="false"
+                disabled
+              >
+                Demo paused
               </button>
               <button class="gauges-button gauges-button--text" id="explore-freely" type="button" disabled>
                 Explore freely <span aria-hidden="true">&#8594;</span>
@@ -90,6 +97,12 @@
                   draggable="false"
                 />
 
+                <div class="voyager-demo-cursor" id="voyager-demo-cursor" aria-hidden="true">
+                  <span class="voyager-demo-cursor__halo"></span>
+                  <span class="voyager-demo-cursor__pointer"></span>
+                  <span class="voyager-demo-cursor__spark"></span>
+                </div>
+
                 <button class="voyager-control voyager-control--menu" data-action="menu" type="button" aria-label="Menu" disabled></button>
                 <button class="voyager-control voyager-control--back" data-action="back" type="button" aria-label="Back" disabled></button>
                 <button class="voyager-control voyager-control--up" data-action="up" type="button" aria-label="Direction up" disabled></button>
@@ -101,10 +114,10 @@
               </div>
             </figure>
 
-            <section class="voyager-cue guide-panel" id="guide-panel" data-mode="idle" aria-label="Current Voyager instruction">
-              <strong class="guide-panel__number" id="guide-number">01</strong>
+            <section class="voyager-cue guide-panel" id="guide-panel" data-mode="idle" aria-label="Autonomous Voyager demo status">
+              <strong class="guide-panel__number" id="guide-number">DEMO</strong>
               <span class="voyager-cue__divider" aria-hidden="true">&middot;</span>
-              <span class="sr-only" id="guide-label">Archive loading</span>
+              <span class="sr-only" id="guide-label">Autonomous Voyager demo</span>
               <p id="guide-instruction">Preparing the interface.</p>
             </section>
             <div class="sr-only" aria-label="Voyager archive status">
