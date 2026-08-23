@@ -526,9 +526,9 @@
 }
 
 .voyager-live__routes {
-  stroke: #817c7d;
+  stroke: #191919;
   stroke-width: 5px;
-  stroke-dasharray: 0 6;
+  stroke-dasharray: 0 8;
   stroke-linecap: square;
   stroke-linejoin: miter;
 }
@@ -582,26 +582,11 @@
 }
 
 .voyager-live__tach-segment {
-  fill: #f5f4ef;
-  stroke: #242021;
-  stroke-width: 2px;
-  stroke-linecap: square;
-  stroke-linejoin: miter;
-  shape-rendering: crispEdges;
-  vector-effect: non-scaling-stroke;
+  display: none;
 }
 
 .voyager-live__tach-segment.is-active {
-  fill: #242021;
-}
-
-.voyager-live__tach-label {
-  font-size: 17px;
-  pointer-events: none;
-}
-
-.voyager-live__tach-label.is-active {
-  fill: #f5f4ef;
+  display: inline;
 }
 
 .voyager-live__tach-temperature-readout {

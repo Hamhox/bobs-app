@@ -37,6 +37,7 @@ const VOYAGER_POWER_SAVE_SLOT_MS = 1000;
 const VOYAGER_SLEEP_CLOCK_MS = 1000;
 const VOYAGER_DEFAULT_SLEEP_AFTER_MS = 10 * 60 * 1000;
 const VOYAGER_DEFAULT_RIDE_ID = "baker-west-desert";
+const VOYAGER_TACHBAR_SPRITE = "/apps/interactive-gauges/assets/ui/voyager-tachbar.svg";
 const SD_CARD_DEFAULT_RIDES = Object.freeze([
   { id: "SD-BAKER", name: "BAKER WEST", progress: 0, trackId: "baker-west-desert" },
   { id: "SD-JORDAN", name: "JORDAN CREEK", progress: 0, trackId: "jordan-creek" },
@@ -858,30 +859,19 @@ function compassMarkup({ cx, cy, radius, pointerAttribute = "data-live-compass-p
     </g>`;
 }
 
-function tachbarSegmentsMarkup(contentLeft, tachScale) {
+function tachbarSegmentsMarkup(variant, tachScale) {
   const segmentCount = 15;
-  const left = contentLeft + 8;
-  const right = 486;
-  const width = right - left;
-  const topAt = (progress) => 38 + 203 * ((1 - progress) ** 2);
-  const bottomAt = (progress) => 77 + 199 * ((1 - progress) ** 2);
+  const width = variant.tabsVisible ? "thin" : "wide";
   const segmentMarkup = Array.from({ length: segmentCount }, (_, index) => {
-    const progressStart = index / segmentCount;
-    const progressEnd = (index + 1) / segmentCount;
-    const xStart = left + width * progressStart + 1.5;
-    const xEnd = left + width * progressEnd - 1.5;
     const threshold = Math.round(tachScale * (index + 1) / segmentCount);
-    return `<path class="voyager-live__tach-segment" data-live-tach-segment data-rpm-threshold="${threshold}" d="M${xStart.toFixed(2)} ${topAt(progressStart).toFixed(2)}L${xEnd.toFixed(2)} ${topAt(progressEnd).toFixed(2)}L${xEnd.toFixed(2)} ${bottomAt(progressEnd).toFixed(2)}L${xStart.toFixed(2)} ${bottomAt(progressStart).toFixed(2)}Z" />`;
+    return `
+      <use href="${VOYAGER_TACHBAR_SPRITE}#tachbar-${width}-off-${index}"></use>
+      <use class="voyager-live__tach-segment" data-live-tach-segment data-rpm-threshold="${threshold}" href="${VOYAGER_TACHBAR_SPRITE}#tachbar-${width}-on-${index}"></use>`;
   }).join("");
-  const labelMarkup = Array.from({ length: 7 }, (_, index) => {
-    const value = (index + 1) * 2;
-    const progress = value / segmentCount;
-    const x = left + width * progress;
-    const y = (topAt(progress) + bottomAt(progress)) / 2 + 6;
-    const threshold = Math.round(tachScale * value / segmentCount);
-    return `<text class="voyager-live__text voyager-live__tach-label" x="${x.toFixed(2)}" y="${y.toFixed(2)}" text-anchor="middle" data-live-tach-label data-rpm-threshold="${threshold}">${value}</text>`;
-  }).join("");
-  return `<g class="voyager-live__tachbar" data-live-tachbar>${segmentMarkup}${labelMarkup}</g>`;
+  return `<g class="voyager-live__tachbar" data-live-tachbar>
+    ${segmentMarkup}
+    <use href="${VOYAGER_TACHBAR_SPRITE}#tachbar-${width}-labels"></use>
+  </g>`;
 }
 
 function tachbarMarkup(screen, variant, menuValues, display) {
@@ -890,7 +880,7 @@ function tachbarMarkup(screen, variant, menuValues, display) {
   return `
     <rect class="voyager-live__surface" width="504" height="303" />
     ${screenChromeMarkup(screen, variant)}
-    ${tachbarSegmentsMarkup(contentLeft, tachScale)}
+    ${tachbarSegmentsMarkup(variant, tachScale)}
     <g class="voyager-live__tach-temperature">
       <text class="voyager-live__text voyager-live__tach-temperature-readout" x="${contentLeft + 11}" y="57" data-live-temperature>71${display.temperatureUnit}</text>
       ${temperatureIcon(contentLeft + 104, 18, 1.34)}
@@ -959,9 +949,9 @@ function mapMarkup(screen, variant, { display }) {
     <clipPath id="voyager-live-map-clip"><rect width="504" height="303" /></clipPath>
     <g clip-path="url(#voyager-live-map-clip)">
       <g data-live-map-transform>
+        <path class="voyager-live__recorded" data-live-recorded />
         <path class="voyager-live__routes" data-live-routes />
         <path class="voyager-live__route voyager-live__route--overlay" data-live-overlay-route />
-        <path class="voyager-live__recorded" data-live-recorded />
         <path class="voyager-live__route" data-live-route />
         <g data-live-route-labels></g>
         <g data-live-track-labels></g>
@@ -1308,6 +1298,7 @@ export class VoyagerLiveRuntime {
   #telemetry = null;
   #projectedTrack = [];
   #projectedNetworkSegments = [];
+  #projectedExtentPoints = [];
   #projectedRecordedSegments = [];
   #projectedRecordingRevision = -1;
   #projectedTrackId = "";
@@ -1379,6 +1370,7 @@ export class VoyagerLiveRuntime {
       if (previousTelemetry?.trackId !== telemetry.trackId) {
         this.#projectedTrack = [];
         this.#projectedNetworkSegments = [];
+        this.#projectedExtentPoints = [];
         this.#projectedRecordedSegments = [];
         this.#projectedRecordingRevision = -1;
         this.#projectedTrackId = "";
@@ -1769,6 +1761,7 @@ export class VoyagerLiveRuntime {
     const telemetry = this.#telemetry;
     const refreshAll = cadence === "all";
     const refreshMotion = refreshAll || cadence === 0;
+    const refreshMap = refreshAll || Number.isInteger(cadence);
     const refreshCompass = refreshAll || cadence === 1 || cadence === 3;
     const refreshStatus = refreshAll || cadence === 2;
     const refreshStopwatch = refreshAll || cadence === 0 || cadence === 2;
@@ -1802,7 +1795,7 @@ export class VoyagerLiveRuntime {
         ? telemetry.rpm
         : 0;
       setText("[data-live-rpm]", liveRpm);
-      for (const element of this.#mount.querySelectorAll("[data-live-tach-segment], [data-live-tach-label]")) {
+      for (const element of this.#mount.querySelectorAll("[data-live-tach-segment]")) {
         element.classList.toggle("is-active", liveRpm >= Number(element.dataset.rpmThreshold));
       }
     }
@@ -1873,7 +1866,7 @@ export class VoyagerLiveRuntime {
       }
     }
 
-    if (refreshMotion && this.#screenState.screen.renderer === "map") this.#updateMap();
+    if (refreshMap && this.#screenState.screen.renderer === "map") this.#updateMap();
     if (this.#screenState.screen.renderer === "graph") {
       if (refreshMotion) {
         this.#updateGraph();
@@ -2170,6 +2163,7 @@ export class VoyagerLiveRuntime {
   #invalidateMapProjection() {
     this.#projectedTrack = [];
     this.#projectedNetworkSegments = [];
+    this.#projectedExtentPoints = [];
     this.#projectedRecordedSegments = [];
     this.#projectedRecordingRevision = -1;
     this.#projectedTrackId = "";
@@ -2313,12 +2307,6 @@ export class VoyagerLiveRuntime {
       profile.signature,
       screenNumber,
     ].join(":");
-    const overlayPoints = routesVisible ? this.#ride.pointsFor(this.#overlayRideId) : [];
-    const networkSegments = routesVisible && this.#ride.mapSegments.length
-      ? this.#ride.mapSegments
-      : [this.#ride.points];
-    const networkPoints = networkSegments.flat();
-    const extentPoints = overlayPoints.length > 1 ? [...networkPoints, ...overlayPoints] : networkPoints;
     const projectionBounds = {
       left: 4,
       right: 500,
@@ -2327,6 +2315,13 @@ export class VoyagerLiveRuntime {
     };
     const projectionChanged = !this.#projectedTrack.length || this.#projectedTrackId !== projectionKey;
     if (projectionChanged) {
+      const overlayPoints = routesVisible ? this.#ride.pointsFor(this.#overlayRideId) : [];
+      const networkSegments = routesVisible && this.#ride.mapSegments.length
+        ? this.#ride.mapSegments
+        : [this.#ride.points];
+      const networkPoints = networkSegments.flat();
+      const extentPoints = overlayPoints.length > 1 ? [...networkPoints, ...overlayPoints] : networkPoints;
+      this.#projectedExtentPoints = extentPoints;
       this.#projectedTrack = projectTrack(this.#ride.points, projectionBounds, extentPoints);
       this.#projectedNetworkSegments = networkSegments.map((segment) => projectTrack(segment, projectionBounds, extentPoints));
       this.#projectedTrackId = projectionKey;
@@ -2383,7 +2378,7 @@ export class VoyagerLiveRuntime {
     if (projectionChanged || this.#projectedRecordingRevision !== recording.revision) {
       this.#projectedRecordedSegments = this.#ride.recordedSegments
         .filter((segment) => segment.length)
-        .map((segment) => projectTrack(segment, projectionBounds, extentPoints));
+        .map((segment) => projectTrack(segment, projectionBounds, this.#projectedExtentPoints));
       this.#projectedRecordingRevision = recording.revision;
     }
     const position = this.#pointAtProgress(this.#projectedTrack, this.#telemetry.progress);
