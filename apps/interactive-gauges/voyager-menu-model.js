@@ -50,7 +50,7 @@ const DEFAULT_VALUES = Object.freeze({
   chargeMode: "VEHICLE",
   chargeLevel: "TRICKLE CHARGE",
   logMethod: "TIME",
-  logFrequency: "2 SEC",
+  logFrequency: "1 SEC",
   logOption: "ENG OR WHL",
   autoSplit: "5 MI GAP",
   coordFormat: "DEG, MIN.DEC",
@@ -319,7 +319,12 @@ export class VoyagerMenuModel {
       if (stored && typeof stored === "object" && !Array.isArray(stored)) {
         for (const key of Object.keys(DEFAULT_VALUES)) {
           const previousSleepDefault = key === "sleepModeTimer" && ["05 MIN", "30 MIN"].includes(stored[key]);
-          if (!previousSleepDefault && typeof stored[key] === typeof DEFAULT_VALUES[key]) this.#values[key] = stored[key];
+          const previousLogFrequencyDefault = key === "logFrequency"
+            && stored.logMethod === "TIME"
+            && stored[key] === "2 SEC";
+          if (!previousSleepDefault
+            && !previousLogFrequencyDefault
+            && typeof stored[key] === typeof DEFAULT_VALUES[key]) this.#values[key] = stored[key];
         }
         if (typeof stored.userScreen1Title !== "string" && typeof stored.userScreenTitle === "string") {
           this.#values.userScreen1Title = stored.userScreenTitle;

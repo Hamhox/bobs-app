@@ -79,7 +79,7 @@ export function normalizeVoyagerSettings(values = {}) {
     ? ["1 FT", "10 FT", "50 FT"]
     : ["1 SEC", "2 SEC", "5 SEC"];
   if (!logFrequencies.includes(normalized.logFrequency)) {
-    normalized.logFrequency = normalized.logMethod === "DISTANCE" ? "10 FT" : "2 SEC";
+    normalized.logFrequency = normalized.logMethod === "DISTANCE" ? "10 FT" : "1 SEC";
   }
   if (!["ALWAYS", "ENG SENSOR", "WHL SENSOR", "ENG OR WHL"].includes(normalized.logOption)) normalized.logOption = "ENG OR WHL";
   if (!["OFF", "1 MI GAP", "5 MI GAP", "10 MI GAP"].includes(normalized.autoSplit)) normalized.autoSplit = "5 MI GAP";

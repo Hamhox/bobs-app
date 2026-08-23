@@ -145,7 +145,7 @@ function formatCoordinate(value, positive, negative, format) {
 
 export function createVoyagerGpsProfile(values = {}) {
   const method = values.logMethod === "DISTANCE" ? "DISTANCE" : "TIME";
-  const frequency = values.logFrequency ?? (method === "DISTANCE" ? "10 FT" : "2 SEC");
+  const frequency = values.logFrequency ?? (method === "DISTANCE" ? "10 FT" : "1 SEC");
   const logOption = ["ALWAYS", "ENG SENSOR", "WHL SENSOR", "ENG OR WHL"].includes(values.logOption)
     ? values.logOption
     : "ENG OR WHL";
@@ -170,7 +170,7 @@ export function createVoyagerGpsProfile(values = {}) {
   const cached = gpsProfileCache.get(signature);
   if (cached) return cached;
 
-  const frequencyAmount = Math.max(1, Number.parseInt(frequency, 10) || (method === "DISTANCE" ? 10 : 2));
+  const frequencyAmount = Math.max(1, Number.parseInt(frequency, 10) || (method === "DISTANCE" ? 10 : 1));
   const autoSplitMiles = Number.parseInt(autoSplit, 10);
   const gpsEnabled = values.gpsMode !== "DISABLED (POWER SAVE)";
   const recordingRequested = values.logTrack === "ON" && gpsEnabled;

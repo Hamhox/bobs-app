@@ -603,9 +603,9 @@ registerOverlay("m-set3-4-restore", {
 const GPS_ROWS = [
   {
     label: "LOG METHOD", field: "logMethod", value: "TIME", toggleValues: ["TIME", "DISTANCE"],
-    dependentValues: { logFrequency: { TIME: "2 SEC", DISTANCE: "10 FT" } },
+    dependentValues: { logFrequency: { TIME: "1 SEC", DISTANCE: "10 FT" } },
   },
-  { label: "LOG FREQUENCY", field: "logFrequency", value: "2 SEC" },
+  { label: "LOG FREQUENCY", field: "logFrequency", value: "1 SEC" },
   { label: "LOG OPTION", field: "logOption", value: "ENG OR WHL" },
   { label: "AUTO-SPLIT", field: "autoSplit", value: "5 MI GAP" },
   { spacer: true },
@@ -621,7 +621,7 @@ registerPageFamily({
 });
 registerOverlay("m-set3-5-frequency", {
   kind: "settings-modal", section: "set", title: "LOG FREQUENCY", field: "logFrequency",
-  options: ["1 SEC", "2 SEC", "5 SEC"], selectedIndex: 1,
+  options: ["1 SEC", "2 SEC", "5 SEC"], selectedIndex: 0,
   optionField: "logMethod",
   optionsByValue: {
     TIME: ["1 SEC", "2 SEC", "5 SEC"],

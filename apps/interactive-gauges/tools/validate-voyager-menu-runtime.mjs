@@ -520,7 +520,7 @@ function main() {
   const gpsPageDefinition = VOYAGER_MENU_STATE_INDEX["m-set3-5-1"];
   const gpsPageMarkup = renderDefinition(gpsPageDefinition, gpsModel);
   if (!gpsPageMarkup.includes("LOG METHOD")
-    || !gpsPageMarkup.includes("2 SEC")
+    || !gpsPageMarkup.includes("1 SEC")
     || !gpsPageMarkup.includes("5 MI GAP")
     || !gpsPageMarkup.includes("DEG, MIN.DEC")
     || !gpsPageMarkup.includes("OFF")) {
@@ -547,9 +547,9 @@ function main() {
   gpsModel.prepareInput(gpsPageDefinition, "enter");
   const timeFrequency = gpsModel.resolve(frequencyDefinition);
   if (gpsModel.values.logMethod !== "TIME"
-    || gpsModel.values.logFrequency !== "2 SEC"
+    || gpsModel.values.logFrequency !== "1 SEC"
     || timeFrequency.options.join("|") !== "1 SEC|2 SEC|5 SEC"
-    || timeFrequency.selectedIndex !== 1) {
+    || timeFrequency.selectedIndex !== 0) {
     throw new Error("Time logging does not restore its SEC frequency choices and default");
   }
   const logOptionDefinition = VOYAGER_MENU_STATE_INDEX["m-set3-5-option"];
@@ -587,7 +587,7 @@ function main() {
   gpsModel.prepareInput(gpsRestoreDefinition, "right");
   gpsModel.prepareInput(gpsRestoreDefinition, "enter");
   if (gpsModel.values.logMethod !== "TIME"
-    || gpsModel.values.logFrequency !== "2 SEC"
+    || gpsModel.values.logFrequency !== "1 SEC"
     || gpsModel.values.coordFormat !== "DEG, MIN.DEC"
     || gpsModel.values.signalBars !== "OFF") {
     throw new Error("confirmed GPS Restore Defaults does not restore the device profile");

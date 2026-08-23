@@ -102,8 +102,8 @@ GPS logging is driven by the existing half-second device conductor rather than a
 applies the selected time/distance frequency, sensor gate, auto-split distance, coordinate format, and signal-bar setting.
 Sampled points form opaque recorded-track segments on the map, contribute their point and byte totals to the Memory screen,
 and serialize as sensor-rich GPX on export. Unchanged settings and telemetry phases do not rebuild map geometry or rewrite
-screen fields. Map position and transforms refresh on each half-second conductor phase independently of the selected GPS
-logging interval; cached projection extents keep that smoother display cadence from repeatedly flattening the trail network.
+screen fields. Clean sessions log once per second so the recorded path follows the real ride closely, while map position
+and transforms retain the device's slower motion phase. Cached projection extents prevent repeated trail-network flattening.
 
 Ride visibility and Map Settings now feed a revision-cached map presentation profile. That profile controls track, route,
 and waypoint visibility; North Up or Track Up rotation; constant-screen-size pointer and waypoint symbols; per-screen

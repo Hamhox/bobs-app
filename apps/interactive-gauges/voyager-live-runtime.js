@@ -61,6 +61,24 @@ export function voyagerDestinationTextLength(value) {
   return String(value).length > 7 ? 196 : null;
 }
 
+export function voyager250FourStrokeRpm({ recordedRpm, speedMph = 0, progress = 0 } = {}) {
+  const speed = Math.max(0, Number(speedMph) || 0);
+  const rideProgress = Math.max(0, Number(progress) || 0);
+  if (speed <= 0.75) {
+    return Math.round(2000 + Math.sin(rideProgress * Math.PI * 36) * 200);
+  }
+
+  const sensorRpm = Number(recordedRpm);
+  const sensorBase = Number.isFinite(sensorRpm) && sensorRpm > 0
+    ? sensorRpm < 4000 ? sensorRpm * 4.25 : sensorRpm
+    : Number.NaN;
+  const speedBase = 2200 + Math.min(speed, 55) * 190;
+  const engineBase = Number.isFinite(sensorBase) ? Math.max(sensorBase, speedBase * 0.8) : speedBase;
+  const shiftPhase = (rideProgress * 18) % 1;
+  const throttleSweep = shiftPhase * 900 - 300 + Math.sin(rideProgress * Math.PI * 50) * 150;
+  return Math.round(clamp(engineBase + throttleSweep, 2200, 14200));
+}
+
 export function voyagerMainScreenTarget(stateId, action, tachbarEnabled = true) {
   if (!["index", "index2", "index3"].includes(stateId)
     || !["left", "right", "enter"].includes(action)) return null;
@@ -702,7 +720,6 @@ class VoyagerRideEngine {
     const recordedSpeedMph = interpolateSensor("speedKph") * 0.621371;
     const speedMph = Number.isFinite(recordedSpeedMph) ? recordedSpeedMph : calculatedSpeedMph;
     const recordedRpm = interpolateSensor("rpm");
-    const simulatedRpm = 1150 + speedMph * 185 + Math.sin(progress * Math.PI * 18) * 350;
     const completedMeters = track.distances[index] + haversineMeters(start, end) * amount;
     const elevationFeet = Math.round(interpolate("elevation") * 3.28084);
     return {
@@ -727,7 +744,7 @@ class VoyagerRideEngine {
       engineTemperatureF: Number.isFinite(interpolateSensor("engineTemperatureC"))
         ? Math.round(interpolateSensor("engineTemperatureC") * 9 / 5 + 32)
         : engineTemperatureAt(progress, elevationFeet),
-      rpm: Math.round(clamp(Number.isFinite(recordedRpm) ? recordedRpm : simulatedRpm, 0, 15000)),
+      rpm: voyager250FourStrokeRpm({ recordedRpm, speedMph, progress }),
       elapsedSeconds: progress * this.#durationMs / 1000,
       elapsedLabel: formatDuration(progress * this.#durationMs / 1000),
     };
@@ -1134,7 +1151,7 @@ function navigationMarkup(screen, variant, { display }) {
     <g transform="translate(${hiddenOffset} 0)">
       <text class="voyager-live__text voyager-live__text--medium" x="467.5" y="47" text-anchor="start" data-live-heading-label>N</text>
       ${metricBlock(186, 30, `SPD ${display.speedUnit}`, "data-live-speed", "21")}
-      ${metricBlock(186, 127, `DEST DST ${display.distanceUnit}`, "data-live-destination", "700", {
+      ${metricBlock(186, 127, `DEST DST ${display.distanceUnit}`, "data-live-destination", "---", {
     labelAttribute: "data-live-destination-label",
     labelClass: "voyager-live__destination-label",
     readoutClass: "voyager-live__destination-readout",
@@ -1761,7 +1778,7 @@ export class VoyagerLiveRuntime {
     const telemetry = this.#telemetry;
     const refreshAll = cadence === "all";
     const refreshMotion = refreshAll || cadence === 0;
-    const refreshMap = refreshAll || Number.isInteger(cadence);
+    const refreshTach = refreshAll || cadence === 0 || cadence === 2;
     const refreshCompass = refreshAll || cadence === 1 || cadence === 3;
     const refreshStatus = refreshAll || cadence === 2;
     const refreshStopwatch = refreshAll || cadence === 0 || cadence === 2;
@@ -1783,14 +1800,13 @@ export class VoyagerLiveRuntime {
       setText("[data-live-distance]", () => display.distanceFromKm(telemetry.distanceKm).toFixed(1));
       setText("[data-live-trip-distance]", () => display.distanceFromKm(telemetry.distanceKm).toFixed(1));
       const destinationReadout = this.#mount.querySelector("[data-live-destination]");
-      if (destinationReadout) {
-        const destinationMeters = this.#selectedDestination
-          ? haversineMeters(telemetry, this.#selectedDestination)
-          : telemetry.destinationMeters;
-        this.#updateDestinationDistance(String(display.destinationFromMeters(destinationMeters)));
-      }
+      if (destinationReadout) this.#updateDestinationDistance(this.#selectedDestination
+        ? String(display.destinationFromMeters(haversineMeters(telemetry, this.#selectedDestination)))
+        : "---");
       setText("[data-live-elapsed]", telemetry.elapsedLabel);
       setText("[data-live-ride-label]", telemetry.trackLabel);
+    }
+    if (refreshTach) {
       const liveRpm = menuValues.engineSensor === "ENABLED" && menuValues.demoRideState === "RUNNING"
         ? telemetry.rpm
         : 0;
@@ -1866,7 +1882,7 @@ export class VoyagerLiveRuntime {
       }
     }
 
-    if (refreshMap && this.#screenState.screen.renderer === "map") this.#updateMap();
+    if (refreshMotion && this.#screenState.screen.renderer === "map") this.#updateMap();
     if (this.#screenState.screen.renderer === "graph") {
       if (refreshMotion) {
         this.#updateGraph();

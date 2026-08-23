@@ -7,7 +7,7 @@ import {
   createVoyagerMapProfile,
   createVoyagerPowerProfile,
 } from "../voyager-device-runtime.js";
-import { serializeVoyagerGpx } from "../voyager-live-runtime.js";
+import { serializeVoyagerGpx, voyager250FourStrokeRpm } from "../voyager-live-runtime.js";
 import { VoyagerMenuModel } from "../voyager-menu-model.js";
 import { VoyagerRideCatalog } from "../voyager-ride-catalog.js";
 import {
@@ -150,6 +150,14 @@ const disabledGps = createVoyagerGpsProfile({
   logOption: "ALWAYS",
 });
 assert(!disabledGps.gpsEnabled && !disabledGps.shouldRecord(), "GPS power save still permits recording");
+assert(createVoyagerGpsProfile({ logMethod: "TIME" }).sampleIntervalMs === 1000, "clean GPS settings do not default to one-second logging");
+
+const idleRpm = voyager250FourStrokeRpm({ speedMph: 0, progress: 0.25 });
+const peakRpm = voyager250FourStrokeRpm({ recordedRpm: 3000, speedMph: 50, progress: 0.72 });
+const topEndRpm = voyager250FourStrokeRpm({ recordedRpm: 3210, speedMph: 62, progress: 0.77 });
+assert(idleRpm >= 1800 && idleRpm <= 2200, "250cc four-stroke idle left the approved range");
+assert(peakRpm >= 11500 && peakRpm < 13500, "250cc four-stroke pull misses its power band");
+assert(topEndRpm >= 13500 && topEndRpm <= 14200, "250cc four-stroke top end misses its approved range");
 
 const exportedGpx = serializeVoyagerGpx({
   name: "FOREST & LOOP",
@@ -285,6 +293,8 @@ const storedValues = JSON.stringify({
   engineSensor: "ENABLED",
   speedSource: "WHL SENSOR",
   runTimeSource: "ENG OR WHL",
+  logMethod: "TIME",
+  logFrequency: "2 SEC",
 });
 globalThis.window = {
   localStorage: {
@@ -299,6 +309,7 @@ globalThis.window = {
 };
 const model = new VoyagerMenuModel().load();
 assert(model.values.distanceUnits === "KILOMETERS" && model.values.speedUnits === "KM/H", "distance and speed units can drift apart");
+assert(model.values.logFrequency === "1 SEC", "menu load does not migrate the prior two-second logging default");
 assert(model.values.speedSource === "WHL SENSOR", "menu load destroyed the saved speed-source preference");
 assert(model.effectiveValues.speedSource === "GPS" && model.effectiveValues.runTimeSource === "ENG SENSOR", "menu model did not expose effective sensor fallbacks");
 
