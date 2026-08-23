@@ -27,7 +27,8 @@ function sectionChrome(section) {
         const active = index === activeIndex;
         const followsActiveTab = index === activeIndex + 1;
         return `
-          <g${slot.id ? ` data-menu-tab="${slot.id}"` : ""}>
+          <g${slot.id ? ` data-menu-tab="${slot.id}" data-voyager-touch-target="menu-tab"` : ""}>
+            ${slot.id ? `<rect class="voyager-live__touch-hit" x="0" y="${y}" width="68" height="${bottom - y}" />` : ""}
             ${followsActiveTab ? `<path class="voyager-live__tab-active-tail" d="M-3 ${y - 1}H8L-3 ${y + 8}Z" />` : ""}
             <path class="voyager-live__tab${active ? " voyager-live__tab--active" : ""}" d="M-3 ${y + 8} 8 ${y}H67V${bottom}H-3Z" />
             <path class="voyager-live__tab-top" d="M-3 ${y + 8} 8 ${y}H67" />
@@ -83,6 +84,7 @@ function rowsMarkup(definition, {
     visualRow += 1;
     return `
       <g data-menu-row="${sourceIndex}"${row.disabled ? " data-menu-row-disabled=\"true\" aria-disabled=\"true\"" : ""}>
+        <rect class="voyager-live__touch-hit" x="${selectionLeft}" y="${y - selectionOffset}" width="${selectionWidth}" height="${selectionHeight}" />
         ${active ? `<rect class="voyager-menu__selection" x="${selectionLeft}" y="${y - selectionOffset}" width="${selectionWidth}" height="${selectionHeight}" />` : ""}
         <text class="${rowClass}" x="${left}" y="${y}">${escapeMarkup(rowLabel)}</text>
         ${row.value ? `<text class="${rowClass}" x="${left + (row.meter ? 202 : width)}" y="${y}" text-anchor="end">${escapeMarkup(row.value)}</text>` : ""}
@@ -187,12 +189,22 @@ export function renderVoyagerToastMarkup(message) {
 
 function pairedConfirmationButtons(y, selected = 0) {
   return `
-    ${voyagerUiIcon(selected === 0 ? "btn-cancel-selected" : "btn-cancel-disabled", { x: 143, y: selected === 0 ? y : y + 11, width: 100, height: selected === 0 ? 42 : 32 })}
-    ${voyagerUiIcon(selected === 1 ? "btn-ok-selected" : "btn-ok-disabled", { x: 263, y: selected === 1 ? y : y + 11, width: 100, height: selected === 1 ? 42 : 32 })}`;
+    <g data-menu-confirmation="0" data-voyager-touch-target="confirmation">
+      <rect class="voyager-live__touch-hit" x="137" y="${y - 5}" width="112" height="55" />
+      ${voyagerUiIcon(selected === 0 ? "btn-cancel-selected" : "btn-cancel-disabled", { x: 143, y: selected === 0 ? y : y + 11, width: 100, height: selected === 0 ? 42 : 32 })}
+    </g>
+    <g data-menu-confirmation="1" data-voyager-touch-target="confirmation">
+      <rect class="voyager-live__touch-hit" x="257" y="${y - 5}" width="112" height="55" />
+      ${voyagerUiIcon(selected === 1 ? "btn-ok-selected" : "btn-ok-disabled", { x: 263, y: selected === 1 ? y : y + 11, width: 100, height: selected === 1 ? 42 : 32 })}
+    </g>`;
 }
 
 function selectedOkButton(x, y) {
-  return voyagerUiIcon("btn-ok-selected", { x, y, width: 100, height: 42 });
+  return `
+    <g data-menu-confirmation="1" data-voyager-touch-target="confirmation">
+      <rect class="voyager-live__touch-hit" x="${x - 6}" y="${y - 5}" width="112" height="55" />
+      ${voyagerUiIcon("btn-ok-selected", { x, y, width: 100, height: 42 })}
+    </g>`;
 }
 
 function confirmModal(definition) {
@@ -262,6 +274,7 @@ function userLayoutModal(definition) {
     const label = compactUserLayoutLabel(option);
     return `
       <g data-menu-layout-slot="${index}"${selected ? " data-menu-layout-slot-selected=\"true\"" : ""}>
+        <rect class="voyager-live__touch-hit" x="${cellX}" y="${y - 27}" width="177" height="34" />
         ${selected ? `<rect class="voyager-menu__selection voyager-menu__layout-selection" x="${cellX}" y="${y - 25}" width="177" height="32" />` : ""}
         <rect class="voyager-menu__layout-number${selected ? " voyager-menu__layout-number--selected" : ""}" x="${cellX + 7}" y="${y - 20}" width="18" height="18" />
         <text class="voyager-live__text voyager-menu__layout-index${selected ? "" : " voyager-live__text--inverse"}" x="${cellX + 16}" y="${y - 5}" text-anchor="middle">${index + 1}</text>
@@ -271,8 +284,11 @@ function userLayoutModal(definition) {
   const nameSelected = definition.selectedIndex === 0;
   const confirmationSelection = definition.selectedIndex >= 7 ? definition.selectedIndex - 7 : -1;
   return modalFrame(definition, `
-    <rect class="voyager-menu__layout-name-field${nameSelected ? " voyager-menu__layout-name-field--selected" : ""}" x="72" y="79" width="356" height="31" />
-    <text class="voyager-live__text voyager-menu__layout-name${nameSelected ? " voyager-live__text--inverse" : ""}" x="250" y="101" text-anchor="middle">${escapeMarkup(definition.name)}</text>
+    <g data-menu-layout-name data-voyager-touch-target="layout-name">
+      <rect class="voyager-live__touch-hit" x="69" y="76" width="362" height="37" />
+      <rect class="voyager-menu__layout-name-field${nameSelected ? " voyager-menu__layout-name-field--selected" : ""}" x="72" y="79" width="356" height="31" />
+      <text class="voyager-live__text voyager-menu__layout-name${nameSelected ? " voyager-live__text--inverse" : ""}" x="250" y="101" text-anchor="middle">${escapeMarkup(definition.name)}</text>
+    </g>
     <path class="voyager-menu__layout-divider" d="M252 118V222" />
     ${slots}
     <path class="voyager-menu__layout-footer-rule" d="M72 226H432" />
@@ -313,6 +329,7 @@ function settingsModal(definition) {
     if (definition.optionLabels) {
       return `
         <g data-menu-option="${sourceIndex}"${selected ? " data-menu-option-selected=\"true\"" : ""}>
+          <rect class="voyager-live__touch-hit" x="83" y="${selectionY}" width="338" height="${selectionHeight}" />
           ${selected ? `<rect class="voyager-menu__selection" x="83" y="${selectionY}" width="338" height="${selectionHeight}" />` : ""}
           <text class="voyager-live__text voyager-menu__row${selected ? " voyager-live__text--inverse" : ""}" x="101" y="${y}">${escapeMarkup(definition.optionLabels[sourceIndex])}</text>
           <text class="voyager-live__text voyager-menu__row${selected ? " voyager-live__text--inverse" : ""}" x="404" y="${y}" text-anchor="end">${escapeMarkup(option)}</text>
@@ -323,6 +340,7 @@ function settingsModal(definition) {
       const waypointDigit = waypoint?.label ?? String(sourceIndex + 1);
       return `
         <g data-menu-option="${sourceIndex}" data-menu-waypoint-name="${escapeMarkup(option)}"${selected ? " data-menu-option-selected=\"true\"" : ""}>
+          <rect class="voyager-live__touch-hit" x="73" y="${y - 23}" width="358" height="29" />
           ${selected ? `<rect class="voyager-menu__selection" x="73" y="${y - 23}" width="358" height="29" />` : ""}
           ${voyagerUiIcon("circle-digit-black", {
       x: 101,
@@ -337,6 +355,7 @@ function settingsModal(definition) {
     }
     return `
       <g data-menu-option="${sourceIndex}"${selected ? " data-menu-option-selected=\"true\"" : ""}>
+        <rect class="voyager-live__touch-hit" x="${selectionX}" y="${selectionY}" width="${selectionWidth}" height="${selectionHeight}" />
         ${selected ? `<rect class="voyager-menu__selection" x="${selectionX}" y="${selectionY}" width="${selectionWidth}" height="${selectionHeight}" />` : ""}
         ${voyagerUiIcon(selected ? "radio-16pt-checked" : "radio-16pt-unchecked", {
           x: radioX,
@@ -385,6 +404,7 @@ function checklistModal(definition) {
     const checked = definition.checkedOptions.includes(index);
     return `
       <g data-menu-option="${index}"${selected ? " data-menu-option-selected=\"true\"" : ""}>
+        <rect class="voyager-live__touch-hit" x="82" y="${y - 21}" width="340" height="27" />
         ${selected ? `<rect class="voyager-menu__selection" x="82" y="${y - 21}" width="340" height="27" />` : ""}
         <rect class="voyager-menu__checkbox${selected ? " voyager-menu__checkbox--selected" : ""}" x="104" y="${y - 18}" width="18" height="18" />
         ${checked ? `<path class="voyager-menu__checkmark${selected ? " voyager-menu__checkmark--selected" : ""}" d="M108 ${y - 9}l4 4 8-10" />` : ""}
@@ -444,6 +464,7 @@ function slotInputModal(definition) {
       : token.kind === "meridiem" ? "voyager-menu__slot-meridiem" : "voyager-menu__slot-affix";
     return `
       <g${editable ? ` data-menu-slot="${token.slotIndex}"` : ""}${selected ? " data-menu-slot-selected=\"true\"" : ""}>
+        ${editable ? `<rect class="voyager-live__touch-hit" x="${x - 4}" y="103" width="${token.width + 8}" height="64" />` : ""}
         ${selected ? `<rect class="voyager-menu__slot-selection" x="${x - 2}" y="107" width="${token.width + 4}" height="54" />` : ""}
         <text class="voyager-live__text ${className}${selected ? " voyager-live__text--inverse" : ""}" x="${x + token.width / 2}" y="151" text-anchor="middle">${escapeMarkup(token.text)}</text>
         ${editable ? `<path class="voyager-menu__slot-underline" d="M${x + 3} 163H${x + token.width - 3}" />` : ""}
@@ -452,16 +473,22 @@ function slotInputModal(definition) {
   return modalFrame(definition, `
     ${value}
     ${definition.note ? noteLines(definition.note, denseNotes ? 179 : 188, "voyager-menu__note", denseNotes ? 17 : 20) : ""}
-    ${noteLines("L/R: DIGIT · U/D: VALUE · ENTER: SAVE", definition.note ? (denseNotes ? 264 : 254) : 218, "voyager-menu__slot-help")}`);
+    <g data-menu-action="enter" data-voyager-touch-target="slot-save">
+      <rect class="voyager-live__touch-hit" x="75" y="${definition.note ? (denseNotes ? 246 : 236) : 200}" width="354" height="34" />
+      ${noteLines("L/R: DIGIT · U/D: VALUE · ENTER: SAVE", definition.note ? (denseNotes ? 264 : 254) : 218, "voyager-menu__slot-help")}
+    </g>`);
 }
 
 function brightnessModal(definition) {
   const barWidth = 280;
   const fill = barWidth * definition.value / 100;
   return modalFrame(definition, `
-    <rect class="voyager-menu__brightness-track" x="112" y="111" width="${barWidth}" height="43" />
-    <rect class="voyager-menu__brightness-fill" x="115" y="114" width="${fill - 3}" height="37" />
-    <line class="voyager-menu__brightness-thumb" x1="${112 + fill}" y1="111" x2="${112 + fill}" y2="154" />
+    <g data-menu-brightness data-voyager-touch-target="brightness">
+      <rect class="voyager-live__touch-hit" x="105" y="97" width="294" height="72" />
+      <rect class="voyager-menu__brightness-track" x="112" y="111" width="${barWidth}" height="43" />
+      <rect class="voyager-menu__brightness-fill" x="115" y="114" width="${Math.max(0, fill - 3)}" height="37" />
+      <line class="voyager-menu__brightness-thumb" x1="${112 + fill}" y1="111" x2="${112 + fill}" y2="154" />
+    </g>
     <text class="voyager-live__text voyager-menu__slot-value" x="252" y="222" text-anchor="middle">${definition.value}%</text>`);
 }
 
@@ -480,12 +507,13 @@ const KEYBOARD_ICON_MAP = Object.freeze({
   DELETE: { id: "keyboard-16pt-delete", width: 27 },
 });
 
-function keyboardKeyMarkup(key, row, column, selected) {
+function keyboardKeyMarkup(key, row, column, keyboardIndex, selected) {
   const x = 72 + column * 30;
   const y = 157 + row * 24;
   const icon = KEYBOARD_ICON_MAP[key];
   return `
-    <g data-menu-key="${escapeMarkup(key)}"${selected ? " data-menu-key-selected=\"true\"" : ""}>
+    <g data-menu-key="${escapeMarkup(key)}" data-menu-key-index="${keyboardIndex}"${selected ? " data-menu-key-selected=\"true\"" : ""}>
+      <rect class="voyager-live__touch-hit" x="${x - 14}" y="${y - 20}" width="28" height="24" />
       ${selected ? `<rect class="voyager-menu__keyboard-key-selection" x="${x - 13}" y="${y - 19}" width="26" height="22" />` : ""}
       ${icon
     ? voyagerUiIcon(icon.id, {
@@ -506,7 +534,7 @@ function keyboardModal(definition) {
   const keys = VOYAGER_KEYBOARD_ROWS.map((row, rowIndex) => row.map((key, columnIndex) => {
     const keyboardIndex = rowIndex * row.length + columnIndex;
     const keyboardHasFocus = (definition.selectedConfirmation ?? -1) < 0;
-    return keyboardKeyMarkup(key, rowIndex, columnIndex, keyboardHasFocus && keyboardIndex === definition.keyboardIndex);
+    return keyboardKeyMarkup(key, rowIndex, columnIndex, keyboardIndex, keyboardHasFocus && keyboardIndex === definition.keyboardIndex);
   }).join("")).join("");
   return modalFrame(definition, `
     <g transform="translate(0 -21)">

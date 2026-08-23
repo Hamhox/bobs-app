@@ -7,7 +7,12 @@ import {
   createVoyagerMapProfile,
   createVoyagerPowerProfile,
 } from "../voyager-device-runtime.js";
-import { serializeVoyagerGpx, voyager250FourStrokeRpm } from "../voyager-live-runtime.js";
+import {
+  serializeVoyagerGpx,
+  voyager250FourStrokeRpm,
+  voyagerScreenTabTarget,
+  voyagerTabsVisibleTarget,
+} from "../voyager-live-runtime.js";
 import { VoyagerMenuModel } from "../voyager-menu-model.js";
 import { VoyagerRideCatalog } from "../voyager-ride-catalog.js";
 import {
@@ -158,6 +163,12 @@ const topEndRpm = voyager250FourStrokeRpm({ recordedRpm: 3210, speedMph: 62, pro
 assert(idleRpm >= 1800 && idleRpm <= 2200, "250cc four-stroke idle left the approved range");
 assert(peakRpm >= 11500 && peakRpm < 13500, "250cc four-stroke pull misses its power band");
 assert(topEndRpm >= 13500 && topEndRpm <= 14200, "250cc four-stroke top end misses its approved range");
+assert(voyagerScreenTabTarget("map") === "map", "touchscreen Map tab does not target the primary map screen");
+assert(voyagerScreenTabTarget("nav") === "dir", "touchscreen Nav tab does not target the navigation screen");
+assert(voyagerScreenTabTarget("unknown") === null, "unknown touchscreen tab has a target");
+assert(voyagerTabsVisibleTarget("map1-2") === "map", "touchscreen cannot restore hidden map tabs");
+assert(voyagerTabsVisibleTarget("cstm2-2") === "cstm2", "touchscreen cannot restore hidden secondary User tabs");
+assert(voyagerTabsVisibleTarget("dir") === null, "visible navigation screen incorrectly requires a tab restore");
 
 const exportedGpx = serializeVoyagerGpx({
   name: "FOREST & LOOP",

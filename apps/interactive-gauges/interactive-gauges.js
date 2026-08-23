@@ -205,6 +205,60 @@ function dispatchAction(action, source, engine) {
   return engine.dispatch(preparedInput.action, source, policyStateId);
 }
 
+function applyPointerPlan(plan, engine, source = "touchscreen") {
+  if (!plan) return null;
+  liveRuntime.recordActivity();
+  let result = null;
+  if (plan.targetStateId) {
+    result = engine.reset(plan.targetStateId, `${source}:target`);
+  }
+  if (plan.followupAction) return dispatchAction(plan.followupAction, `${source}:activate`, engine);
+  if (plan.action) return dispatchAction(plan.action, source, engine);
+  if (result) interactionLive.textContent = `Touchscreen opened archive state ${result.state.id}.`;
+  return result;
+}
+
+function pointerPositionInSvg(event) {
+  const svg = event.target.closest?.("svg");
+  const matrix = svg?.getScreenCTM?.();
+  if (!svg || !matrix) return {};
+  const point = svg.createSVGPoint();
+  point.x = event.clientX;
+  point.y = event.clientY;
+  const local = point.matrixTransform(matrix.inverse());
+  return { x: local.x, y: local.y };
+}
+
+function bindTouchscreen(engine) {
+  liveScreen.addEventListener("click", (event) => {
+    const stateId = engine.getState().id;
+    const plan = liveRuntime.preparePointerInput(
+      stateId,
+      event.target,
+      { ...pointerPositionInSvg(event), activate: true },
+    );
+    if (!plan) return;
+    event.preventDefault();
+    applyPointerPlan(plan, engine);
+  });
+
+  let hoveredConfirmation = "";
+  liveScreen.addEventListener("pointerover", (event) => {
+    if (event.pointerType === "touch") return;
+    const confirmation = event.target.closest?.("[data-menu-confirmation]");
+    if (!confirmation) return;
+    const stateId = engine.getState().id;
+    const hoverKey = `${stateId}:${confirmation.dataset.menuConfirmation}`;
+    if (hoveredConfirmation === hoverKey) return;
+    hoveredConfirmation = hoverKey;
+    const plan = liveRuntime.preparePointerInput(stateId, confirmation, { activate: false });
+    applyPointerPlan(plan, engine, "touchscreen:hover");
+  });
+  liveScreen.addEventListener("pointerleave", () => {
+    hoveredConfirmation = "";
+  });
+}
+
 function bindControl(control, engine) {
   control.addEventListener("click", () => {
     const result = dispatchAction(control.dataset.action, "physical-control", engine);
@@ -249,6 +303,7 @@ function enableInterface(engine, guide) {
   startGuideButton.disabled = false;
   exploreButton.disabled = false;
   bindKeyboard(engine);
+  bindTouchscreen(engine);
   guide.exit();
 
   startGuideButton.addEventListener("click", () => {

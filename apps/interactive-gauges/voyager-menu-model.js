@@ -382,6 +382,80 @@ export class VoyagerMenuModel {
     return centerActivatesSelection ? "enter" : action;
   }
 
+  preparePointerInput(definition, pointer = {}) {
+    if (!definition) return null;
+    definition = withContextualOptions(definition, this.#values);
+    const index = Number(pointer.index);
+    const activate = pointer.activate !== false;
+
+    if (pointer.type === "action") return { action: pointer.action };
+
+    if (pointer.type === "row" && definition.presentation !== "overlay") {
+      if (!Number.isInteger(index) || index < 0 || index >= (definition.rows?.length ?? 0)) return null;
+      const row = definition.rows[index];
+      if (!row || row.spacer || rowIsDisabled(row, this.#values)) return null;
+      const selectableRows = definition.rows.flatMap((candidate, rowIndex) => candidate.spacer ? [] : [rowIndex]);
+      const selectableIndex = selectableRows.indexOf(index);
+      const targetStateId = definition.rowStateIds?.[selectableIndex] ?? definition.id;
+      return { targetStateId, followupAction: activate ? "enter" : null };
+    }
+
+    const draft = this.#draftFor(definition);
+    if (pointer.type === "option") {
+      if (!Number.isInteger(index) || index < 0 || index >= (definition.options?.length ?? 0)) return null;
+      draft.selectedIndex = index;
+      this.#touch();
+      return activate ? { action: "enter" } : { targetStateId: definition.id };
+    }
+
+    if (pointer.type === "layout-name" && definition.kind === "user-layout") {
+      draft.selectedIndex = 0;
+      this.#touch();
+      return activate ? { action: "enter" } : { targetStateId: definition.id };
+    }
+
+    if (pointer.type === "layout-slot" && definition.kind === "user-layout") {
+      if (!Number.isInteger(index) || index < 0 || index >= 6) return null;
+      draft.selectedIndex = index + 1;
+      this.#touch();
+      return activate ? { action: "enter" } : { targetStateId: definition.id };
+    }
+
+    if (pointer.type === "confirmation") {
+      if (index !== 0 && index !== 1) return null;
+      if (definition.kind === "user-layout") draft.selectedIndex = index + 7;
+      else if (definition.kind === "confirm" || definition.kind === "keyboard") draft.selectedConfirmation = index;
+      else return activate ? { action: index === 0 ? "back" : "enter" } : null;
+      this.#touch();
+      return activate ? { action: "enter" } : { targetStateId: definition.id };
+    }
+
+    if (pointer.type === "keyboard-key" && definition.kind === "keyboard") {
+      if (!Number.isInteger(index) || index < 0 || index >= KEYBOARD_KEYS.length) return null;
+      draft.keyboardIndex = index;
+      draft.selectedConfirmation = -1;
+      this.#touch();
+      return activate ? { action: "center" } : { targetStateId: definition.id };
+    }
+
+    if (pointer.type === "slot" && definition.kind === "slot-input") {
+      const slotCount = editableSlotCount(definition, draft.value);
+      if (!Number.isInteger(index) || index < 0 || index >= slotCount) return null;
+      if (draft.activeDigit === index && activate) return { action: "up" };
+      draft.activeDigit = index;
+      this.#touch();
+      return { targetStateId: definition.id };
+    }
+
+    if (pointer.type === "brightness" && definition.kind === "brightness") {
+      draft.value = clamp(Math.round(Number(pointer.value) / 5) * 5, 0, 100);
+      this.#touch();
+      return { targetStateId: definition.id };
+    }
+
+    return null;
+  }
+
   prepareInput(definition, action) {
     if (!definition) return { action };
     definition = withContextualOptions(definition, this.#values);

@@ -89,7 +89,7 @@ function registerPageFamily({ ids, rows, targets = [], parentStateId, ...definit
 }
 
 function registerSection({ rootId, rowIds, rows, targets, section, title, up, down, ...definition }) {
-  register(rootId, { kind: "menu", section, title, rows, ...definition }, {
+  register(rootId, { kind: "menu", section, title, rows, rowStateIds: rowIds, ...definition }, {
     menu: "index",
     up,
     left: null,

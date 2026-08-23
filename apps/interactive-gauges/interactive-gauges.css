@@ -319,7 +319,26 @@
   display: block;
   width: 100%;
   height: 100%;
+  touch-action: manipulation;
   filter: brightness(var(--voyager-screen-brightness, 1)) invert(var(--voyager-screen-inversion, 0));
+}
+
+.voyager-live__touch-hit {
+  fill: transparent;
+  pointer-events: all;
+}
+
+[data-voyager-touch-target],
+[data-menu-row],
+[data-menu-option],
+[data-menu-layout-slot],
+[data-menu-layout-name],
+[data-menu-confirmation],
+[data-menu-key],
+[data-menu-slot],
+[data-menu-brightness],
+[data-menu-action] {
+  cursor: pointer;
 }
 
 .voyager-shell {

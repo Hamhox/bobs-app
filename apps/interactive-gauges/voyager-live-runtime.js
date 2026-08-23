@@ -38,6 +38,42 @@ const VOYAGER_SLEEP_CLOCK_MS = 1000;
 const VOYAGER_DEFAULT_SLEEP_AFTER_MS = 10 * 60 * 1000;
 const VOYAGER_DEFAULT_RIDE_ID = "baker-west-desert";
 const VOYAGER_TACHBAR_SPRITE = "/apps/interactive-gauges/assets/ui/voyager-tachbar.svg";
+const VOYAGER_SCREEN_TAB_TARGETS = Object.freeze({
+  main: "index",
+  map: "map",
+  temp: "eng",
+  alt: "alt",
+  user: "cstm",
+  nav: "dir",
+  sat: "sat",
+});
+const VOYAGER_MENU_TAB_TARGETS = Object.freeze({
+  main: "m-main1-1",
+  ride: "m-ride2-1",
+  set: "m-set3-1",
+});
+const VOYAGER_TABS_VISIBLE_TARGETS = Object.freeze({
+  "index1-2": "index",
+  "index2-2": "index2",
+  "index3-2": "index3",
+  "map1-2": "map",
+  map2: "map",
+  "map2-2": "map",
+  map3: "map2-2",
+  "map3-2": "map2-2",
+  "eng1-2": "eng",
+  eng2: "eng",
+  eng3: "eng",
+  "alt1-2": "alt",
+  alt2: "alt",
+  alt3: "alt",
+  "cstm1-2": "cstm",
+  "cstm2-2": "cstm2",
+  "dir1-2": "dir",
+  dir3: "dir2",
+  "sat1-2": "sat",
+  sat2: "sat",
+});
 const SD_CARD_DEFAULT_RIDES = Object.freeze([
   { id: "SD-BAKER", name: "BAKER WEST", progress: 0, trackId: "baker-west-desert" },
   { id: "SD-JORDAN", name: "JORDAN CREEK", progress: 0, trackId: "jordan-creek" },
@@ -77,6 +113,14 @@ export function voyager250FourStrokeRpm({ recordedRpm, speedMph = 0, progress = 
   const shiftPhase = (rideProgress * 18) % 1;
   const throttleSweep = shiftPhase * 900 - 300 + Math.sin(rideProgress * Math.PI * 50) * 150;
   return Math.round(clamp(engineBase + throttleSweep, 2200, 14200));
+}
+
+export function voyagerScreenTabTarget(tabId) {
+  return VOYAGER_SCREEN_TAB_TARGETS[tabId] ?? null;
+}
+
+export function voyagerTabsVisibleTarget(stateId) {
+  return VOYAGER_TABS_VISIBLE_TARGETS[stateId] ?? null;
 }
 
 export function voyagerMainScreenTarget(stateId, action, tachbarEnabled = true) {
@@ -780,7 +824,8 @@ function tabsMarkup(activeTab) {
       ? temperatureIcon(18, y + 5, 1.15, active)
       : `<text class="voyager-live__text voyager-live__text--medium${active ? " voyager-live__text--inverse" : ""}" x="33" y="${y + 29}" text-anchor="middle">${tab.label}</text>`;
     return `
-      <g data-tab="${tab.id}">
+      <g data-tab="${tab.id}" data-voyager-touch-target="screen-tab">
+        <rect class="voyager-live__touch-hit" x="0" y="${y}" width="68" height="${bottom - y}" />
         ${followsActiveTab ? `<path class="voyager-live__tab-active-tail" d="M-3 ${y - 1}H8L-3 ${y + 8}Z" />` : ""}
         <path class="voyager-live__tab${active ? " voyager-live__tab--active" : ""}" d="M-3 ${y + 8} 8 ${y}H67V${bottom}H-3Z" />
         <path class="voyager-live__tab-top" d="M-3 ${y + 8} 8 ${y}H67" />
@@ -801,6 +846,11 @@ function sideArrowsMarkup(screen, variant) {
   return `
     ${voyagerUiIcon("screen-arrow-right", { x: variant.tabsVisible ? 67 : 0, y: 132, width: 12, height: 35 })}
     ${voyagerUiIcon("screen-arrow-left", { x: 492, y: 132, width: 12, height: 35 })}`;
+}
+
+function secondaryScreenTouchMarkup(screen) {
+  if (screen.id === "startup" || screen.id === "nav") return "";
+  return `<rect class="voyager-live__touch-hit voyager-live__touch-hit--secondary" data-live-secondary-screen x="470" y="92" width="34" height="118" />`;
 }
 
 function screenChromeMarkup(screen, variant) {
@@ -1109,20 +1159,24 @@ export function voyagerUserMetricDefinition(selection, display) {
   return { label, attribute, fallback };
 }
 
-function userMetricBlock(x, y, selection, display) {
+function userMetricBlock(x, y, selection, display, screenNumber, slotIndex) {
   const metric = voyagerUserMetricDefinition(selection, display);
   const readoutClass = metric.fallback === "00:00:00" ? " voyager-live__user-metric-readout--clock" : "";
   return `
-    <text class="voyager-live__text voyager-live__text--medium voyager-live__user-metric-label" x="${x}" y="${y}" text-anchor="middle">${metric.label}</text>
-    <text class="voyager-live__text voyager-live__text--readout${readoutClass}" x="${x}" y="${y + 58}" text-anchor="middle" ${metric.attribute}>${metric.fallback}</text>`;
+    <g data-live-user-readout data-user-screen="${screenNumber}" data-user-slot="${slotIndex}" data-voyager-touch-target="user-readout">
+      <rect class="voyager-live__touch-hit" x="${x - 104}" y="${y - 29}" width="208" height="91" />
+      <text class="voyager-live__text voyager-live__text--medium voyager-live__user-metric-label" x="${x}" y="${y}" text-anchor="middle">${metric.label}</text>
+      <text class="voyager-live__text voyager-live__text--readout${readoutClass}" x="${x}" y="${y + 58}" text-anchor="middle" ${metric.attribute}>${metric.fallback}</text>
+    </g>`;
 }
 
 function userMarkup(screen, variant, { menuValues, display }) {
   const screenNumber = variant.view === "secondary" ? 2 : 1;
-  const selections = Array.from({ length: 6 }, (_, index) => (
-    menuValues[`userScreen${screenNumber}Block${index + 1}`]
-      ?? DEFAULT_USER_SCREEN_BLOCKS[screenNumber][index]
-  )).filter((selection) => selection !== "<OFF>");
+  const selections = Array.from({ length: 6 }, (_, index) => ({
+    selection: menuValues[`userScreen${screenNumber}Block${index + 1}`]
+      ?? DEFAULT_USER_SCREEN_BLOCKS[screenNumber][index],
+    slotIndex: index,
+  })).filter(({ selection }) => selection !== "<OFF>");
   const contentLeft = variant.tabsVisible ? 70 : 0;
   const contentWidth = 504 - contentLeft;
   const leftCenter = contentLeft + contentWidth * 0.25;
@@ -1130,11 +1184,11 @@ function userMarkup(screen, variant, { menuValues, display }) {
   const center = contentLeft + contentWidth * 0.5;
   const rowCount = Math.max(1, Math.ceil(selections.length / 2));
   const rowLabels = rowCount === 1 ? [123] : rowCount === 2 ? [82, 190] : [62, 148, 234];
-  const blocks = selections.map((selection, index) => {
+  const blocks = selections.map(({ selection, slotIndex }, index) => {
     const row = Math.floor(index / 2);
     const alone = index === selections.length - 1 && selections.length % 2 === 1;
     const x = alone ? center : index % 2 === 0 ? leftCenter : rightCenter;
-    return userMetricBlock(x, rowLabels[row], selection, display);
+    return userMetricBlock(x, rowLabels[row], selection, display, screenNumber, slotIndex);
   }).join("");
   return `
     <rect class="voyager-live__surface" width="504" height="303" />
@@ -1151,16 +1205,25 @@ function navigationMarkup(screen, variant, { display }) {
     <g transform="translate(${hiddenOffset} 0)">
       <text class="voyager-live__text voyager-live__text--medium" x="467.5" y="47" text-anchor="start" data-live-heading-label>N</text>
       ${metricBlock(186, 30, `SPD ${display.speedUnit}`, "data-live-speed", "21")}
-      ${metricBlock(186, 127, `DEST DST ${display.distanceUnit}`, "data-live-destination", "---", {
+      <g data-live-nav-destination data-voyager-touch-target="destination-picker">
+        <rect class="voyager-live__touch-hit" x="96" y="103" width="180" height="96" />
+        ${metricBlock(186, 127, `DEST DST ${display.distanceUnit}`, "data-live-destination", "---", {
     labelAttribute: "data-live-destination-label",
     labelClass: "voyager-live__destination-label",
     readoutClass: "voyager-live__destination-readout",
   })}
+      </g>
       ${compassMarkup({ cx: 388.75, cy: 102, radius: 87.4, pointerAttribute: "data-live-nav-pointer" })}
-      <text class="voyager-live__text voyager-live__text--medium" x="248" y="225" text-anchor="middle">STOP WATCH</text>
-      <text class="voyager-live__text voyager-live__text--large voyager-live__text--clock" x="248" y="283" text-anchor="middle" data-live-stopwatch>00:00:00</text>
+      <g data-live-stopwatch-toggle data-voyager-touch-target="stopwatch-toggle">
+        <rect class="voyager-live__touch-hit" x="142" y="202" width="212" height="96" />
+        <text class="voyager-live__text voyager-live__text--medium" x="248" y="225" text-anchor="middle">STOP WATCH</text>
+        <text class="voyager-live__text voyager-live__text--large voyager-live__text--clock" x="248" y="283" text-anchor="middle" data-live-stopwatch>00:00:00</text>
+      </g>
     </g>
-    ${voyagerUiIcon("pauseplay-pill", { x: 442, y: 230, width: 62, height: 42, attributes: 'data-live-stopwatch-control=""' })}`;
+    <g data-live-stopwatch-toggle data-voyager-touch-target="stopwatch-toggle">
+      <rect class="voyager-live__touch-hit" x="434" y="218" width="70" height="66" />
+      ${voyagerUiIcon("pauseplay-pill", { x: 442, y: 230, width: 62, height: 42, attributes: 'data-live-stopwatch-control=""' })}
+    </g>`;
 }
 
 function satelliteMarkup(screen, variant) {
@@ -1242,10 +1305,11 @@ function renderScreenMarkup(screen, variant, menuValues = {}) {
     navigation: navigationMarkup,
     satellite: satelliteMarkup,
   };
-  return renderers[screen.renderer](screen, variant, {
+  const markup = renderers[screen.renderer](screen, variant, {
     menuValues,
     display: createVoyagerDisplayProfile(menuValues),
   });
+  return `${markup}${secondaryScreenTouchMarkup(screen)}`;
 }
 
 function projectTrack(points, bounds, extentPoints = points) {
@@ -1486,6 +1550,120 @@ export class VoyagerLiveRuntime {
       return { ...prepared, targetStateId };
     }
     return prepared;
+  }
+
+  preparePointerInput(stateId, target, pointer = {}) {
+    this.#clearToast();
+    if (!target?.closest) return null;
+
+    const menuTab = target.closest("[data-menu-tab]");
+    if (menuTab) {
+      const targetStateId = VOYAGER_MENU_TAB_TARGETS[menuTab.dataset.menuTab];
+      return targetStateId ? { targetStateId } : null;
+    }
+
+    const screenTab = target.closest("[data-tab]");
+    if (screenTab) {
+      const targetStateId = voyagerScreenTabTarget(screenTab.dataset.tab);
+      return targetStateId ? { targetStateId } : null;
+    }
+
+    const tabsVisibleTarget = voyagerTabsVisibleTarget(stateId);
+    if (tabsVisibleTarget && !voyagerMenuState(stateId)) return { targetStateId: tabsVisibleTarget };
+
+    const userReadout = target.closest("[data-live-user-readout]");
+    if (userReadout) {
+      const userScreen = Number(userReadout.dataset.userScreen);
+      const slotIndex = Number(userReadout.dataset.userSlot);
+      if (![1, 2].includes(userScreen) || !Number.isInteger(slotIndex)) return null;
+      const layoutId = `m-user-screen-${userScreen}-layout`;
+      const layoutDefinition = this.#contextualizeMenuDefinition(voyagerMenuState(layoutId));
+      this.#menuModel.preparePointerInput(layoutDefinition, {
+        type: "layout-slot",
+        index: slotIndex,
+        activate: false,
+      });
+      return { targetStateId: `m-user-screen-${userScreen}-data-block` };
+    }
+
+    if (target.closest("[data-live-nav-destination]")) {
+      return {
+        targetStateId: ["dir2", "dir3"].includes(stateId)
+          ? "m-nav-destination-secondary"
+          : "m-nav-destination-primary",
+      };
+    }
+    if (target.closest("[data-live-stopwatch-toggle]")) return { action: "enter" };
+    if (target.closest("[data-live-secondary-screen]")) return { action: "right" };
+
+    const definition = this.#contextualizeMenuDefinition(voyagerMenuState(stateId));
+    if (!definition) return null;
+
+    const confirmation = target.closest("[data-menu-confirmation]");
+    if (confirmation) {
+      return this.#menuModel.preparePointerInput(definition, {
+        type: "confirmation",
+        index: confirmation.dataset.menuConfirmation,
+        activate: pointer.activate,
+      });
+    }
+    const layoutName = target.closest("[data-menu-layout-name]");
+    if (layoutName) {
+      return this.#menuModel.preparePointerInput(definition, {
+        type: "layout-name",
+        activate: pointer.activate,
+      });
+    }
+    const layoutSlot = target.closest("[data-menu-layout-slot]");
+    if (layoutSlot) {
+      return this.#menuModel.preparePointerInput(definition, {
+        type: "layout-slot",
+        index: layoutSlot.dataset.menuLayoutSlot,
+        activate: pointer.activate,
+      });
+    }
+    const option = target.closest("[data-menu-option]");
+    if (option) {
+      return this.#menuModel.preparePointerInput(definition, {
+        type: "option",
+        index: option.dataset.menuOption,
+        activate: pointer.activate,
+      });
+    }
+    const row = target.closest("[data-menu-row]");
+    if (row) {
+      return this.#menuModel.preparePointerInput(definition, {
+        type: "row",
+        index: row.dataset.menuRow,
+        activate: pointer.activate,
+      });
+    }
+    const keyboardKey = target.closest("[data-menu-key-index]");
+    if (keyboardKey) {
+      return this.#menuModel.preparePointerInput(definition, {
+        type: "keyboard-key",
+        index: keyboardKey.dataset.menuKeyIndex,
+        activate: pointer.activate,
+      });
+    }
+    const slot = target.closest("[data-menu-slot]");
+    if (slot) {
+      return this.#menuModel.preparePointerInput(definition, {
+        type: "slot",
+        index: slot.dataset.menuSlot,
+        activate: pointer.activate,
+      });
+    }
+    if (target.closest("[data-menu-brightness]")) {
+      const value = (Number(pointer.x) - 112) / 280 * 100;
+      return this.#menuModel.preparePointerInput(definition, {
+        type: "brightness",
+        value,
+        activate: pointer.activate,
+      });
+    }
+    const action = target.closest("[data-menu-action]")?.dataset.menuAction;
+    return action ? this.#menuModel.preparePointerInput(definition, { type: "action", action }) : null;
   }
 
   resolveInputAction(stateId, action) {

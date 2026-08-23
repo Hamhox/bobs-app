@@ -118,6 +118,23 @@ function main() {
   if (VOYAGER_KEYBOARD_ROWS.some((row, index) => row.join("") !== expectedKeyboardRows[index])) {
     throw new Error("keyboard character map no longer matches the device");
   }
+  const touchKeyboardDefinition = VOYAGER_MENU_STATE_INDEX["m-user-screen-1-name"];
+  const touchKeyboardModel = new VoyagerMenuModel();
+  const touchKeyboardMarkup = renderDefinition(touchKeyboardDefinition, touchKeyboardModel);
+  if (!touchKeyboardMarkup.includes('data-menu-key-index="0"')
+    || !touchKeyboardMarkup.includes('data-menu-key-index="51"')
+    || !touchKeyboardMarkup.includes('data-menu-confirmation="1"')) {
+    throw new Error("keyboard keys or buttons are missing touchscreen indexes");
+  }
+  const keyboardPointerAction = touchKeyboardModel.preparePointerInput(touchKeyboardDefinition, {
+    type: "keyboard-key",
+    index: 13,
+    activate: true,
+  });
+  if (keyboardPointerAction.action !== "center"
+    || touchKeyboardModel.resolve(touchKeyboardDefinition).keyboardKey !== "Q") {
+    throw new Error("touchscreen keyboard key does not select the requested device key");
+  }
   const scrollModel = new VoyagerMenuModel();
   for (let index = 0; index < 12; index += 1) scrollModel.prepareInput(dataBlockSelector, "down");
   const scrolledMarkup = renderDefinition(dataBlockSelector, scrollModel);
@@ -262,6 +279,19 @@ function main() {
   if (!quickMenuMarkup.includes("QUICK MENU") || !quickMenuMarkup.includes(">QUICK</text>")) {
     throw new Error("quick menu naming is not reflected in the title and persistent sidebar");
   }
+  if (!quickMenuMarkup.includes('data-menu-tab="ride" data-voyager-touch-target="menu-tab"')
+    || !quickMenuMarkup.includes('data-menu-row="0"')
+    || !quickMenuMarkup.includes("voyager-live__touch-hit")) {
+    throw new Error("menu rows or persistent tabs are missing touchscreen targets");
+  }
+  const pointerPageModel = new VoyagerMenuModel();
+  const pointerPageResult = pointerPageModel.preparePointerInput(
+    VOYAGER_MENU_STATE_INDEX["m-main1-1"],
+    { type: "row", index: 2, activate: true },
+  );
+  if (pointerPageResult.targetStateId !== "m-main1-3" || pointerPageResult.followupAction !== "enter") {
+    throw new Error("touchscreen menu row does not select and activate through the existing page state");
+  }
   const waypointToastMarkup = renderVoyagerToastMarkup("Waypoint 7 added.");
   if (!waypointToastMarkup.includes("Waypoint 7 added.")
     || !waypointToastMarkup.includes("voyager-menu__modal-shadow")
@@ -296,6 +326,12 @@ function main() {
     || !userLayoutMarkup.includes("btn-ok-disabled")) {
     throw new Error("user screen layout modal is incomplete");
   }
+  if (!userLayoutMarkup.includes("data-menu-layout-name")
+    || !userLayoutMarkup.includes('data-menu-layout-slot="0"')
+    || !userLayoutMarkup.includes('data-menu-confirmation="0"')
+    || !userLayoutMarkup.includes('data-menu-confirmation="1"')) {
+    throw new Error("user layout fields or confirmation buttons are missing touchscreen targets");
+  }
   const dataBlockMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-user-screen-1-data-block"], new VoyagerMenuModel());
   if (!dataBlockMarkup.includes("CHOOSE READOUT") || !dataBlockMarkup.includes("WHEEL SPEED")) {
     throw new Error("user screen data-block picker is incomplete");
@@ -327,6 +363,16 @@ function main() {
   const okAction = committedLayoutModel.prepareInput(layoutDefinition, "enter");
   if (okAction.targetStateId !== "cstm" || committedLayoutModel.values.userScreen1Block1 === "WHEEL SPEED") {
     throw new Error("user layout OK did not commit staged changes");
+  }
+  const pointerLayoutModel = new VoyagerMenuModel();
+  const pointerLayoutAction = pointerLayoutModel.preparePointerInput(layoutDefinition, {
+    type: "layout-slot",
+    index: 4,
+    activate: true,
+  });
+  if (pointerLayoutAction.action !== "enter"
+    || pointerLayoutModel.resolve(layoutDefinition).selectedIndex !== 5) {
+    throw new Error("touchscreen user readout does not prime the requested layout slot");
   }
   const destinationMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-nav-destination-primary"], new VoyagerMenuModel());
   if (!destinationMarkup.includes("SELECT DESTINATION WAYPOINT")
