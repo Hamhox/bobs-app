@@ -80,7 +80,7 @@ or third-party map service. The fake memory card exposes the reviewed Baker West
 alongside two reviewed single rides (`cmra-trail-2.gpx` and `blackdog-2016.gpx`). Choosing Ride Menu, Edit Rides, Saved
 Rides and Load selects the highlighted card entry and resets both map views around its geometry. Loading either riding-area
 entry chooses a different real recorded loop when possible while retaining the area's complete multi-track network as map
-context. Clean sessions start on Baker West's first real ride in the device's Track Up orientation. A successful Quick or
+context. Clean sessions start on Baker West's first real ride in the calmer North Up orientation. A successful Quick or
 Ride Menu import shows its confirmation, then opens the overview map with the imported geometry already active. The ride
 engine keeps recorded speed, heading,
 distance, elevation, engine temperature, ambient temperature, graphs, and map position synchronized. It supports play,

@@ -55,7 +55,7 @@ const DEFAULT_VALUES = Object.freeze({
   autoSplit: "5 MI GAP",
   coordFormat: "DEG, MIN.DEC",
   signalBars: "OFF",
-  mapOrientation: "TRACK UP",
+  mapOrientation: "NORTH UP",
   pointerSize: "MEDIUM",
   mapScreen1: "AUTO-CENTER",
   mapScreen1TrackLabels: "LARGE",

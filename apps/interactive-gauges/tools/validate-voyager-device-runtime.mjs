@@ -201,7 +201,7 @@ const repeatedMapProfile = createVoyagerMapProfile({
   panZoomTimeout: "030 SEC",
 });
 assert(mapProfile === repeatedMapProfile, "map profiles are not cached by their stable settings signature");
-assert(createVoyagerMapProfile({}).orientation === "TRACK UP", "clean map settings do not default to track-up orientation");
+assert(createVoyagerMapProfile({}).orientation === "NORTH UP", "clean map settings do not default to north-up orientation");
 assert(mapProfile.orientation === "NORTH UP" && mapProfile.pointerScale > 1, "map orientation or pointer size is not represented");
 assert(mapProfile.resourceVisible("track", ["BAKER WEST"]), "custom track visibility dropped a selected resource");
 assert(!mapProfile.resourceVisible("track", ["JORDAN CREEK"]), "custom track visibility retained an unselected resource");

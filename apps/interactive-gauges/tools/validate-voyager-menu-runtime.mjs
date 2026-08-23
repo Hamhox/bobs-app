@@ -602,7 +602,7 @@ function main() {
     throw new Error("Map Settings direct toggles still open obsolete sub-modals");
   }
   mapModel.prepareInput(mapOrientationDefinition, "enter");
-  if (mapModel.values.mapOrientation !== "NORTH UP") throw new Error("Map Orientation does not toggle in place");
+  if (mapModel.values.mapOrientation !== "TRACK UP") throw new Error("Map Orientation does not toggle in place");
   mapModel.prepareInput(VOYAGER_MENU_STATE_INDEX["m-set3-6-3"], "enter");
   if (mapModel.values.mapScreen1 !== "FIXED") throw new Error("Map Screen 1 does not toggle to Fixed in place");
 
@@ -678,7 +678,7 @@ function main() {
   }
 
   mapModel.prepareInput(VOYAGER_MENU_STATE_INDEX["m-set3-6-8"], "enter");
-  if (mapModel.values.mapOrientation !== "NORTH UP"
+  if (mapModel.values.mapOrientation !== "TRACK UP"
     || VOYAGER_MENU_TRANSITIONS["m-set3-6-8"].enter !== "m-set3-6-restore") {
     throw new Error("Map Restore Defaults applies before its confirmation dialog");
   }
@@ -690,7 +690,7 @@ function main() {
   }
   mapModel.prepareInput(mapRestoreDefinition, "right");
   mapModel.prepareInput(mapRestoreDefinition, "enter");
-  if (mapModel.values.mapOrientation !== "TRACK UP"
+  if (mapModel.values.mapOrientation !== "NORTH UP"
     || mapModel.values.pointerSize !== "MEDIUM"
     || mapModel.values.mapScreen1 !== "AUTO-CENTER"
     || mapModel.values.mapScreen1TrackLabels !== "LARGE"

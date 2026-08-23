@@ -248,7 +248,7 @@ export function createVoyagerMapProfile(values = {}) {
     selectedTracks.join("|"),
     values.routesDisplay ?? "ALL",
     values.waypointsDisplay ?? "ALL",
-    values.mapOrientation ?? "TRACK UP",
+    values.mapOrientation ?? "NORTH UP",
     values.pointerSize ?? "MEDIUM",
     values.mapScreen1 ?? "AUTO-CENTER",
     values.mapScreen1TrackLabels ?? "LARGE",
@@ -285,7 +285,7 @@ export function createVoyagerMapProfile(values = {}) {
   const panZoomSeconds = Number.parseInt(values.panZoomTimeout, 10);
   const profile = Object.freeze({
     signature,
-    orientation: values.mapOrientation === "NORTH UP" ? "NORTH UP" : "TRACK UP",
+    orientation: values.mapOrientation === "TRACK UP" ? "TRACK UP" : "NORTH UP",
     pointerScale: MAP_POINTER_SCALES[values.pointerSize] ?? MAP_POINTER_SCALES.MEDIUM,
     panZoomTimeoutMs: Number.isFinite(panZoomSeconds) && panZoomSeconds > 0
       ? panZoomSeconds * 1000

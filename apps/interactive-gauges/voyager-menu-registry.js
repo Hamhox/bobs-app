@@ -646,7 +646,7 @@ registerOverlay("m-set3-5-restore", {
 }, "m-set3-5-7");
 
 const MAP_ROWS = [
-  { label: "ORIENTATION", field: "mapOrientation", value: "TRACK UP", toggleValues: ["TRACK UP", "NORTH UP"] },
+  { label: "ORIENTATION", field: "mapOrientation", value: "NORTH UP", toggleValues: ["NORTH UP", "TRACK UP"] },
   { label: "POINTER SIZE", field: "pointerSize", value: "MEDIUM" },
   { spacer: true },
   { label: "MAP SCREEN 1", field: "mapScreen1", value: "AUTO-CENTER", toggleValues: ["AUTO-CENTER", "FIXED"] },
