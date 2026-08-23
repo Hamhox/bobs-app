@@ -80,10 +80,18 @@ or third-party map service. The fake memory card exposes the reviewed Baker West
 alongside two reviewed single rides (`cmra-trail-2.gpx` and `blackdog-2016.gpx`). Choosing Ride Menu, Edit Rides, Saved
 Rides and Load selects the highlighted card entry and resets both map views around its geometry. Loading either riding-area
 entry chooses a different real recorded loop when possible while retaining the area's complete multi-track network as map
-context. The ride engine keeps recorded speed, heading,
+context. Clean sessions start on Baker West's first real ride in the device's Track Up orientation. A successful Quick or
+Ride Menu import shows its confirmation, then opens the overview map with the imported geometry already active. The ride
+engine keeps recorded speed, heading,
 distance, elevation, engine temperature, ambient temperature, graphs, and map position synchronized. It supports play,
 pause, reset, seek, playback speed, and loop behavior. Graph cursor input seeks that shared timeline rather than maintaining
 a disconnected display-only cursor.
+
+GPS logging is driven by the existing half-second device conductor rather than an additional timer. A cached GPS profile
+applies the selected time/distance frequency, sensor gate, auto-split distance, coordinate format, and signal-bar setting.
+Sampled points form opaque recorded-track segments on the map, contribute their point and byte totals to the Memory screen,
+and serialize as sensor-rich GPX on export. Unchanged settings and telemetry phases do not rebuild map geometry or rewrite
+screen fields.
 
 Ride visibility and Map Settings now feed a revision-cached map presentation profile. That profile controls track, route,
 and waypoint visibility; North Up or Track Up rotation; constant-screen-size pointer and waypoint symbols; per-screen

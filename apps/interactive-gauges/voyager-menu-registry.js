@@ -175,7 +175,7 @@ registerOverlay("m-main1-5-progress", {
 }, "m-main1-5");
 registerOverlay("m-main1-5-success", {
   kind: "toast", section: "main", title: "TRACK LOADED", message: ["TRACK LOADED", "OPEN MAP TO VIEW"],
-  autoTransition: { active: true, target: "m-main1-5", delayMs: 1800 },
+  autoTransition: { active: true, target: "map", delayMs: 1800 },
 }, "m-main1-5");
 registerOverlay("m-main1-6-1", {
   kind: "progress", section: "main", title: "EXPORTING GPX", lines: ["WRITING FILE..."], progress: 0.68,
@@ -399,7 +399,7 @@ registerOverlay("m-ride-import-progress", {
 }, "m-ride-transfer-1");
 registerOverlay("m-ride-import-success", {
   kind: "toast", section: "ride", title: "TRACK LOADED", message: ["TRACK LOADED", "OPEN MAP TO VIEW"],
-  autoTransition: { active: true, target: "m-ride-transfer-1", delayMs: 1800 },
+  autoTransition: { active: true, target: "map", delayMs: 1800 },
 }, "m-ride-transfer-1");
 registerOverlay("m-ride-import-settings", {
   kind: "settings-modal", section: "ride", title: "IMPORT OPTIONS",

@@ -14,6 +14,8 @@ export class VoyagerRideCatalog {
   #resources = new Map();
   #savedWaypoints = Object.freeze([]);
   #savedRides = Object.freeze([]);
+  #recordingSummary = Object.freeze({ pointCount: 0, segmentCount: 0, bytes: 0 });
+  #exportedBytes = 0;
   #memorySummary = null;
   #inventorySnapshot = null;
   #revision = 0;
@@ -150,6 +152,29 @@ export class VoyagerRideCatalog {
     return removed;
   }
 
+  setRecordingSummary({ pointCount = 0, segmentCount = 0, bytes = 0 } = {}) {
+    const next = {
+      pointCount: Math.max(0, Math.floor(Number(pointCount) || 0)),
+      segmentCount: Math.max(0, Math.floor(Number(segmentCount) || 0)),
+      bytes: Math.max(0, Math.floor(Number(bytes) || 0)),
+    };
+    if (next.pointCount === this.#recordingSummary.pointCount
+      && next.segmentCount === this.#recordingSummary.segmentCount
+      && next.bytes === this.#recordingSummary.bytes) return;
+    this.#recordingSummary = Object.freeze(next);
+    this.#inventorySnapshot = null;
+  }
+
+  noteExport(bytes, { replacesBytes = 0 } = {}) {
+    this.#exportedBytes = Math.max(
+      0,
+      this.#exportedBytes
+        - Math.max(0, Math.floor(Number(replacesBytes) || 0))
+        + Math.max(0, Math.floor(Number(bytes) || 0)),
+    );
+    this.#inventorySnapshot = null;
+  }
+
   destinationWaypoints(authoredWaypoints, limit = 4) {
     const savedWaypoints = this.#savedWaypoints.map((waypoint) => ({
       name: `${waypoint.source} ${waypoint.label}`,
@@ -164,7 +189,25 @@ export class VoyagerRideCatalog {
 
   inventorySnapshot() {
     if (this.#inventorySnapshot) return this.#inventorySnapshot;
-    this.#inventorySnapshot = createVoyagerInventorySnapshot(this.memorySummary, {
+    const memorySummary = this.memorySummary;
+    const recordedTrackCount = this.#recordingSummary.pointCount > 0 ? 1 : 0;
+    const dynamicSummary = {
+      ...memorySummary,
+      trackCount: Math.min(300, memorySummary.trackCount + recordedTrackCount),
+      trackUsage: clamp(
+        (memorySummary.trackBytes + this.#recordingSummary.bytes) / VOYAGER_TRACK_STORAGE_CAPACITY_BYTES,
+        0,
+        1,
+      ),
+      microSdUsedMb: Math.round(
+        (VOYAGER_MICROSD_BASE_USED_BYTES + memorySummary.totalResourceBytes + this.#exportedBytes) / 1024 / 1024,
+      ),
+      recordedPointCount: this.#recordingSummary.pointCount,
+      recordedSegmentCount: this.#recordingSummary.segmentCount,
+      recordedBytes: this.#recordingSummary.bytes,
+      exportedBytes: this.#exportedBytes,
+    };
+    this.#inventorySnapshot = createVoyagerInventorySnapshot(dynamicSummary, {
       savedRideCount: this.#savedRides.length,
       savedWaypointCount: this.#savedWaypoints.length,
     });
@@ -180,11 +223,14 @@ export class VoyagerRideCatalog {
     return Object.freeze({
       trackCount: trackResources.length,
       trackUsage: clamp(sumBytes(trackResources) / VOYAGER_TRACK_STORAGE_CAPACITY_BYTES, 0, 1),
+      trackBytes: sumBytes(trackResources),
       routeCount: routeResources.length,
       routeUsage: clamp(sumBytes(routeResources) / VOYAGER_ROUTE_STORAGE_CAPACITY_BYTES, 0, 1),
+      routeBytes: sumBytes(routeResources),
       waypointCount: resources.reduce((total, resource) => total + resource.waypoints.length, 0),
       microSdUsedMb: Math.round((VOYAGER_MICROSD_BASE_USED_BYTES + totalResourceBytes) / 1024 / 1024),
       microSdCapacityMb: VOYAGER_MICROSD_CAPACITY_MB,
+      totalResourceBytes,
     });
   }
 

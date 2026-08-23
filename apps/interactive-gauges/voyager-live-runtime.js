@@ -16,6 +16,7 @@ import {
 import { VoyagerMenuModel } from "./voyager-menu-model.js";
 import {
   createVoyagerDisplayProfile,
+  createVoyagerGpsProfile,
   createVoyagerMapProfile,
   createVoyagerPowerProfile,
 } from "./voyager-device-runtime.js";
@@ -35,6 +36,7 @@ const VOYAGER_CONDUCTOR_SLOT_MS = 500;
 const VOYAGER_POWER_SAVE_SLOT_MS = 1000;
 const VOYAGER_SLEEP_CLOCK_MS = 1000;
 const VOYAGER_DEFAULT_SLEEP_AFTER_MS = 10 * 60 * 1000;
+const VOYAGER_DEFAULT_RIDE_ID = "baker-west-desert";
 const SD_CARD_DEFAULT_RIDES = Object.freeze([
   { id: "SD-BAKER", name: "BAKER WEST", progress: 0, trackId: "baker-west-desert" },
   { id: "SD-JORDAN", name: "JORDAN CREEK", progress: 0, trackId: "jordan-creek" },
@@ -265,6 +267,35 @@ function formatLocalClock(timestamp = Date.now()) {
   return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 }
 
+function escapeXmlText(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&apos;");
+}
+
+export function serializeVoyagerGpx({ name = "VOYAGER RIDE", segments = [] } = {}) {
+  const trackSegments = segments
+    .filter((segment) => Array.isArray(segment) && segment.length)
+    .map((segment) => `    <trkseg>\n${segment.map((point) => {
+      const latitude = Number(point.latitude).toFixed(7);
+      const longitude = Number(point.longitude).toFixed(7);
+      const elevation = Number.isFinite(point.elevation) ? Number(point.elevation).toFixed(1) : "0.0";
+      const recordedAt = point.recordedAt ?? new Date(0).toISOString();
+      const sensor = [
+        `spd="${Number(point.speedKph || 0).toFixed(2)}"`,
+        `rpm="${Math.round(Number(point.rpm) || 0)}"`,
+        `eng="${Number(point.engineTemperatureC || 0).toFixed(1)}"`,
+        `air="${Number(point.airTemperatureC || 0).toFixed(1)}"`,
+      ].join(" ");
+      return `      <trkpt lat="${latitude}" lon="${longitude}"><ele>${elevation}</ele><time>${escapeXmlText(recordedAt)}</time><extensions><tt:RideData ${sensor} /></extensions></trkpt>`;
+    }).join("\n")}\n    </trkseg>`)
+    .join("\n");
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="Bob's Interactive Voyager" xmlns="http://www.topografix.com/GPX/1/1" xmlns:tt="https://trailtech.net/voyager/ride-data">\n  <trk>\n    <name>${escapeXmlText(name)}</name>\n${trackSegments}\n  </trk>\n</gpx>\n`;
+}
+
 class VoyagerRideEngine {
   #catalog;
   #currentTrack = null;
@@ -283,6 +314,14 @@ class VoyagerRideEngine {
   #powerSave = false;
   #loop = true;
   #telemetry = null;
+  #gpsProfile = createVoyagerGpsProfile();
+  #recordedSegments = [];
+  #recordedPointCount = 0;
+  #recordingRevision = 0;
+  #recordingClockMs = 0;
+  #lastRecordedClockMs = Number.NEGATIVE_INFINITY;
+  #lastRecordedPoint = null;
+  #recordingStartedAt = Date.now();
 
   constructor(catalog) {
     this.#catalog = catalog;
@@ -331,7 +370,8 @@ class VoyagerRideEngine {
     );
     this.#catalog.registerLoadedGroups(loadedGroups);
     const loadedTracks = loadedGroups.flatMap((group) => group.tracks);
-    this.#currentTrack = loadedTracks[0];
+    const defaultTrackId = this.#catalog.selectAreaTrackId(VOYAGER_DEFAULT_RIDE_ID, () => 0);
+    this.#currentTrack = this.#catalog.track(defaultTrackId) ?? loadedTracks[0];
     this.#lastTimestamp = performance.now();
     this.#lastActivityTimestamp = this.#lastTimestamp;
     this.#emit({ kind: "full", mode: "active" });
@@ -387,6 +427,27 @@ class VoyagerRideEngine {
     return this.#playing;
   }
 
+  get recording() {
+    return this.#gpsProfile.shouldRecord({
+      engineRunning: this.#playing && (this.#telemetry?.rpm ?? 0) > 0,
+      wheelMoving: this.#playing && (this.#telemetry?.speedMph ?? 0) > 0.5,
+    });
+  }
+
+  get recordedSegments() {
+    return this.#recordedSegments;
+  }
+
+  get recordingSnapshot() {
+    return Object.freeze({
+      active: this.recording,
+      pointCount: this.#recordedPointCount,
+      segmentCount: this.#recordedSegments.filter((segment) => segment.length).length,
+      bytes: this.#estimatedRecordingBytes(),
+      revision: this.#recordingRevision,
+    });
+  }
+
   graphValues(metric) {
     return this.#currentTrack?.graphValues?.[metric] ?? [];
   }
@@ -421,6 +482,35 @@ class VoyagerRideEngine {
       : Number.POSITIVE_INFINITY;
   }
 
+  setGpsProfile(profile) {
+    if (!profile || profile.signature === this.#gpsProfile.signature) return;
+    this.#gpsProfile = profile;
+    this.#lastRecordedClockMs = Number.NEGATIVE_INFINITY;
+    this.#lastRecordedPoint = this.#recordedSegments.at(-1)?.at(-1) ?? null;
+  }
+
+  startNewTrackSegment() {
+    if (!this.#recordedPointCount || !this.#recordedSegments.at(-1)?.length) return;
+    this.#recordedSegments.push([]);
+    this.#lastRecordedPoint = null;
+    this.#lastRecordedClockMs = Number.NEGATIVE_INFINITY;
+    this.#touchRecording();
+  }
+
+  clearRecording() {
+    this.#recordedSegments = [];
+    this.#recordedPointCount = 0;
+    this.#recordingClockMs = 0;
+    this.#lastRecordedClockMs = Number.NEGATIVE_INFINITY;
+    this.#lastRecordedPoint = null;
+    this.#recordingStartedAt = Date.now();
+    this.#touchRecording();
+  }
+
+  exportRecordedGpx(name) {
+    return serializeVoyagerGpx({ name, segments: this.#recordedSegments });
+  }
+
   alignStopwatchCadence() {
     if (this.#sleeping) return;
     this.#conductorPhase = 1;
@@ -432,7 +522,10 @@ class VoyagerRideEngine {
     const nextTrack = this.#catalog.track(resolvedTrackId);
     if (!nextTrack) throw new Error(`Unknown Voyager GPX ride: ${trackId}`);
     this.#currentTrack = nextTrack;
-    if (reset) this.#progress = 0;
+    if (reset) {
+      this.#progress = 0;
+      this.clearRecording();
+    }
     this.#emit({ kind: "full", mode: this.#mode });
     return nextTrack;
   }
@@ -451,6 +544,7 @@ class VoyagerRideEngine {
 
   reset() {
     this.#progress = 0;
+    this.clearRecording();
     this.#emit({ kind: "full", mode: this.#mode });
   }
 
@@ -490,7 +584,9 @@ class VoyagerRideEngine {
       return;
     }
     if (this.#lastTimestamp && this.#playing && this.#currentTrack) {
-      this.#progress += (timestamp - this.#lastTimestamp) / this.#durationMs * this.#playbackSpeed;
+      const elapsedMilliseconds = timestamp - this.#lastTimestamp;
+      this.#recordingClockMs += elapsedMilliseconds * this.#playbackSpeed;
+      this.#progress += elapsedMilliseconds / this.#durationMs * this.#playbackSpeed;
       if (this.#progress >= 1) {
         this.#progress = this.#loop ? this.#progress % 1 : 1;
         if (!this.#loop) {
@@ -504,14 +600,60 @@ class VoyagerRideEngine {
     this.#lastTimestamp = timestamp;
     const phase = this.#conductorPhase;
     this.#conductorPhase = (this.#conductorPhase + 1) % 4;
-    this.#emit({ kind: "phase", mode: this.#mode, phase });
+    this.#emit({ kind: "phase", mode: this.#mode, phase }, { record: true });
     this.#scheduleConductor();
   };
 
-  #emit(cadence = { kind: "full", mode: this.#mode }) {
+  #emit(cadence = { kind: "full", mode: this.#mode }, { record = false } = {}) {
     if (!this.#currentTrack) return;
     this.#telemetry = this.#sample(this.#progress);
+    if (record) this.#recordTelemetry(this.#telemetry);
     for (const listener of this.#listeners) listener(this.#telemetry, cadence);
+  }
+
+  #recordTelemetry(telemetry) {
+    if (!this.recording) return;
+    const previous = this.#lastRecordedPoint;
+    const distanceFromPrevious = previous ? haversineMeters(previous, telemetry) : Number.POSITIVE_INFINITY;
+    const sampleDue = !previous
+      || (this.#gpsProfile.method === "TIME"
+        ? this.#recordingClockMs - this.#lastRecordedClockMs >= this.#gpsProfile.sampleIntervalMs
+        : distanceFromPrevious >= this.#gpsProfile.sampleDistanceMeters);
+    if (!sampleDue) return;
+
+    const splitForGap = previous && distanceFromPrevious >= this.#gpsProfile.autoSplitMeters;
+    if (!this.#recordedSegments.length || splitForGap) this.#recordedSegments.push([]);
+    const point = Object.freeze({
+      latitude: telemetry.latitude,
+      longitude: telemetry.longitude,
+      elevation: telemetry.elevationFeet / 3.28084,
+      speedKph: telemetry.speedMph * 1.609344,
+      rpm: telemetry.rpm,
+      engineTemperatureC: (telemetry.engineTemperatureF - 32) * 5 / 9,
+      airTemperatureC: (telemetry.ambientTemperatureF - 32) * 5 / 9,
+      recordedAt: new Date(this.#recordingStartedAt + this.#recordingClockMs).toISOString(),
+      trackId: telemetry.trackId,
+    });
+    this.#recordedSegments.at(-1).push(point);
+    this.#recordedPointCount += 1;
+    this.#lastRecordedPoint = point;
+    this.#lastRecordedClockMs = this.#recordingClockMs;
+    this.#touchRecording();
+  }
+
+  #estimatedRecordingBytes() {
+    return this.#recordedPointCount
+      ? 256 + this.#recordedPointCount * 196 + this.#recordedSegments.length * 40
+      : 0;
+  }
+
+  #touchRecording() {
+    this.#recordingRevision += 1;
+    this.#catalog.setRecordingSummary({
+      pointCount: this.#recordedPointCount,
+      segmentCount: this.#recordedSegments.filter((segment) => segment.length).length,
+      bytes: this.#estimatedRecordingBytes(),
+    });
   }
 
   #scheduleConductor() {
@@ -679,7 +821,13 @@ function statusBarMarkup(variant, display) {
         <path d="M${contentLeft + 43} 13L${contentLeft + 56} 26" />
       </g>
       ${voyagerUiIcon("battery-24pt-full", { x: contentLeft + 70, y: 10, width: 34, height: 19 })}
-      ${voyagerUiIcon("signal-24pt-4bars", { x: contentLeft + 112, y: 10, width: 31, height: 19 })}
+      ${voyagerUiIcon("signal-24pt-4bars", {
+        x: contentLeft + 112,
+        y: 10,
+        width: 31,
+        height: 19,
+        attributes: 'data-live-signal-bars=""',
+      })}
       <text class="voyager-live__text voyager-live__text--status" x="${contentLeft + 242}" y="34" text-anchor="middle" data-live-time>12:30</text>
       <text class="voyager-live__text voyager-live__text--status" x="493" y="34" text-anchor="end" data-live-temperature>75${display.temperatureUnit}</text>
     </g>`;
@@ -1014,8 +1162,8 @@ function satelliteMarkup(screen, variant) {
       <rect class="voyager-live__surface" width="504" height="303" />
       ${screenChromeMarkup(screen, variant)}
       <g class="voyager-live__satellite-details">
-        <text class="voyager-live__text voyager-live__text--satellite-detail" x="252" y="48" text-anchor="middle">LAT: <tspan class="voyager-live__text--satellite-coordinate">N 45.774051°</tspan></text>
-        <text class="voyager-live__text voyager-live__text--satellite-detail" x="252" y="88" text-anchor="middle">LON: <tspan class="voyager-live__text--satellite-coordinate">W 122.527241°</tspan></text>
+        <text class="voyager-live__text voyager-live__text--satellite-detail" x="252" y="48" text-anchor="middle">LAT: <tspan class="voyager-live__text--satellite-coordinate" data-live-latitude>N 45.774051°</tspan></text>
+        <text class="voyager-live__text voyager-live__text--satellite-detail" x="252" y="88" text-anchor="middle">LON: <tspan class="voyager-live__text--satellite-coordinate" data-live-longitude>W 122.527241°</tspan></text>
         <text class="voyager-live__text voyager-live__text--satellite-detail" x="252" y="134" text-anchor="middle">TYPE: 3D</text>
         <text class="voyager-live__text voyager-live__text--satellite-detail" x="252" y="168" text-anchor="middle">QUALITY: DGPS</text>
         <text class="voyager-live__text voyager-live__text--satellite-detail" x="252" y="212" text-anchor="middle">PDOP: 1.45</text>
@@ -1144,10 +1292,6 @@ function mapLabelMarkup(point, label, kind, size) {
     </g>`;
 }
 
-function coordinateLabel(value, positive, negative) {
-  return `${value >= 0 ? positive : negative}${Math.abs(value).toFixed(6)}`;
-}
-
 export class VoyagerLiveRuntime {
   #mount;
   #stage;
@@ -1164,8 +1308,12 @@ export class VoyagerLiveRuntime {
   #telemetry = null;
   #projectedTrack = [];
   #projectedNetworkSegments = [];
+  #projectedRecordedSegments = [];
+  #projectedRecordingRevision = -1;
   #projectedTrackId = "";
   #menuProjectedTrack = [];
+  #menuProjectedRecordedSegments = [];
+  #menuProjectedRecordingRevision = -1;
   #menuProjectedTrackId = "";
   #mapViews = {
     overview: { pan: { x: 0, y: 0 }, scale: 1, mode: "pan", followPosition: false },
@@ -1182,6 +1330,7 @@ export class VoyagerLiveRuntime {
   #overlayRideId = null;
   #selectedDestination = null;
   #lastImportedRideLabel = "";
+  #lastExportedRide = null;
   #toastMessage = "";
   #toastExpiresAt = 0;
   #appliedSettingsKey = "";
@@ -1189,6 +1338,8 @@ export class VoyagerLiveRuntime {
   #settingsRevision = -1;
   #mapProfileSnapshot = null;
   #mapProfileRevision = -1;
+  #gpsProfileSnapshot = null;
+  #gpsProfileRevision = -1;
 
   constructor({ mount, stage, appBase }) {
     this.#mount = mount;
@@ -1228,12 +1379,17 @@ export class VoyagerLiveRuntime {
       if (previousTelemetry?.trackId !== telemetry.trackId) {
         this.#projectedTrack = [];
         this.#projectedNetworkSegments = [];
+        this.#projectedRecordedSegments = [];
+        this.#projectedRecordingRevision = -1;
         this.#projectedTrackId = "";
         this.#graphCursorProjection = null;
       }
       this.#telemetry = telemetry;
       this.#stage.dataset.liveRide = telemetry.trackId;
       this.#stage.dataset.powerMode = cadence.mode;
+      const recording = this.#ride.recordingSnapshot;
+      this.#stage.dataset.recordingPoints = String(recording.pointCount);
+      this.#stage.dataset.recordingSegments = String(recording.segmentCount);
       if (cadence.kind === "sleep") {
         this.#renderSleep(cadence.clockLabel);
         return;
@@ -1474,6 +1630,15 @@ export class VoyagerLiveRuntime {
     return this.#mapProfileSnapshot;
   }
 
+  #gpsProfile() {
+    if (this.#gpsProfileRevision === this.#menuModel.revision && this.#gpsProfileSnapshot) {
+      return this.#gpsProfileSnapshot;
+    }
+    this.#gpsProfileSnapshot = createVoyagerGpsProfile(this.#settings());
+    this.#gpsProfileRevision = this.#menuModel.revision;
+    return this.#gpsProfileSnapshot;
+  }
+
   #inventory() {
     return this.#catalog.inventorySnapshot();
   }
@@ -1488,6 +1653,8 @@ export class VoyagerLiveRuntime {
     if (definition?.kind === "status-modal") {
       const inventory = this.#inventory();
       const telemetry = this.#telemetry;
+      const gps = this.#gpsProfile();
+      const recording = this.#ride.recordingSnapshot;
       return {
         ...definition,
         entries: [
@@ -1496,9 +1663,11 @@ export class VoyagerLiveRuntime {
           { key: "ride", value: telemetry?.trackLabel ?? "NO TRACK" },
           { key: "rideProgress", value: `${Math.round((telemetry?.progress ?? 0) * 100)}%` },
           { key: "engine", value: this.#ride.playing ? "RUNNING" : "STOPPED" },
-          { key: "gpsFix", value: "3D DGPS" },
-          { key: "latitude", value: telemetry?.latitude?.toFixed(6) ?? "--" },
-          { key: "longitude", value: telemetry?.longitude?.toFixed(6) ?? "--" },
+          { key: "gpsFix", value: gps.gpsEnabled ? "3D DGPS" : "POWER SAVE" },
+          { key: "gpsLogging", value: recording.active ? `${gps.method} ${gps.frequency}` : "PAUSED" },
+          { key: "recorded", value: `${recording.pointCount} PTS / ${recording.segmentCount} SEG` },
+          { key: "latitude", value: telemetry ? gps.formatLatitude(telemetry.latitude) : "--" },
+          { key: "longitude", value: telemetry ? gps.formatLongitude(telemetry.longitude) : "--" },
           { key: "altitudeFt", value: Math.round(telemetry?.elevationFeet ?? 0) },
           { key: "speedMph", value: Math.round(telemetry?.speedMph ?? 0) },
           { key: "heading", value: Math.round(telemetry?.heading ?? 0) },
@@ -1506,6 +1675,7 @@ export class VoyagerLiveRuntime {
           { key: "routes", value: `${inventory.routeCount}/300` },
           { key: "waypoints", value: `${inventory.waypointCount}/300` },
           { key: "microSd", value: `${inventory.microSdUsedMb}/${inventory.microSdCapacityMb}MB` },
+          { key: "lastExport", value: this.#lastExportedRide ? `${this.#lastExportedRide.bytes} BYTES` : "NONE" },
           ...this.#menuModel.supportEntries(),
         ],
       };
@@ -1605,6 +1775,8 @@ export class VoyagerLiveRuntime {
     const menuValues = this.#settings();
     const display = createVoyagerDisplayProfile(menuValues);
     const power = createVoyagerPowerProfile(menuValues);
+    const gps = this.#gpsProfile();
+    this.#ride.setGpsProfile(gps);
     const brightnessValue = this.#menuState?.kind === "brightness"
       ? this.#menuModel.resolve(this.#menuState).value
       : power.backlightBrightnessValue;
@@ -1643,14 +1815,14 @@ export class VoyagerLiveRuntime {
       setText("[data-live-odometer-miles]", () => display.distanceFromMiles(523.7 + completedMiles).toFixed(1));
       setText("[data-live-max-speed]", () => display.speedFromMph(telemetry.maxSpeedMph));
       setText("[data-live-avg-speed]", () => display.speedFromMph(telemetry.averageSpeedMph));
-      setText("[data-live-latitude]", coordinateLabel(telemetry.latitude, "N", "S"));
-      setText("[data-live-longitude]", coordinateLabel(telemetry.longitude, "E", "W"));
-      const powerSave = menuValues.gpsMode === "DISABLED (POWER SAVE)";
-      const loggingEnabled = menuValues.gpsMode === "ENABLED (LOGGING ON)";
+      setText("[data-live-latitude]", () => gps.formatLatitude(telemetry.latitude));
+      setText("[data-live-longitude]", () => gps.formatLongitude(telemetry.longitude));
+      const powerSave = !gps.gpsEnabled;
       const demoRunning = menuValues.demoRideState === "RUNNING";
-      setDatasetValue(this.#mount, "logging", this.#ride.playing && loggingEnabled ? "recording" : "paused");
+      setDatasetValue(this.#mount, "logging", this.#ride.recording ? "recording" : "paused");
       setDatasetValue(this.#mount, "engine", demoRunning ? "running" : "off");
       setDatasetValue(this.#mount, "gps", powerSave ? "disabled" : "enabled");
+      setDatasetValue(this.#mount, "signalBars", gps.signalBars && gps.gpsEnabled ? "on" : "off");
       setDatasetValue(this.#mount, "stopwatch", this.#stopwatchRunning ? "running" : "paused");
       const settingsKey = [
         brightnessValue,
@@ -1659,6 +1831,7 @@ export class VoyagerLiveRuntime {
         menuValues.demoPlaybackSpeed,
         menuValues.demoLoop,
         power.signature,
+        gps.signature,
         menuValues.mapOrientation,
         display.signature,
       ].join(":");
@@ -1794,11 +1967,21 @@ export class VoyagerLiveRuntime {
       this.#stopwatchStartedAt = this.#stopwatchRunning ? performance.now() : 0;
       this.#queueToast("STOP WATCH RESET");
     }
-    if (definition?.outcome === "start-track-segment") this.#queueToast("NEW TRACK SEGMENT STARTED");
-    if (definition?.outcome === "erase-tracks") this.#queueToast("ALL TRACKS ERASED");
+    if (definition?.outcome === "start-track-segment") {
+      this.#ride.startNewTrackSegment();
+      this.#queueToast("NEW TRACK SEGMENT STARTED");
+    }
+    if (definition?.outcome === "erase-tracks") {
+      this.#ride.clearRecording();
+      this.#invalidateMapProjection();
+      this.#queueToast("ALL TRACKS ERASED");
+    }
     if (definition?.outcome === "erase-routes") this.#queueToast("ALL ROUTES ERASED");
     if (definition?.outcome === "import-ride") this.#importRideFromCard();
-    if (definition?.outcome === "export-ride") this.#queueToast("GPX SAVED TO SD CARD");
+    if (definition?.outcome === "export-ride") {
+      this.#exportCurrentRide();
+      this.#queueToast("GPX SAVED TO SD CARD");
+    }
     if (definition?.outcome === "export-settings") this.#queueToast("SETTINGS SAVED TO SD CARD");
     if (definition?.outcome === "restart-demo-ride") {
       this.#ride.reset();
@@ -1825,6 +2008,14 @@ export class VoyagerLiveRuntime {
     link.click();
     link.remove();
     queueMicrotask(() => URL.revokeObjectURL(url));
+  }
+
+  #exportCurrentRide() {
+    const name = this.#settings().rideName || this.#telemetry?.trackLabel || "VOYAGER RIDE";
+    const contents = this.#ride.exportRecordedGpx(name);
+    const bytes = new TextEncoder().encode(contents).byteLength;
+    this.#catalog.noteExport(bytes, { replacesBytes: this.#lastExportedRide?.bytes ?? 0 });
+    this.#lastExportedRide = Object.freeze({ name, bytes, contents });
   }
 
   #chooseSettingsFile() {
@@ -1857,6 +2048,8 @@ export class VoyagerLiveRuntime {
     this.#settingsRevision = -1;
     this.#mapProfileSnapshot = null;
     this.#mapProfileRevision = -1;
+    this.#gpsProfileSnapshot = null;
+    this.#gpsProfileRevision = -1;
     this.#appliedSettingsKey = "";
   }
 
@@ -1977,8 +2170,12 @@ export class VoyagerLiveRuntime {
   #invalidateMapProjection() {
     this.#projectedTrack = [];
     this.#projectedNetworkSegments = [];
+    this.#projectedRecordedSegments = [];
+    this.#projectedRecordingRevision = -1;
     this.#projectedTrackId = "";
     this.#menuProjectedTrack = [];
+    this.#menuProjectedRecordedSegments = [];
+    this.#menuProjectedRecordingRevision = -1;
     this.#menuProjectedTrackId = "";
   }
 
@@ -2027,15 +2224,23 @@ export class VoyagerLiveRuntime {
 
   #updateMenuMap() {
     if (!this.#menuState || this.#menuState.kind !== "waypoint-map" || !this.#ride.points.length) return;
-    if (!this.#menuProjectedTrack.length || this.#menuProjectedTrackId !== this.#telemetry.trackId) {
-      this.#menuProjectedTrack = projectTrack(this.#ride.points, { left: 82, right: 422, top: 72, bottom: 222 });
+    const projectionBounds = { left: 82, right: 422, top: 72, bottom: 222 };
+    const projectionChanged = !this.#menuProjectedTrack.length || this.#menuProjectedTrackId !== this.#telemetry.trackId;
+    if (projectionChanged) {
+      this.#menuProjectedTrack = projectTrack(this.#ride.points, projectionBounds);
       this.#menuProjectedTrackId = this.#telemetry.trackId;
+    }
+    const recording = this.#ride.recordingSnapshot;
+    if (projectionChanged || this.#menuProjectedRecordingRevision !== recording.revision) {
+      this.#menuProjectedRecordedSegments = this.#ride.recordedSegments
+        .filter((segment) => segment.length)
+        .map((segment) => projectTrack(segment, projectionBounds, this.#ride.points));
+      this.#menuProjectedRecordingRevision = recording.revision;
     }
     const projected = this.#menuProjectedTrack;
     this.#mount.querySelector("[data-menu-route]")?.setAttribute("d", pathFromPoints(projected));
     const current = this.#pointAtProgress(projected, this.#telemetry.progress);
-    const currentIndex = Math.min(projected.length - 2, Math.floor(this.#telemetry.progress * (projected.length - 1)));
-    this.#mount.querySelector("[data-menu-recorded]")?.setAttribute("d", pathFromPoints([...projected.slice(0, currentIndex + 1), current]));
+    this.#mount.querySelector("[data-menu-recorded]")?.setAttribute("d", pathFromSegments(this.#menuProjectedRecordedSegments));
     this.#mount.querySelector("[data-menu-position]")?.setAttribute(
       "transform",
       `translate(${current.x.toFixed(2)} ${current.y.toFixed(2)}) rotate(${this.#telemetry.heading.toFixed(2)})`,
@@ -2108,19 +2313,20 @@ export class VoyagerLiveRuntime {
       profile.signature,
       screenNumber,
     ].join(":");
-    if (!this.#projectedTrack.length || this.#projectedTrackId !== projectionKey) {
-      const overlayPoints = routesVisible ? this.#ride.pointsFor(this.#overlayRideId) : [];
-      const networkSegments = routesVisible && this.#ride.mapSegments.length
-        ? this.#ride.mapSegments
-        : [this.#ride.points];
-      const networkPoints = networkSegments.flat();
-      const extentPoints = overlayPoints.length > 1 ? [...networkPoints, ...overlayPoints] : networkPoints;
-      const projectionBounds = {
-        left: 4,
-        right: 500,
-        top: 4,
-        bottom: 299,
-      };
+    const overlayPoints = routesVisible ? this.#ride.pointsFor(this.#overlayRideId) : [];
+    const networkSegments = routesVisible && this.#ride.mapSegments.length
+      ? this.#ride.mapSegments
+      : [this.#ride.points];
+    const networkPoints = networkSegments.flat();
+    const extentPoints = overlayPoints.length > 1 ? [...networkPoints, ...overlayPoints] : networkPoints;
+    const projectionBounds = {
+      left: 4,
+      right: 500,
+      top: 4,
+      bottom: 299,
+    };
+    const projectionChanged = !this.#projectedTrack.length || this.#projectedTrackId !== projectionKey;
+    if (projectionChanged) {
       this.#projectedTrack = projectTrack(this.#ride.points, projectionBounds, extentPoints);
       this.#projectedNetworkSegments = networkSegments.map((segment) => projectTrack(segment, projectionBounds, extentPoints));
       this.#projectedTrackId = projectionKey;
@@ -2173,6 +2379,13 @@ export class VoyagerLiveRuntime {
         }).join("") : "";
       }
     }
+    const recording = this.#ride.recordingSnapshot;
+    if (projectionChanged || this.#projectedRecordingRevision !== recording.revision) {
+      this.#projectedRecordedSegments = this.#ride.recordedSegments
+        .filter((segment) => segment.length)
+        .map((segment) => projectTrack(segment, projectionBounds, extentPoints));
+      this.#projectedRecordingRevision = recording.revision;
+    }
     const position = this.#pointAtProgress(this.#projectedTrack, this.#telemetry.progress);
     const mapRotation = profile.orientation === "TRACK UP" ? -this.#telemetry.heading : 0;
     if (!variant.editing && screenProfile.autoCenter) {
@@ -2182,11 +2395,9 @@ export class VoyagerLiveRuntime {
       mapView.pan.x = -(deltaX * Math.cos(angle) - deltaY * Math.sin(angle));
       mapView.pan.y = -(deltaX * Math.sin(angle) + deltaY * Math.cos(angle));
     }
-    const index = Math.min(this.#projectedTrack.length - 2, Math.floor(this.#telemetry.progress * (this.#projectedTrack.length - 1)));
-    const recordedPoints = [...this.#projectedTrack.slice(0, index + 1), position];
     this.#mount.querySelector("[data-live-recorded]")?.setAttribute(
       "d",
-      tracksVisible ? pathFromPoints(recordedPoints) : "",
+      tracksVisible ? pathFromSegments(this.#projectedRecordedSegments) : "",
     );
     this.#mount.querySelector("[data-live-position]")?.setAttribute(
       "transform",

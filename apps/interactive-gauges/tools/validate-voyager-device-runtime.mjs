@@ -2,10 +2,12 @@
 
 import {
   createVoyagerDisplayProfile,
+  createVoyagerGpsProfile,
   createVoyagerInventorySnapshot,
   createVoyagerMapProfile,
   createVoyagerPowerProfile,
 } from "../voyager-device-runtime.js";
+import { serializeVoyagerGpx } from "../voyager-live-runtime.js";
 import { VoyagerMenuModel } from "../voyager-menu-model.js";
 import { VoyagerRideCatalog } from "../voyager-ride-catalog.js";
 import {
@@ -93,6 +95,77 @@ assert(batteryPower.sleepAfterMs === 3 * 60 * 1000, "battery sleep timeout is in
 assert(batteryPower.powerOffAfterMs === Number.POSITIVE_INFINITY, "00-minute power-off does not disable the timeout");
 assert(batteryPower.chargeMode === "WALL PLUG", "charge mode is missing from the power profile");
 
+const timeGps = createVoyagerGpsProfile({
+  logTrack: "ON",
+  gpsMode: "ENABLED (LOGGING ON)",
+  logMethod: "TIME",
+  logFrequency: "2 SEC",
+  logOption: "ENG OR WHL",
+  autoSplit: "5 MI GAP",
+  coordFormat: "DEG, MIN.DEC",
+  signalBars: "OFF",
+  engineSensor: "ENABLED",
+  wheelSensor: "ENABLED",
+});
+const repeatedTimeGps = createVoyagerGpsProfile({
+  logTrack: "ON",
+  gpsMode: "ENABLED (LOGGING ON)",
+  logMethod: "TIME",
+  logFrequency: "2 SEC",
+  logOption: "ENG OR WHL",
+  autoSplit: "5 MI GAP",
+  coordFormat: "DEG, MIN.DEC",
+  signalBars: "OFF",
+  engineSensor: "ENABLED",
+  wheelSensor: "ENABLED",
+});
+assert(timeGps === repeatedTimeGps, "GPS profiles are not cached by their stable settings signature");
+assert(timeGps.sampleIntervalMs === 2000, "time logging does not use the selected frequency");
+assert(timeGps.sampleDistanceMeters === Number.POSITIVE_INFINITY, "time logging performs a distance threshold check");
+assert(timeGps.shouldRecord({ engineRunning: true }), "ENG OR WHL logging does not accept the running engine sensor");
+assert(timeGps.shouldRecord({ wheelMoving: true }), "ENG OR WHL logging does not accept the moving wheel sensor");
+assert(!timeGps.shouldRecord(), "sensor-gated logging records without sensor input");
+assert(timeGps.formatLatitude(45.774051) === "N 45° 46.443′", "decimal-minute latitude formatting is incorrect");
+assert(timeGps.formatLongitude(-122.527241) === "W 122° 31.634′", "decimal-minute longitude formatting is incorrect");
+
+const distanceGps = createVoyagerGpsProfile({
+  logTrack: "ON",
+  logMethod: "DISTANCE",
+  logFrequency: "10 FT",
+  logOption: "ALWAYS",
+  autoSplit: "OFF",
+  coordFormat: "DEG, MIN, SEC",
+  signalBars: "ON",
+});
+assert(Math.abs(distanceGps.sampleDistanceMeters - 3.048) < 0.0001, "distance logging does not use the selected foot threshold");
+assert(distanceGps.sampleIntervalMs === Number.POSITIVE_INFINITY, "distance logging performs a time threshold check");
+assert(distanceGps.autoSplitMeters === Number.POSITIVE_INFINITY, "auto-split OFF still has a finite split distance");
+assert(distanceGps.signalBars, "signal-bar preference is missing from the GPS profile");
+assert(distanceGps.shouldRecord(), "ALWAYS logging is incorrectly sensor-gated");
+assert(distanceGps.formatLatitude(45.774051).startsWith("N 45° 46′"), "degree-minute-second formatting is incorrect");
+
+const disabledGps = createVoyagerGpsProfile({
+  logTrack: "ON",
+  gpsMode: "DISABLED (POWER SAVE)",
+  logOption: "ALWAYS",
+});
+assert(!disabledGps.gpsEnabled && !disabledGps.shouldRecord(), "GPS power save still permits recording");
+
+const exportedGpx = serializeVoyagerGpx({
+  name: "FOREST & LOOP",
+  segments: [[{
+    latitude: 45.1,
+    longitude: -122.2,
+    elevation: 320,
+    speedKph: 42,
+    rpm: 6300,
+    engineTemperatureC: 88,
+    airTemperatureC: 20,
+    recordedAt: "2026-08-22T12:00:00.000Z",
+  }]],
+});
+assert(exportedGpx.includes("FOREST &amp; LOOP") && exportedGpx.includes("tt:RideData"), "recorded GPX export omits its track or sensor data");
+
 const mapProfile = createVoyagerMapProfile({
   tracksDisplay: "CUSTOM",
   visibleTracks: ["BAKER WEST"],
@@ -128,6 +201,7 @@ const repeatedMapProfile = createVoyagerMapProfile({
   panZoomTimeout: "030 SEC",
 });
 assert(mapProfile === repeatedMapProfile, "map profiles are not cached by their stable settings signature");
+assert(createVoyagerMapProfile({}).orientation === "TRACK UP", "clean map settings do not default to track-up orientation");
 assert(mapProfile.orientation === "NORTH UP" && mapProfile.pointerScale > 1, "map orientation or pointer size is not represented");
 assert(mapProfile.resourceVisible("track", ["BAKER WEST"]), "custom track visibility dropped a selected resource");
 assert(!mapProfile.resourceVisible("track", ["JORDAN CREEK"]), "custom track visibility retained an unselected resource");
@@ -180,6 +254,14 @@ assert(catalog.inventorySnapshot() === catalogInventory, "catalog inventory is n
 catalog.addSavedWaypoint({ id: "WP-2", source: "QUICK ADD", label: "6", latitude: 4, longitude: 4 });
 assert(catalog.inventorySnapshot() !== catalogInventory, "catalog mutations do not invalidate inventory");
 assert(Object.isFrozen(catalog.savedWaypoints), "catalog exposes mutable waypoint ownership");
+const catalogBeforeRecording = catalog.inventorySnapshot();
+catalog.setRecordingSummary({ pointCount: 12, segmentCount: 2, bytes: 2600 });
+const catalogWithRecording = catalog.inventorySnapshot();
+assert(catalogWithRecording.trackCount === catalogBeforeRecording.trackCount + 1, "live recording is missing from track memory");
+assert(catalogWithRecording.trackUsage > catalogBeforeRecording.trackUsage, "live recording bytes do not affect track memory");
+assert(catalogWithRecording.recordedPointCount === 12 && catalogWithRecording.recordedSegmentCount === 2, "recording inventory details are incorrect");
+catalog.noteExport(exportedGpx.length);
+assert(catalog.inventorySnapshot().exportedBytes === exportedGpx.length, "GPX export bytes are missing from SD-card inventory");
 
 const preferredSources = {
   distanceUnits: "MILES",
@@ -236,6 +318,7 @@ assert(globalThis.__voyagerDelay === 15000, "state engine ignored the configured
 
 console.log(JSON.stringify({
   profiles: [imperial.signature, metric.signature],
+  gpsProfiles: [timeGps.signature, distanceGps.signature],
   mapProfile: mapProfile.signature,
   inventory: inventory.signature,
   catalogInventory: catalog.inventorySnapshot().signature,

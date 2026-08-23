@@ -701,6 +701,10 @@
   display: none;
 }
 
+.voyager-live-screen[data-signal-bars="off"] [data-live-signal-bars] {
+  display: none;
+}
+
 .voyager-live__engine-off {
   fill: none;
   stroke: #242021;

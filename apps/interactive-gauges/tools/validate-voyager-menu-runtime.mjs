@@ -206,6 +206,10 @@ function main() {
     || VOYAGER_MENU_TRANSITIONS["m-ride-transfer-1"].enter !== "m-ride-import-reading") {
     throw new Error("ride import no longer pauses at the reading-card toast before the file browser");
   }
+  if (VOYAGER_MENU_STATE_INDEX["m-main1-5-success"].autoTransition?.target !== "map"
+    || VOYAGER_MENU_STATE_INDEX["m-ride-import-success"].autoTransition?.target !== "map") {
+    throw new Error("successful imports do not hand off to the loaded map");
+  }
   const importOptionsMarkup = renderDefinition(VOYAGER_MENU_STATE_INDEX["m-ride-import-settings"], new VoyagerMenuModel());
   for (const expected of ["IMPORT OPTIONS", "FILE TYPE", "ALL", "TRACKS", "AS TRACKS", "ROUTES", "AS ROUTES", "WAYPOINTS", "ON", "RESOLUTION", "FULL"]) {
     if (!importOptionsMarkup.includes(expected)) throw new Error(`import options modal is missing ${expected}`);

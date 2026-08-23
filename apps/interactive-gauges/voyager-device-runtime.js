@@ -5,9 +5,11 @@ const FEET_TO_METERS = 0.3048;
 const profileCache = new Map();
 const powerProfileCache = new Map();
 const mapProfileCache = new Map();
+const gpsProfileCache = new Map();
 const BACKLIGHT_BRIGHTNESS_VALUES = Object.freeze({ OFF: 18, LOW: 30, MEDIUM: 40, HIGH: 50 });
 const MAP_POINTER_SCALES = Object.freeze({ SMALL: 0.78, MEDIUM: 1, LARGE: 1.28 });
 const MAP_LABEL_SCALES = Object.freeze({ OFF: 0, SMALL: 0.82, LARGE: 1 });
+const MILES_TO_METERS = 1609.344;
 
 function profileSignature(values = {}) {
   return [
@@ -119,6 +121,89 @@ export function createVoyagerPowerProfile(values = {}, { externalPower = true } 
   });
   if (powerProfileCache.size >= 16) powerProfileCache.delete(powerProfileCache.keys().next().value);
   powerProfileCache.set(signature, profile);
+  return profile;
+}
+
+function coordinateParts(value) {
+  const absolute = Math.abs(Number(value) || 0);
+  const degrees = Math.floor(absolute);
+  const decimalMinutes = (absolute - degrees) * 60;
+  const minutes = Math.floor(decimalMinutes);
+  const seconds = (decimalMinutes - minutes) * 60;
+  return { absolute, degrees, decimalMinutes, minutes, seconds };
+}
+
+function formatCoordinate(value, positive, negative, format) {
+  const hemisphere = Number(value) >= 0 ? positive : negative;
+  const { absolute, degrees, decimalMinutes, minutes, seconds } = coordinateParts(value);
+  if (format === "DEG.DEC") return `${hemisphere} ${absolute.toFixed(6)}\u00B0`;
+  if (format === "DEG, MIN, SEC") {
+    return `${hemisphere} ${degrees}\u00B0 ${String(minutes).padStart(2, "0")}\u2032 ${seconds.toFixed(1).padStart(4, "0")}\u2033`;
+  }
+  return `${hemisphere} ${degrees}\u00B0 ${decimalMinutes.toFixed(3).padStart(6, "0")}\u2032`;
+}
+
+export function createVoyagerGpsProfile(values = {}) {
+  const method = values.logMethod === "DISTANCE" ? "DISTANCE" : "TIME";
+  const frequency = values.logFrequency ?? (method === "DISTANCE" ? "10 FT" : "2 SEC");
+  const logOption = ["ALWAYS", "ENG SENSOR", "WHL SENSOR", "ENG OR WHL"].includes(values.logOption)
+    ? values.logOption
+    : "ENG OR WHL";
+  const autoSplit = ["OFF", "1 MI GAP", "5 MI GAP", "10 MI GAP"].includes(values.autoSplit)
+    ? values.autoSplit
+    : "5 MI GAP";
+  const coordinateFormat = ["DEG.DEC", "DEG, MIN.DEC", "DEG, MIN, SEC"].includes(values.coordFormat)
+    ? values.coordFormat
+    : "DEG, MIN.DEC";
+  const signature = [
+    values.logTrack === "ON" ? "record-on" : "record-off",
+    values.gpsMode === "DISABLED (POWER SAVE)" ? "gps-off" : "gps-on",
+    method,
+    frequency,
+    logOption,
+    autoSplit,
+    coordinateFormat,
+    values.signalBars === "ON" ? "bars-on" : "bars-off",
+    values.engineSensor === "ENABLED" ? "engine-on" : "engine-off",
+    values.wheelSensor === "ENABLED" ? "wheel-on" : "wheel-off",
+  ].join(":");
+  const cached = gpsProfileCache.get(signature);
+  if (cached) return cached;
+
+  const frequencyAmount = Math.max(1, Number.parseInt(frequency, 10) || (method === "DISTANCE" ? 10 : 2));
+  const autoSplitMiles = Number.parseInt(autoSplit, 10);
+  const gpsEnabled = values.gpsMode !== "DISABLED (POWER SAVE)";
+  const recordingRequested = values.logTrack === "ON" && gpsEnabled;
+  const engineSensorEnabled = values.engineSensor === "ENABLED";
+  const wheelSensorEnabled = values.wheelSensor === "ENABLED";
+  const profile = Object.freeze({
+    signature,
+    gpsEnabled,
+    recordingRequested,
+    method,
+    frequency,
+    sampleIntervalMs: method === "TIME" ? frequencyAmount * 1000 : Number.POSITIVE_INFINITY,
+    sampleDistanceMeters: method === "DISTANCE" ? frequencyAmount * FEET_TO_METERS : Number.POSITIVE_INFINITY,
+    autoSplitMeters: autoSplit === "OFF" || !Number.isFinite(autoSplitMiles)
+      ? Number.POSITIVE_INFINITY
+      : autoSplitMiles * MILES_TO_METERS,
+    logOption,
+    coordinateFormat,
+    signalBars: values.signalBars === "ON",
+    shouldRecord: ({ engineRunning = false, wheelMoving = false } = {}) => {
+      if (!recordingRequested) return false;
+      const engineActive = engineSensorEnabled && engineRunning;
+      const wheelActive = wheelSensorEnabled && wheelMoving;
+      if (logOption === "ALWAYS") return true;
+      if (logOption === "ENG SENSOR") return engineActive;
+      if (logOption === "WHL SENSOR") return wheelActive;
+      return engineActive || wheelActive;
+    },
+    formatLatitude: (value) => formatCoordinate(value, "N", "S", coordinateFormat),
+    formatLongitude: (value) => formatCoordinate(value, "E", "W", coordinateFormat),
+  });
+  if (gpsProfileCache.size >= 24) gpsProfileCache.delete(gpsProfileCache.keys().next().value);
+  gpsProfileCache.set(signature, profile);
   return profile;
 }
 
@@ -234,6 +319,10 @@ export function createVoyagerInventorySnapshot(memorySummary, {
     microSdUsedMb: memorySummary.microSdUsedMb,
     microSdCapacityMb: memorySummary.microSdCapacityMb,
     savedRideCount,
+    recordedPointCount: memorySummary.recordedPointCount ?? 0,
+    recordedSegmentCount: memorySummary.recordedSegmentCount ?? 0,
+    recordedBytes: memorySummary.recordedBytes ?? 0,
+    exportedBytes: memorySummary.exportedBytes ?? 0,
   };
   return Object.freeze({
     ...snapshot,
@@ -246,6 +335,10 @@ export function createVoyagerInventorySnapshot(memorySummary, {
       snapshot.microSdUsedMb,
       snapshot.microSdCapacityMb,
       snapshot.savedRideCount,
+      snapshot.recordedPointCount,
+      snapshot.recordedSegmentCount,
+      snapshot.recordedBytes,
+      snapshot.exportedBytes,
     ].join(":"),
   });
 }
