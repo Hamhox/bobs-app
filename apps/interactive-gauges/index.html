@@ -96,9 +96,30 @@
                   height="2063"
                   draggable="false"
                 />
-
-                <span class="voyager-warning-led voyager-warning-led--yellow" data-voyager-warning-led="yellow" aria-hidden="true"></span>
-                <span class="voyager-warning-led voyager-warning-led--red" data-voyager-warning-led="red" aria-hidden="true"></span>
+                <svg class="voyager-physical-overlay" viewBox="0 0 3750 2063" aria-hidden="true" focusable="false">
+                  <path
+                    class="voyager-warning-led voyager-warning-led--yellow"
+                    data-voyager-warning-led="yellow"
+                    data-led-state="off"
+                    d="M906 285Q918 253 965 249H1075Q1115 253 1120 286L1114 331Q1107 361 1068 365L952 361Q910 358 901 329Z"
+                  />
+                  <path
+                    class="voyager-warning-led voyager-warning-led--red"
+                    data-voyager-warning-led="red"
+                    data-led-state="off"
+                    d="M2638 285Q2650 253 2697 249H2807Q2847 253 2852 286L2846 331Q2839 361 2800 365L2684 361Q2642 358 2633 329Z"
+                  />
+                  <g class="voyager-control-outlines">
+                    <ellipse class="voyager-control-outline" data-control-outline="menu" cx="450" cy="592" rx="145" ry="145" />
+                    <ellipse class="voyager-control-outline" data-control-outline="back" cx="451" cy="1297" rx="137" ry="136" />
+                    <path class="voyager-control-outline" data-control-outline="up" d="M3260 503V362Q3260 326 3295 326H3365Q3400 326 3400 362V503Q3330 474 3260 503Z" />
+                    <path class="voyager-control-outline" data-control-outline="left" d="M3249 504Q3220 584 3249 668L3100 684Q3064 684 3064 648V520Q3064 484 3100 484Z" />
+                    <circle class="voyager-control-outline" data-control-outline="center" cx="3330" cy="584" r="103" />
+                    <path class="voyager-control-outline" data-control-outline="right" d="M3411 504L3560 484Q3596 484 3596 520V648Q3596 684 3560 684L3411 668Q3440 584 3411 504Z" />
+                    <path class="voyager-control-outline" data-control-outline="down" d="M3260 665Q3330 694 3400 665V806Q3400 842 3365 842H3295Q3260 842 3260 806Z" />
+                    <ellipse class="voyager-control-outline" data-control-outline="enter" cx="3285" cy="1294" rx="147" ry="144" />
+                  </g>
+                </svg>
 
                 <div class="voyager-demo-cursor" id="voyager-demo-cursor" aria-hidden="true">
                   <span class="voyager-demo-cursor__halo"></span>

@@ -4,12 +4,116 @@ const FEET_TO_METERS = 0.3048;
 
 const profileCache = new Map();
 const powerProfileCache = new Map();
+const screenPaletteCache = new Map();
+const warningProfileCache = new Map();
 const mapProfileCache = new Map();
 const gpsProfileCache = new Map();
 const BACKLIGHT_BRIGHTNESS_VALUES = Object.freeze({ OFF: 18, LOW: 30, MEDIUM: 40, HIGH: 50 });
 const MAP_POINTER_SCALES = Object.freeze({ SMALL: 0.78, MEDIUM: 1, LARGE: 1.28 });
 const MAP_LABEL_SCALES = Object.freeze({ OFF: 0, SMALL: 0.82, LARGE: 1 });
 const MILES_TO_METERS = 1609.344;
+const SCREEN_PALETTE_BASES = Object.freeze({
+  NEUTRAL: Object.freeze({ lit: [245, 244, 239], passive: [136, 139, 132] }),
+  AMBER: Object.freeze({ lit: [255, 229, 168], passive: [142, 128, 99] }),
+  GREEN: Object.freeze({ lit: [215, 241, 188], passive: [116, 139, 108] }),
+});
+const SCREEN_INK_LIT = Object.freeze([36, 32, 33]);
+const SCREEN_INK_PASSIVE = Object.freeze([50, 48, 48]);
+
+function clampUnit(value) {
+  return Math.min(1, Math.max(0, Number(value) || 0));
+}
+
+function mixRgb(from, to, amount) {
+  const ratio = clampUnit(amount);
+  return from.map((channel, index) => Math.round(channel + (to[index] - channel) * ratio));
+}
+
+function rgbCss(channels) {
+  return `rgb(${channels.join(" ")})`;
+}
+
+export function createVoyagerScreenPalette({ brightness = 50, inverted = false, backlightColor = "NEUTRAL" } = {}) {
+  const theme = SCREEN_PALETTE_BASES[String(backlightColor).toUpperCase()] ? String(backlightColor).toUpperCase() : "NEUTRAL";
+  const normalizedBrightness = Math.min(100, Math.max(0, Number(brightness) || 0));
+  const signature = `${theme}:${normalizedBrightness}:${inverted ? "inverted" : "normal"}`;
+  const cached = screenPaletteCache.get(signature);
+  if (cached) return cached;
+
+  // Fifty is the device's High setting. Values above it retain the calibrated
+  // reflective-LCD white instead of crushing contrast through a filter.
+  const illumination = clampUnit((normalizedBrightness - 10) / 40);
+  const base = SCREEN_PALETTE_BASES[theme];
+  const passiveSurface = theme === "NEUTRAL" ? base.passive : SCREEN_PALETTE_BASES.NEUTRAL.passive;
+  const surface = mixRgb(passiveSurface, base.lit, illumination);
+  const ink = mixRgb(SCREEN_INK_PASSIVE, SCREEN_INK_LIT, illumination);
+  const background = inverted ? ink : surface;
+  const foreground = inverted ? surface : ink;
+  const mid = mixRgb(background, foreground, 0.42);
+  const muted = mixRgb(background, foreground, 0.29);
+  const shadow = mixRgb(background, foreground, 0.44);
+  const routeMuted = mixRgb(background, foreground, 0.56);
+  const routeInk = inverted
+    ? mixRgb(foreground, background, 0.06)
+    : mixRgb([38, 38, 38], [25, 25, 25], illumination);
+  const profile = Object.freeze({
+    signature,
+    theme,
+    brightness: normalizedBrightness,
+    inverted: Boolean(inverted),
+    screen: rgbCss(background),
+    ink: rgbCss(foreground),
+    mid: rgbCss(mid),
+    muted: rgbCss(muted),
+    shadow: rgbCss(shadow),
+    routeInk: rgbCss(routeInk),
+    routeMuted: rgbCss(routeMuted),
+  });
+  if (screenPaletteCache.size >= 24) screenPaletteCache.delete(screenPaletteCache.keys().next().value);
+  screenPaletteCache.set(signature, profile);
+  return profile;
+}
+
+function warningThreshold(value) {
+  const threshold = Number.parseInt(value, 10);
+  return Number.isFinite(threshold) && threshold > 0 ? threshold : Number.POSITIVE_INFINITY;
+}
+
+export function createVoyagerWarningProfile(values = {}) {
+  const signature = [
+    values.yellowLedOn ?? "000 °F",
+    values.yellowLedFlash ?? "000 °F",
+    values.redLedOn ?? "000 °F",
+    values.redLedFlash ?? "000 °F",
+  ].join(":");
+  const cached = warningProfileCache.get(signature);
+  if (cached) return cached;
+  const thresholds = Object.freeze({
+    yellow: Object.freeze({
+      on: warningThreshold(values.yellowLedOn),
+      flash: warningThreshold(values.yellowLedFlash),
+    }),
+    red: Object.freeze({
+      on: warningThreshold(values.redLedOn),
+      flash: warningThreshold(values.redLedFlash),
+    }),
+  });
+  const profile = Object.freeze({
+    signature,
+    thresholds,
+    stateFor(color, temperatureF) {
+      const limits = thresholds[color];
+      const temperature = Number(temperatureF);
+      if (!limits || !Number.isFinite(temperature)) return "off";
+      if (temperature >= limits.flash) return "flash";
+      if (temperature >= limits.on) return "on";
+      return "off";
+    },
+  });
+  if (warningProfileCache.size >= 16) warningProfileCache.delete(warningProfileCache.keys().next().value);
+  warningProfileCache.set(signature, profile);
+  return profile;
+}
 
 function profileSignature(values = {}) {
   return [

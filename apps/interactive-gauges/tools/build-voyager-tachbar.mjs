@@ -83,6 +83,10 @@ const artwork = requiredGroups.map((id) => extractGroup(input, id))
 const output = `<?xml version="1.0" encoding="utf-8"?>
 <!-- Publication-approved Voyager tachbar artwork. Source SHA-256: ${checksum} -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 504 303">
+<style>
+	[id*="-off-"] { fill: var(--voyager-mid, #7F7F7F); }
+	[id*="-on-"], [id*="-labels"] { fill: var(--voyager-ink, #242021); }
+</style>
 ${artwork}
 </svg>
 `;

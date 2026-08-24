@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Publication-approved Voyager tachbar artwork. Source SHA-256: B3B632D96A19FBD257457555A78FFAC8B406FBE3EFB90E80571FC16ED906DA48 -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 504 303">
+<style>
+	[id*="-off-"] { fill: var(--voyager-mid, #7F7F7F); }
+	[id*="-on-"], [id*="-labels"] { fill: var(--voyager-ink, #242021); }
+</style>
 <g id="tachbar-wide-off">
 	<path id="tachbar-wide-off-0" fill="#7F7F7F" d="M34.016,181.71h-1.26v1.26h-1.26v1.26h-2.52v2.52h-1.26v1.26h-1.26v1.26h-2.52
 		v1.26h-1.26v1.26h-1.26v1.26h-1.26v1.26h-1.26v1.26h-2.52v1.26h-1.26v1.26h-1.26v1.26h-1.26v1.26h-1.26v1.26h-2.52v52.923h1.26

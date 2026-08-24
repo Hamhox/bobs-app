@@ -6,6 +6,8 @@ import {
   createVoyagerInventorySnapshot,
   createVoyagerMapProfile,
   createVoyagerPowerProfile,
+  createVoyagerScreenPalette,
+  createVoyagerWarningProfile,
 } from "../voyager-device-runtime.js";
 import {
   serializeVoyagerGpx,
@@ -61,6 +63,26 @@ assert(metric.altitudeUnit === "M" && metric.altitudeFromFeet(1000) === 305, "me
 assert(metric.temperatureUnit === "°C" && metric.temperatureFromF(68) === 20, "Celsius profile is incorrect");
 assert(metric.clockAtElapsedSeconds(60) === "19:43", "24-hour device clock formatting is incorrect");
 assert(metric.inverted, "inverted display mode is missing from the profile");
+
+const highPalette = createVoyagerScreenPalette({ brightness: 50 });
+const lowPalette = createVoyagerScreenPalette({ brightness: 18 });
+const invertedPalette = createVoyagerScreenPalette({ brightness: 50, inverted: true });
+assert(highPalette.screen === "rgb(245 244 239)" && highPalette.ink === "rgb(36 32 33)", "High palette changed the approved LCD colors");
+assert(highPalette.routeInk === "rgb(25 25 25)", "High palette changed the approved map-route ink");
+assert(lowPalette.screen !== highPalette.screen && lowPalette.ink !== lowPalette.screen, "Low backlight no longer produces a readable palette");
+assert(invertedPalette.screen === highPalette.ink && invertedPalette.ink === highPalette.screen, "inverted mode does not swap semantic screen colors");
+assert(createVoyagerScreenPalette({ brightness: 50 }) === highPalette, "screen palettes are not cached by their stable signature");
+
+const warningProfile = createVoyagerWarningProfile({
+  yellowLedOn: "120 °F",
+  yellowLedFlash: "145 °F",
+  redLedOn: "155 °F",
+  redLedFlash: "170 °F",
+});
+assert(warningProfile.stateFor("yellow", 130) === "on", "yellow warning LED does not illuminate at its threshold");
+assert(warningProfile.stateFor("yellow", 150) === "flash", "yellow warning LED does not flash at its threshold");
+assert(warningProfile.stateFor("red", 160) === "on" && warningProfile.stateFor("red", 175) === "flash", "red warning LED states are incorrect");
+assert(createVoyagerWarningProfile({}).stateFor("yellow", 999) === "off", "disabled warning threshold still illuminates an LED");
 
 const externalPower = createVoyagerPowerProfile({
   backlightLevel: "HIGH",
@@ -340,6 +362,7 @@ assert(globalThis.__voyagerDelay === 15000, "state engine ignored the configured
 
 console.log(JSON.stringify({
   profiles: [imperial.signature, metric.signature],
+  palettes: [highPalette.signature, lowPalette.signature, invertedPalette.signature],
   gpsProfiles: [timeGps.signature, distanceGps.signature],
   mapProfile: mapProfile.signature,
   inventory: inventory.signature,

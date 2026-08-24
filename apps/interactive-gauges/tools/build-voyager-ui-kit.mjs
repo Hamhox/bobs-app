@@ -8,8 +8,9 @@ import { fileURLToPath } from "node:url";
 const toolDirectory = path.dirname(fileURLToPath(import.meta.url));
 const appDirectory = path.resolve(toolDirectory, "..");
 const outputPath = path.join(appDirectory, "assets", "ui", "voyager-ui-icons.svg");
-const screenInk = "#242021";
-const screenSurface = "#f5f3ee";
+const screenInk = "currentColor";
+const screenStroke = "var(--voyager-ink, #242021)";
+const screenSurface = "var(--voyager-screen, #f5f3ee)";
 
 function parseArguments(argv) {
   const sourceIndex = argv.indexOf("--source");
@@ -63,7 +64,7 @@ function normalizeRuntimeArtwork(icons) {
   const shell = weakPill[1].slice(0, faceStart);
   const face = weakPill[1].slice(faceStart + 1);
   const reconstructedPill = `<g id="circle-digit-white">
-		<path d="${shell}" stroke="${screenInk}" stroke-width="6" vector-effect="non-scaling-stroke"/>
+		<path d="${shell}" stroke="${screenStroke}" stroke-width="6" vector-effect="non-scaling-stroke"/>
 		<path d="${face}" fill="${screenSurface}"/>
 	</g>`;
 

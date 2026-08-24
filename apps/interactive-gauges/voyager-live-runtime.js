@@ -19,6 +19,8 @@ import {
   createVoyagerGpsProfile,
   createVoyagerMapProfile,
   createVoyagerPowerProfile,
+  createVoyagerScreenPalette,
+  createVoyagerWarningProfile,
 } from "./voyager-device-runtime.js";
 import { VoyagerRideCatalog } from "./voyager-ride-catalog.js";
 import {
@@ -904,7 +906,7 @@ function statusBarMarkup(variant, display) {
 function startupMarkup() {
   return `
     <rect class="voyager-live__surface" width="504" height="303" />
-    <g fill="#231f20" transform="translate(37 120) scale(1.75)" aria-label="Trail Tech">
+    <g class="voyager-live__logo" transform="translate(37 120) scale(1.75)" aria-label="Trail Tech">
       <path d="M94.2.3l-6.4 23.7L82.1.3h-8.7L55.6 23.5 52 16.4c3.5-1 7.2-3 8.5-7.6 1.4-5-2.1-8.5-10.4-8.5H1.6L0 6.2h13.2l-5.1 19H19l5.1-19h23.5c2.4-.1 4.6.6 3.9 3.1-.4 1.4-2.2 3.4-5.5 3.4h-5.5l1-3.7h-9.2L28 25.2h9.2l1.9-7.2h4.2l1.8 7.6 9.1-.4h7.9l3.6-4.4H76l1.4 4.4h19.4L103.5.3h-9.3ZM68.8 15.6c2.1-3.1 3.3-3.3 5.6-7 0 0 1.2 4 1.4 7h-7Z" />
       <path d="M112 19h13.6l-1.6 6.2h-22.8L107.9.3h9.1L112 19Z" />
       <path d="M236.3.4h9l-6.6 24.8h-9.1l2.9-10.7h-7.9l-2.9 10.7h-9L219.3.4h9.1l-2.4 8.9h7.9l2.4-8.9Z" />
@@ -1500,29 +1502,6 @@ export class VoyagerLiveRuntime {
     this.#layoutKey = "";
     this.#stage.dataset.demoWarningLights = enabled ? "armed" : "off";
     if (this.#state) this.render(this.#state, { type: "demo-effect", effect });
-
-    const lights = [...this.#stage.querySelectorAll("[data-voyager-warning-led]")];
-    for (const light of lights) light.getAnimations().forEach((animation) => animation.cancel());
-    if (enabled) {
-      for (const [index, light] of lights.entries()) {
-        light.animate(
-          [
-            { opacity: 0, offset: 0 },
-            { opacity: 0.96, offset: 0.12 },
-            { opacity: 0, offset: 0.3 },
-            { opacity: 0, offset: 0.48 },
-            { opacity: 0.96, offset: 0.6 },
-            { opacity: 0, offset: 0.8 },
-            { opacity: 0, offset: 1 },
-          ],
-          {
-            delay: index * 180,
-            duration: 1700,
-            easing: "steps(1, end)",
-          },
-        );
-      }
-    }
     return Object.freeze({ enabled });
   }
 
@@ -2020,9 +1999,6 @@ export class VoyagerLiveRuntime {
     const power = createVoyagerPowerProfile(menuValues);
     const gps = this.#gpsProfile();
     this.#ride.setGpsProfile(gps);
-    const brightnessValue = this.#menuState?.kind === "brightness"
-      ? this.#menuModel.resolve(this.#menuState).value
-      : power.backlightBrightnessValue;
     const sourceSpeedMph = () => menuValues.speedSource === "GPS"
       ? Math.max(0, telemetry.speedMph - 2)
       : telemetry.speedMph;
@@ -2049,6 +2025,14 @@ export class VoyagerLiveRuntime {
       }
     }
     if (refreshStatus) {
+      const brightnessValue = this.#menuState?.kind === "brightness"
+        ? this.#menuModel.resolve(this.#menuState).value
+        : power.backlightBrightnessValue;
+      const palette = createVoyagerScreenPalette({
+        brightness: brightnessValue,
+        inverted: display.inverted,
+        backlightColor: menuValues.backlightColor,
+      });
       const completedMiles = telemetry.distanceKm / 1.609344;
       setText("[data-live-odometer]", () => Math.round(display.distanceFromMiles(1200 + completedMiles)));
       setText("[data-live-temperature]", () => `${display.temperatureFromF(telemetry.ambientTemperatureF)}${display.temperatureUnit}`);
@@ -2066,6 +2050,7 @@ export class VoyagerLiveRuntime {
       setDatasetValue(this.#mount, "gps", powerSave ? "disabled" : "enabled");
       setDatasetValue(this.#mount, "signalBars", gps.signalBars && gps.gpsEnabled ? "on" : "off");
       setDatasetValue(this.#mount, "stopwatch", this.#stopwatchRunning ? "running" : "paused");
+      this.#updateWarningLeds(createVoyagerWarningProfile(menuValues), telemetry.engineTemperatureF);
       const settingsKey = [
         brightnessValue,
         menuValues.gpsMode,
@@ -2076,6 +2061,7 @@ export class VoyagerLiveRuntime {
         gps.signature,
         menuValues.mapOrientation,
         display.signature,
+        palette.signature,
       ].join(":");
       if (settingsKey !== this.#appliedSettingsKey) {
         this.#ride.setPowerSave(powerSave || !demoRunning);
@@ -2085,8 +2071,16 @@ export class VoyagerLiveRuntime {
         if (demoRunning) this.#ride.play();
         else this.#ride.pause();
         setDatasetValue(this.#mount, "mapOrientation", menuValues.mapOrientation === "NORTH UP" ? "north-up" : "track-up");
-        this.#mount.style.setProperty("--voyager-screen-brightness", String(clamp(Number(brightnessValue) / 50, 0.35, 2)));
-        this.#mount.style.setProperty("--voyager-screen-inversion", display.inverted ? "1" : "0");
+        setDatasetValue(this.#mount, "displayMode", palette.inverted ? "inverted" : "normal");
+        setDatasetValue(this.#mount, "backlight", palette.theme.toLowerCase());
+        this.#mount.style.setProperty("--voyager-screen", palette.screen);
+        this.#mount.style.setProperty("--voyager-ink", palette.ink);
+        this.#mount.style.setProperty("--voyager-mid", palette.mid);
+        this.#mount.style.setProperty("--voyager-muted", palette.muted);
+        this.#mount.style.setProperty("--voyager-shadow", palette.shadow);
+        this.#mount.style.setProperty("--voyager-route-ink", palette.routeInk);
+        this.#mount.style.setProperty("--voyager-route-muted", palette.routeMuted);
+        this.#mount.style.setProperty("--voyager-backlight-color", palette.screen);
         this.#appliedSettingsKey = settingsKey;
       }
     }
@@ -2122,6 +2116,14 @@ export class VoyagerLiveRuntime {
       } else if (cadence === 2) {
         this.#updateGraphCrosshair();
       }
+    }
+  }
+
+  #updateWarningLeds(profile, temperatureF) {
+    for (const light of this.#stage.querySelectorAll("[data-voyager-warning-led]")) {
+      const color = light.dataset.voyagerWarningLed;
+      const state = profile.stateFor(color, temperatureF);
+      if (light.dataset.ledState !== state) light.dataset.ledState = state;
     }
   }
 
