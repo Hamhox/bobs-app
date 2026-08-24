@@ -1444,6 +1444,7 @@ export class VoyagerLiveRuntime {
     this.#loadWaypoints();
     this.#loadSavedRides();
     this.#menuModel.load();
+    this.#clearLegacyDemoWarningSettings();
     this.#available = true;
     this.#ride.subscribe((telemetry, cadence) => {
       const previousTelemetry = this.#telemetry;
@@ -1486,23 +1487,23 @@ export class VoyagerLiveRuntime {
     this.#ride.recordActivity();
   }
 
-  performDemoEffect(effect, { loopIndex = 0 } = {}) {
-    if (effect !== "warning-led-cycle") return null;
-    const enabled = loopIndex % 2 === 0;
+  #clearLegacyDemoWarningSettings() {
     const snapshot = this.#menuModel.exportSnapshot();
+    const settings = snapshot.settings ?? {};
+    const isLegacyDemoProfile = settings.yellowLedOn === "120 °F"
+      && settings.redLedOn === "155 °F"
+      && settings.yellowLedFlash === "145 °F"
+      && settings.redLedFlash === "170 °F";
+    if (!isLegacyDemoProfile) return;
     snapshot.settings = {
-      ...snapshot.settings,
-      yellowLedOn: enabled ? "120 °F" : "000 °F",
-      redLedOn: enabled ? "155 °F" : "000 °F",
-      yellowLedFlash: enabled ? "145 °F" : "000 °F",
-      redLedFlash: enabled ? "170 °F" : "000 °F",
+      ...settings,
+      yellowLedOn: "000 °F",
+      redLedOn: "000 °F",
+      yellowLedFlash: "000 °F",
+      redLedFlash: "000 °F",
     };
     this.#menuModel.importSnapshot(snapshot);
-    this.#invalidateSettingsSnapshot();
-    this.#layoutKey = "";
-    this.#stage.dataset.demoWarningLights = enabled ? "armed" : "off";
-    if (this.#state) this.render(this.#state, { type: "demo-effect", effect });
-    return Object.freeze({ enabled });
+    delete this.#stage.dataset.demoWarningLights;
   }
 
   supports(stateId) {

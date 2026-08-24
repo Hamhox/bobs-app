@@ -48,6 +48,7 @@ const demoElements = {
   title: document.querySelector("#voyager-demo-title"),
   description: document.querySelector("#voyager-demo-description"),
   progress: document.querySelector("#voyager-demo-progress"),
+  progressFill: document.querySelector("#voyager-demo-progress-fill"),
   back: document.querySelector("#voyager-demo-back"),
   pause: document.querySelector("#voyager-demo-pause"),
   next: document.querySelector("#voyager-demo-next"),
@@ -408,14 +409,17 @@ async function initializeVoyager() {
     demo = new VoyagerDemoDirector({
       engine,
       elements: demoElements,
-      navigate: navigateToState,
       activateTarget: (target, source) => activatePointerTarget(target, engine, source),
       performAction: (action, source) => {
         const result = dispatchAction(action, source, engine);
         if (result) pulseControl(action, result.to !== null);
         return result;
       },
-      performEffect: (effect, context) => liveRuntime.performDemoEffect(effect, context),
+      resolveControlTarget: (stateId, rawAction) => {
+        const policyState = manifest.states[liveRuntime.getInputPolicyStateId(stateId)] ?? manifest.states[stateId];
+        const action = liveRuntime.resolveInputAction(stateId, rawAction);
+        return policyState?.transitions?.[action];
+      },
     });
     window.navigateToVoyagerState = navigateToState;
 

@@ -3,6 +3,7 @@ const DEFAULT_MOVE_MS = 380;
 const DEMO_PRE_MOVE_MS = 500;
 const DEMO_CLICK_MS = 180;
 const DEMO_SETTLE_MS = 250;
+const CONTEXT_ACTIONS = Object.freeze(["back", "left", "right", "up", "down", "menu", "center", "enter"]);
 
 export function demoReadingHoldMs(caption) {
   const wordCount = String(caption ?? "").trim().split(/\s+/).filter(Boolean).length;
@@ -14,10 +15,9 @@ export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
     id: "anchor-main",
     expectedStates: ["*"],
     kind: "navigate",
-    destination: "gauge.main.primary",
-    target: "#voyager-live-screen",
-    intent: "Return to live ride data",
-    presentation: "Viewing speed, heading, and ride telemetry",
+    destination: "index",
+    intent: "Ready to ride",
+    presentation: "The tour begins at the primary screen without resetting the working gauge.",
     dwellMs: 1800,
   },
   {
@@ -25,23 +25,9 @@ export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
     expectedStates: ["index"],
     kind: "present",
     target: "[data-live-speed]",
-    intent: "Inspect the primary ride screen",
-    presentation: "Live ride data updates on the device cadence",
+    intent: "Live ride data",
+    presentation: "Speed, heading, temperature, time, and recording status update on the device cadence.",
     dwellMs: 2200,
-  },
-  {
-    id: "warning-led-cycle",
-    expectedStates: ["index"],
-    kind: "effect",
-    effect: "warning-led-cycle",
-    target: '[data-voyager-warning-led="yellow"]',
-    intent: ({ loopIndex }) => loopIndex % 2 === 0
-      ? "Arm the temperature warning LEDs"
-      : "Rest the warning LEDs for this loop",
-    presentation: ({ effectResult, loopIndex }) => (effectResult?.enabled ?? loopIndex % 2 === 0)
-      ? "Stored warning thresholds trigger two hardware-style flashes"
-      : "The next loop will arm the warning lights again",
-    dwellMs: 2300,
   },
   {
     id: "open-quick-menu",
@@ -49,36 +35,17 @@ export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
     kind: "physical",
     action: "menu",
     target: ".voyager-control--menu",
-    intent: "Open the Quick menu",
-    presentation: "The demo can operate the same controls as a rider",
+    intent: "Physical controls",
+    presentation: "The tour uses the same Menu button and directional controls as the rider.",
     dwellMs: 1900,
   },
   {
-    id: "open-log-track",
+    id: "open-import-ride",
     expectedStates: ["m-main1-1"],
     kind: "touch",
-    target: '[data-menu-row="0"]',
-    intent: "Open ride logging",
-    presentation: "Logging is a real stored Voyager setting",
-    dwellMs: 1800,
-  },
-  {
-    id: "toggle-log-track",
-    expectedStates: ["m-main1-2-1"],
-    kind: "touch",
-    target: "[data-menu-option]",
-    targetMode: "opposite-option",
-    intent: "Toggle ride logging for this loop",
-    presentation: "The recording state now belongs to the live gauge",
-    dwellMs: 2100,
-  },
-  {
-    id: "open-import-ride",
-    expectedStates: ["m-main1-2"],
-    kind: "touch",
     target: '[data-menu-row="5"]',
-    intent: "Open the fake SD card",
-    presentation: "Four real ride files are ready to load",
+    intent: "Real ride library",
+    presentation: "The virtual SD card holds real GPX rides collected across large trail systems.",
     dwellMs: 1800,
   },
   {
@@ -87,8 +54,8 @@ export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
     kind: "touch",
     target: "[data-menu-option]",
     targetMode: "next-option",
-    intent: "Load the next ride from the SD card",
-    presentation: "Voyager is reading the selected GPX ride",
+    intent: "Load a new riding area",
+    presentation: "Voyager reads the selected ride and carries its tracks, routes, and waypoints into the map.",
     dwellMs: 2300,
   },
   {
@@ -96,8 +63,8 @@ export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
     expectedStates: ["map"],
     kind: "present",
     target: "[data-live-position]",
-    intent: "Follow the rider through the newly loaded map",
-    presentation: "The recorded line follows the rider across real trail geometry",
+    intent: "Follow the rider",
+    presentation: "The recorded line follows the rider across real trail geometry.",
     dwellMs: 2400,
   },
   {
@@ -105,8 +72,6 @@ export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
     expectedStates: ["map"],
     kind: "touch",
     target: "[data-live-secondary-screen]",
-    intent: "Open the nearby trail view",
-    presentation: "Map screen two keeps a separate detail zoom",
     title: "Overview and detail maps",
     description: "One map can stay close to the trail while the second keeps the larger route in view.",
     dwellMs: 2100,
@@ -117,8 +82,8 @@ export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
     kind: "physical",
     action: "back",
     target: ".voyager-control--back",
-    intent: "Return to the riding-area overview",
-    presentation: "Overview and detail views remain independently useful",
+    intent: "Riding-area overview",
+    presentation: "One physical press returns to the larger riding-area context.",
     dwellMs: 1800,
   },
   {
@@ -126,8 +91,8 @@ export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
     expectedStates: ["map"],
     kind: "touch",
     target: '[data-tab="nav"]',
-    intent: "Switch to navigation",
-    presentation: "Navigation combines destination, heading, and stopwatch data",
+    intent: "Waypoint navigation",
+    presentation: "Navigation combines destination distance, heading, speed, and stopwatch data.",
     dwellMs: 2100,
   },
   {
@@ -135,8 +100,8 @@ export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
     expectedStates: ["dir"],
     kind: "touch",
     target: "[data-live-nav-destination]",
-    intent: "Open the destination waypoint picker",
-    presentation: "Loaded GPX waypoints are ready for navigation",
+    intent: "Loaded waypoints",
+    presentation: "The destination picker uses the named waypoints carried by the selected ride.",
     dwellMs: 1900,
   },
   {
@@ -145,35 +110,17 @@ export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
     kind: "touch",
     target: "[data-menu-option]",
     targetMode: "next-option",
-    intent: "Choose the next loaded destination",
-    presentation: "The navigation screen now owns a real waypoint",
+    intent: "Choose a destination",
+    presentation: "Selecting a waypoint returns directly to navigation with a live distance readout.",
     dwellMs: 2100,
-  },
-  {
-    id: "start-stopwatch",
-    expectedStates: ["dir"],
-    kind: "touch",
-    target: "[data-live-stopwatch-toggle]",
-    intent: "Start the ride stopwatch",
-    presentation: "The stopwatch is running on a one-second cadence",
-    dwellMs: 2800,
-  },
-  {
-    id: "stop-stopwatch",
-    expectedStates: ["dir2"],
-    kind: "touch",
-    target: "[data-live-stopwatch-toggle]",
-    intent: "Pause the ride stopwatch",
-    presentation: "Stopwatch time is held without resetting the ride",
-    dwellMs: 1900,
   },
   {
     id: "open-user-screen",
     expectedStates: ["dir"],
     kind: "touch",
     target: '[data-tab="user"]',
-    intent: "Switch to a custom user screen",
-    presentation: "Six readouts share the same embedded-device grid",
+    intent: "Custom rider data",
+    presentation: "A user screen turns six positions into a rider-selected instrument panel.",
     dwellMs: 2100,
   },
   {
@@ -181,8 +128,8 @@ export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
     expectedStates: ["cstm"],
     kind: "touch",
     target: "[data-live-user-readout]",
-    intent: "Choose a user-screen readout",
-    presentation: "Every data block can be reassigned independently",
+    intent: "Choose a readout",
+    presentation: "Each position opens directly into the complete library of Voyager data blocks.",
     dwellMs: 1900,
   },
   {
@@ -191,8 +138,8 @@ export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
     kind: "touch",
     target: "[data-menu-option]",
     targetMode: "next-option-nonzero",
-    intent: "Assign a different data block",
-    presentation: "The selected readout is staged in the user layout",
+    intent: "Assign the readout",
+    presentation: "The selected data block is staged in the six-position layout.",
     dwellMs: 1800,
   },
   {
@@ -200,8 +147,8 @@ export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
     expectedStates: ["m-user-screen-1-layout"],
     kind: "touch",
     target: '[data-menu-confirmation="1"]',
-    intent: "Save the user-screen layout",
-    presentation: "The changed readout is now live on the gauge",
+    intent: "Save the layout",
+    presentation: "The changed readout is committed and immediately returns to the live gauge.",
     dwellMs: 2200,
   },
   {
@@ -209,8 +156,8 @@ export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
     expectedStates: ["cstm"],
     kind: "touch",
     target: '[data-tab="sat"]',
-    intent: "Switch to satellite status",
-    presentation: "Signal pills and bars show the current GPS fix",
+    intent: "Satellite status",
+    presentation: "Signal pills, orbital position, and strength bars show the current GPS fix.",
     dwellMs: 2200,
   },
   {
@@ -218,8 +165,8 @@ export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
     expectedStates: ["sat"],
     kind: "touch",
     target: "[data-live-secondary-screen]",
-    intent: "Open detailed satellite data",
-    presentation: "Latitude, longitude, and dilution values remain readable",
+    intent: "GPS detail",
+    presentation: "A second screen exposes coordinates, fix type, quality, and dilution values.",
     dwellMs: 2100,
   },
   {
@@ -227,8 +174,8 @@ export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
     expectedStates: ["sat2"],
     kind: "touch",
     target: "[data-live-secondary-screen]",
-    intent: "Return to the satellite radar",
-    presentation: "Primary and detailed satellite screens stay one click apart",
+    intent: "Two levels of detail",
+    presentation: "Primary and detailed satellite views remain one click apart.",
     dwellMs: 1900,
   },
   {
@@ -236,8 +183,8 @@ export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
     expectedStates: ["sat"],
     kind: "touch",
     target: '[data-tab="main"]',
-    intent: "Return to the main ride screen",
-    presentation: "The autonomous tour will continue from the live gauge",
+    intent: "Back to the ride",
+    presentation: "The tour closes where a rider spends most of the day: the primary live screen.",
     dwellMs: 2300,
   },
 ]);
@@ -268,13 +215,33 @@ export function compatibleDemoStepIndex(sequence, stateId, startIndex = 0) {
   return 0;
 }
 
+export function contextualControlPath(manifest, fromStateId, targetStateId, resolveTransition = null) {
+  if (fromStateId === targetStateId) return [];
+  if (!manifest?.states?.[fromStateId] || !manifest.states[targetStateId]) return null;
+  const queue = [{ actions: [], stateId: fromStateId }];
+  const visited = new Set([fromStateId]);
+  for (let cursor = 0; cursor < queue.length; cursor += 1) {
+    const current = queue[cursor];
+    for (const action of CONTEXT_ACTIONS) {
+      const nextStateId = resolveTransition
+        ? resolveTransition(current.stateId, action)
+        : manifest.states[current.stateId]?.transitions?.[action];
+      if (typeof nextStateId !== "string" || nextStateId === current.stateId || visited.has(nextStateId)) continue;
+      const actions = [...current.actions, action];
+      if (nextStateId === targetStateId) return actions;
+      visited.add(nextStateId);
+      queue.push({ actions, stateId: nextStateId });
+    }
+  }
+  return null;
+}
+
 export class VoyagerDemoDirector {
   #engine;
   #elements;
-  #navigate;
   #activateTarget;
   #performAction;
-  #performEffect;
+  #resolveControlTarget;
   #sequence;
   #index = 0;
   #loopIndex = 0;
@@ -312,20 +279,18 @@ export class VoyagerDemoDirector {
   constructor({
     engine,
     elements,
-    navigate,
     activateTarget,
     performAction,
-    performEffect,
+    resolveControlTarget,
     sequence = VOYAGER_DEMO_SEQUENCE,
     yieldMs = DEFAULT_YIELD_MS,
     moveMs = DEFAULT_MOVE_MS,
   }) {
     this.#engine = engine;
     this.#elements = elements;
-    this.#navigate = navigate;
     this.#activateTarget = activateTarget;
     this.#performAction = performAction;
-    this.#performEffect = performEffect;
+    this.#resolveControlTarget = resolveControlTarget;
     this.#sequence = sequence;
     this.#yieldMs = yieldMs;
     this.#moveMs = moveMs;
@@ -512,19 +477,18 @@ export class VoyagerDemoDirector {
     this.#engine.setAutoTransitionsEnabled(true);
     this.#elements.stage.dataset.demoState = "playing";
     this.#elements.pause.textContent = "Pause";
+    this.#activeStepIndex = targetStep.index;
+    this.#renderStep(this.#sequence[targetStep.index], "rewinding");
+    const token = this.#runToken;
+    const reachedTarget = await this.#followControlPath(targetStep.stateId, token, "demo:back");
+    if (!reachedTarget) {
+      this.pause({ message: "Demo paused because the previous step is not reachable through the current controls." });
+      return;
+    }
+    if (!this.#active || !this.#playing) return;
     this.#completedSteps = this.#completedSteps.slice(0, targetPosition);
     this.#index = targetStep.index;
     this.#loopIndex = targetStep.loopIndex;
-    try {
-      await this.#navigate(targetStep.stateId, {
-        history: "replace",
-        preserveDemo: true,
-        source: "demo:back",
-      });
-    } catch {
-      this.#index = 0;
-    }
-    if (!this.#active || !this.#playing) return;
     this.#renderStep(this.#sequence[this.#index], "queued");
     this.#schedule(0);
   }
@@ -703,30 +667,26 @@ export class VoyagerDemoDirector {
     this.#missingTargetRetries = 0;
 
     if (!(await this.#delay(this.#reducedMotion.matches ? 1 : DEMO_PRE_MOVE_MS, token))) return;
-    this.#phase = "moving";
-    await this.#moveCursor(target, token);
-    if (!this.#canRun() || token !== this.#runToken) return;
+    if (target) {
+      this.#phase = "moving";
+      await this.#moveCursor(target, token);
+      if (!this.#canRun() || token !== this.#runToken) return;
+    }
 
-    if (step.kind !== "present") {
+    if (target && step.kind !== "present") {
       this.#phase = "clicking";
       await this.#pulseClick(token);
       if (!this.#canRun() || token !== this.#runToken) return;
     }
 
-    let effectResult = null;
     try {
       if (step.kind === "navigate") {
-        await this.#navigate(step.destination, {
-          history: "replace",
-          preserveDemo: true,
-          source: "demo:anchor",
-        });
+        const reachedTarget = await this.#followControlPath(step.destination, token, "demo:anchor");
+        if (!reachedTarget) throw new Error("The main screen is not reachable through the current controls.");
       } else if (step.kind === "touch") {
         this.#activateTarget(target, "demo");
       } else if (step.kind === "physical") {
         this.#performAction(step.action, "demo");
-      } else if (step.kind === "effect") {
-        effectResult = this.#performEffect?.(step.effect, { loopIndex: this.#loopIndex }) ?? null;
       }
     } catch (error) {
       this.#announce(`Demo recovered from: ${error.message}`);
@@ -736,7 +696,7 @@ export class VoyagerDemoDirector {
     }
 
     if (!this.#canRun() || token !== this.#runToken) return;
-    this.#renderStep(step, "settling", effectResult);
+    this.#renderStep(step, "settling");
     this.#completedSteps.push({
       index: this.#activeStepIndex,
       loopIndex: this.#loopIndex,
@@ -848,6 +808,29 @@ export class VoyagerDemoDirector {
     this.#animation = null;
   }
 
+  async #followControlPath(targetStateId, token, source) {
+    const manifest = this.#engine.getManifest();
+    for (let attempt = 0; attempt < 32; attempt += 1) {
+      const currentStateId = this.#engine.getState().id;
+      if (currentStateId === targetStateId) return true;
+      const path = contextualControlPath(manifest, currentStateId, targetStateId, this.#resolveControlTarget);
+      const action = path?.[0];
+      if (!action) return false;
+      const control = this.#elements.stage.querySelector(`.voyager-control--${action}`);
+      if (!control) return false;
+      this.#phase = "rewinding";
+      this.#elements.narrator.dataset.demoPhase = "rewinding";
+      await this.#moveCursor(control, token);
+      if (!this.#canRun() || token !== this.#runToken) return false;
+      await this.#pulseClick(token);
+      if (!this.#canRun() || token !== this.#runToken) return false;
+      const result = this.#performAction(action, source);
+      if (!result || this.#engine.getState().id === currentStateId) return false;
+      if (!(await this.#delay(this.#reducedMotion.matches ? 1 : DEMO_SETTLE_MS, token))) return false;
+    }
+    return this.#engine.getState().id === targetStateId;
+  }
+
   #hideCursor() {
     this.#elements.cursor.removeAttribute("data-visible");
     this.#elements.cursor.removeAttribute("data-clicking");
@@ -857,6 +840,8 @@ export class VoyagerDemoDirector {
   #setDeckActive(active) {
     const focusedElement = document.activeElement;
     const scrollPosition = { left: window.scrollX, top: window.scrollY };
+    const previousOverflowAnchor = document.documentElement.style.overflowAnchor;
+    document.documentElement.style.overflowAnchor = "none";
     this.#elements.copyRoot.dataset.demoActive = active ? "true" : "false";
     this.#elements.marketing.hidden = active;
     this.#elements.narrator.hidden = !active;
@@ -867,7 +852,14 @@ export class VoyagerDemoDirector {
     }
     const restoreScroll = () => window.scrollTo({ ...scrollPosition, behavior: "instant" });
     restoreScroll();
-    window.requestAnimationFrame(restoreScroll);
+    window.requestAnimationFrame(() => {
+      restoreScroll();
+      window.requestAnimationFrame(() => {
+        restoreScroll();
+        document.documentElement.style.overflowAnchor = previousOverflowAnchor;
+      });
+    });
+    window.setTimeout(restoreScroll, 80);
   }
 
   #renderStep(step, phase, effectResult = null) {
@@ -878,6 +870,7 @@ export class VoyagerDemoDirector {
     const description = this.#resolveCopy(step.description ?? step.presentation, effectResult);
     this.#elements.counter.textContent = `Demo ${ordinal} of ${total}`;
     this.#elements.progress.textContent = `${ordinal} / ${total}`;
+    this.#elements.progressFill.style.width = `${((index + 1) / this.#sequence.length) * 100}%`;
     this.#elements.title.textContent = title;
     this.#elements.description.textContent = description;
     this.#elements.narrator.dataset.demoPhase = phase;
@@ -906,6 +899,6 @@ export class VoyagerDemoDirector {
     this.#cinemaTimer = window.setTimeout(() => {
       delete this.#elements.stage.dataset.controlCinema;
       this.#cinemaTimer = null;
-    }, 2600);
+    }, 1800);
   }
 }

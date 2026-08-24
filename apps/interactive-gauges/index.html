@@ -44,13 +44,14 @@
       <section class="gauges-hero" aria-labelledby="page-title">
         <div class="gauges-hero__inner">
           <div class="gauges-hero__copy" id="voyager-hero-copy">
+            <p class="gauges-eyebrow">Bob's Interactive Gauge</p>
+            <h1 id="page-title">
+              <span>The offline</span>
+              <span>trail gauge,</span>
+              <span>virtualized.</span>
+            </h1>
+
             <div class="gauges-hero__marketing" id="voyager-marketing-copy">
-              <p class="gauges-eyebrow">Bob's Interactive Gauge</p>
-              <h1 id="page-title">
-                <span>The offline</span>
-                <span>trail gauge,</span>
-                <span>virtualized.</span>
-              </h1>
               <p class="gauges-deck">
                 This is a living, functional replica of an embedded GPS device for motorcycles,
                 built for the web. Step inside to explore its internal screens, live routing logic,
@@ -78,13 +79,18 @@
               aria-label="Voyager demo narration and controls"
               hidden
             >
-              <p class="gauges-demo-narrator__counter" id="voyager-demo-counter">Demo 01 of 24</p>
+              <div class="gauges-demo-narrator__status">
+                <p class="gauges-demo-narrator__counter" id="voyager-demo-counter">Demo 01 of 19</p>
+                <span class="gauges-demo-narrator__rail" aria-hidden="true">
+                  <span id="voyager-demo-progress-fill"></span>
+                </span>
+              </div>
               <h2 class="gauges-demo-narrator__title" id="voyager-demo-title">Live ride data</h2>
               <p class="gauges-demo-narrator__description" id="voyager-demo-description">
                 The device is ready for a guided run through its working interface.
               </p>
               <div class="gauges-demo-transport" aria-label="Demo transport controls">
-                <output class="gauges-demo-transport__progress" id="voyager-demo-progress">01 / 24</output>
+                <output class="gauges-demo-transport__progress" id="voyager-demo-progress">01 / 19</output>
                 <button id="voyager-demo-back" type="button"><span aria-hidden="true">&#8592;</span> Back</button>
                 <button id="voyager-demo-pause" type="button">Pause</button>
                 <button id="voyager-demo-next" type="button">Next <span aria-hidden="true">&#8594;</span></button>

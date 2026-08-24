@@ -221,31 +221,67 @@
 }
 
 .gauges-demo-narrator {
+  margin-top: clamp(1.2rem, 2.4vh, 1.8rem);
+  padding: clamp(1rem, 1.7vw, 1.35rem);
+  border: 1px solid rgb(192 196 204 / 0.3);
+  background: rgb(9 11 19 / 0.6);
+  box-shadow: inset 0 0 0 1px rgb(168 85 247 / 0.035);
   pointer-events: auto;
 }
 
+.gauges-demo-narrator__status {
+  display: grid;
+  grid-template-columns: max-content minmax(4rem, 1fr);
+  gap: 1rem;
+  align-items: center;
+}
+
 .gauges-demo-narrator__counter {
-  margin: 0 0 clamp(1.1rem, 2.2vh, 1.65rem);
+  margin: 0;
   color: var(--brand-purple-glow);
-  font: 700 clamp(0.68rem, 0.9vw, 0.82rem) "IBM Plex Mono", Consolas, monospace;
+  font: 700 clamp(0.64rem, 0.78vw, 0.74rem) "IBM Plex Mono", Consolas, monospace;
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
+.gauges-demo-narrator__rail {
+  position: relative;
+  display: block;
+  height: 2px;
+  overflow: hidden;
+  background: rgb(192 196 204 / 0.28);
+}
+
+.gauges-demo-narrator__rail::after {
+  position: absolute;
+  inset: -2px 0;
+  background: repeating-linear-gradient(90deg, transparent 0 calc(20% - 1px), rgb(9 11 19 / 0.9) calc(20% - 1px) 20%);
+  content: "";
+}
+
+#voyager-demo-progress-fill {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: var(--brand-purple-glow);
+  transition: width 240ms ease;
+}
+
 .gauges-demo-narrator__title {
   max-width: 34rem;
-  margin: 0;
-  font-size: clamp(2.7rem, min(4.5vw, 7.5vh), 5.2rem);
+  margin: clamp(0.95rem, 1.8vh, 1.3rem) 0 0;
+  font-size: clamp(1.25rem, 1.65vw, 1.65rem);
+  line-height: 1;
 }
 
 .gauges-demo-narrator__description {
   max-width: 31rem;
-  min-height: 5.2em;
-  margin: clamp(1.2rem, 2.5vh, 1.9rem) 0 0;
+  min-height: 3em;
+  margin: clamp(0.7rem, 1.4vh, 1rem) 0 0;
   color: #c0c4cc;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(1.08rem, 1.35vw, 1.35rem);
-  line-height: 1.52;
+  font-size: clamp(0.98rem, 1.12vw, 1.12rem);
+  line-height: 1.45;
 }
 
 .gauges-demo-transport {
@@ -253,21 +289,25 @@
   flex-wrap: wrap;
   gap: 0.45rem 0.85rem;
   align-items: center;
-  margin-top: clamp(1.25rem, 2.7vh, 2rem);
-  font: 700 0.64rem "IBM Plex Mono", Consolas, monospace;
+  margin-top: clamp(0.8rem, 1.6vh, 1.15rem);
+  font: 700 0.6rem "IBM Plex Mono", Consolas, monospace;
   letter-spacing: 0.075em;
   text-transform: uppercase;
 }
 
 .gauges-demo-transport__progress {
-  flex: 0 0 100%;
-  margin-bottom: 0.25rem;
-  color: var(--brand-muted);
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .gauges-demo-transport button {
-  min-height: 2.6rem;
-  padding: 0.65rem 0;
+  min-height: 2.25rem;
+  padding: 0.45rem 0;
   border: 0;
   border-bottom: 1px solid rgb(168 85 247 / 0.48);
   background: transparent;
@@ -296,7 +336,9 @@
 }
 
 .gauges-demo-shortcuts {
-  margin: 0.85rem 0 0;
+  margin: 0.65rem 0 0;
+  padding-top: 0.55rem;
+  border-top: 1px solid rgb(192 196 204 / 0.16);
   color: rgb(192 196 204 / 0.58);
   font: 500 0.53rem/1.5 "IBM Plex Mono", Consolas, monospace;
   letter-spacing: 0.055em;
@@ -590,7 +632,7 @@
 .voyager-control-outline {
   fill: transparent;
   stroke: transparent;
-  stroke-width: 10;
+  stroke-width: 7;
   opacity: 0;
   transition: fill 140ms ease, opacity 140ms ease, stroke 140ms ease;
 }
@@ -603,31 +645,31 @@
 .voyager-stage:has(.voyager-control--right:is(:hover, :focus-visible, [data-pressed="true"])) [data-control-outline="right"],
 .voyager-stage:has(.voyager-control--down:is(:hover, :focus-visible, [data-pressed="true"])) [data-control-outline="down"],
 .voyager-stage:has(.voyager-control--enter:is(:hover, :focus-visible, [data-pressed="true"])) [data-control-outline="enter"] {
-  fill: rgb(255 152 31 / 0.2);
-  stroke: var(--gauge-guide);
-  opacity: 1;
-  filter: drop-shadow(0 0 12px rgb(255 152 31 / 0.88)) drop-shadow(0 0 28px rgb(255 152 31 / 0.58));
+  fill: rgb(255 152 31 / 0.09);
+  stroke: rgb(255 176 78 / 0.78);
+  opacity: 0.88;
+  filter: drop-shadow(0 0 7px rgb(255 152 31 / 0.48)) drop-shadow(0 0 15px rgb(168 85 247 / 0.18));
 }
 
 .voyager-stage[data-control-cinema="true"] .voyager-control-outline {
-  animation: voyager-control-cinema 0.72s steps(1, end) both;
+  animation: voyager-control-cinema 0.52s steps(1, end) both;
 }
 
 .voyager-stage[data-control-cinema="true"] .voyager-control-outline:nth-child(1) { animation-delay: 0ms; }
-.voyager-stage[data-control-cinema="true"] .voyager-control-outline:nth-child(2) { animation-delay: 1260ms; }
-.voyager-stage[data-control-cinema="true"] .voyager-control-outline:nth-child(3) { animation-delay: 180ms; }
-.voyager-stage[data-control-cinema="true"] .voyager-control-outline:nth-child(4) { animation-delay: 360ms; }
-.voyager-stage[data-control-cinema="true"] .voyager-control-outline:nth-child(5) { animation-delay: 540ms; }
-.voyager-stage[data-control-cinema="true"] .voyager-control-outline:nth-child(6) { animation-delay: 720ms; }
-.voyager-stage[data-control-cinema="true"] .voyager-control-outline:nth-child(7) { animation-delay: 900ms; }
-.voyager-stage[data-control-cinema="true"] .voyager-control-outline:nth-child(8) { animation-delay: 1080ms; }
+.voyager-stage[data-control-cinema="true"] .voyager-control-outline:nth-child(2) { animation-delay: 980ms; }
+.voyager-stage[data-control-cinema="true"] .voyager-control-outline:nth-child(3) { animation-delay: 140ms; }
+.voyager-stage[data-control-cinema="true"] .voyager-control-outline:nth-child(4) { animation-delay: 280ms; }
+.voyager-stage[data-control-cinema="true"] .voyager-control-outline:nth-child(5) { animation-delay: 420ms; }
+.voyager-stage[data-control-cinema="true"] .voyager-control-outline:nth-child(6) { animation-delay: 560ms; }
+.voyager-stage[data-control-cinema="true"] .voyager-control-outline:nth-child(7) { animation-delay: 700ms; }
+.voyager-stage[data-control-cinema="true"] .voyager-control-outline:nth-child(8) { animation-delay: 840ms; }
 
 .voyager-stage[data-control-cinema="true"] .voyager-warning-led--yellow {
-  animation: voyager-led-cinema 1.8s steps(1, end) 120ms both;
+  animation: voyager-led-cinema 0.72s steps(1, end) 80ms both;
 }
 
 .voyager-stage[data-control-cinema="true"] .voyager-warning-led--red {
-  animation: voyager-led-cinema 1.8s steps(1, end) 280ms both;
+  animation: voyager-led-cinema 0.72s steps(1, end) 220ms both;
 }
 
 @keyframes voyager-control-cinema {
@@ -637,17 +679,17 @@
     opacity: 0;
   }
 
-  18%, 72% {
-    fill: rgb(255 152 31 / 0.22);
-    stroke: var(--gauge-guide);
-    opacity: 1;
-    filter: drop-shadow(0 0 12px rgb(255 152 31 / 0.9)) drop-shadow(0 0 28px rgb(168 85 247 / 0.62));
+  20%, 68% {
+    fill: rgb(255 152 31 / 0.09);
+    stroke: rgb(255 176 78 / 0.78);
+    opacity: 0.88;
+    filter: drop-shadow(0 0 7px rgb(255 152 31 / 0.5)) drop-shadow(0 0 15px rgb(168 85 247 / 0.2));
   }
 }
 
 @keyframes voyager-led-cinema {
-  0%, 10%, 24%, 38%, 52%, 100% { opacity: 0; }
-  11%, 23%, 39%, 51% { opacity: 0.98; }
+  0%, 18%, 46%, 100% { opacity: 0; }
+  19%, 45% { opacity: 0.9; }
 }
 
 .voyager-stage:has(.voyager-control[data-pressed="noop"]) .voyager-control-outline {
@@ -2290,7 +2332,6 @@
 
   .gauges-demo-narrator__title {
     max-width: 42rem;
-    font-size: clamp(3.2rem, 9vw, 5.6rem);
   }
 
   .voyager-experience,
@@ -2376,7 +2417,7 @@
   }
 
   .gauges-demo-narrator__title {
-    font-size: clamp(2.8rem, 13vw, 4.1rem);
+    font-size: clamp(1.25rem, 5.5vw, 1.65rem);
   }
 
   .gauges-deck {

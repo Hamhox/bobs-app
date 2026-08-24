@@ -3,17 +3,18 @@ import assert from "node:assert/strict";
 import {
   VOYAGER_DEMO_SEQUENCE,
   compatibleDemoStepIndex,
+  contextualControlPath,
   demoReadingHoldMs,
 } from "../voyager-demo.js";
 
-const ALLOWED_KINDS = new Set(["effect", "navigate", "physical", "present", "touch"]);
+const ALLOWED_KINDS = new Set(["navigate", "physical", "present", "touch"]);
 const NON_DESTRUCTIVE_PHYSICAL_ACTIONS = new Set(["back", "menu"]);
 
 function hasCue(copy) {
   return typeof copy === "function" || Boolean(copy?.trim());
 }
 
-assert.ok(VOYAGER_DEMO_SEQUENCE.length >= 20, "The autonomous demo should tell a complete gauge story.");
+assert.ok(VOYAGER_DEMO_SEQUENCE.length >= 16, "The autonomous demo should tell a complete gauge story.");
 assert.equal(
   new Set(VOYAGER_DEMO_SEQUENCE.map((step) => step.id)).size,
   VOYAGER_DEMO_SEQUENCE.length,
@@ -22,10 +23,10 @@ assert.equal(
 
 for (const step of VOYAGER_DEMO_SEQUENCE) {
   assert.ok(ALLOWED_KINDS.has(step.kind), `${step.id} uses an unsupported step kind.`);
-  assert.ok(hasCue(step.intent), `${step.id} needs an intent cue.`);
-  assert.ok(hasCue(step.presentation), `${step.id} needs a presentation cue.`);
+  assert.ok(hasCue(step.title ?? step.intent), `${step.id} needs a title cue.`);
+  assert.ok(hasCue(step.description ?? step.presentation), `${step.id} needs a description cue.`);
   assert.ok(step.expectedStates?.length, `${step.id} needs compatible source states.`);
-  assert.ok(step.target?.trim(), `${step.id} needs a visible cursor target.`);
+  if (step.kind !== "navigate") assert.ok(step.target?.trim(), `${step.id} needs a visible cursor target.`);
 
   if (step.kind === "physical") {
     assert.ok(
@@ -35,13 +36,12 @@ for (const step of VOYAGER_DEMO_SEQUENCE) {
   }
 }
 
-for (const id of ["toggle-log-track", "load-next-map", "select-destination", "choose-readout", "commit-user-layout", "warning-led-cycle"]) {
+for (const id of ["load-next-map", "select-destination", "choose-readout", "commit-user-layout"]) {
   assert.ok(VOYAGER_DEMO_SEQUENCE.some((step) => step.id === id), `Stateful demo step ${id} is missing.`);
 }
-assert.equal(
-  VOYAGER_DEMO_SEQUENCE.find((step) => step.id === "toggle-log-track")?.targetMode,
-  "opposite-option",
-  "Ride logging must alternate each loop.",
+assert.ok(
+  !VOYAGER_DEMO_SEQUENCE.some((step) => step.id === "warning-led-cycle" || step.kind === "effect"),
+  "The main tour must not mutate warning-light settings.",
 );
 assert.equal(
   VOYAGER_DEMO_SEQUENCE.find((step) => step.id === "choose-readout")?.targetMode,
@@ -55,9 +55,27 @@ assert.equal(
   "Only the loop recovery anchor may navigate directly.",
 );
 assert.equal(
-  compatibleDemoStepIndex(VOYAGER_DEMO_SEQUENCE, "map", 7),
+  compatibleDemoStepIndex(VOYAGER_DEMO_SEQUENCE, "map", 0),
   VOYAGER_DEMO_SEQUENCE.findIndex((step) => step.id === "present-map"),
   "Resume should find the next exact compatible map step before the recovery anchor.",
+);
+
+const contextualManifest = {
+  states: {
+    main: { transitions: { menu: "quick" } },
+    quick: { transitions: { back: "main", down: "import" } },
+    import: { transitions: { back: "quick" } },
+  },
+};
+assert.deepEqual(
+  contextualControlPath(contextualManifest, "import", "main"),
+  ["back", "back"],
+  "Previous must use visible contextual control presses instead of a state reset.",
+);
+assert.equal(
+  contextualControlPath(contextualManifest, "main", "missing"),
+  null,
+  "Unreachable states must not fall back to teleportation.",
 );
 assert.equal(
   compatibleDemoStepIndex(VOYAGER_DEMO_SEQUENCE, "unknown-state", 5),
