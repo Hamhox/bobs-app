@@ -91,15 +91,19 @@
                 The device is ready for a guided run through its working interface.
               </p>
               <div class="gauges-demo-transport" aria-label="Demo transport controls">
-                <output class="gauges-demo-transport__progress" id="voyager-demo-progress">01 / 19</output>
-                <button id="voyager-demo-back" type="button"><span aria-hidden="true">&#8592;</span> Back</button>
-                <button id="voyager-demo-pause" type="button">Pause</button>
-                <button id="voyager-demo-next" type="button">Next <span aria-hidden="true">&#8594;</span></button>
+                <button
+                  class="gauges-demo-transport__pause"
+                  id="voyager-demo-pause"
+                  data-transport-state="pause"
+                  type="button"
+                >
+                  Pause
+                </button>
                 <button class="gauges-demo-transport__take-control" id="voyager-demo-take-control" type="button">
                   Take control
                 </button>
               </div>
-              <p class="gauges-demo-shortcuts">Space: pause / continue &middot; arrows: previous / next &middot; Esc: take control</p>
+              <p class="gauges-demo-shortcuts">Space: pause / continue &middot; Esc: take control</p>
             </section>
             </div>
           </div>

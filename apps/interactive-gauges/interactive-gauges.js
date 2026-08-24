@@ -47,11 +47,8 @@ const demoElements = {
   counter: document.querySelector("#voyager-demo-counter"),
   title: document.querySelector("#voyager-demo-title"),
   description: document.querySelector("#voyager-demo-description"),
-  progress: document.querySelector("#voyager-demo-progress"),
   progressFill: document.querySelector("#voyager-demo-progress-fill"),
-  back: document.querySelector("#voyager-demo-back"),
   pause: document.querySelector("#voyager-demo-pause"),
-  next: document.querySelector("#voyager-demo-next"),
   takeControl: document.querySelector("#voyager-demo-take-control"),
   live: document.querySelector("#guide-live"),
   liveScreen,
@@ -354,9 +351,7 @@ function enableInterface(engine, demo) {
     demo.explore({ showcase: true });
     focusGauge({ scroll: false });
   });
-  demoElements.back.addEventListener("click", () => demo.back());
   demoElements.pause.addEventListener("click", () => demo.toggle());
-  demoElements.next.addEventListener("click", () => demo.next());
   demoElements.takeControl.addEventListener("click", () => demo.takeControl({ showcase: true }));
   document.addEventListener("keydown", (event) => {
     if (!demo.handleKeydown(event)) return;

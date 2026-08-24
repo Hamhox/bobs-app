@@ -252,6 +252,7 @@ export class VoyagerDemoDirector {
   #timerDueAt = 0;
   #pausedTimer = null;
   #animation = null;
+  #pauseAnimation = null;
   #runToken = 0;
   #playing = false;
   #yielding = false;
@@ -262,8 +263,6 @@ export class VoyagerDemoDirector {
   #stateId;
   #lastPoint = null;
   #activeStepIndex = null;
-  #completedSteps = [];
-  #skipHold = false;
   #phase = "idle";
   #phaseBeforePause = null;
   #missingTargetRetries = 0;
@@ -345,13 +344,11 @@ export class VoyagerDemoDirector {
     if (restart) {
       this.#index = 0;
       this.#loopIndex = 0;
-      this.#completedSteps = [];
     }
     this.#cancelRun();
     this.#active = true;
     this.#playing = true;
     this.#yielding = false;
-    this.#skipHold = false;
     this.#phase = "queued";
     this.#engine.setAutoTransitionsEnabled(true);
     delete this.#elements.stage.dataset.controlCinema;
@@ -376,6 +373,7 @@ export class VoyagerDemoDirector {
     this.#elements.pause.textContent = "Continue";
     this.#announce(message);
     this.#updateTransport();
+    this.#parkCursorAtPause();
   }
 
   resume() {
@@ -387,6 +385,8 @@ export class VoyagerDemoDirector {
     this.#elements.stage.dataset.demoState = this.#yielding || this.#overlayBlocked ? "waiting" : "playing";
     this.#elements.narrator.dataset.demoPhase = this.#phase;
     this.#elements.pause.textContent = "Pause";
+    this.#pauseAnimation?.cancel();
+    this.#pauseAnimation = null;
     this.#announce("Demo continued.");
     this.#resumeTiming();
     if (!this.#yielding && !this.#overlayBlocked && this.#timer === null && this.#animation === null) {
@@ -441,64 +441,10 @@ export class VoyagerDemoDirector {
     });
   }
 
-  next() {
-    if (!this.#active) return;
-    const effectivePhase = this.#phase === "paused" ? this.#phaseBeforePause : this.#phase;
-    if (effectivePhase === "holding") {
-      this.#cancelRun();
-      this.#playing = true;
-      this.#yielding = false;
-      this.#phase = "queued";
-      this.#phaseBeforePause = null;
-      this.#engine.setAutoTransitionsEnabled(true);
-      this.#elements.stage.dataset.demoState = "playing";
-      this.#elements.pause.textContent = "Pause";
-      this.#schedule(0);
-      return;
-    }
-    this.#skipHold = true;
-    if (!this.#playing) this.resume();
-  }
-
-  async back() {
-    if (!this.#active || !this.#completedSteps.length) return;
-    const effectivePhase = this.#phase === "paused" ? this.#phaseBeforePause : this.#phase;
-    const currentIsCompleted = effectivePhase === "holding"
-      && this.#completedSteps.at(-1)?.index === this.#activeStepIndex;
-    const targetPosition = this.#completedSteps.length - (currentIsCompleted ? 2 : 1);
-    if (targetPosition < 0) return;
-    const targetStep = this.#completedSteps[targetPosition];
-    this.#cancelRun();
-    this.#hideCursor();
-    this.#playing = true;
-    this.#yielding = false;
-    this.#phase = "queued";
-    this.#phaseBeforePause = null;
-    this.#engine.setAutoTransitionsEnabled(true);
-    this.#elements.stage.dataset.demoState = "playing";
-    this.#elements.pause.textContent = "Pause";
-    this.#activeStepIndex = targetStep.index;
-    this.#renderStep(this.#sequence[targetStep.index], "rewinding");
-    const token = this.#runToken;
-    const reachedTarget = await this.#followControlPath(targetStep.stateId, token, "demo:back");
-    if (!reachedTarget) {
-      this.pause({ message: "Demo paused because the previous step is not reachable through the current controls." });
-      return;
-    }
-    if (!this.#active || !this.#playing) return;
-    this.#completedSteps = this.#completedSteps.slice(0, targetPosition);
-    this.#index = targetStep.index;
-    this.#loopIndex = targetStep.loopIndex;
-    this.#renderStep(this.#sequence[this.#index], "queued");
-    this.#schedule(0);
-  }
-
   handleKeydown(event) {
     if (!this.#active || event.altKey || event.ctrlKey || event.metaKey) return false;
     if (event.target.matches("input, textarea, select, [contenteditable='true']")) return false;
     if ([" ", "Spacebar"].includes(event.key)) this.toggle();
-    else if (event.key === "ArrowLeft") this.back();
-    else if (event.key === "ArrowRight") this.next();
     else if (event.key === "Escape") this.takeControl();
     else return false;
     return true;
@@ -511,6 +457,8 @@ export class VoyagerDemoDirector {
 
   destroy() {
     this.#cancelRun();
+    this.#pauseAnimation?.cancel();
+    this.#pauseAnimation = null;
     if (this.#cinemaTimer !== null) window.clearTimeout(this.#cinemaTimer);
     document.removeEventListener("visibilitychange", this.#visibilityListener);
     this.#reducedMotion.removeEventListener?.("change", this.#motionListener);
@@ -578,6 +526,8 @@ export class VoyagerDemoDirector {
     this.#pausedTimer = null;
     this.#animation?.cancel();
     this.#animation = null;
+    this.#pauseAnimation?.cancel();
+    this.#pauseAnimation = null;
   }
 
   #clearTimer({ preserve = false } = {}) {
@@ -647,7 +597,6 @@ export class VoyagerDemoDirector {
     }
     const step = this.#sequence[this.#index];
     const token = ++this.#runToken;
-    const stateIdBefore = this.#stateId;
     this.#activeStepIndex = this.#index;
     this.#phase = "preparing";
     this.#renderStep(step, "preparing");
@@ -697,22 +646,13 @@ export class VoyagerDemoDirector {
 
     if (!this.#canRun() || token !== this.#runToken) return;
     this.#renderStep(step, "settling");
-    this.#completedSteps.push({
-      index: this.#activeStepIndex,
-      loopIndex: this.#loopIndex,
-      stateId: stateIdBefore,
-    });
-    if (this.#completedSteps.length > this.#sequence.length * 3) this.#completedSteps.shift();
     this.#advanceStep();
     this.#phase = "settling";
     if (!(await this.#delay(this.#reducedMotion.matches ? 1 : DEMO_SETTLE_MS, token))) return;
     if (!this.#canRun() || token !== this.#runToken) return;
     this.#phase = "holding";
     this.#elements.narrator.dataset.demoPhase = "holding";
-    const holdMs = this.#skipHold
-      ? 0
-      : demoReadingHoldMs(`${this.#elements.title.textContent} ${this.#elements.description.textContent}`);
-    this.#skipHold = false;
+    const holdMs = demoReadingHoldMs(`${this.#elements.title.textContent} ${this.#elements.description.textContent}`);
     this.#updateTransport();
     this.#schedule(holdMs);
   }
@@ -780,6 +720,40 @@ export class VoyagerDemoDirector {
     cursor.style.transform = endTransform;
     this.#animation = null;
     this.#lastPoint = point;
+  }
+
+  #parkCursorAtPause() {
+    if (this.#animation || !this.#elements.pause) return;
+    const stageBounds = this.#elements.stage.getBoundingClientRect();
+    const targetBounds = this.#elements.pause.getBoundingClientRect();
+    if (!targetBounds.width || !targetBounds.height) return;
+    const point = {
+      x: targetBounds.left - stageBounds.left + targetBounds.width / 2,
+      y: targetBounds.top - stageBounds.top + targetBounds.height / 2,
+    };
+    const start = this.#lastPoint ?? point;
+    const cursor = this.#elements.cursor;
+    const startTransform = `translate3d(${start.x.toFixed(2)}px, ${start.y.toFixed(2)}px, 0)`;
+    const endTransform = `translate3d(${point.x.toFixed(2)}px, ${point.y.toFixed(2)}px, 0)`;
+    cursor.dataset.visible = "true";
+    cursor.style.opacity = "1";
+    this.#pauseAnimation = cursor.animate(
+      [
+        { opacity: 1, transform: startTransform },
+        { opacity: 1, transform: endTransform },
+      ],
+      {
+        duration: this.#reducedMotion.matches ? 1 : this.#moveMs,
+        easing: "cubic-bezier(.22,.82,.25,1)",
+        fill: "forwards",
+      },
+    );
+    this.#pauseAnimation.finished.then(() => {
+      if (!this.#active || this.#playing) return;
+      cursor.style.transform = endTransform;
+      this.#lastPoint = point;
+      this.#pauseAnimation = null;
+    }).catch(() => {});
   }
 
   async #pulseClick(token) {
@@ -863,7 +837,6 @@ export class VoyagerDemoDirector {
     const title = this.#resolveCopy(step.title ?? step.intent, effectResult);
     const description = this.#resolveCopy(step.description ?? step.presentation, effectResult);
     this.#elements.counter.textContent = `Demo ${ordinal} of ${total}`;
-    this.#elements.progress.textContent = `${ordinal} / ${total}`;
     this.#elements.progressFill.style.width = `${((index + 1) / this.#sequence.length) * 100}%`;
     this.#elements.title.textContent = title;
     this.#elements.description.textContent = description;
@@ -873,12 +846,8 @@ export class VoyagerDemoDirector {
   }
 
   #updateTransport() {
-    const effectivePhase = this.#phase === "paused" ? this.#phaseBeforePause : this.#phase;
-    const currentIsCompleted = effectivePhase === "holding"
-      && this.#completedSteps.at(-1)?.index === this.#activeStepIndex;
-    const previousCount = this.#completedSteps.length - (currentIsCompleted ? 1 : 0);
-    this.#elements.back.disabled = previousCount <= 0;
     this.#elements.pause.textContent = this.#playing ? "Pause" : "Continue";
+    this.#elements.pause.dataset.transportState = this.#playing ? "pause" : "continue";
   }
 
   #announce(message) {

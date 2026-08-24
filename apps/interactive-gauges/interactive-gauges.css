@@ -308,22 +308,12 @@
 .gauges-demo-transport {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.45rem 0.85rem;
+  gap: 0.45rem 0.75rem;
   align-items: center;
   margin-top: clamp(0.8rem, 1.6vh, 1.15rem);
   font: 700 0.6rem "IBM Plex Mono", Consolas, monospace;
   letter-spacing: 0.075em;
   text-transform: uppercase;
-}
-
-.gauges-demo-transport__progress {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  clip-path: inset(50%);
-  white-space: nowrap;
 }
 
 .gauges-demo-transport button {
@@ -351,8 +341,26 @@
   cursor: default;
 }
 
+.gauges-demo-transport__pause {
+  min-width: 6.7rem;
+  padding-inline: 0.85rem !important;
+}
+
+.gauges-demo-transport__pause[data-transport-state="continue"] {
+  border: 1px solid rgb(216 180 254 / 0.9);
+  background: var(--brand-purple);
+  color: #fff;
+  box-shadow: 0 0 1rem rgb(168 85 247 / 0.28);
+}
+
+.gauges-demo-transport__pause[data-transport-state="continue"]:hover,
+.gauges-demo-transport__pause[data-transport-state="continue"]:focus-visible {
+  border-color: #fff;
+  background: var(--brand-purple-glow);
+}
+
 .gauges-demo-transport__take-control {
-  margin-left: 0.35rem;
+  margin-left: 0.1rem;
   color: var(--brand-purple-glow) !important;
 }
 
@@ -373,6 +381,10 @@
   align-content: center;
   min-width: 0;
   min-height: 0;
+}
+
+.voyager-experience:has(.voyager-stage[data-demo-state="paused"]) {
+  z-index: 4;
 }
 
 .voyager-figure {
@@ -1179,6 +1191,7 @@
 
 .voyager-ui-icon--inverse {
   color: var(--voyager-screen);
+  fill: var(--voyager-screen);
 }
 
 .voyager-live__hint-pulse {
