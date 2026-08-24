@@ -1222,7 +1222,7 @@
   filter: invert(1);
 }
 
-.voyager-live-screen[data-display-mode="inverted"] .voyager-live__satellite-pill--weak {
+.voyager-live-screen[data-display-mode="inverted"] .voyager-ui-icon.voyager-live__satellite-pill--weak {
   filter: none;
 }
 
