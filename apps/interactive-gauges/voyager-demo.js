@@ -838,18 +838,12 @@ export class VoyagerDemoDirector {
   }
 
   #setDeckActive(active) {
-    const focusedElement = document.activeElement;
     const scrollPosition = { left: window.scrollX, top: window.scrollY };
     const previousOverflowAnchor = document.documentElement.style.overflowAnchor;
     document.documentElement.style.overflowAnchor = "none";
     this.#elements.copyRoot.dataset.demoActive = active ? "true" : "false";
-    this.#elements.marketing.hidden = active;
-    this.#elements.narrator.hidden = !active;
-    if (active && focusedElement === this.#elements.toggle) {
-      this.#elements.pause.focus({ preventScroll: true });
-    } else if (!active && this.#elements.narrator.contains(focusedElement)) {
-      this.#elements.toggle.focus({ preventScroll: true });
-    }
+    this.#elements.marketing.setAttribute("aria-hidden", String(active));
+    this.#elements.narrator.setAttribute("aria-hidden", String(!active));
     const restoreScroll = () => window.scrollTo({ ...scrollPosition, behavior: "instant" });
     restoreScroll();
     window.requestAnimationFrame(() => {

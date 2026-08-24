@@ -100,6 +100,10 @@
   pointer-events: auto;
 }
 
+.gauges-hero__marketing {
+  min-height: 15.5rem;
+}
+
 .gauges-eyebrow {
   margin: 0 0 1.2rem;
   color: var(--brand-purple-glow);
@@ -215,12 +219,29 @@
   color: var(--brand-text);
 }
 
-.gauges-demo-narrator[hidden],
-.gauges-hero__marketing[hidden] {
-  display: none;
+.gauges-hero__swap {
+  display: grid;
+}
+
+.gauges-hero__marketing,
+.gauges-demo-narrator {
+  grid-area: 1 / 1;
+  transition: opacity 140ms ease;
+}
+
+.gauges-hero__copy:not([data-demo-active="true"]) .gauges-demo-narrator,
+.gauges-hero__copy[data-demo-active="true"] .gauges-hero__marketing {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.gauges-hero__copy:not([data-demo-active="true"]) .gauges-hero__marketing,
+.gauges-hero__copy[data-demo-active="true"] .gauges-demo-narrator {
+  opacity: 1;
 }
 
 .gauges-demo-narrator {
+  min-height: 15.5rem;
   margin-top: clamp(1.2rem, 2.4vh, 1.8rem);
   padding: clamp(1rem, 1.7vw, 1.35rem);
   border: 1px solid rgb(192 196 204 / 0.3);
