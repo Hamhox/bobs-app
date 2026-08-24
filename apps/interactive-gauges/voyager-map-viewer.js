@@ -80,7 +80,7 @@ const FLOWCHART_STATE_MAP = {
   "system-settings-screen": "m-set3-4-1",
   "settings-menu-screen": "m-set3-1",
   "reset-ride-dst": "m-main1-4-1",
-  gps: "m-main1-2-1",
+  gps: "m-main1-2",
   "speed-source": "m-set3-3-7",
   "dest-waypoint-select": "m-main1-8-1",
   "dest-waypoint-confirm": "m-main1-8-1",

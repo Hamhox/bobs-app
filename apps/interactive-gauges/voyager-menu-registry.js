@@ -128,7 +128,7 @@ function registerOverlay(id, definition, parentStateId, navigation = {}) {
 }
 
 const QUICK_ROWS = [
-  { label: "LOG TRACK", field: "logTrack", value: "OFF" },
+  { label: "LOG TRACK", field: "logTrack", value: "OFF", toggleValues: ["OFF", "ON"] },
   { spacer: true },
   { label: "RESET RIDE MEMORY" },
   { label: "RESET TRIP DST" },
@@ -145,7 +145,7 @@ registerSection({
   rootId: "m-main1-1",
   rowIds: QUICK_IDS,
   rows: QUICK_ROWS,
-  targets: ["m-main1-2-1", "m-main1-3-1", "m-main1-4-1", "m-main1-5-1", "m-main1-6-1", "m-main1-7", "m-main1-8-1"],
+  targets: ["m-main1-2", "m-main1-3-1", "m-main1-4-1", "m-main1-5-1", "m-main1-6-1", "m-main1-7", "m-main1-8-1"],
   section: "main",
   title: "QUICK MENU",
   up: "m-set3-1",

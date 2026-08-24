@@ -287,6 +287,17 @@ function main() {
   if (!quickMenuMarkup.includes("QUICK MENU") || !quickMenuMarkup.includes(">QUICK</text>")) {
     throw new Error("quick menu naming is not reflected in the title and persistent sidebar");
   }
+  const quickLogDefinition = VOYAGER_MENU_STATE_INDEX["m-main1-2"];
+  const quickLogModel = new VoyagerMenuModel();
+  if (VOYAGER_MENU_TRANSITIONS[quickLogDefinition.id].enter !== quickLogDefinition.id
+    || !renderDefinition(quickLogDefinition, quickLogModel).includes(`${VOYAGER_FONT_SYMBOLS.pause} OFF`)) {
+    throw new Error("Quick Log Track still opens a modal or is missing its paused state");
+  }
+  quickLogModel.prepareInput(quickLogDefinition, "enter");
+  if (quickLogModel.values.logTrack !== "ON"
+    || !renderDefinition(quickLogDefinition, quickLogModel).includes(`${VOYAGER_FONT_SYMBOLS.statusCircle} ON`)) {
+    throw new Error("Quick Log Track does not toggle its recording state in place");
+  }
   if (!quickMenuMarkup.includes('data-menu-tab="ride" data-voyager-touch-target="menu-tab"')
     || !quickMenuMarkup.includes('data-menu-row="0"')
     || !quickMenuMarkup.includes("voyager-live__touch-hit")) {

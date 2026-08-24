@@ -215,6 +215,9 @@ function rowIsDisabled(row, values) {
 
 function rowValue(key, value) {
   if (key === "brightness") return `${value}%`;
+  if (key === "logTrack") return value === "ON"
+    ? `${VOYAGER_FONT_SYMBOLS.statusCircle} ON`
+    : `${VOYAGER_FONT_SYMBOLS.pause} OFF`;
   if (key === "distanceUnits") return String(value).startsWith("MILES") ? "MILES" : "KILOMETERS";
   if (["tabsTimeout", "backlightBattery", "backlightExternal", "sleepBattery", "sleepExternal", "turnOff", "panZoomTimeout"].includes(key)) {
     const match = String(value).match(/^(\d+)\s*(.*)$/);

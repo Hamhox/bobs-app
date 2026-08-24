@@ -1158,7 +1158,7 @@
 .voyager-live__signal-bar--weak {
   fill: var(--voyager-screen);
   stroke: var(--voyager-ink);
-  stroke-width: 6;
+  stroke-width: 3px;
   vector-effect: non-scaling-stroke;
 }
 
@@ -1220,6 +1220,10 @@
 
 .voyager-live-screen[data-display-mode="inverted"] .voyager-ui-icon:not(.voyager-ui-icon--inverse) {
   filter: invert(1);
+}
+
+.voyager-live-screen[data-display-mode="inverted"] .voyager-live__satellite-pill--weak {
+  filter: none;
 }
 
 .voyager-live__hint-pulse {

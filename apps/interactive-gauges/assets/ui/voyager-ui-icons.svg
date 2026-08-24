@@ -966,7 +966,7 @@
 	<g id="circle-digit-white">
 		<path d="M80.657,74.869V74.12h-0.374v-0.375h-0.375v-0.373h-0.749v-0.375h-7.487v0.375h-0.749v0.373
 		h-0.374v0.375h-0.375v1.123H69.8v3.369h0.374v0.75h0.375v0.373h0.374v0.375h0.374v0.375h7.862v-0.375h0.749v-0.375h0.375v-0.373
-		h0.374v-0.75h0.374v-3.744H80.657z" stroke="var(--voyager-ink, #242021)" stroke-width="6" vector-effect="non-scaling-stroke"/>
+		h0.374v-0.75h0.374v-3.744H80.657z" fill="var(--voyager-ink, #242021)" stroke="var(--voyager-ink, #242021)" stroke-width="6" vector-effect="non-scaling-stroke"/>
 		<path d="M80.657,78.24h-0.374v0.748h-0.375v0.375h-0.374v0.373h-0.749v0.375h-7.113v-0.375h-0.375
 		v-0.373h-0.374v-0.375h-0.374V78.24h-0.375v-2.621h0.375v-1.123h0.374V74.12h0.374v-0.375h0.749v-0.373h6.739v0.373h0.749v0.375
 		h0.374v0.375h0.375v0.748h0.374V78.24z" fill="var(--voyager-screen, #f5f3ee)"/>
