@@ -43,33 +43,57 @@
     <main id="content">
       <section class="gauges-hero" aria-labelledby="page-title">
         <div class="gauges-hero__inner">
-          <div class="gauges-hero__copy">
-            <p class="gauges-eyebrow">Bob's Interactive Gauge</p>
-            <h1 id="page-title">
-              <span>The offline</span>
-              <span>trail gauge,</span>
-              <span>virtualized.</span>
-            </h1>
-            <p class="gauges-deck">
-              This is a living, functional replica of an embedded GPS device for motorcycles,
-              built for the web. Step inside to explore its internal screens, live routing logic,
-              and tactile interface.
-            </p>
-            <div class="gauges-actions">
-              <button
-                class="gauges-button gauges-button--primary"
-                id="voyager-demo-toggle"
-                type="button"
-                aria-controls="voyager-stage"
-                aria-pressed="false"
-                disabled
-              >
-                Demo paused
-              </button>
-              <button class="gauges-button gauges-button--text" id="explore-freely" type="button" disabled>
-                Explore freely <span aria-hidden="true">&#8594;</span>
-              </button>
+          <div class="gauges-hero__copy" id="voyager-hero-copy">
+            <div class="gauges-hero__marketing" id="voyager-marketing-copy">
+              <p class="gauges-eyebrow">Bob's Interactive Gauge</p>
+              <h1 id="page-title">
+                <span>The offline</span>
+                <span>trail gauge,</span>
+                <span>virtualized.</span>
+              </h1>
+              <p class="gauges-deck">
+                This is a living, functional replica of an embedded GPS device for motorcycles,
+                built for the web. Step inside to explore its internal screens, live routing logic,
+                and tactile interface.
+              </p>
+              <div class="gauges-actions">
+                <button
+                  class="gauges-button gauges-button--primary"
+                  id="voyager-demo-toggle"
+                  type="button"
+                  aria-controls="voyager-stage voyager-demo-narrator"
+                  disabled
+                >
+                  Start demo
+                </button>
+                <button class="gauges-button gauges-button--text" id="explore-freely" type="button" disabled>
+                  Explore freely <span aria-hidden="true">&#8594;</span>
+                </button>
+              </div>
             </div>
+
+            <section
+              class="gauges-demo-narrator"
+              id="voyager-demo-narrator"
+              aria-label="Voyager demo narration and controls"
+              hidden
+            >
+              <p class="gauges-demo-narrator__counter" id="voyager-demo-counter">Demo 01 of 24</p>
+              <h2 class="gauges-demo-narrator__title" id="voyager-demo-title">Live ride data</h2>
+              <p class="gauges-demo-narrator__description" id="voyager-demo-description">
+                The device is ready for a guided run through its working interface.
+              </p>
+              <div class="gauges-demo-transport" aria-label="Demo transport controls">
+                <output class="gauges-demo-transport__progress" id="voyager-demo-progress">01 / 24</output>
+                <button id="voyager-demo-back" type="button"><span aria-hidden="true">&#8592;</span> Back</button>
+                <button id="voyager-demo-pause" type="button">Pause</button>
+                <button id="voyager-demo-next" type="button">Next <span aria-hidden="true">&#8594;</span></button>
+                <button class="gauges-demo-transport__take-control" id="voyager-demo-take-control" type="button">
+                  Take control
+                </button>
+              </div>
+              <p class="gauges-demo-shortcuts">Space: pause / continue &middot; arrows: previous / next &middot; Esc: take control</p>
+            </section>
           </div>
 
           <div class="voyager-experience">
@@ -138,12 +162,6 @@
               </div>
             </figure>
 
-            <section class="voyager-cue guide-panel" id="guide-panel" data-mode="idle" aria-label="Autonomous Voyager demo status">
-              <strong class="guide-panel__number" id="guide-number">DEMO</strong>
-              <span class="voyager-cue__divider" aria-hidden="true">&middot;</span>
-              <span class="sr-only" id="guide-label">Autonomous Voyager demo</span>
-              <p id="guide-instruction">Preparing the interface.</p>
-            </section>
             <div class="sr-only" aria-label="Voyager archive status">
               <span id="voyager-load-status">Loading</span>
               <span id="voyager-state-code">index</span>

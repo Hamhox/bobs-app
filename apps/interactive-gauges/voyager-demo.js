@@ -1,6 +1,13 @@
 const DEFAULT_YIELD_MS = 12000;
-const DEFAULT_MOVE_MS = 790;
-const DEFAULT_DWELL_MS = 1900;
+const DEFAULT_MOVE_MS = 380;
+const DEMO_PRE_MOVE_MS = 500;
+const DEMO_CLICK_MS = 180;
+const DEMO_SETTLE_MS = 250;
+
+export function demoReadingHoldMs(caption) {
+  const wordCount = String(caption ?? "").trim().split(/\s+/).filter(Boolean).length;
+  return Math.min(7500, Math.max(3500, 1200 + wordCount * 250));
+}
 
 export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
   {
@@ -31,7 +38,7 @@ export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
     intent: ({ loopIndex }) => loopIndex % 2 === 0
       ? "Arm the temperature warning LEDs"
       : "Rest the warning LEDs for this loop",
-    presentation: ({ effectResult }) => effectResult?.enabled
+    presentation: ({ effectResult, loopIndex }) => (effectResult?.enabled ?? loopIndex % 2 === 0)
       ? "Stored warning thresholds trigger two hardware-style flashes"
       : "The next loop will arm the warning lights again",
     dwellMs: 2300,
@@ -100,6 +107,8 @@ export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
     target: "[data-live-secondary-screen]",
     intent: "Open the nearby trail view",
     presentation: "Map screen two keeps a separate detail zoom",
+    title: "Overview and detail maps",
+    description: "One map can stay close to the trail while the second keeps the larger route in view.",
     dwellMs: 2100,
   },
   {
@@ -269,7 +278,12 @@ export class VoyagerDemoDirector {
   #sequence;
   #index = 0;
   #loopIndex = 0;
+  #active = false;
   #timer = null;
+  #timerCallback = null;
+  #timerCancel = null;
+  #timerDueAt = 0;
+  #pausedTimer = null;
   #animation = null;
   #runToken = 0;
   #playing = false;
@@ -280,9 +294,15 @@ export class VoyagerDemoDirector {
   #documentVisible = !document.hidden;
   #stateId;
   #lastPoint = null;
+  #activeStepIndex = null;
+  #completedSteps = [];
+  #skipHold = false;
+  #phase = "idle";
+  #phaseBeforePause = null;
   #missingTargetRetries = 0;
   #yieldMs;
   #moveMs;
+  #cinemaTimer = null;
   #reducedMotion;
   #intersectionObserver;
   #visibilityListener;
@@ -344,66 +364,180 @@ export class VoyagerDemoDirector {
     return this.#playing;
   }
 
+  get active() {
+    return this.#active;
+  }
+
   get reducedMotion() {
     return this.#reducedMotion.matches;
   }
 
   start({ restart = false } = {}) {
+    if (this.#active && !restart) {
+      this.resume();
+      return;
+    }
     if (restart) {
       this.#index = 0;
       this.#loopIndex = 0;
+      this.#completedSteps = [];
     }
+    this.#cancelRun();
+    this.#active = true;
     this.#playing = true;
     this.#yielding = false;
+    this.#skipHold = false;
+    this.#phase = "queued";
     this.#engine.setAutoTransitionsEnabled(true);
+    delete this.#elements.stage.dataset.controlCinema;
     this.#elements.stage.dataset.demoState = "playing";
-    this.#elements.panel.dataset.mode = "active";
-    this.#elements.toggle.setAttribute("aria-pressed", "true");
-    this.#elements.toggle.textContent = "Demo playing";
-    this.#renderCue("Starting the autonomous Voyager demo", "playing");
-    this.#cancelRun();
-    this.#index = compatibleDemoStepIndex(this.#sequence, this.#stateId, this.#index);
+    this.#setDeckActive(true);
+    this.#elements.pause.textContent = "Pause";
+    if (!restart) this.#index = compatibleDemoStepIndex(this.#sequence, this.#stateId, this.#index);
+    this.#renderStep(this.#sequence[this.#index], "queued");
     this.#syncBlockingOverlay();
-    if (!this.#overlayBlocked) this.#schedule(this.#reducedMotion.matches ? 120 : 520);
+    if (!this.#overlayBlocked) this.#schedule(this.#reducedMotion.matches ? 1 : 40);
   }
 
-  pause({ message = "Demo paused. Explore freely or resume when ready." } = {}) {
+  pause({ message = "Demo paused." } = {}) {
+    if (!this.#active || !this.#playing) return;
     this.#playing = false;
-    this.#yielding = false;
-    this.#engine.setAutoTransitionsEnabled(true);
-    this.#cancelRun();
-    this.#hideCursor();
+    this.#phaseBeforePause = this.#phase;
+    this.#phase = "paused";
+    this.#engine.setAutoTransitionsEnabled(false);
+    this.#suspendTiming();
     this.#elements.stage.dataset.demoState = "paused";
-    this.#elements.panel.dataset.mode = "idle";
-    this.#elements.toggle.setAttribute("aria-pressed", "false");
-    this.#elements.toggle.textContent = "Demo paused";
-    this.#renderCue(message, "paused");
+    this.#elements.narrator.dataset.demoPhase = "paused";
+    this.#elements.pause.textContent = "Continue";
+    this.#announce(message);
+    this.#updateTransport();
+  }
+
+  resume() {
+    if (!this.#active || this.#playing) return;
+    this.#playing = true;
+    this.#engine.setAutoTransitionsEnabled(true);
+    this.#phase = this.#phaseBeforePause ?? "queued";
+    this.#phaseBeforePause = null;
+    this.#elements.stage.dataset.demoState = this.#yielding || this.#overlayBlocked ? "waiting" : "playing";
+    this.#elements.narrator.dataset.demoPhase = this.#phase;
+    this.#elements.pause.textContent = "Pause";
+    this.#announce("Demo continued.");
+    this.#resumeTiming();
+    if (!this.#yielding && !this.#overlayBlocked && this.#timer === null && this.#animation === null) {
+      this.#schedule(0);
+    }
+    this.#updateTransport();
   }
 
   toggle() {
-    if (this.#playing) this.pause();
-    else this.start();
+    if (!this.#active) this.start({ restart: true });
+    else if (this.#playing) this.pause();
+    else this.resume();
   }
 
-  explore() {
-    this.pause({ message: "Free exploration enabled. The demo will stay paused." });
+  explore({ showcase = true } = {}) {
+    this.takeControl({ showcase });
+  }
+
+  takeControl({ showcase = false } = {}) {
+    this.#active = false;
+    this.#playing = false;
+    this.#yielding = false;
+    this.#phase = "idle";
+    this.#phaseBeforePause = null;
+    this.#engine.setAutoTransitionsEnabled(true);
+    this.#cancelRun();
+    this.#hideCursor();
+    this.#elements.stage.dataset.demoState = "manual";
+    this.#elements.toggle.textContent = "Start demo";
+    this.#setDeckActive(false);
+    this.#announce("Free exploration enabled. The current gauge screen is preserved.");
+    if (showcase) this.#runControlCinema();
   }
 
   noteUserActivity() {
-    if (!this.#playing) return;
+    if (!this.#active || !this.#playing) return;
     this.#yielding = true;
     this.#cancelRun();
     this.#hideCursor();
+    this.#phase = "waiting";
     this.#elements.stage.dataset.demoState = "waiting";
-    this.#renderCue("You're in control. Demo waiting before it continues.", "waiting");
+    this.#elements.narrator.dataset.demoPhase = "waiting";
+    this.#announce("You are in control. The demo will wait before continuing.");
     this.#schedule(this.#yieldMs, () => {
       if (!this.#playing) return;
       this.#yielding = false;
+      this.#phase = "queued";
       this.#elements.stage.dataset.demoState = "playing";
       this.#index = compatibleDemoStepIndex(this.#sequence, this.#stateId, this.#index);
-      this.#renderCue("Resuming from this screen", "playing");
-      this.#schedule(650);
+      this.#renderStep(this.#sequence[this.#index], "queued");
+      this.#schedule(500);
     });
+  }
+
+  next() {
+    if (!this.#active) return;
+    const effectivePhase = this.#phase === "paused" ? this.#phaseBeforePause : this.#phase;
+    if (effectivePhase === "holding") {
+      this.#cancelRun();
+      this.#playing = true;
+      this.#yielding = false;
+      this.#phase = "queued";
+      this.#phaseBeforePause = null;
+      this.#engine.setAutoTransitionsEnabled(true);
+      this.#elements.stage.dataset.demoState = "playing";
+      this.#elements.pause.textContent = "Pause";
+      this.#schedule(0);
+      return;
+    }
+    this.#skipHold = true;
+    if (!this.#playing) this.resume();
+  }
+
+  async back() {
+    if (!this.#active || !this.#completedSteps.length) return;
+    const effectivePhase = this.#phase === "paused" ? this.#phaseBeforePause : this.#phase;
+    const currentIsCompleted = effectivePhase === "holding"
+      && this.#completedSteps.at(-1)?.index === this.#activeStepIndex;
+    const targetPosition = this.#completedSteps.length - (currentIsCompleted ? 2 : 1);
+    if (targetPosition < 0) return;
+    const targetStep = this.#completedSteps[targetPosition];
+    this.#cancelRun();
+    this.#hideCursor();
+    this.#playing = true;
+    this.#yielding = false;
+    this.#phase = "queued";
+    this.#phaseBeforePause = null;
+    this.#engine.setAutoTransitionsEnabled(true);
+    this.#elements.stage.dataset.demoState = "playing";
+    this.#elements.pause.textContent = "Pause";
+    this.#completedSteps = this.#completedSteps.slice(0, targetPosition);
+    this.#index = targetStep.index;
+    this.#loopIndex = targetStep.loopIndex;
+    try {
+      await this.#navigate(targetStep.stateId, {
+        history: "replace",
+        preserveDemo: true,
+        source: "demo:back",
+      });
+    } catch {
+      this.#index = 0;
+    }
+    if (!this.#active || !this.#playing) return;
+    this.#renderStep(this.#sequence[this.#index], "queued");
+    this.#schedule(0);
+  }
+
+  handleKeydown(event) {
+    if (!this.#active || event.altKey || event.ctrlKey || event.metaKey) return false;
+    if (event.target.matches("input, textarea, select, [contenteditable='true']")) return false;
+    if ([" ", "Spacebar"].includes(event.key)) this.toggle();
+    else if (event.key === "ArrowLeft") this.back();
+    else if (event.key === "ArrowRight") this.next();
+    else if (event.key === "Escape") this.takeControl();
+    else return false;
+    return true;
   }
 
   observe(state) {
@@ -413,6 +547,7 @@ export class VoyagerDemoDirector {
 
   destroy() {
     this.#cancelRun();
+    if (this.#cinemaTimer !== null) window.clearTimeout(this.#cinemaTimer);
     document.removeEventListener("visibilitychange", this.#visibilityListener);
     this.#reducedMotion.removeEventListener?.("change", this.#motionListener);
     this.#intersectionObserver?.disconnect();
@@ -420,7 +555,8 @@ export class VoyagerDemoDirector {
   }
 
   #canRun() {
-    return this.#playing
+    return this.#active
+      && this.#playing
       && !this.#yielding
       && !this.#overlayBlocked
       && this.#stageVisible
@@ -428,6 +564,7 @@ export class VoyagerDemoDirector {
   }
 
   #syncSuspension() {
+    if (this.#active && !this.#playing) return;
     if (!this.#canRun()) {
       this.#cancelRun();
       this.#hideCursor();
@@ -454,44 +591,102 @@ export class VoyagerDemoDirector {
       if (!this.#playing) return;
       this.#cancelRun();
       this.#hideCursor();
+      this.#phase = "blocked";
       this.#elements.stage.dataset.demoState = "waiting";
+      this.#elements.narrator.dataset.demoPhase = "waiting";
       const message = toast.dataset.liveToastMessage?.replaceAll(" / ", ": ") || "Voyager message in progress";
-      this.#renderCue(`Waiting for Voyager: ${message}`, "waiting");
+      this.#announce(`Waiting for Voyager: ${message}`);
       return;
     }
     if (!this.#playing || this.#yielding || !this.#stageVisible || !this.#documentVisible) return;
     this.#elements.stage.dataset.demoState = "playing";
     this.#index = compatibleDemoStepIndex(this.#sequence, this.#stateId, this.#index);
-    this.#renderCue("Continuing after the Voyager message", "playing");
+    this.#phase = "queued";
+    this.#renderStep(this.#sequence[this.#index], "queued");
+    this.#announce("Continuing after the Voyager message.");
     this.#schedule(650);
   }
 
   #cancelRun() {
     this.#runToken += 1;
-    if (this.#timer !== null) {
-      window.clearTimeout(this.#timer);
-      this.#timer = null;
-    }
+    this.#clearTimer();
+    this.#pausedTimer?.cancel?.();
+    this.#pausedTimer = null;
     this.#animation?.cancel();
     this.#animation = null;
   }
 
-  #schedule(delayMs, callback = null) {
-    if (this.#timer !== null) window.clearTimeout(this.#timer);
+  #clearTimer({ preserve = false } = {}) {
+    if (this.#timer === null) return;
+    window.clearTimeout(this.#timer);
+    if (preserve) {
+      this.#pausedTimer = {
+        callback: this.#timerCallback,
+        cancel: this.#timerCancel,
+        remainingMs: Math.max(0, this.#timerDueAt - performance.now()),
+      };
+    } else {
+      this.#timerCancel?.();
+    }
+    this.#timer = null;
+    this.#timerCallback = null;
+    this.#timerCancel = null;
+    this.#timerDueAt = 0;
+  }
+
+  #schedule(delayMs, callback = null, cancel = null) {
+    this.#clearTimer();
+    this.#timerCallback = callback ?? (() => this.#runStep());
+    this.#timerCancel = cancel;
+    this.#timerDueAt = performance.now() + delayMs;
     this.#timer = window.setTimeout(() => {
+      const scheduledCallback = this.#timerCallback;
       this.#timer = null;
-      if (callback) callback();
-      else this.#runStep();
+      this.#timerCallback = null;
+      this.#timerCancel = null;
+      this.#timerDueAt = 0;
+      scheduledCallback?.();
     }, delayMs);
+  }
+
+  #delay(delayMs, token) {
+    return new Promise((resolve) => {
+      this.#schedule(
+        delayMs,
+        () => resolve(token === this.#runToken),
+        () => resolve(false),
+      );
+    });
+  }
+
+  #suspendTiming() {
+    this.#clearTimer({ preserve: true });
+    if (this.#animation?.playState === "running") this.#animation.pause();
+  }
+
+  #resumeTiming() {
+    if (this.#animation?.playState === "paused") {
+      this.#animation.play();
+      return;
+    }
+    if (!this.#pausedTimer) return;
+    const pausedTimer = this.#pausedTimer;
+    this.#pausedTimer = null;
+    this.#schedule(pausedTimer.remainingMs, pausedTimer.callback, pausedTimer.cancel);
   }
 
   async #runStep() {
     if (!this.#canRun()) return;
-    const compatibleIndex = compatibleDemoStepIndex(this.#sequence, this.#stateId, this.#index);
-    if (compatibleIndex !== this.#index) this.#index = compatibleIndex;
+    if (!this.#sequence[this.#index].expectedStates?.includes("*")) {
+      const compatibleIndex = compatibleDemoStepIndex(this.#sequence, this.#stateId, this.#index);
+      if (compatibleIndex !== this.#index) this.#index = compatibleIndex;
+    }
     const step = this.#sequence[this.#index];
     const token = ++this.#runToken;
-    this.#renderCue(this.#resolveCopy(step.intent), "intent");
+    const stateIdBefore = this.#stateId;
+    this.#activeStepIndex = this.#index;
+    this.#phase = "preparing";
+    this.#renderStep(step, "preparing");
 
     const target = this.#findTarget(step);
     if (step.target && !target) {
@@ -507,10 +702,13 @@ export class VoyagerDemoDirector {
     }
     this.#missingTargetRetries = 0;
 
+    if (!(await this.#delay(this.#reducedMotion.matches ? 1 : DEMO_PRE_MOVE_MS, token))) return;
+    this.#phase = "moving";
     await this.#moveCursor(target, token);
     if (!this.#canRun() || token !== this.#runToken) return;
 
     if (step.kind !== "present") {
+      this.#phase = "clicking";
       await this.#pulseClick(token);
       if (!this.#canRun() || token !== this.#runToken) return;
     }
@@ -531,16 +729,32 @@ export class VoyagerDemoDirector {
         effectResult = this.#performEffect?.(step.effect, { loopIndex: this.#loopIndex }) ?? null;
       }
     } catch (error) {
-      this.#renderCue(`Demo recovered from: ${error.message}`, "waiting");
+      this.#announce(`Demo recovered from: ${error.message}`);
       this.#index = 0;
       this.#schedule(900);
       return;
     }
 
     if (!this.#canRun() || token !== this.#runToken) return;
-    this.#renderCue(this.#resolveCopy(step.presentation, effectResult), "presenting");
+    this.#renderStep(step, "settling", effectResult);
+    this.#completedSteps.push({
+      index: this.#activeStepIndex,
+      loopIndex: this.#loopIndex,
+      stateId: stateIdBefore,
+    });
+    if (this.#completedSteps.length > this.#sequence.length * 3) this.#completedSteps.shift();
     this.#advanceStep();
-    this.#schedule(step.dwellMs ?? DEFAULT_DWELL_MS);
+    this.#phase = "settling";
+    if (!(await this.#delay(this.#reducedMotion.matches ? 1 : DEMO_SETTLE_MS, token))) return;
+    if (!this.#canRun() || token !== this.#runToken) return;
+    this.#phase = "holding";
+    this.#elements.narrator.dataset.demoPhase = "holding";
+    const holdMs = this.#skipHold
+      ? 0
+      : demoReadingHoldMs(`${this.#elements.title.textContent} ${this.#elements.description.textContent}`);
+    this.#skipHold = false;
+    this.#updateTransport();
+    this.#schedule(holdMs);
   }
 
   #findTarget(step) {
@@ -620,7 +834,7 @@ export class VoyagerDemoDirector {
         { transform: `${transform} scale(.84)`, offset: 0.4 },
         { transform: `${transform} scale(1)` },
       ],
-      { duration: this.#reducedMotion.matches ? 1 : 260, easing: "ease-out" },
+      { duration: this.#reducedMotion.matches ? 1 : DEMO_CLICK_MS, easing: "ease-out" },
     );
     try {
       await this.#animation.finished;
@@ -640,11 +854,58 @@ export class VoyagerDemoDirector {
     this.#elements.cursor.style.opacity = "0";
   }
 
-  #renderCue(message, phase) {
-    this.#elements.number.textContent = "DEMO";
-    this.#elements.label.textContent = `Autonomous Voyager demo, ${phase}`;
-    this.#elements.instruction.textContent = message;
-    this.#elements.live.textContent = `${this.#elements.label.textContent}. ${message}`;
-    this.#elements.panel.dataset.demoPhase = phase;
+  #setDeckActive(active) {
+    const focusedElement = document.activeElement;
+    const scrollPosition = { left: window.scrollX, top: window.scrollY };
+    this.#elements.copyRoot.dataset.demoActive = active ? "true" : "false";
+    this.#elements.marketing.hidden = active;
+    this.#elements.narrator.hidden = !active;
+    if (active && focusedElement === this.#elements.toggle) {
+      this.#elements.pause.focus({ preventScroll: true });
+    } else if (!active && this.#elements.narrator.contains(focusedElement)) {
+      this.#elements.toggle.focus({ preventScroll: true });
+    }
+    const restoreScroll = () => window.scrollTo({ ...scrollPosition, behavior: "instant" });
+    restoreScroll();
+    window.requestAnimationFrame(restoreScroll);
+  }
+
+  #renderStep(step, phase, effectResult = null) {
+    const index = this.#activeStepIndex ?? this.#index;
+    const ordinal = String(index + 1).padStart(2, "0");
+    const total = String(this.#sequence.length).padStart(2, "0");
+    const title = this.#resolveCopy(step.title ?? step.intent, effectResult);
+    const description = this.#resolveCopy(step.description ?? step.presentation, effectResult);
+    this.#elements.counter.textContent = `Demo ${ordinal} of ${total}`;
+    this.#elements.progress.textContent = `${ordinal} / ${total}`;
+    this.#elements.title.textContent = title;
+    this.#elements.description.textContent = description;
+    this.#elements.narrator.dataset.demoPhase = phase;
+    this.#announce(`${this.#elements.counter.textContent}. ${title}. ${description}`);
+    this.#updateTransport();
+  }
+
+  #updateTransport() {
+    const effectivePhase = this.#phase === "paused" ? this.#phaseBeforePause : this.#phase;
+    const currentIsCompleted = effectivePhase === "holding"
+      && this.#completedSteps.at(-1)?.index === this.#activeStepIndex;
+    const previousCount = this.#completedSteps.length - (currentIsCompleted ? 1 : 0);
+    this.#elements.back.disabled = previousCount <= 0;
+    this.#elements.pause.textContent = this.#playing ? "Pause" : "Continue";
+  }
+
+  #announce(message) {
+    this.#elements.live.textContent = message;
+  }
+
+  #runControlCinema() {
+    if (this.#cinemaTimer !== null) window.clearTimeout(this.#cinemaTimer);
+    delete this.#elements.stage.dataset.controlCinema;
+    void this.#elements.stage.offsetWidth;
+    this.#elements.stage.dataset.controlCinema = "true";
+    this.#cinemaTimer = window.setTimeout(() => {
+      delete this.#elements.stage.dataset.controlCinema;
+      this.#cinemaTimer = null;
+    }, 2600);
   }
 }

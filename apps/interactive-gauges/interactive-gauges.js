@@ -41,10 +41,17 @@ const controls = [...document.querySelectorAll("[data-action]")];
 const demoToggleButton = document.querySelector("#voyager-demo-toggle");
 const exploreButton = document.querySelector("#explore-freely");
 const demoElements = {
-  panel: document.querySelector("#guide-panel"),
-  number: document.querySelector("#guide-number"),
-  label: document.querySelector("#guide-label"),
-  instruction: document.querySelector("#guide-instruction"),
+  copyRoot: document.querySelector("#voyager-hero-copy"),
+  marketing: document.querySelector("#voyager-marketing-copy"),
+  narrator: document.querySelector("#voyager-demo-narrator"),
+  counter: document.querySelector("#voyager-demo-counter"),
+  title: document.querySelector("#voyager-demo-title"),
+  description: document.querySelector("#voyager-demo-description"),
+  progress: document.querySelector("#voyager-demo-progress"),
+  back: document.querySelector("#voyager-demo-back"),
+  pause: document.querySelector("#voyager-demo-pause"),
+  next: document.querySelector("#voyager-demo-next"),
+  takeControl: document.querySelector("#voyager-demo-take-control"),
   live: document.querySelector("#guide-live"),
   liveScreen,
   stage,
@@ -339,19 +346,22 @@ function enableInterface(engine, demo) {
 
   demoToggleButton.addEventListener("click", () => {
     liveRuntime.recordActivity();
-    demo.toggle();
+    demo.start({ restart: true });
   });
   exploreButton.addEventListener("click", () => {
     liveRuntime.recordActivity();
-    demo.explore();
+    demo.explore({ showcase: true });
     focusGauge({ scroll: false });
   });
-
-  if (demo.reducedMotion) {
-    demo.pause({ message: "Demo paused for reduced-motion preferences." });
-  } else {
-    demo.start({ restart: true });
-  }
+  demoElements.back.addEventListener("click", () => demo.back());
+  demoElements.pause.addEventListener("click", () => demo.toggle());
+  demoElements.next.addEventListener("click", () => demo.next());
+  demoElements.takeControl.addEventListener("click", () => demo.takeControl({ showcase: true }));
+  document.addEventListener("keydown", (event) => {
+    if (!demo.handleKeydown(event)) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+  }, { capture: true });
 }
 
 async function initializeVoyager() {

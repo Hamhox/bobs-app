@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   VOYAGER_DEMO_SEQUENCE,
   compatibleDemoStepIndex,
+  demoReadingHoldMs,
 } from "../voyager-demo.js";
 
 const ALLOWED_KINDS = new Set(["effect", "navigate", "physical", "present", "touch"]);
@@ -62,6 +63,18 @@ assert.equal(
   compatibleDemoStepIndex(VOYAGER_DEMO_SEQUENCE, "unknown-state", 5),
   VOYAGER_DEMO_SEQUENCE.findIndex((step) => step.id === "anchor-main"),
   "Unknown states should recover through the main-screen anchor.",
+);
+
+assert.equal(demoReadingHoldMs("Short caption"), 3500, "Short narration should still receive a generous hold.");
+assert.equal(
+  demoReadingHoldMs("One two three four five six seven eight nine ten"),
+  3700,
+  "Narration hold should scale with word count.",
+);
+assert.equal(
+  demoReadingHoldMs(Array.from({ length: 40 }, (_, index) => `word${index}`).join(" ")),
+  7500,
+  "Long narration should respect the 7.5 second cap.",
 );
 
 console.log(`Voyager demo validation passed (${VOYAGER_DEMO_SEQUENCE.length} stateful steps).`);
