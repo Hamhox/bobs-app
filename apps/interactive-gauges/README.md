@@ -66,6 +66,10 @@ The live slice uses `voyager-straight-photo.webp`, an alpha-preserving conversio
 recalibrated physical-control coordinates are recorded in `assets/device/voyager-screen-placement.json`. The UI always
 retains the historical `504:303` display ratio inside that opening.
 
+The autonomous demo uses the publication-approved `pixel-pointer.svg` artwork as its flat two-color cursor while retaining
+the runtime halo and tip spark as separate animation layers. Asset intake record: reviewed source SHA-256
+`B5E86BABB5107E38260F5209AE508E515936C841A740A769749BB7607080B7AA`.
+
 The live screen and menu renderers reuse the publication-approved pixel artwork in
 `assets/ui/voyager-ui-icons.svg` for compass, temperature, pan/zoom, playback, screen indicator, keyboard,
 radio, crosshair, and confirmation controls. Regenerate the runtime-only icon sheet from a reviewed source export with:
