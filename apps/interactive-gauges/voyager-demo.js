@@ -19,6 +19,7 @@ export const VOYAGER_DEMO_SEQUENCE = Object.freeze([
     intent: "Ready to ride",
     presentation: "The tour begins at the primary screen without resetting the working gauge.",
     dwellMs: 1800,
+    holdMs: 1800,
   },
   {
     id: "present-main",
@@ -263,6 +264,7 @@ export class VoyagerDemoDirector {
   #stateId;
   #lastPoint = null;
   #transportReturnPoint = null;
+  #departingFromStart = false;
   #activeStepIndex = null;
   #phase = "idle";
   #phaseBeforePause = null;
@@ -337,6 +339,21 @@ export class VoyagerDemoDirector {
     return this.#reducedMotion.matches;
   }
 
+  dockAtStart({ animate = false } = {}) {
+    const point = this.#pointForElement(this.#elements.toggle);
+    if (!point) return;
+    this.#elements.stage.dataset.demoDocked = "true";
+    this.#elements.cursor.dataset.visible = "true";
+    this.#elements.cursor.style.opacity = "1";
+    if (animate) {
+      void this.#animateTransportCursor(point);
+      return;
+    }
+    const transform = `translate3d(${point.x.toFixed(2)}px, ${point.y.toFixed(2)}px, 0)`;
+    this.#elements.cursor.style.transform = transform;
+    this.#lastPoint = point;
+  }
+
   start({ restart = false } = {}) {
     if (this.#active && !restart) {
       this.resume();
@@ -345,6 +362,8 @@ export class VoyagerDemoDirector {
     if (restart) {
       this.#index = 0;
       this.#loopIndex = 0;
+      if (this.#elements.cursor.dataset.visible !== "true") this.dockAtStart();
+      this.#departingFromStart = true;
     }
     this.#cancelRun();
     this.#active = true;
@@ -354,7 +373,7 @@ export class VoyagerDemoDirector {
     this.#phase = "queued";
     this.#engine.setAutoTransitionsEnabled(true);
     delete this.#elements.stage.dataset.controlCinema;
-    delete this.#elements.stage.dataset.demoDocked;
+    if (!this.#departingFromStart) delete this.#elements.stage.dataset.demoDocked;
     this.#elements.stage.dataset.demoState = "playing";
     this.#setDeckActive(true);
     this.#elements.pause.textContent = "Pause";
@@ -405,23 +424,24 @@ export class VoyagerDemoDirector {
   }
 
   explore({ showcase = true } = {}) {
-    this.takeControl({ showcase });
+    this.takeControl({ showcase, dockAtStart: false });
   }
 
-  takeControl({ showcase = false } = {}) {
+  takeControl({ showcase = false, dockAtStart = true } = {}) {
     this.#active = false;
     this.#playing = false;
     this.#yielding = false;
     this.#transportReturnPoint = null;
+    this.#departingFromStart = false;
     this.#phase = "idle";
     this.#phaseBeforePause = null;
     this.#engine.setAutoTransitionsEnabled(true);
     this.#cancelRun();
-    this.#hideCursor();
-    delete this.#elements.stage.dataset.demoDocked;
     this.#elements.stage.dataset.demoState = "manual";
     this.#elements.toggle.textContent = "Start demo";
     this.#setDeckActive(false);
+    if (dockAtStart) this.dockAtStart({ animate: Boolean(this.#lastPoint) });
+    else this.#hideCursor();
     this.#announce("Free exploration enabled. The current gauge screen is preserved.");
     if (showcase) this.#runControlCinema();
   }
@@ -479,7 +499,7 @@ export class VoyagerDemoDirector {
   }
 
   #syncSuspension() {
-    if (this.#active && !this.#playing) return;
+    if (!this.#active || !this.#playing) return;
     if (!this.#canRun()) {
       this.#cancelRun();
       this.#hideCursor();
@@ -647,6 +667,13 @@ export class VoyagerDemoDirector {
       if (step.kind === "navigate") {
         const reachedTarget = await this.#followControlPath(step.destination, token, "demo:anchor");
         if (!reachedTarget) throw new Error("The main screen is not reachable through the current controls.");
+        if (this.#departingFromStart) {
+          this.#phase = "loitering";
+          await this.#moveCursorToPoint(this.#defaultGaugePoint(), token);
+          if (!this.#canRun() || token !== this.#runToken) return;
+          this.#departingFromStart = false;
+          delete this.#elements.stage.dataset.demoDocked;
+        }
       } else if (step.kind === "touch") {
         this.#activateTarget(target, "demo");
       } else if (step.kind === "physical") {
@@ -667,7 +694,8 @@ export class VoyagerDemoDirector {
     if (!this.#canRun() || token !== this.#runToken) return;
     this.#phase = "holding";
     this.#elements.narrator.dataset.demoPhase = "holding";
-    const holdMs = demoReadingHoldMs(`${this.#elements.title.textContent} ${this.#elements.description.textContent}`);
+    const holdMs = step.holdMs
+      ?? demoReadingHoldMs(`${this.#elements.title.textContent} ${this.#elements.description.textContent}`);
     this.#updateTransport();
     this.#schedule(holdMs);
   }
@@ -712,6 +740,11 @@ export class VoyagerDemoDirector {
       x: targetBounds.left - stageBounds.left + targetBounds.width / 2,
       y: targetBounds.top - stageBounds.top + targetBounds.height / 2,
     };
+    await this.#moveCursorToPoint(point, token);
+  }
+
+  async #moveCursorToPoint(point, token) {
+    if (!point || !this.#canRun()) return;
     const start = this.#lastPoint ?? { x: point.x - 24, y: point.y + 34 };
     const cursor = this.#elements.cursor;
     cursor.dataset.visible = "true";
@@ -755,7 +788,21 @@ export class VoyagerDemoDirector {
 
   #defaultGaugePoint() {
     const bounds = this.#elements.stage.getBoundingClientRect();
-    return { x: bounds.width * 0.56, y: bounds.height * 0.5 };
+    return {
+      x: bounds.width * (310 / 3750),
+      y: bounds.height * (844 / 2063),
+    };
+  }
+
+  #pointForElement(element) {
+    if (!element) return null;
+    const stageBounds = this.#elements.stage.getBoundingClientRect();
+    const targetBounds = element.getBoundingClientRect();
+    if (!targetBounds.width || !targetBounds.height) return null;
+    return {
+      x: targetBounds.left - stageBounds.left + targetBounds.width / 2,
+      y: targetBounds.top - stageBounds.top + targetBounds.height / 2,
+    };
   }
 
   #currentCursorPoint(fallback) {
@@ -885,6 +932,7 @@ export class VoyagerDemoDirector {
     this.#elements.cursor.removeAttribute("data-visible");
     this.#elements.cursor.removeAttribute("data-clicking");
     this.#elements.cursor.style.opacity = "0";
+    delete this.#elements.stage.dataset.demoDocked;
   }
 
   #setDeckActive(active) {
@@ -908,16 +956,17 @@ export class VoyagerDemoDirector {
 
   #renderStep(step, phase, effectResult = null) {
     const index = this.#activeStepIndex ?? this.#index;
-    const ordinal = String(index + 1).padStart(2, "0");
-    const total = String(this.#sequence.length).padStart(2, "0");
     const title = this.#resolveCopy(step.title ?? step.intent, effectResult);
     const description = this.#resolveCopy(step.description ?? step.presentation, effectResult);
-    this.#elements.counter.textContent = `Demo ${ordinal} of ${total}`;
+    this.#elements.counter.textContent = "Demo";
+    this.#elements.progress.setAttribute("aria-valuemax", String(this.#sequence.length));
+    this.#elements.progress.setAttribute("aria-valuenow", String(index + 1));
+    this.#elements.progress.setAttribute("aria-valuetext", `Step ${index + 1} of ${this.#sequence.length}`);
     this.#elements.progressFill.style.width = `${((index + 1) / this.#sequence.length) * 100}%`;
     this.#elements.title.textContent = title;
     this.#elements.description.textContent = description;
     this.#elements.narrator.dataset.demoPhase = phase;
-    this.#announce(`${this.#elements.counter.textContent}. ${title}. ${description}`);
+    this.#announce(`Demo step ${index + 1} of ${this.#sequence.length}. ${title}. ${description}`);
     this.#updateTransport();
   }
 

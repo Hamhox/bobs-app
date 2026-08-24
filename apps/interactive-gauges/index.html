@@ -81,10 +81,26 @@
               aria-hidden="true"
             >
               <div class="gauges-demo-narrator__status">
-                <p class="gauges-demo-narrator__counter" id="voyager-demo-counter">Demo 01 of 19</p>
-                <span class="gauges-demo-narrator__rail" aria-hidden="true">
+                <p class="gauges-demo-narrator__counter" id="voyager-demo-counter">Demo</p>
+                <span
+                  class="gauges-demo-narrator__rail"
+                  id="voyager-demo-progress"
+                  role="progressbar"
+                  aria-label="Demo progress"
+                  aria-valuemin="1"
+                  aria-valuemax="19"
+                  aria-valuenow="1"
+                >
                   <span id="voyager-demo-progress-fill"></span>
                 </span>
+                <button
+                  class="gauges-demo-narrator__close"
+                  id="voyager-demo-take-control"
+                  type="button"
+                  aria-label="Close demo"
+                >
+                  <span aria-hidden="true">&times;</span>
+                </button>
               </div>
               <h2 class="gauges-demo-narrator__title" id="voyager-demo-title">Live ride data</h2>
               <p class="gauges-demo-narrator__description" id="voyager-demo-description">
@@ -99,11 +115,8 @@
                 >
                   Pause
                 </button>
-                <button class="gauges-demo-transport__take-control" id="voyager-demo-take-control" type="button">
-                  Take control
-                </button>
               </div>
-              <p class="gauges-demo-shortcuts">Space: pause / continue &middot; Esc: take control</p>
+              <p class="gauges-demo-shortcuts">Space: pause / continue &middot; Esc: close demo</p>
             </section>
             </div>
           </div>

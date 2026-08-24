@@ -47,6 +47,7 @@ const demoElements = {
   counter: document.querySelector("#voyager-demo-counter"),
   title: document.querySelector("#voyager-demo-title"),
   description: document.querySelector("#voyager-demo-description"),
+  progress: document.querySelector("#voyager-demo-progress"),
   progressFill: document.querySelector("#voyager-demo-progress-fill"),
   pause: document.querySelector("#voyager-demo-pause"),
   takeControl: document.querySelector("#voyager-demo-take-control"),
@@ -352,7 +353,7 @@ function enableInterface(engine, demo) {
     focusGauge({ scroll: false });
   });
   demoElements.pause.addEventListener("click", () => demo.toggle());
-  demoElements.takeControl.addEventListener("click", () => demo.takeControl({ showcase: true }));
+  demoElements.takeControl.addEventListener("click", () => demo.takeControl());
   document.addEventListener("keydown", (event) => {
     if (!demo.handleKeydown(event)) return;
     event.preventDefault();
@@ -489,6 +490,7 @@ async function initializeVoyager() {
     });
     document.querySelector("#voyager-load-status").textContent = "Ready";
     enableInterface(engine, demo);
+    window.setTimeout(() => demo.dockAtStart(), 0);
   } catch (error) {
     document.querySelector("#voyager-load-status").textContent = "Unavailable";
     interactionLive.textContent = error.message;
