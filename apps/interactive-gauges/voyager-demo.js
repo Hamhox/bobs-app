@@ -262,6 +262,7 @@ export class VoyagerDemoDirector {
   #documentVisible = !document.hidden;
   #stateId;
   #lastPoint = null;
+  #transportReturnPoint = null;
   #activeStepIndex = null;
   #phase = "idle";
   #phaseBeforePause = null;
@@ -349,9 +350,11 @@ export class VoyagerDemoDirector {
     this.#active = true;
     this.#playing = true;
     this.#yielding = false;
+    this.#transportReturnPoint = null;
     this.#phase = "queued";
     this.#engine.setAutoTransitionsEnabled(true);
     delete this.#elements.stage.dataset.controlCinema;
+    delete this.#elements.stage.dataset.demoDocked;
     this.#elements.stage.dataset.demoState = "playing";
     this.#setDeckActive(true);
     this.#elements.pause.textContent = "Pause";
@@ -376,27 +379,27 @@ export class VoyagerDemoDirector {
     this.#parkCursorAtPause();
   }
 
-  resume() {
+  async resume() {
     if (!this.#active || this.#playing) return;
     this.#playing = true;
     this.#engine.setAutoTransitionsEnabled(true);
     this.#phase = this.#phaseBeforePause ?? "queued";
     this.#phaseBeforePause = null;
-    this.#elements.stage.dataset.demoState = this.#yielding || this.#overlayBlocked ? "waiting" : "playing";
+    this.#elements.stage.dataset.demoState = this.#overlayBlocked ? "waiting" : "playing";
     this.#elements.narrator.dataset.demoPhase = this.#phase;
-    this.#elements.pause.textContent = "Pause";
-    this.#pauseAnimation?.cancel();
-    this.#pauseAnimation = null;
     this.#announce("Demo continued.");
+    this.#updateTransport();
+    await this.#returnCursorToGauge();
+    if (!this.#active || !this.#playing || this.#yielding || this.#overlayBlocked) return;
     this.#resumeTiming();
-    if (!this.#yielding && !this.#overlayBlocked && this.#timer === null && this.#animation === null) {
+    if (this.#timer === null && this.#animation === null) {
       this.#schedule(0);
     }
-    this.#updateTransport();
   }
 
   toggle() {
     if (!this.#active) this.start({ restart: true });
+    else if (this.#yielding) this.#resumeFromUserControl();
     else if (this.#playing) this.pause();
     else this.resume();
   }
@@ -409,11 +412,13 @@ export class VoyagerDemoDirector {
     this.#active = false;
     this.#playing = false;
     this.#yielding = false;
+    this.#transportReturnPoint = null;
     this.#phase = "idle";
     this.#phaseBeforePause = null;
     this.#engine.setAutoTransitionsEnabled(true);
     this.#cancelRun();
     this.#hideCursor();
+    delete this.#elements.stage.dataset.demoDocked;
     this.#elements.stage.dataset.demoState = "manual";
     this.#elements.toggle.textContent = "Start demo";
     this.#setDeckActive(false);
@@ -423,22 +428,20 @@ export class VoyagerDemoDirector {
 
   noteUserActivity() {
     if (!this.#active || !this.#playing) return;
+    if (this.#yielding) {
+      this.#scheduleUserControlResume();
+      return;
+    }
     this.#yielding = true;
+    this.#transportReturnPoint = this.#currentCursorPoint(this.#lastPoint ?? this.#defaultGaugePoint());
     this.#cancelRun();
-    this.#hideCursor();
     this.#phase = "waiting";
     this.#elements.stage.dataset.demoState = "waiting";
     this.#elements.narrator.dataset.demoPhase = "waiting";
     this.#announce("You are in control. The demo will wait before continuing.");
-    this.#schedule(this.#yieldMs, () => {
-      if (!this.#playing) return;
-      this.#yielding = false;
-      this.#phase = "queued";
-      this.#elements.stage.dataset.demoState = "playing";
-      this.#index = compatibleDemoStepIndex(this.#sequence, this.#stateId, this.#index);
-      this.#renderStep(this.#sequence[this.#index], "queued");
-      this.#schedule(500);
-    });
+    this.#updateTransport();
+    this.#parkCursorAtPause();
+    this.#scheduleUserControlResume();
   }
 
   handleKeydown(event) {
@@ -503,6 +506,8 @@ export class VoyagerDemoDirector {
       if (!this.#playing) return;
       this.#cancelRun();
       this.#hideCursor();
+      delete this.#elements.stage.dataset.demoDocked;
+      if (!this.#yielding) this.#transportReturnPoint = null;
       this.#phase = "blocked";
       this.#elements.stage.dataset.demoState = "waiting";
       this.#elements.narrator.dataset.demoPhase = "waiting";
@@ -510,7 +515,17 @@ export class VoyagerDemoDirector {
       this.#announce(`Waiting for Voyager: ${message}`);
       return;
     }
-    if (!this.#playing || this.#yielding || !this.#stageVisible || !this.#documentVisible) return;
+    if (!this.#playing || !this.#stageVisible || !this.#documentVisible) return;
+    if (this.#yielding) {
+      this.#phase = "waiting";
+      this.#elements.stage.dataset.demoState = "waiting";
+      this.#elements.narrator.dataset.demoPhase = "waiting";
+      this.#announce("You are in control. The demo will wait before continuing.");
+      this.#updateTransport();
+      this.#parkCursorAtPause();
+      this.#scheduleUserControlResume();
+      return;
+    }
     this.#elements.stage.dataset.demoState = "playing";
     this.#index = compatibleDemoStepIndex(this.#sequence, this.#stateId, this.#index);
     this.#phase = "queued";
@@ -724,6 +739,9 @@ export class VoyagerDemoDirector {
 
   #parkCursorAtPause() {
     if (this.#animation || !this.#elements.pause) return;
+    if (!this.#transportReturnPoint) {
+      this.#transportReturnPoint = this.#lastPoint ? { ...this.#lastPoint } : this.#defaultGaugePoint();
+    }
     const stageBounds = this.#elements.stage.getBoundingClientRect();
     const targetBounds = this.#elements.pause.getBoundingClientRect();
     if (!targetBounds.width || !targetBounds.height) return;
@@ -731,13 +749,37 @@ export class VoyagerDemoDirector {
       x: targetBounds.left - stageBounds.left + targetBounds.width / 2,
       y: targetBounds.top - stageBounds.top + targetBounds.height / 2,
     };
-    const start = this.#lastPoint ?? point;
+    this.#elements.stage.dataset.demoDocked = "true";
+    void this.#animateTransportCursor(point);
+  }
+
+  #defaultGaugePoint() {
+    const bounds = this.#elements.stage.getBoundingClientRect();
+    return { x: bounds.width * 0.56, y: bounds.height * 0.5 };
+  }
+
+  #currentCursorPoint(fallback) {
+    try {
+      const transform = window.getComputedStyle(this.#elements.cursor).transform;
+      if (transform && transform !== "none") {
+        const matrix = new DOMMatrixReadOnly(transform);
+        return { x: matrix.m41, y: matrix.m42 };
+      }
+    } catch {
+      // Fall back to the last committed cursor position.
+    }
+    return fallback;
+  }
+
+  async #animateTransportCursor(point) {
     const cursor = this.#elements.cursor;
+    const start = this.#currentCursorPoint(this.#lastPoint ?? point);
+    this.#pauseAnimation?.cancel();
     const startTransform = `translate3d(${start.x.toFixed(2)}px, ${start.y.toFixed(2)}px, 0)`;
     const endTransform = `translate3d(${point.x.toFixed(2)}px, ${point.y.toFixed(2)}px, 0)`;
     cursor.dataset.visible = "true";
     cursor.style.opacity = "1";
-    this.#pauseAnimation = cursor.animate(
+    const animation = cursor.animate(
       [
         { opacity: 1, transform: startTransform },
         { opacity: 1, transform: endTransform },
@@ -748,12 +790,46 @@ export class VoyagerDemoDirector {
         fill: "forwards",
       },
     );
-    this.#pauseAnimation.finished.then(() => {
-      if (!this.#active || this.#playing) return;
-      cursor.style.transform = endTransform;
-      this.#lastPoint = point;
-      this.#pauseAnimation = null;
-    }).catch(() => {});
+    this.#pauseAnimation = animation;
+    try {
+      await animation.finished;
+    } catch {
+      return false;
+    }
+    if (this.#pauseAnimation !== animation) return false;
+    cursor.style.transform = endTransform;
+    this.#lastPoint = point;
+    this.#pauseAnimation = null;
+    return true;
+  }
+
+  async #returnCursorToGauge() {
+    const point = this.#transportReturnPoint;
+    if (!point || !this.#elements.stage.dataset.demoDocked) return;
+    const returned = await this.#animateTransportCursor(point);
+    if (!returned || !this.#active || this.#transportReturnPoint !== point) return;
+    delete this.#elements.stage.dataset.demoDocked;
+    this.#transportReturnPoint = null;
+  }
+
+  #scheduleUserControlResume() {
+    this.#schedule(this.#yieldMs, () => this.#resumeFromUserControl());
+  }
+
+  async #resumeFromUserControl() {
+    if (!this.#active || !this.#playing || !this.#yielding) return;
+    this.#clearTimer();
+    this.#yielding = false;
+    this.#phase = "queued";
+    this.#elements.stage.dataset.demoState = this.#overlayBlocked ? "waiting" : "playing";
+    this.#elements.narrator.dataset.demoPhase = "queued";
+    this.#announce("Demo continuing after your input.");
+    this.#updateTransport();
+    await this.#returnCursorToGauge();
+    if (!this.#canRun()) return;
+    this.#index = compatibleDemoStepIndex(this.#sequence, this.#stateId, this.#index);
+    this.#renderStep(this.#sequence[this.#index], "queued");
+    this.#schedule(300);
   }
 
   async #pulseClick(token) {
@@ -846,8 +922,9 @@ export class VoyagerDemoDirector {
   }
 
   #updateTransport() {
-    this.#elements.pause.textContent = this.#playing ? "Pause" : "Continue";
-    this.#elements.pause.dataset.transportState = this.#playing ? "pause" : "continue";
+    const continueMode = !this.#playing || this.#yielding;
+    this.#elements.pause.textContent = continueMode ? "Continue" : "Pause";
+    this.#elements.pause.dataset.transportState = continueMode ? "continue" : "pause";
   }
 
   #announce(message) {

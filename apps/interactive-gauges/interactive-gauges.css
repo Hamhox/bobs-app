@@ -383,7 +383,8 @@
   min-height: 0;
 }
 
-.voyager-experience:has(.voyager-stage[data-demo-state="paused"]) {
+.voyager-experience:has(.voyager-stage[data-demo-state="paused"]),
+.voyager-experience:has(.voyager-stage[data-demo-docked="true"]) {
   z-index: 4;
 }
 
@@ -631,7 +632,7 @@
     0 0 1.7rem rgb(255 152 31 / 0.8);
 }
 
-.voyager-stage[data-demo-state="waiting"] .voyager-demo-cursor {
+.voyager-stage[data-demo-state="waiting"]:not([data-demo-docked="true"]) .voyager-demo-cursor {
   visibility: hidden;
 }
 
