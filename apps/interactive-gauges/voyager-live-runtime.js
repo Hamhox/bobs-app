@@ -994,7 +994,7 @@ function mainMarkup(screen, variant, { display, menuValues }) {
       <text class="voyager-live__text voyager-live__text--metric" x="91" y="286" data-live-altitude>1089</text>
       <text class="voyager-live__text" x="261" y="236">DST ${display.distanceUnit}</text>
       <text class="voyager-live__text voyager-live__text--metric" x="254" y="286" data-live-distance>12.0</text>
-      ${temperatureIcon(397, 201, 1.08)}
+      ${temperatureIcon(408, 201, 1.08)}
       <text class="voyager-live__text" x="449" y="236">${display.temperatureUnit}</text>
       <text class="voyager-live__text voyager-live__text--metric" x="407" y="286" data-live-engine-temperature>168</text>
     </g>`;
