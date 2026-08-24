@@ -315,7 +315,7 @@ function main() {
     throw new Error("destination waypoint toast is not a two-line device notice");
   }
   const trackSegmentToastMarkup = renderVoyagerToastMarkup("NEW TRACK SEGMENT STARTED");
-  if (!trackSegmentToastMarkup.includes('width="336"')) {
+  if (!trackSegmentToastMarkup.includes('width="352"')) {
     throw new Error("long single-line toasts no longer expand to contain their copy");
   }
   if (formatVoyagerDestinationDistance(3_270_000, false) !== "2032") {

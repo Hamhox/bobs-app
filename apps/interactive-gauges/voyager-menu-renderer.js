@@ -185,7 +185,7 @@ export function renderVoyagerToastMarkup(message) {
   const lines = (Array.isArray(message) ? message : [message]).map((line) => String(line ?? "")).filter(Boolean);
   const longestLine = lines.reduce((length, line) => Math.max(length, [...line].length), 0);
   const minimumWidth = lines.length > 1 ? 300 : 238;
-  const width = Math.min(452, Math.max(minimumWidth, longestLine * 12 + 36));
+  const width = Math.min(452, Math.max(minimumWidth, longestLine * 12 + 52));
   const height = 58 + Math.max(0, lines.length - 1) * 24;
   const x = Math.floor((504 - width) / 2);
   const y = Math.floor((303 - height) / 2);
