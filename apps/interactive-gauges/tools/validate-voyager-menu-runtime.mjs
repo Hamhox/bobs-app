@@ -6,7 +6,11 @@ import {
 } from "../voyager-menu-registry.js";
 import { VOYAGER_FONT_SYMBOLS } from "../voyager-font-symbols.js";
 import { VOYAGER_KEYBOARD_ROWS, VoyagerMenuModel } from "../voyager-menu-model.js";
-import { renderVoyagerMenuMarkup, renderVoyagerToastMarkup } from "../voyager-menu-renderer.js";
+import {
+  isVoyagerMenuOverlay,
+  renderVoyagerMenuMarkup,
+  renderVoyagerToastMarkup,
+} from "../voyager-menu-renderer.js";
 import {
   formatVoyagerDestinationDistance,
   voyagerDestinationTextLength,
@@ -27,7 +31,7 @@ function renderDefinition(definition, model, visited = new Set()) {
   if (visited.has(definition.id)) throw new Error(`Underlay cycle detected at ${definition.id}`);
   visited.add(definition.id);
   const resolved = model.resolve(definition);
-  if (resolved.presentation !== "overlay") return renderVoyagerMenuMarkup(resolved);
+  if (!isVoyagerMenuOverlay(resolved)) return renderVoyagerMenuMarkup(resolved);
 
   const parent = VOYAGER_MENU_STATE_INDEX[resolved.parentStateId];
   const underlayMarkup = parent
@@ -176,7 +180,7 @@ function main() {
     || !memoryMarkup.includes("9 / 300")
     || !memoryMarkup.includes("31%")
     || !memoryMarkup.includes("17%")
-    || (memoryMarkup.match(/voyager-menu__selection/g) ?? []).length !== 1
+    || (memoryMarkup.match(/voyager-menu__selection/g) ?? []).length !== 2
     || !memoryMarkup.includes('class="voyager-menu__panel" x="55" y="18" width="400" height="267"')
     || memoryTransitions.up !== memoryDefinition.id
     || memoryTransitions.down !== memoryDefinition.id
@@ -214,11 +218,15 @@ function main() {
     || waypointMarkup.includes("&gt;</text>")) {
     throw new Error("waypoint submenu rows do not use the device play symbol");
   }
+  if (!waypointMarkup.includes("voyager-menu__underlay-wash")
+    || !waypointMarkup.includes("data-menu-backdrop")) {
+    throw new Error("first-level menu panels do not expose the shared lightened Back target");
+  }
   const readingDefinition = VOYAGER_MENU_STATE_INDEX["m-ride-import-reading"];
   const readingMarkup = renderDefinition(readingDefinition, new VoyagerMenuModel());
   if (!readingMarkup.includes("READING CARD...")
     || !readingMarkup.includes("voyager-menu__toast")
-    || readingMarkup.includes("voyager-menu__underlay-wash")
+    || (readingMarkup.match(/voyager-menu__underlay-wash/g) ?? []).length !== 1
     || readingDefinition.autoTransition?.target !== "m-ride-import-file"
     || VOYAGER_MENU_TRANSITIONS["m-ride-transfer-1"].enter !== "m-ride-import-reading") {
     throw new Error("ride import no longer pauses at the reading-card toast before the file browser");
@@ -305,6 +313,10 @@ function main() {
     || !destinationToastMarkup.includes("CMRA Trail Head")
     || (destinationToastMarkup.match(/voyager-menu__toast-copy/g) ?? []).length !== 2) {
     throw new Error("destination waypoint toast is not a two-line device notice");
+  }
+  const trackSegmentToastMarkup = renderVoyagerToastMarkup("NEW TRACK SEGMENT STARTED");
+  if (!trackSegmentToastMarkup.includes('width="336"')) {
+    throw new Error("long single-line toasts no longer expand to contain their copy");
   }
   if (formatVoyagerDestinationDistance(3_270_000, false) !== "2032") {
     throw new Error("imperial destination distance is not converted from meters to miles");

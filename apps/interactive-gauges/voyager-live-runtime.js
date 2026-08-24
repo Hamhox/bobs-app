@@ -24,6 +24,7 @@ import {
 } from "./voyager-device-runtime.js";
 import { VoyagerRideCatalog } from "./voyager-ride-catalog.js";
 import {
+  isVoyagerMenuOverlay,
   renderVoyagerMenuMarkup,
   renderVoyagerToastMarkup,
   voyagerMenuAriaLabel,
@@ -993,7 +994,7 @@ function mainMarkup(screen, variant, { display, menuValues }) {
       <text class="voyager-live__text voyager-live__text--metric" x="91" y="286" data-live-altitude>1089</text>
       <text class="voyager-live__text" x="261" y="236">DST ${display.distanceUnit}</text>
       <text class="voyager-live__text voyager-live__text--metric" x="254" y="286" data-live-distance>12.0</text>
-      ${temperatureIcon(408, 213, 0.84)}
+      ${temperatureIcon(397, 201, 1.08)}
       <text class="voyager-live__text" x="449" y="236">${display.temperatureUnit}</text>
       <text class="voyager-live__text voyager-live__text--metric" x="407" y="286" data-live-engine-temperature>168</text>
     </g>`;
@@ -1809,7 +1810,7 @@ export class VoyagerLiveRuntime {
         title: this.#catalog.savedRides[this.#selectedSavedRideIndex]?.name ?? "EMPTY SLOT",
       };
     }
-    if (resolved.presentation !== "overlay") return renderVoyagerMenuMarkup(resolved);
+    if (!isVoyagerMenuOverlay(resolved)) return renderVoyagerMenuMarkup(resolved);
 
     let underlayMarkup = "";
     const menuParent = voyagerMenuState(resolved.parentStateId);

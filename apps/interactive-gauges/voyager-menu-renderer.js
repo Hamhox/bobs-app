@@ -8,6 +8,10 @@ const escapeMarkup = (value) => String(value ?? "")
   .replaceAll(">", "&gt;")
   .replaceAll('"', "&quot;");
 
+export function isVoyagerMenuOverlay(definition) {
+  return definition.presentation === "overlay" || definition.kind === "panel" || definition.kind === "memory";
+}
+
 function sectionChrome(section) {
   const slots = [
     { id: "main", label: "QUICK" },
@@ -114,9 +118,11 @@ function menuScreen(definition) {
 
 function panelScreen(definition) {
   const lineHeight = definition.rowSpacing ?? (definition.compact ? 20 : 24);
+  const pageChrome = isVoyagerMenuOverlay(definition)
+    ? ""
+    : `<rect class="voyager-live__surface" width="504" height="303" />${sectionChrome(definition.section)}`;
   return `
-    <rect class="voyager-live__surface" width="504" height="303" />
-    ${sectionChrome(definition.section)}
+    ${pageChrome}
     ${panelFrameMarkup()}
     ${titleBandMarkup(definition.title, { x: 48, y: 27, width: 408 })}
     ${rowsMarkup(definition, {
@@ -131,9 +137,11 @@ function panelScreen(definition) {
 }
 
 function memoryScreen(definition) {
+  const pageChrome = isVoyagerMenuOverlay(definition)
+    ? ""
+    : `<rect class="voyager-live__surface" width="504" height="303" />${sectionChrome(definition.section)}`;
   return `
-    <rect class="voyager-live__surface" width="504" height="303" />
-    ${sectionChrome(definition.section)}
+    ${pageChrome}
     ${panelFrameMarkup({ x: 55, y: 18, width: 400, height: 267 })}
     ${titleBandMarkup(definition.title, { x: 64, y: 27, width: 382 })}
     ${rowsMarkup(definition, {
@@ -175,7 +183,9 @@ function noteLines(lines, startY, className = "voyager-menu__note", step = 20) {
 
 export function renderVoyagerToastMarkup(message) {
   const lines = (Array.isArray(message) ? message : [message]).map((line) => String(line ?? "")).filter(Boolean);
-  const width = lines.length > 1 ? 300 : 238;
+  const longestLine = lines.reduce((length, line) => Math.max(length, [...line].length), 0);
+  const minimumWidth = lines.length > 1 ? 300 : 238;
+  const width = Math.min(452, Math.max(minimumWidth, longestLine * 12 + 36));
   const height = 58 + Math.max(0, lines.length - 1) * 24;
   const x = Math.floor((504 - width) / 2);
   const y = Math.floor((303 - height) / 2);
@@ -595,7 +605,7 @@ export function renderVoyagerMenuMarkup(definition, { underlayMarkup = "" } = {}
     "waypoint-map": waypointMapModal,
   };
   const markup = renderers[definition.kind](definition);
-  if (definition.presentation !== "overlay") return markup;
+  if (!isVoyagerMenuOverlay(definition)) return markup;
   const underlay = underlayMarkup
     || `<rect class="voyager-live__surface" width="504" height="303" />${sectionChrome(definition.section)}`;
   if (definition.kind === "toast") return `${underlay}${markup}`;
