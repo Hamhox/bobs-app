@@ -29,7 +29,7 @@ const DEFAULT_VALUES = Object.freeze({
   timeOfDay: "12:42:04 PM",
   temperatureUnits: "FAHRENHEIT",
   tabsTimeout: "015 SEC",
-  displayMode: "NORMAL",
+  displayMode: "LIGHT",
   wheelSensor: "ENABLED",
   engineSensor: "ENABLED",
   ppr: "1",

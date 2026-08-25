@@ -70,6 +70,9 @@ export function normalizeVoyagerSettings(values = {}) {
     return `${String(Math.max(0, parsed)).padStart(digits, "0")} ${unit}`;
   };
   normalized.speedUnits = VOYAGER_SETTING_RULES.speedUnits.derive(normalized);
+  if (normalized.displayMode === "NORMAL") normalized.displayMode = "LIGHT";
+  if (normalized.displayMode === "INVERTED") normalized.displayMode = "DARK";
+  if (!["LIGHT", "DARK", "AMBER", "GREEN"].includes(normalized.displayMode)) normalized.displayMode = "LIGHT";
   if (!["WHL SENSOR", "GPS"].includes(normalized.speedSource)) normalized.speedSource = "WHL SENSOR";
   if (!["ENG OR WHL", "GPS"].includes(normalized.runTimeSource)) normalized.runTimeSource = "ENG OR WHL";
   if (!["OFF", "LOW", "MEDIUM", "HIGH"].includes(normalized.backlightLevel)) normalized.backlightLevel = "HIGH";

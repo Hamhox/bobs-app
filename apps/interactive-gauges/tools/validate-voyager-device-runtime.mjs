@@ -33,7 +33,7 @@ const imperial = createVoyagerDisplayProfile({
   temperatureUnits: "FAHRENHEIT",
   clockFormat: "12 HOUR",
   timeOfDay: "12:42:04 PM",
-  displayMode: "NORMAL",
+  displayMode: "LIGHT",
 });
 const repeatedImperial = createVoyagerDisplayProfile({
   distanceUnits: "MILES",
@@ -41,7 +41,7 @@ const repeatedImperial = createVoyagerDisplayProfile({
   temperatureUnits: "FAHRENHEIT",
   clockFormat: "12 HOUR",
   timeOfDay: "12:42:04 PM",
-  displayMode: "NORMAL",
+  displayMode: "LIGHT",
 });
 assert(imperial === repeatedImperial, "display profiles are not cached by their stable settings signature");
 assert(imperial.speedFromMph(27) === 27, "default MPH path performs an unnecessary conversion");
@@ -55,23 +55,27 @@ const metric = createVoyagerDisplayProfile({
   temperatureUnits: "CELSIUS",
   clockFormat: "24 HOUR",
   timeOfDay: "7:42:04 PM",
-  displayMode: "INVERTED",
+  displayMode: "DARK",
 });
 assert(metric.speedUnit === "KM/H" && metric.speedFromMph(10) === 16, "metric speed profile is incorrect");
 assert(metric.distanceUnit === "KM" && metric.distanceFromKm(12.5) === 12.5, "native kilometer path is not a no-op");
 assert(metric.altitudeUnit === "M" && metric.altitudeFromFeet(1000) === 305, "metric altitude profile is incorrect");
 assert(metric.temperatureUnit === "°C" && metric.temperatureFromF(68) === 20, "Celsius profile is incorrect");
 assert(metric.clockAtElapsedSeconds(60) === "19:43", "24-hour device clock formatting is incorrect");
-assert(metric.inverted, "inverted display mode is missing from the profile");
+assert(metric.colorTheme === "DARK" && metric.inverted, "dark color theme is missing from the profile");
 
-const highPalette = createVoyagerScreenPalette({ brightness: 50 });
-const lowPalette = createVoyagerScreenPalette({ brightness: 18 });
-const invertedPalette = createVoyagerScreenPalette({ brightness: 50, inverted: true });
+const highPalette = createVoyagerScreenPalette({ brightness: 50, colorTheme: "LIGHT" });
+const lowPalette = createVoyagerScreenPalette({ brightness: 18, colorTheme: "LIGHT" });
+const darkPalette = createVoyagerScreenPalette({ brightness: 50, colorTheme: "DARK" });
+const amberPalette = createVoyagerScreenPalette({ brightness: 50, colorTheme: "AMBER" });
+const greenPalette = createVoyagerScreenPalette({ brightness: 50, colorTheme: "GREEN" });
 assert(highPalette.screen === "rgb(245 244 239)" && highPalette.ink === "rgb(36 32 33)", "High palette changed the approved LCD colors");
 assert(highPalette.routeInk === "rgb(25 25 25)", "High palette changed the approved map-route ink");
 assert(lowPalette.screen !== highPalette.screen && lowPalette.ink !== lowPalette.screen, "Low backlight no longer produces a readable palette");
-assert(invertedPalette.screen === highPalette.ink && invertedPalette.ink === highPalette.screen, "inverted mode does not swap semantic screen colors");
-assert(createVoyagerScreenPalette({ brightness: 50 }) === highPalette, "screen palettes are not cached by their stable signature");
+assert(darkPalette.screen === highPalette.ink && darkPalette.ink === highPalette.screen, "dark theme does not preserve the approved inverted colors");
+assert(amberPalette.screen === "rgb(255 229 168)" && !amberPalette.dark, "amber theme does not use the warm reflective LCD palette");
+assert(greenPalette.ink === "rgb(215 241 188)" && greenPalette.dark && greenPalette.overlay === "color-dark", "green theme does not use the dark color palette and authored texture");
+assert(createVoyagerScreenPalette({ brightness: 50, colorTheme: "LIGHT" }) === highPalette, "screen palettes are not cached by their stable signature");
 
 const warningProfile = createVoyagerWarningProfile({
   yellowLedOn: "120 °F",
@@ -362,7 +366,7 @@ assert(globalThis.__voyagerDelay === 15000, "state engine ignored the configured
 
 console.log(JSON.stringify({
   profiles: [imperial.signature, metric.signature],
-  palettes: [highPalette.signature, lowPalette.signature, invertedPalette.signature],
+  palettes: [highPalette.signature, lowPalette.signature, darkPalette.signature, amberPalette.signature, greenPalette.signature],
   gpsProfiles: [timeGps.signature, distanceGps.signature],
   mapProfile: mapProfile.signature,
   inventory: inventory.signature,

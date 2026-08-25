@@ -17,6 +17,12 @@ const SCREEN_PALETTE_BASES = Object.freeze({
   AMBER: Object.freeze({ lit: [255, 229, 168], passive: [142, 128, 99] }),
   GREEN: Object.freeze({ lit: [215, 241, 188], passive: [116, 139, 108] }),
 });
+const SCREEN_COLOR_THEMES = Object.freeze({
+  LIGHT: Object.freeze({ base: "NEUTRAL", dark: false, overlay: "standard" }),
+  DARK: Object.freeze({ base: "NEUTRAL", dark: true, overlay: "inverted" }),
+  AMBER: Object.freeze({ base: "AMBER", dark: false, overlay: "standard" }),
+  GREEN: Object.freeze({ base: "GREEN", dark: true, overlay: "color-dark" }),
+});
 const SCREEN_INK_LIT = Object.freeze([36, 32, 33]);
 const SCREEN_INK_PASSIVE = Object.freeze([50, 48, 48]);
 
@@ -33,34 +39,53 @@ function rgbCss(channels) {
   return `rgb(${channels.join(" ")})`;
 }
 
-export function createVoyagerScreenPalette({ brightness = 50, inverted = false, backlightColor = "NEUTRAL" } = {}) {
-  const theme = SCREEN_PALETTE_BASES[String(backlightColor).toUpperCase()] ? String(backlightColor).toUpperCase() : "NEUTRAL";
+export function normalizeVoyagerColorTheme(value) {
+  const normalized = String(value ?? "LIGHT").toUpperCase();
+  if (normalized === "NORMAL" || normalized === "NEUTRAL") return "LIGHT";
+  if (normalized === "INVERTED") return "DARK";
+  return SCREEN_COLOR_THEMES[normalized] ? normalized : "LIGHT";
+}
+
+export function createVoyagerScreenPalette({
+  brightness = 50,
+  colorTheme,
+  theme,
+  inverted = false,
+  backlightColor = "NEUTRAL",
+} = {}) {
+  const requestedTheme = colorTheme ?? theme ?? (inverted ? "DARK" : backlightColor);
+  const themeName = normalizeVoyagerColorTheme(requestedTheme);
+  const themeProfile = SCREEN_COLOR_THEMES[themeName];
   const normalizedBrightness = Math.min(100, Math.max(0, Number(brightness) || 0));
-  const signature = `${theme}:${normalizedBrightness}:${inverted ? "inverted" : "normal"}`;
+  const signature = `${themeName}:${normalizedBrightness}`;
   const cached = screenPaletteCache.get(signature);
   if (cached) return cached;
 
   // Fifty is the device's High setting. Values above it retain the calibrated
   // reflective-LCD white instead of crushing contrast through a filter.
   const illumination = clampUnit((normalizedBrightness - 10) / 40);
-  const base = SCREEN_PALETTE_BASES[theme];
-  const passiveSurface = theme === "NEUTRAL" ? base.passive : SCREEN_PALETTE_BASES.NEUTRAL.passive;
+  const base = SCREEN_PALETTE_BASES[themeProfile.base];
+  const passiveSurface = themeName === "LIGHT" || themeName === "DARK"
+    ? base.passive
+    : SCREEN_PALETTE_BASES.NEUTRAL.passive;
   const surface = mixRgb(passiveSurface, base.lit, illumination);
   const ink = mixRgb(SCREEN_INK_PASSIVE, SCREEN_INK_LIT, illumination);
-  const background = inverted ? ink : surface;
-  const foreground = inverted ? surface : ink;
+  const background = themeProfile.dark ? ink : surface;
+  const foreground = themeProfile.dark ? surface : ink;
   const mid = mixRgb(background, foreground, 0.42);
   const muted = mixRgb(background, foreground, 0.29);
   const shadow = mixRgb(background, foreground, 0.44);
   const routeMuted = mixRgb(background, foreground, 0.56);
-  const routeInk = inverted
+  const routeInk = themeProfile.dark
     ? mixRgb(foreground, background, 0.06)
     : mixRgb([38, 38, 38], [25, 25, 25], illumination);
   const profile = Object.freeze({
     signature,
-    theme,
+    theme: themeName,
+    dark: themeProfile.dark,
+    overlay: themeProfile.overlay,
     brightness: normalizedBrightness,
-    inverted: Boolean(inverted),
+    inverted: themeName === "DARK",
     screen: rgbCss(background),
     ink: rgbCss(foreground),
     mid: rgbCss(mid),
@@ -122,7 +147,7 @@ function profileSignature(values = {}) {
     values.temperatureUnits === "CELSIUS" ? "celsius" : "fahrenheit",
     values.clockFormat === "24 HOUR" ? "24-hour" : "12-hour",
     values.timeOfDay ?? "12:42:04 PM",
-    values.displayMode === "INVERTED" ? "inverted" : "normal",
+    normalizeVoyagerColorTheme(values.displayMode).toLowerCase(),
   ].join(":");
 }
 
@@ -157,9 +182,11 @@ export function createVoyagerDisplayProfile(values = {}) {
   const celsius = values.temperatureUnits === "CELSIUS";
   const use24Hour = values.clockFormat === "24 HOUR";
   const clockStartSeconds = parseClockSeconds(values.timeOfDay);
+  const colorTheme = normalizeVoyagerColorTheme(values.displayMode);
   const profile = Object.freeze({
     signature,
-    inverted: values.displayMode === "INVERTED",
+    colorTheme,
+    inverted: colorTheme === "DARK",
     speedUnit: metricDistance ? "KM/H" : "MPH",
     distanceUnit: metricDistance ? "KM" : "MI",
     altitudeUnit: metricAltitude ? "M" : "FT",

@@ -2032,8 +2032,7 @@ export class VoyagerLiveRuntime {
         : power.backlightBrightnessValue;
       const palette = createVoyagerScreenPalette({
         brightness: brightnessValue,
-        inverted: display.inverted,
-        backlightColor: menuValues.backlightColor,
+        colorTheme: display.colorTheme,
       });
       const completedMiles = telemetry.distanceKm / 1.609344;
       setText("[data-live-odometer]", () => Math.round(display.distanceFromMiles(1200 + completedMiles)));
@@ -2073,8 +2072,7 @@ export class VoyagerLiveRuntime {
         if (demoRunning) this.#ride.play();
         else this.#ride.pause();
         setDatasetValue(this.#mount, "mapOrientation", menuValues.mapOrientation === "NORTH UP" ? "north-up" : "track-up");
-        setDatasetValue(this.#mount, "displayMode", palette.inverted ? "inverted" : "normal");
-        setDatasetValue(this.#mount, "backlight", palette.theme.toLowerCase());
+        setDatasetValue(this.#mount, "colorTheme", palette.theme.toLowerCase());
         this.#mount.style.setProperty("--voyager-screen", palette.screen);
         this.#mount.style.setProperty("--voyager-ink", palette.ink);
         this.#mount.style.setProperty("--voyager-mid", palette.mid);

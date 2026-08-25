@@ -489,7 +489,7 @@ const UNIT_ROWS = [
   { label: "TIME OF DAY", field: "timeOfDay", value: "12:42:04 PM" },
   { spacer: true },
   { label: "TABS TIMEOUT", field: "tabsTimeout", value: "15 SEC" },
-  { label: "DISPLAY MODE", field: "displayMode", value: "NORMAL", toggleValues: ["NORMAL", "INVERTED"] },
+  { label: "COLOR THEME", field: "displayMode", value: "LIGHT", toggleValues: ["LIGHT", "DARK", "AMBER", "GREEN"] },
   { spacer: true },
   { label: "RESTORE DEFAULTS" },
 ];
@@ -507,7 +507,7 @@ registerOverlay("m-set3-2-tabs", {
   kind: "slot-input", section: "set", title: "TABS TIMEOUT", field: "tabsTimeout", value: "015 SEC", activeDigit: 1,
   note: ["SECONDSUNTIL TABS HIDE", "(000 SEC -> ALWAYS ON)", "DEFAULT: 15 SEC"],
 }, "m-set3-2-6");
-registerOverlay("m-set3-2-display", { kind: "settings-modal", section: "set", title: "DISPLAY MODE", field: "displayMode", options: ["NORMAL", "INVERTED"], selectedIndex: 0 }, "m-set3-2-7");
+registerOverlay("m-set3-2-display", { kind: "settings-modal", section: "set", title: "COLOR THEME", field: "displayMode", options: ["LIGHT", "DARK", "AMBER", "GREEN"], selectedIndex: 0 }, "m-set3-2-7");
 
 const VEHICLE_ROWS = [
   { label: "WHEEL SENSOR", field: "wheelSensor", value: "ENABLED", toggleValues: ["ENABLED", "DISABLED"] },

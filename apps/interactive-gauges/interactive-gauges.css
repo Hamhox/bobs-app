@@ -476,8 +476,13 @@
   pointer-events: none;
 }
 
-.voyager-live-screen[data-display-mode="inverted"]::after {
+.voyager-live-screen[data-color-theme="dark"]::after {
   background-image: url("./assets/ui/voyager-backlight-inverted.png");
+  mix-blend-mode: screen;
+}
+
+.voyager-live-screen[data-color-theme="green"]::after {
+  background-image: url("./assets/ui/voyager-backlight-color-dark.png");
   mix-blend-mode: screen;
 }
 
@@ -1218,11 +1223,15 @@
   fill: var(--voyager-screen);
 }
 
-.voyager-live-screen[data-display-mode="inverted"] .voyager-ui-icon:not(.voyager-ui-icon--inverse) {
+.voyager-live-screen[data-color-theme="dark"] .voyager-ui-icon:not(.voyager-ui-icon--inverse) {
   filter: invert(1);
 }
 
-.voyager-live-screen[data-display-mode="inverted"] .voyager-ui-icon.voyager-live__satellite-pill--weak {
+.voyager-live-screen[data-color-theme="green"] .voyager-ui-icon:not(.voyager-ui-icon--inverse) {
+  filter: invert(92%) sepia(22%) saturate(555%) hue-rotate(52deg) brightness(103%) contrast(90%);
+}
+
+.voyager-live-screen:is([data-color-theme="dark"], [data-color-theme="green"]) .voyager-ui-icon.voyager-live__satellite-pill--weak {
   filter: none;
 }
 

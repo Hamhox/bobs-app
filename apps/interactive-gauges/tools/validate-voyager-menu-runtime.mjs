@@ -436,7 +436,7 @@ function main() {
     ["m-set3-2-2", "altitudeUnits", "METERS"],
     ["m-set3-2-3", "temperatureUnits", "CELSIUS"],
     ["m-set3-2-4", "clockFormat", "24 HOUR"],
-    ["m-set3-2-7", "displayMode", "INVERTED"],
+    ["m-set3-2-7", "displayMode", "DARK"],
   ];
   for (const [stateId, field, expected] of directToggleCases) {
     const toggleModel = new VoyagerMenuModel();
