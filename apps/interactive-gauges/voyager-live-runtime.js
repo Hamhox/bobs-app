@@ -991,12 +991,12 @@ function mainMarkup(screen, variant, { display, menuValues }) {
       <text class="voyager-live__text voyager-live__text--speed" x="199" y="188" text-anchor="middle" data-live-speed>28</text>
       ${compassMarkup({ cx: 399, cy: 133, radius: 73 })}
       <text class="voyager-live__text" x="117" y="236">ALT ${display.altitudeUnit}</text>
-      <text class="voyager-live__text voyager-live__text--metric" x="91" y="286" data-live-altitude>1089</text>
+      <text class="voyager-live__text voyager-live__text--metric" x="150" y="286" text-anchor="middle" data-live-altitude>1089</text>
       <text class="voyager-live__text" x="277" y="236">DST ${display.distanceUnit}</text>
-      <text class="voyager-live__text voyager-live__text--metric" x="254" y="286" data-live-distance>12.0</text>
+      <text class="voyager-live__text voyager-live__text--metric" x="310" y="286" text-anchor="middle" data-live-distance>12.0</text>
       ${temperatureIcon(425, 210, 1.08)}
       <text class="voyager-live__text" x="460" y="236">${display.temperatureUnit}</text>
-      <text class="voyager-live__text voyager-live__text--metric" x="407" y="286" data-live-engine-temperature>168</text>
+      <text class="voyager-live__text voyager-live__text--metric" x="454" y="286" text-anchor="middle" data-live-engine-temperature>168</text>
     </g>`;
 }
 
