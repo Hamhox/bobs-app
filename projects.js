@@ -117,7 +117,8 @@ export const projects = [
     accent: "#a855f7",
   },
   {
-    id: "gauge-evolution",
+    id: "bobs-gauge-story",
+    aliases: ["gauge-evolution"],
     number: "004",
     title: "Bob's Gauge Story",
     eyebrow: "Product lineage",
@@ -148,7 +149,7 @@ export const projects = [
       "Each generation carried earlier interface decisions into new hardware, use cases, and markets.",
     primaryAction: {
       label: "Read the field file",
-      href: "/projects/gauge-evolution",
+      href: "/projects/bobs-gauge-story",
     },
     secondaryAction: null,
     visual: "gauge",
@@ -231,7 +232,10 @@ export const projects = [
 ];
 
 export const projectsById = new Map(
-  projects.map((project) => [project.id, project]),
+  projects.flatMap((project) => [
+    [project.id, project],
+    ...(project.aliases || []).map((alias) => [alias, project]),
+  ]),
 );
 
 export function getProject(id) {

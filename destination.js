@@ -10,6 +10,10 @@ const destinationCopy = document.querySelector("[data-destination-copy]");
 const destinationLede = document.querySelector("[data-destination-lede]");
 const destinationVideo = document.querySelector("[data-destination-video]");
 
+if (!isDemo && project.aliases?.includes(pathId)) {
+  window.history.replaceState(null, "", `/projects/${project.id}`);
+}
+
 document.querySelector("[data-destination-number]").textContent = project.number;
 document.querySelector("[data-destination-title]").textContent = project.title;
 document.querySelector("[data-destination-thesis]").textContent =
