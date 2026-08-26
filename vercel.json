@@ -6,6 +6,7 @@
     { "source": "/projects/:slug", "destination": "/project?project=:slug" },
     { "source": "/apps/interactive-gauges", "destination": "/apps/interactive-gauges/index.html" },
     { "source": "/apps/buildbooks", "destination": "/apps/buildbooks/index.html" },
+    { "source": "/apps/trail-pack-builder", "destination": "/apps/trail-pack-builder/index.html" },
     { "source": "/apps/:slug", "destination": "/demo?project=:slug" }
   ]
 }

@@ -1,0 +1,480 @@
+{
+  "version": 1,
+  "algorithm": {
+    "compactBboxDiagonalMeters": 10000,
+    "clusterEpsilonMeters": 4000,
+    "clusterMinSamples": 10,
+    "assignmentRadiusMeters": 12000,
+    "assignmentDominance": 0.8,
+    "maxAssignedBboxDiagonalMeters": 50000,
+    "viewPaddingMeters": 5000,
+    "seedMaxDistanceMeters": 20000
+  },
+  "areas": [
+    {
+      "id": "yacolt-burn",
+      "name": "Yacolt Burn",
+      "seed": [-122.12121, 45.83253],
+      "labelPoint": [-122.12121, 45.83253],
+      "sourceAliases": [
+        "kelly/yacolt burn.gpx",
+        "kelly/temp/map (12).gpx"
+      ]
+    },
+    {
+      "id": "gifford-pinchot",
+      "name": "Gifford Pinchot",
+      "seed": [-121.81381, 46.2379],
+      "labelPoint": [-121.81381, 46.2379],
+      "sourceAliases": ["kelly/gifford/gifford roads.gpx"]
+    },
+    {
+      "id": "estacada",
+      "name": "Estacada",
+      "seed": [-122.11408, 45.14342],
+      "labelPoint": [-122.11408, 45.14342],
+      "sourceAliases": [
+        "kelly/estacada/estacada.gpx",
+        "kelly/estacada/estacada south.gpx",
+        "kelly/estacada/estacada se.gpx"
+      ]
+    },
+    {
+      "id": "estacada-northeast",
+      "name": "Estacada Northeast",
+      "seed": [-121.90603, 45.34882],
+      "labelPoint": [-121.90603, 45.34882],
+      "sourceAliases": ["kelly/estacada/estacada ne.gpx"]
+    },
+    {
+      "id": "chadwick-atv-area",
+      "name": "Chadwick ATV Area",
+      "seed": [-93.109894, 36.899675],
+      "labelPoint": [-93.107901, 36.898848],
+      "sourceAliases": ["trailpack/Chadwick_ATV_Area_-_Trail_122C-4PqTW324j3.gpx"]
+    },
+    {
+      "id": "wickenburg",
+      "name": "Wickenburg",
+      "seed": [-112.574658, 33.946448],
+      "labelPoint": [-112.582079, 33.941271],
+      "sourceAliases": ["Wickenburg_Filtered.gpx"]
+    },
+    {
+      "id": "danskin-ohv-area",
+      "name": "Danskin OHV Area",
+      "seed": [-115.79555, 43.485055],
+      "labelPoint": [-115.798067, 43.492622],
+      "sourceAliases": ["trailpack/Danskin_#400-m2NtRPIIKV.gpx"]
+    },
+    {
+      "id": "truckee-boca",
+      "name": "Truckee / Boca",
+      "seed": [-120.161786, 39.395766],
+      "labelPoint": [-120.169449, 39.402021],
+      "sourceAliases": ["trailpack/Boca_Break_OHV-8VZ07lz5M6.gpx"]
+    },
+    {
+      "id": "crandall-ohv-area",
+      "name": "Crandall OHV Area",
+      "seed": [-120.173758, 38.139383],
+      "labelPoint": [-120.159334, 38.138751],
+      "sourceAliases": ["trailpack/Crandall_Peak_OHV-m_c-tZl7Z5x15U.gpx"]
+    },
+    {
+      "id": "hull-creek-ohv-area",
+      "name": "Hull Creek OHV Area",
+      "seed": [-120.054649, 38.07269],
+      "labelPoint": [-120.061953, 38.074986],
+      "sourceAliases": ["trailpack/Hull_Creek_OHV_-_4x4-i6Ir851wSM.gpx"]
+    },
+    {
+      "id": "ballinger-canyon",
+      "name": "Ballinger Canyon",
+      "seed": [-119.394834, 34.860092],
+      "labelPoint": [-119.398391, 34.859219],
+      "sourceAliases": ["trailpack/Ballinger_Route_#49_OHV-664XmED9x7.gpx"]
+    },
+    {
+      "id": "georgetown-rock-creek",
+      "name": "Georgetown / Rock Creek",
+      "seed": [-120.718627, 38.890501],
+      "labelPoint": [-120.722229, 38.879663],
+      "sourceAliases": ["trailpack/Mace_Mill_Loop-96p169TTel.gpx"]
+    },
+    {
+      "id": "canfield-mountain",
+      "name": "Canfield Mountain",
+      "seed": [-116.681483, 47.732485],
+      "labelPoint": [-116.689904, 47.730001],
+      "sourceAliases": ["trailpack/Canfield_Mnt_Tr_Cmpx_Trail-c-pVv1eifbCQ.gpx"]
+    },
+    {
+      "id": "brock-creek",
+      "name": "Brock Creek",
+      "seed": [-92.808119, 35.51302],
+      "labelPoint": [-92.807769, 35.510603],
+      "sourceAliases": ["trailpack/Brock_Creek_#50-028wTZ94Sy.gpx"]
+    },
+    {
+      "id": "dorrington",
+      "name": "Dorrington",
+      "seed": [-120.360072, 38.285607],
+      "labelPoint": [-120.359575, 38.283476],
+      "sourceAliases": ["trailpack/Dorrington_OHV_ATV_D52_S21-Iq927o7rd8.gpx"]
+    },
+    {
+      "id": "peavine-mountain",
+      "name": "Peavine Mountain",
+      "seed": [-119.902458, 39.575979],
+      "labelPoint": [-119.909913, 39.58087],
+      "sourceAliases": ["trailpack/Peavine_Creek_Cutoff-s5AC1nFNL7.gpx"]
+    },
+    {
+      "id": "wildomar-ohv-area",
+      "name": "Wildomar OHV Area",
+      "seed": [-117.33817, 33.58593],
+      "labelPoint": [-117.3359455, 33.584904],
+      "sourceAliases": ["trailpack/Wildomar_-_7-AS2M998y0T.gpx"]
+    }
+  ],
+  "collections": [
+    {
+      "id": "tillamook-state-forest",
+      "name": "Tillamook State Forest",
+      "labelPoint": [-123.5308432, 45.5410605],
+      "partitionDominance": 0.65,
+      "parentOnlyTrailIds": [
+        "trail-1922522500fe2e39",
+        "trail-3dd41e470948db8c",
+        "trail-8dcacf4cdab7795b",
+        "trail-a05548325dee2b93",
+        "trail-a28f25f56938d99a",
+        "trail-b9be5edb0781df4f",
+        "trail-f1de108220bf5cc8"
+      ],
+      "clusterSelectors": [
+        {
+          "seed": [-123.537907752, 45.510650565],
+          "sourceAliases": ["kelly/Oregon_Coast_Range/tsf.gpx"]
+        },
+        {
+          "seed": [-123.404659309, 45.7203118055],
+          "sourceAliases": ["kelly/Oregon_Coast_Range/tsf.gpx"],
+          "memberId": "gales-creek-reehers"
+        }
+      ],
+      "members": [
+        {
+          "id": "browns-camp",
+          "name": "Browns Camp",
+          "seed": [-123.3492813, 45.6109443],
+          "labelPoint": [-123.3492813, 45.6109443],
+          "nameAliases": ["BROWNS", "ROGERS CAMP"]
+        },
+        {
+          "id": "diamond-mill",
+          "name": "Diamond Mill",
+          "seed": [-123.5484524, 45.6048318],
+          "labelPoint": [-123.5484524, 45.6048318],
+          "nameAliases": ["DIAMOND"]
+        },
+        {
+          "id": "jordan-creek",
+          "name": "Jordan Creek",
+          "seed": [-123.5673403, 45.5370531],
+          "labelPoint": [-123.5673403, 45.5370531],
+          "nameAliases": ["JORDAN CREEK"]
+        },
+        {
+          "id": "trask",
+          "name": "Trask",
+          "seed": [-123.6297555, 45.4526739],
+          "labelPoint": [-123.6297555, 45.4526739],
+          "nameAliases": ["TRASK"]
+        },
+        {
+          "id": "gales-creek-reehers",
+          "name": "Gales Creek / Reehers",
+          "seed": [-123.404659309, 45.7203118055],
+          "labelPoint": [-123.404659309, 45.7203118055],
+          "partition": false
+        }
+      ]
+    }
+  ],
+  "semanticRegions": [
+    {
+      "id": "east-mojave",
+      "name": "East Mojave / Laughlin",
+      "sourceAreaIds": [
+        "auto-e01691d6232b7f25",
+        "auto-9ad0dc629c3d9263",
+        "auto-aa90751e86aec652",
+        "auto-0f0df6cdb2fb12ad",
+        "auto-3189d37e9202c1b6",
+        "auto-36d0cd8bc1c5ccb0",
+        "auto-37572299750dac5e",
+        "auto-54cdd32f279e47e4",
+        "auto-6600d1a800fb8feb",
+        "auto-adbdc3039f19b3d2",
+        "auto-cc4cd3531a6f92c2",
+        "auto-c37f4352ac7a6223",
+        "auto-22cc84d36f80d9f3",
+        "auto-72a128466ba706bd",
+        "auto-505a4ebbbdd05b4b",
+        "auto-72d9ef090509b2b9",
+        "auto-b6c0c6d9c2124138",
+        "auto-2fb2c6b01a105e8e"
+      ],
+      "includeTrailIds": [
+        "trail-0ab25797411df8dc",
+        "trail-125b2f20f6b896b7",
+        "trail-1abaa522094626e8",
+        "trail-1b79c347483e2e0f",
+        "trail-1c70ba442fb92b48",
+        "trail-212c5412cc4b8043",
+        "trail-26818169cb15d5c3",
+        "trail-61a44817cf3bfde0",
+        "trail-61d6e3d4c43e138d",
+        "trail-7d9988b2d584f2c0",
+        "trail-a7f1fd5da9c2f066",
+        "trail-a92f2d42576481b9",
+        "trail-a96e0ceb2aa7b1e8",
+        "trail-aebea8eb7ad6f7b5",
+        "trail-cb8152716501c187",
+        "trail-d37a8691f26abe77",
+        "trail-da946707ee8d1581",
+        "trail-db869c4c0f90ae6f",
+        "trail-e50212ba0f586b41",
+        "trail-ec5121c7e90a7194",
+        "trail-fd3e4addd58a438a",
+        "trail-4c1b303a9998a8f4",
+        "trail-d5f496fc1dc3a3d0",
+        "trail-2dcdea1ad54e28c2",
+        "trail-30559ed7ab23f0a6",
+        "trail-3dbf24cf9b20bf61",
+        "trail-4134c395543df674",
+        "trail-69d6eda5c70f2ba4",
+        "trail-722aa3548c802323",
+        "trail-81a8f3efdcbe0447",
+        "trail-85fb99121f0a5a13",
+        "trail-b7de4255461c517e",
+        "trail-c415826d5473a55f",
+        "trail-d3562d3b23b0fea9",
+        "trail-d3abeca014d90ffb",
+        "trail-e061573d3376dcec",
+        "trail-e3b8008ff02c99ee",
+        "trail-f1d65248f9d91da4",
+        "trail-f23ac620948fe1d2",
+        "trail-1d371623ae6f7a1f",
+        "trail-63c1bb32703445ac",
+        "trail-d535e122b3abe8cf",
+        "trail-e99edbf2dbe0aac7"
+      ]
+    },
+    {
+      "id": "clearwater-mountains",
+      "name": "Clearwater Mountains",
+      "sourceAreaIds": [
+        "auto-c57f6154d0de6db8",
+        "auto-56edeb406691e5d6",
+        "auto-b5bd4cc08d0f783b",
+        "auto-4792423fd3463a0f",
+        "auto-b493e53976d0a9fe",
+        "auto-2cf20a2eabff54a2"
+      ]
+    },
+    {
+      "id": "baumgartner",
+      "name": "Baumgartner",
+      "sourceAreaIds": [
+        "auto-d93e1a5361e07ad1",
+        "auto-351d77a970430f2d",
+        "auto-d6bde3f1f767fd38",
+        "auto-3c5bf9c65f0b1108"
+      ],
+      "claimSourcePathPrefixes": [
+        "kelly/estacada/GPX/Idaho/Baumgartner_r5.gpx"
+      ]
+    },
+    {
+      "id": "boise-mountains",
+      "name": "Boise Mountains",
+      "sourceAreaIds": [
+        "danskin-ohv-area",
+        "auto-c69c7e40fbbbb516",
+        "auto-5cb6ee50658d33bf",
+        "auto-92525dffd5613b84"
+      ]
+    },
+    {
+      "id": "central-oregon",
+      "name": "Central Oregon",
+      "sourceAreaIds": [
+        "auto-9015a3df22b854e7",
+        "auto-2065cbf272492fa7",
+        "auto-b9a61903b4d43077",
+        "auto-206387b98ee995be"
+      ]
+    },
+    {
+      "id": "burgdorf",
+      "name": "Burgdorf",
+      "sourceAreaIds": [
+        "auto-30d318a044c29b7c",
+        "auto-49309fc699531ead",
+        "auto-ec82d727b0b91497",
+        "auto-f2932f2536031615"
+      ],
+      "claimSourcePathPrefixes": [
+        "kelly/burgdorf-edit-001.gpx"
+      ]
+    },
+    {
+      "id": "conda-southeast",
+      "name": "Conda Southeast",
+      "nameNeedsReview": true,
+      "sourceAreaIds": [
+        "auto-09a4c575e19fa0d5",
+        "auto-892e330bb4adca00"
+      ]
+    },
+    {
+      "id": "hayfork-south",
+      "name": "Hayfork South",
+      "nameNeedsReview": true,
+      "sourceAreaIds": [
+        "auto-d65a75923bef2c6e",
+        "auto-27ca4260402055b6"
+      ]
+    },
+    {
+      "id": "moab",
+      "name": "Moab",
+      "sourceAreaIds": [
+        "auto-6e9f29dd26a41d0a"
+      ],
+      "claimSourcePathPrefixes": [
+        "kelly/Moab/Moab_Bores.gpx",
+        "kelly/Moab/wnbeyo9pw_Moab.gpx"
+      ]
+    },
+    {
+      "id": "white-wash",
+      "name": "White Wash",
+      "claimSourcePathPrefixes": [
+        "kelly/Moab/White_Wash_r5.gpx",
+        "kelly/Moab/White_Wash_Bores.gpx",
+        "kelly/Moab/White_Wash3.gpx"
+      ]
+    },
+    {
+      "id": "temple-mountain",
+      "name": "Temple Mountain",
+      "claimSourcePathPrefixes": [
+        "kelly/Moab/Temple Mountain Trails.gpx"
+      ]
+    },
+    {
+      "id": "oregon-backcountry-discovery-route",
+      "name": "Oregon Backcountry Discovery Route",
+      "claimSourcePathPrefixes": [
+        "kelly/OBDR/"
+      ],
+      "retainAssignedTrailIds": [
+        "trail-2b09529e0a72375f",
+        "trail-3ea459129c4ef5e8",
+        "trail-5aecde0457dd4f1a",
+        "trail-7dde7473fac74eb0",
+        "trail-a89209f65c1b66cd",
+        "trail-deb95c515f962706",
+        "trail-f2bee86ade8ae801",
+        "trail-f970823fcde2177a"
+      ]
+    },
+    {
+      "id": "teanaway",
+      "name": "Teanaway",
+      "claimSourcePathPrefixes": [
+        "kelly/Teanaway/Teanaway Trails2.gpx"
+      ],
+      "reassignTrailIds": [
+        "trail-f22c75e981d8814c"
+      ]
+    },
+    {
+      "id": "washington-backcountry-discovery-route",
+      "name": "Washington Backcountry Discovery Route",
+      "claimSourcePathPrefixes": [
+        "kelly/WA/WABDR Tracks - Unabridged.gpx"
+      ]
+    },
+    {
+      "id": "baja-1000",
+      "name": "Baja 1000",
+      "claimSourcePathPrefixes": [
+        "Baja_1000.gpx"
+      ]
+    },
+    {
+      "id": "pnwds-summer-opener-2018",
+      "name": "PNWDS Summer Opener 2018",
+      "claimSourcePathPrefixes": [
+        "kelly/WA/Olympic/PNWDS+Summer+Opener+2018.GPX"
+      ]
+    },
+    {
+      "id": "big-bear-johnson-valley",
+      "name": "Big Bear / Johnson Valley",
+      "includeTrailIds": [
+        "trail-03a0b33efdfbf40c",
+        "trail-0b15cee73e6bcf44",
+        "trail-29ae9fe3f5de3e0d",
+        "trail-3af180fbd65c17ca",
+        "trail-3d71430aa2ac8c91",
+        "trail-43584cd9ef02139d",
+        "trail-4db26c8d451a2cb6",
+        "trail-545d3e73fe7b9272",
+        "trail-5a98fe5c224343eb",
+        "trail-625650aa2444c5f6",
+        "trail-625c2e6a7f63ae85",
+        "trail-646ca0a626757f2b",
+        "trail-6c7cb1f23cc4936c",
+        "trail-6f9e4e3003eae13a",
+        "trail-7116da4366bcbc26",
+        "trail-7263ff2eb2c4d67b",
+        "trail-744ede605787d0e8",
+        "trail-76c8310e2b863478",
+        "trail-aa4c8b7c996225fd",
+        "trail-c9ad127c91d62c87",
+        "trail-cec2d8d4b5ef9144",
+        "trail-e0a39eb5b3627de8",
+        "trail-f539f6254ea85aa7",
+        "trail-03ff37243d5e0d6d"
+      ]
+    }
+  ],
+  "generatedAreaOverrides": {
+    "auto-46db22b97e86d505": {
+      "name": "Hansen South",
+      "includeTrailIds": [
+        "trail-2758152f96c7a265",
+        "trail-5c2404104f6ccf6b",
+        "trail-a2a79c7f0c958914",
+        "trail-b362f67f33b457ea",
+        "trail-f48f00f45f9c9803"
+      ]
+    },
+    "auto-9015a3df22b854e7": "China Hat",
+    "auto-b9a61903b4d43077": "Prineville South"
+  },
+  "excludeTrailIds": [
+    "trail-208a260efbdd4119",
+    "trail-261f71ef806bad52",
+    "trail-35e74275b4713053",
+    "trail-37d41b1638bff654",
+    "trail-4a4c70fc553b33da",
+    "trail-c565e68b66095cac"
+  ]
+}
