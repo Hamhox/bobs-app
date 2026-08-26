@@ -30,7 +30,7 @@ const DEFAULT_VALUES = Object.freeze({
   temperatureUnits: "FAHRENHEIT",
   tabsTimeout: "015 SEC",
   displayMode: "NORMAL",
-  backlightColor: "AUTHENTIC",
+  backlightColor: "WHITE",
   wheelSensor: "ENABLED",
   engineSensor: "ENABLED",
   ppr: "1",

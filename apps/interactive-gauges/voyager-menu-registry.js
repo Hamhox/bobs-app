@@ -490,7 +490,7 @@ const UNIT_ROWS = [
   { spacer: true },
   { label: "TABS TIMEOUT", field: "tabsTimeout", value: "15 SEC" },
   { label: "DISPLAY MODE", field: "displayMode", value: "NORMAL", toggleValues: ["NORMAL", "INVERTED"] },
-  { label: "BACKLIGHT COLOR", field: "backlightColor", value: "AUTHENTIC" },
+  { label: "BACKLIGHT COLOR", field: "backlightColor", value: "WHITE" },
   { spacer: true },
   { label: "RESTORE DEFAULTS" },
 ];

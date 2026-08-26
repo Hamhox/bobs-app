@@ -86,7 +86,7 @@ assert(invertedHighBacklightPalette.screen === "rgb(0 0 0)" && invertedHighBackl
 assert(createVoyagerScreenPalette({ colorTheme: "LIGHT" }) === normalPalette, "legacy Light polarity is not migrated to Normal");
 assert(createVoyagerScreenPalette({ colorTheme: "DARK" }) === invertedPalette, "legacy Dark polarity is not migrated to Inverted");
 assert(VOYAGER_BACKLIGHT_COLORS.length === 9 && normalizeVoyagerBacklightColor("violet") === "VIOLET", "approved backlight colors are not normalized");
-assert(normalizeVoyagerBacklightColor("unknown") === "AUTHENTIC", "invalid backlight colors do not return to the authentic default");
+assert(normalizeVoyagerBacklightColor("unknown") === "WHITE", "invalid backlight colors do not return to the white default");
 const migratedAmberTheme = createVoyagerEffectiveSettings({ displayMode: "AMBER" });
 assert(migratedAmberTheme.displayMode === "NORMAL" && migratedAmberTheme.backlightColor === "AMBER", "legacy Amber theme does not migrate into independent polarity and backlight settings");
 

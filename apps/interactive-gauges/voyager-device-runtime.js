@@ -54,8 +54,8 @@ export function normalizeVoyagerDisplayMode(value) {
 }
 
 export function normalizeVoyagerBacklightColor(value) {
-  const normalized = String(value ?? "AUTHENTIC").toUpperCase();
-  return VOYAGER_BACKLIGHT_COLORS.includes(normalized) ? normalized : "AUTHENTIC";
+  const normalized = String(value ?? "WHITE").toUpperCase();
+  return VOYAGER_BACKLIGHT_COLORS.includes(normalized) ? normalized : "WHITE";
 }
 
 export function createVoyagerScreenPalette({

@@ -449,7 +449,7 @@ function main() {
   const backlightColorModel = new VoyagerMenuModel();
   backlightColorModel.prepareInput(VOYAGER_MENU_STATE_INDEX["m-set3-2-backlight-color"], "down");
   backlightColorModel.prepareInput(VOYAGER_MENU_STATE_INDEX["m-set3-2-backlight-color"], "enter");
-  if (backlightColorModel.values.backlightColor !== "BLUE"
+  if (backlightColorModel.values.backlightColor !== "PURPLE"
     || VOYAGER_MENU_TRANSITIONS["m-set3-2-8"].enter !== "m-set3-2-backlight-color") {
     throw new Error("Backlight Color is not an independent, selectable Unit Setting");
   }

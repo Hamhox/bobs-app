@@ -84,7 +84,7 @@ export function normalizeVoyagerSettings(values = {}) {
     normalized.displayMode = legacyDisplayMode;
   }
   if (!["AUTHENTIC", "BLUE", "AMBER", "WHITE", "PURPLE", "VIOLET", "RED", "YELLOW", "GREEN"].includes(normalized.backlightColor)) {
-    normalized.backlightColor = "AUTHENTIC";
+    normalized.backlightColor = "WHITE";
   }
   if (!["WHL SENSOR", "GPS"].includes(normalized.speedSource)) normalized.speedSource = "WHL SENSOR";
   if (!["ENG OR WHL", "GPS"].includes(normalized.runTimeSource)) normalized.runTimeSource = "ENG OR WHL";
