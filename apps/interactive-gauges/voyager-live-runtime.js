@@ -1503,21 +1503,43 @@ export class VoyagerLiveRuntime {
   }
 
   #switchBacklightOff() {
-    this.#backlightVisualKey = "sleep:off";
-    setDatasetValue(this.#mount, "backlight", "off");
-    this.#mount.style.setProperty("--voyager-backlight-opacity", "0");
+    if (!this.#available) return;
+    const settings = this.#settings();
+    this.#applyBacklightVisual(
+      createVoyagerPowerProfile(settings, { externalPower: false }),
+      settings,
+      false,
+    );
   }
 
   #updateBacklightState(power, settings) {
     const timedOut = Number.isFinite(power.backlightTimeoutMs)
       && performance.now() - this.#backlightLastActivityAt >= power.backlightTimeoutMs;
     const awake = power.backlightOpacity > 0 && !timedOut && this.#stage.dataset.powerMode !== "sleep";
+    this.#applyBacklightVisual(power, settings, awake);
+  }
+
+  #applyBacklightVisual(power, settings, awake) {
     const color = normalizeVoyagerBacklightColor(settings.backlightColor);
-    const visualKey = `${awake ? "on" : "off"}:${power.backlightOpacity}:${color}`;
+    const palette = createVoyagerScreenPalette({
+      displayMode: settings.displayMode,
+      backlightActive: awake,
+      backlightLevel: power.backlightLevel,
+    });
+    const visualKey = `${awake ? "on" : "off"}:${power.backlightLevel}:${color}:${palette.signature}`;
     if (visualKey === this.#backlightVisualKey) return;
     this.#backlightVisualKey = visualKey;
     setDatasetValue(this.#mount, "backlight", awake ? "on" : "off");
     setDatasetValue(this.#mount, "backlightColor", color.toLowerCase());
+    setDatasetValue(this.#mount, "displayMode", palette.displayMode.toLowerCase());
+    this.#mount.style.setProperty("--voyager-screen", palette.screen);
+    this.#mount.style.setProperty("--voyager-ink", palette.ink);
+    this.#mount.style.setProperty("--voyager-mid", palette.mid);
+    this.#mount.style.setProperty("--voyager-muted", palette.muted);
+    this.#mount.style.setProperty("--voyager-shadow", palette.shadow);
+    this.#mount.style.setProperty("--voyager-route-ink", palette.routeInk);
+    this.#mount.style.setProperty("--voyager-route-muted", palette.routeMuted);
+    this.#mount.style.setProperty("--voyager-backlight-color", palette.screen);
     this.#mount.style.setProperty("--voyager-backlight-opacity", awake ? String(power.backlightOpacity) : "0");
   }
 
@@ -2061,9 +2083,6 @@ export class VoyagerLiveRuntime {
       }
     }
     if (refreshStatus) {
-      const palette = createVoyagerScreenPalette({
-        displayMode: display.displayMode,
-      });
       const completedMiles = telemetry.distanceKm / 1.609344;
       setText("[data-live-odometer]", () => Math.round(display.distanceFromMiles(1200 + completedMiles)));
       setText("[data-live-temperature]", () => `${display.temperatureFromF(telemetry.ambientTemperatureF)}${display.temperatureUnit}`);
@@ -2091,7 +2110,6 @@ export class VoyagerLiveRuntime {
         gps.signature,
         menuValues.mapOrientation,
         display.signature,
-        palette.signature,
         normalizeVoyagerBacklightColor(menuValues.backlightColor),
       ].join(":");
       if (settingsKey !== this.#appliedSettingsKey) {
@@ -2102,15 +2120,6 @@ export class VoyagerLiveRuntime {
         if (demoRunning) this.#ride.play();
         else this.#ride.pause();
         setDatasetValue(this.#mount, "mapOrientation", menuValues.mapOrientation === "NORTH UP" ? "north-up" : "track-up");
-        setDatasetValue(this.#mount, "displayMode", palette.displayMode.toLowerCase());
-        this.#mount.style.setProperty("--voyager-screen", palette.screen);
-        this.#mount.style.setProperty("--voyager-ink", palette.ink);
-        this.#mount.style.setProperty("--voyager-mid", palette.mid);
-        this.#mount.style.setProperty("--voyager-muted", palette.muted);
-        this.#mount.style.setProperty("--voyager-shadow", palette.shadow);
-        this.#mount.style.setProperty("--voyager-route-ink", palette.routeInk);
-        this.#mount.style.setProperty("--voyager-route-muted", palette.routeMuted);
-        this.#mount.style.setProperty("--voyager-backlight-color", palette.screen);
         this.#appliedSettingsKey = settingsKey;
       }
     }

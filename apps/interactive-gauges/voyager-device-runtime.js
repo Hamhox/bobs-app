@@ -8,7 +8,8 @@ const screenPaletteCache = new Map();
 const warningProfileCache = new Map();
 const mapProfileCache = new Map();
 const gpsProfileCache = new Map();
-const BACKLIGHT_OPACITY_VALUES = Object.freeze({ OFF: 0, LOW: 0.38, MEDIUM: 0.68, HIGH: 1 });
+const BACKLIGHT_OPACITY_VALUES = Object.freeze({ OFF: 0, LOW: 1, MEDIUM: 1, HIGH: 1 });
+const BACKLIGHT_CONTRAST_VALUES = Object.freeze({ OFF: 0, LOW: 0, MEDIUM: 0.5, HIGH: 1 });
 const MAP_POINTER_SCALES = Object.freeze({ SMALL: 0.78, MEDIUM: 1, LARGE: 1.28 });
 const MAP_LABEL_SCALES = Object.freeze({ OFF: 0, SMALL: 0.82, LARGE: 1 });
 const MILES_TO_METERS = 1609.344;
@@ -18,6 +19,8 @@ const SCREEN_DISPLAY_MODES = Object.freeze({
 });
 const SCREEN_SURFACE = Object.freeze([245, 244, 239]);
 const SCREEN_INK = Object.freeze([36, 32, 33]);
+const SCREEN_LIT_SURFACE = Object.freeze([255, 255, 255]);
+const SCREEN_LIT_INK = Object.freeze([0, 0, 0]);
 export const VOYAGER_BACKLIGHT_COLORS = Object.freeze([
   "AUTHENTIC",
   "BLUE",
@@ -60,26 +63,37 @@ export function createVoyagerScreenPalette({
   colorTheme,
   theme,
   inverted = false,
+  backlightActive = false,
+  backlightLevel = "HIGH",
 } = {}) {
   const requestedMode = displayMode ?? colorTheme ?? theme ?? (inverted ? "INVERTED" : "NORMAL");
   const mode = normalizeVoyagerDisplayMode(requestedMode);
   const modeProfile = SCREEN_DISPLAY_MODES[mode];
-  const signature = mode;
+  const normalizedBacklightLevel = ["OFF", "LOW", "MEDIUM", "HIGH"].includes(backlightLevel)
+    ? backlightLevel
+    : "HIGH";
+  const illuminated = Boolean(backlightActive) && normalizedBacklightLevel !== "OFF";
+  const illumination = illuminated
+    ? BACKLIGHT_CONTRAST_VALUES[normalizedBacklightLevel]
+    : 0;
+  const signature = `${mode}:${illuminated ? normalizedBacklightLevel : "UNLIT"}`;
   const cached = screenPaletteCache.get(signature);
   if (cached) return cached;
 
   // Display polarity and illumination are independent on the physical LCD.
-  // These approved colors describe the reflective screen with its backlight off;
-  // the authored backlight image is composited separately by the live renderer.
-  const background = modeProfile.dark ? SCREEN_INK : SCREEN_SURFACE;
-  const foreground = modeProfile.dark ? SCREEN_SURFACE : SCREEN_INK;
+  // An unlit or Low screen retains the approved reflective colors. Medium and
+  // High increase the LCD contrast beneath the separately composited backlight.
+  const surface = mixRgb(SCREEN_SURFACE, SCREEN_LIT_SURFACE, illumination);
+  const ink = mixRgb(SCREEN_INK, SCREEN_LIT_INK, illumination);
+  const background = modeProfile.dark ? ink : surface;
+  const foreground = modeProfile.dark ? surface : ink;
   const mid = mixRgb(background, foreground, 0.42);
   const muted = mixRgb(background, foreground, 0.29);
   const shadow = mixRgb(background, foreground, 0.44);
   const routeMuted = mixRgb(background, foreground, 0.56);
   const routeInk = modeProfile.dark
     ? mixRgb(foreground, background, 0.06)
-    : [25, 25, 25];
+    : mixRgb([25, 25, 25], SCREEN_LIT_INK, illumination);
   const profile = Object.freeze({
     signature,
     displayMode: mode,
@@ -87,6 +101,9 @@ export function createVoyagerScreenPalette({
     dark: modeProfile.dark,
     overlay: modeProfile.overlay,
     inverted: mode === "INVERTED",
+    backlightActive: illuminated,
+    backlightLevel: normalizedBacklightLevel,
+    illumination,
     screen: rgbCss(background),
     ink: rgbCss(foreground),
     mid: rgbCss(mid),

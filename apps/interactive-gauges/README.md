@@ -90,11 +90,12 @@ Asset intake record: the reviewed source was `voyager-ui-kit_v2.svg` with SHA-25
 the supplied assets; the protected source file itself remains outside the repository.
 
 Display polarity and backlight illumination are modeled independently. Normal and Inverted retain the approved unlit
-reflective-LCD surfaces, while Power Settings controls whether a separately selected backlight layer is awake and how
-strongly it is applied. Unit Settings exposes nine publication-approved backlight choices—Authentic, Blue, Amber, White,
-Purple, Violet, Red, Yellow, and Green—and the battery backlight timeout removes the illumination without darkening the
-underlying LCD. The lossless runtime images in `assets/ui/voyager-backlight-*.png` were reviewed and copied from the
-publication-approved `aigen-backlight-colors` source folder; the protected source folder remains outside the repository.
+reflective-LCD surfaces. Low keeps those reflective colors beneath the authored backlight image, Medium moves the LCD
+contrast halfway toward black and white, and High uses true black and white beneath the same color layer. A battery
+backlight timeout atomically removes the color image and returns the LCD to its unlit colors. Unit Settings exposes nine
+publication-approved backlight choices—Authentic, Blue, Amber, White, Purple, Violet, Red, Yellow, and Green. The lossless
+runtime images in `assets/ui/voyager-backlight-*.png` were reviewed and copied from publication-approved source material;
+the protected source files remain outside the repository. The Amber image uses the exact 1008×606 screen ratio.
 
 The map renderer is deliberately track-only. It draws the current recording and loaded local GPX track/route geometry,
 position, heading, waypoints, scale, and pan/zoom state. It contains no basemap, terrain tiles, road layer, route planning,
