@@ -119,13 +119,17 @@ export const projects = [
   {
     id: "gauge-evolution",
     number: "004",
-    title: "Gauge evolution",
+    title: "Bob's Gauge Story",
     eyebrow: "Product lineage",
     classification: "Field file",
     signal: "product",
     indexSummary: "Twenty years of product development",
-    viewerSummary:
-      "A product story tracing how interfaces, features, market feedback, and new use cases shaped a family of rugged instruments over time.",
+    viewerSummary: "It all started with a speedometer problem...",
+    video: {
+      provider: "youtube",
+      id: "Xo08507wG8I",
+      title: "Bob's Gauge Story",
+    },
     tags: ["Product design", "Interface systems", "Industrial design"],
     facts: [
       "Endurance through Voyager Pro4",
