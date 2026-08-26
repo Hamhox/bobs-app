@@ -489,13 +489,14 @@ const UNIT_ROWS = [
   { label: "TIME OF DAY", field: "timeOfDay", value: "12:42:04 PM" },
   { spacer: true },
   { label: "TABS TIMEOUT", field: "tabsTimeout", value: "15 SEC" },
-  { label: "COLOR THEME", field: "displayMode", value: "LIGHT", toggleValues: ["LIGHT", "DARK", "AMBER", "GREEN"] },
+  { label: "DISPLAY MODE", field: "displayMode", value: "NORMAL", toggleValues: ["NORMAL", "INVERTED"] },
+  { label: "BACKLIGHT COLOR", field: "backlightColor", value: "AUTHENTIC" },
   { spacer: true },
   { label: "RESTORE DEFAULTS" },
 ];
 registerPageFamily({
-  ids: ["m-set3-2-1", "m-set3-2-2", "m-set3-2-3", "m-set3-2-4", "m-set3-2-5", "m-set3-2-6", "m-set3-2-7", "m-set3-2-8"], rows: UNIT_ROWS,
-  targets: ["m-set3-2-1", "m-set3-2-2", "m-set3-2-3", "m-set3-2-4", "m-set3-2-time", "m-set3-2-tabs", "m-set3-2-7", "m-set3-2-8"],
+  ids: ["m-set3-2-1", "m-set3-2-2", "m-set3-2-3", "m-set3-2-4", "m-set3-2-5", "m-set3-2-6", "m-set3-2-7", "m-set3-2-8", "m-set3-2-9"], rows: UNIT_ROWS,
+  targets: ["m-set3-2-1", "m-set3-2-2", "m-set3-2-3", "m-set3-2-4", "m-set3-2-time", "m-set3-2-tabs", "m-set3-2-7", "m-set3-2-backlight-color", "m-set3-2-9"],
   parentStateId: "m-set3-2", kind: "panel", section: "set", title: "UNIT SETTINGS", compact: true, restoreGroup: "UNIT SETTINGS",
 });
 registerOverlay("m-set3-2-units", { kind: "settings-modal", section: "set", title: "SPEED / DIST UNITS", field: "distanceUnits", options: ["MILES", "KILOMETERS"], selectedIndex: 0 }, "m-set3-2-1");
@@ -507,7 +508,12 @@ registerOverlay("m-set3-2-tabs", {
   kind: "slot-input", section: "set", title: "TABS TIMEOUT", field: "tabsTimeout", value: "015 SEC", activeDigit: 1,
   note: ["SECONDSUNTIL TABS HIDE", "(000 SEC -> ALWAYS ON)", "DEFAULT: 15 SEC"],
 }, "m-set3-2-6");
-registerOverlay("m-set3-2-display", { kind: "settings-modal", section: "set", title: "COLOR THEME", field: "displayMode", options: ["LIGHT", "DARK", "AMBER", "GREEN"], selectedIndex: 0 }, "m-set3-2-7");
+registerOverlay("m-set3-2-display", { kind: "settings-modal", section: "set", title: "DISPLAY MODE", field: "displayMode", options: ["NORMAL", "INVERTED"], selectedIndex: 0 }, "m-set3-2-7");
+registerOverlay("m-set3-2-backlight-color", {
+  kind: "settings-modal", section: "set", title: "BACKLIGHT COLOR", field: "backlightColor",
+  options: ["AUTHENTIC", "BLUE", "AMBER", "WHITE", "PURPLE", "VIOLET", "RED", "YELLOW", "GREEN"],
+  selectedIndex: 0, scroll: true,
+}, "m-set3-2-8");
 
 const VEHICLE_ROWS = [
   { label: "WHEEL SENSOR", field: "wheelSensor", value: "ENABLED", toggleValues: ["ENABLED", "DISABLED"] },

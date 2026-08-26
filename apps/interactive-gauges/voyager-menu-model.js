@@ -29,7 +29,8 @@ const DEFAULT_VALUES = Object.freeze({
   timeOfDay: "12:42:04 PM",
   temperatureUnits: "FAHRENHEIT",
   tabsTimeout: "015 SEC",
-  displayMode: "LIGHT",
+  displayMode: "NORMAL",
+  backlightColor: "AUTHENTIC",
   wheelSensor: "ENABLED",
   engineSensor: "ENABLED",
   ppr: "1",
@@ -145,7 +146,7 @@ const ROW_BINDINGS = Object.freeze({
 });
 
 const RESET_GROUPS = Object.freeze({
-  "UNIT SETTINGS": ["speedUnits", "distanceUnits", "altitudeUnits", "clockFormat", "timeOfDay", "temperatureUnits", "tabsTimeout", "displayMode"],
+  "UNIT SETTINGS": ["speedUnits", "distanceUnits", "altitudeUnits", "clockFormat", "timeOfDay", "temperatureUnits", "tabsTimeout", "displayMode", "backlightColor"],
   "VEHICLE SENSORS": ["wheelSensor", "wheelSize", "engineSensor", "ppr", "sensorSensitivity", "tachbarScreen", "tachScale", "mainScreenMode", "speedSource", "runTimeSource"],
   "POWER SETTINGS": ["backlightLevel", "backlightBattery", "backlightExternal", "sleepBattery", "sleepExternal", "turnOff", "chargeMode"],
   "SYSTEM SETTINGS": ["brightness", "backlightBattery", "backlightExternal", "safeModeTimer", "sleepModeTimer", "chargeMode", "chargeLevel"],

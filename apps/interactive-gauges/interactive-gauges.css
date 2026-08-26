@@ -453,6 +453,8 @@
   --voyager-route-ink: rgb(25 25 25);
   --voyager-route-muted: rgb(129 124 125);
   --voyager-backlight-color: var(--voyager-screen);
+  --voyager-backlight-image: url("./assets/ui/voyager-backlight-authentic.png");
+  --voyager-backlight-opacity: 1;
 
   position: absolute;
   top: 50%;
@@ -466,24 +468,70 @@
   transform: translateY(-50%);
 }
 
+.voyager-live-screen::before,
 .voyager-live-screen::after {
   position: absolute;
   z-index: 2;
   inset: 0;
-  background: url("./assets/ui/voyager-backlight-standard.png") center / 100% 100% no-repeat;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
   content: "";
-  mix-blend-mode: multiply;
   pointer-events: none;
 }
 
-.voyager-live-screen[data-color-theme="dark"]::after {
+.voyager-live-screen::before {
+  background-image: url("./assets/ui/voyager-backlight-standard.png");
+  mix-blend-mode: multiply;
+}
+
+.voyager-live-screen[data-display-mode="inverted"]::before {
   background-image: url("./assets/ui/voyager-backlight-inverted.png");
   mix-blend-mode: screen;
 }
 
-.voyager-live-screen[data-color-theme="green"]::after {
-  background-image: url("./assets/ui/voyager-backlight-color-dark.png");
-  mix-blend-mode: screen;
+.voyager-live-screen::after {
+  z-index: 3;
+  background-image: var(--voyager-backlight-image);
+  mix-blend-mode: multiply;
+  opacity: var(--voyager-backlight-opacity);
+  transition: opacity 120ms steps(2, end);
+}
+
+.voyager-live-screen[data-backlight-color="authentic"] {
+  --voyager-backlight-image: url("./assets/ui/voyager-backlight-authentic.png");
+}
+
+.voyager-live-screen[data-backlight-color="blue"] {
+  --voyager-backlight-image: url("./assets/ui/voyager-backlight-blue.png");
+}
+
+.voyager-live-screen[data-backlight-color="amber"] {
+  --voyager-backlight-image: url("./assets/ui/voyager-backlight-amber.png");
+}
+
+.voyager-live-screen[data-backlight-color="white"] {
+  --voyager-backlight-image: url("./assets/ui/voyager-backlight-white.png");
+}
+
+.voyager-live-screen[data-backlight-color="purple"] {
+  --voyager-backlight-image: url("./assets/ui/voyager-backlight-purple.png");
+}
+
+.voyager-live-screen[data-backlight-color="violet"] {
+  --voyager-backlight-image: url("./assets/ui/voyager-backlight-violet.png");
+}
+
+.voyager-live-screen[data-backlight-color="red"] {
+  --voyager-backlight-image: url("./assets/ui/voyager-backlight-red.png");
+}
+
+.voyager-live-screen[data-backlight-color="yellow"] {
+  --voyager-backlight-image: url("./assets/ui/voyager-backlight-yellow.png");
+}
+
+.voyager-live-screen[data-backlight-color="green"] {
+  --voyager-backlight-image: url("./assets/ui/voyager-backlight-green.png");
 }
 
 .voyager-live-screen[hidden] {
@@ -1223,16 +1271,8 @@
   fill: var(--voyager-screen);
 }
 
-.voyager-live-screen[data-color-theme="dark"] .voyager-ui-icon:not(.voyager-ui-icon--inverse) {
+.voyager-live-screen[data-display-mode="inverted"] .voyager-ui-icon:not(.voyager-ui-icon--inverse) {
   filter: invert(1);
-}
-
-.voyager-live-screen[data-color-theme="green"] .voyager-ui-icon:not(.voyager-ui-icon--inverse) {
-  filter: invert(92%) sepia(22%) saturate(555%) hue-rotate(52deg) brightness(103%) contrast(90%);
-}
-
-.voyager-live-screen:is([data-color-theme="dark"], [data-color-theme="green"]) .voyager-ui-icon.voyager-live__satellite-pill--weak {
-  filter: none;
 }
 
 .voyager-live__hint-pulse {

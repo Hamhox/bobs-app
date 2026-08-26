@@ -21,6 +21,7 @@ import {
   createVoyagerPowerProfile,
   createVoyagerScreenPalette,
   createVoyagerWarningProfile,
+  normalizeVoyagerBacklightColor,
 } from "./voyager-device-runtime.js";
 import { VoyagerRideCatalog } from "./voyager-ride-catalog.js";
 import {
@@ -1415,6 +1416,8 @@ export class VoyagerLiveRuntime {
   #mapProfileRevision = -1;
   #gpsProfileSnapshot = null;
   #gpsProfileRevision = -1;
+  #backlightLastActivityAt = 0;
+  #backlightVisualKey = "";
 
   constructor({ mount, stage, appBase }) {
     this.#mount = mount;
@@ -1446,6 +1449,7 @@ export class VoyagerLiveRuntime {
     this.#loadSavedRides();
     this.#menuModel.load();
     this.#clearLegacyDemoWarningSettings();
+    this.#backlightLastActivityAt = performance.now();
     this.#available = true;
     this.#ride.subscribe((telemetry, cadence) => {
       const previousTelemetry = this.#telemetry;
@@ -1468,6 +1472,7 @@ export class VoyagerLiveRuntime {
       this.#stage.dataset.recordingPoints = String(recording.pointCount);
       this.#stage.dataset.recordingSegments = String(recording.segmentCount);
       if (cadence.kind === "sleep") {
+        this.#switchBacklightOff();
         this.#renderSleep(cadence.clockLabel);
         return;
       }
@@ -1485,7 +1490,35 @@ export class VoyagerLiveRuntime {
   }
 
   recordActivity() {
+    this.#wakeBacklight();
     this.#ride.recordActivity();
+  }
+
+  #wakeBacklight() {
+    this.#backlightLastActivityAt = performance.now();
+    this.#backlightVisualKey = "";
+    if (!this.#available) return;
+    const settings = this.#settings();
+    this.#updateBacklightState(createVoyagerPowerProfile(settings, { externalPower: false }), settings);
+  }
+
+  #switchBacklightOff() {
+    this.#backlightVisualKey = "sleep:off";
+    setDatasetValue(this.#mount, "backlight", "off");
+    this.#mount.style.setProperty("--voyager-backlight-opacity", "0");
+  }
+
+  #updateBacklightState(power, settings) {
+    const timedOut = Number.isFinite(power.backlightTimeoutMs)
+      && performance.now() - this.#backlightLastActivityAt >= power.backlightTimeoutMs;
+    const awake = power.backlightOpacity > 0 && !timedOut && this.#stage.dataset.powerMode !== "sleep";
+    const color = normalizeVoyagerBacklightColor(settings.backlightColor);
+    const visualKey = `${awake ? "on" : "off"}:${power.backlightOpacity}:${color}`;
+    if (visualKey === this.#backlightVisualKey) return;
+    this.#backlightVisualKey = visualKey;
+    setDatasetValue(this.#mount, "backlight", awake ? "on" : "off");
+    setDatasetValue(this.#mount, "backlightColor", color.toLowerCase());
+    this.#mount.style.setProperty("--voyager-backlight-opacity", awake ? String(power.backlightOpacity) : "0");
   }
 
   #clearLegacyDemoWarningSettings() {
@@ -1998,7 +2031,8 @@ export class VoyagerLiveRuntime {
     const refreshStopwatch = refreshAll || cadence === 0 || cadence === 2;
     const menuValues = this.#settings();
     const display = createVoyagerDisplayProfile(menuValues);
-    const power = createVoyagerPowerProfile(menuValues);
+    const power = createVoyagerPowerProfile(menuValues, { externalPower: false });
+    this.#updateBacklightState(power, menuValues);
     const gps = this.#gpsProfile();
     this.#ride.setGpsProfile(gps);
     const sourceSpeedMph = () => menuValues.speedSource === "GPS"
@@ -2027,12 +2061,8 @@ export class VoyagerLiveRuntime {
       }
     }
     if (refreshStatus) {
-      const brightnessValue = this.#menuState?.kind === "brightness"
-        ? this.#menuModel.resolve(this.#menuState).value
-        : power.backlightBrightnessValue;
       const palette = createVoyagerScreenPalette({
-        brightness: brightnessValue,
-        colorTheme: display.colorTheme,
+        displayMode: display.displayMode,
       });
       const completedMiles = telemetry.distanceKm / 1.609344;
       setText("[data-live-odometer]", () => Math.round(display.distanceFromMiles(1200 + completedMiles)));
@@ -2053,7 +2083,6 @@ export class VoyagerLiveRuntime {
       setDatasetValue(this.#mount, "stopwatch", this.#stopwatchRunning ? "running" : "paused");
       this.#updateWarningLeds(createVoyagerWarningProfile(menuValues), telemetry.engineTemperatureF);
       const settingsKey = [
-        brightnessValue,
         menuValues.gpsMode,
         menuValues.demoRideState,
         menuValues.demoPlaybackSpeed,
@@ -2063,6 +2092,7 @@ export class VoyagerLiveRuntime {
         menuValues.mapOrientation,
         display.signature,
         palette.signature,
+        normalizeVoyagerBacklightColor(menuValues.backlightColor),
       ].join(":");
       if (settingsKey !== this.#appliedSettingsKey) {
         this.#ride.setPowerSave(powerSave || !demoRunning);
@@ -2072,7 +2102,7 @@ export class VoyagerLiveRuntime {
         if (demoRunning) this.#ride.play();
         else this.#ride.pause();
         setDatasetValue(this.#mount, "mapOrientation", menuValues.mapOrientation === "NORTH UP" ? "north-up" : "track-up");
-        setDatasetValue(this.#mount, "colorTheme", palette.theme.toLowerCase());
+        setDatasetValue(this.#mount, "displayMode", palette.displayMode.toLowerCase());
         this.#mount.style.setProperty("--voyager-screen", palette.screen);
         this.#mount.style.setProperty("--voyager-ink", palette.ink);
         this.#mount.style.setProperty("--voyager-mid", palette.mid);

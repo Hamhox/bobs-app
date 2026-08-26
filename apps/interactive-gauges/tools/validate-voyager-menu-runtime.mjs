@@ -19,11 +19,11 @@ import {
 } from "../voyager-live-runtime.js";
 
 const EXPECTED_COUNTS = Object.freeze({
-  total: 246,
-  pages: 127,
+  total: 248,
+  pages: 128,
   workflows: 6,
-  overlays: 113,
-  menuOverlays: 107,
+  overlays: 114,
+  menuOverlays: 108,
 });
 const EDITOR_ACTIONS = ["up", "down", "left", "right", "center", "back", "enter"];
 
@@ -436,7 +436,7 @@ function main() {
     ["m-set3-2-2", "altitudeUnits", "METERS"],
     ["m-set3-2-3", "temperatureUnits", "CELSIUS"],
     ["m-set3-2-4", "clockFormat", "24 HOUR"],
-    ["m-set3-2-7", "displayMode", "DARK"],
+    ["m-set3-2-7", "displayMode", "INVERTED"],
   ];
   for (const [stateId, field, expected] of directToggleCases) {
     const toggleModel = new VoyagerMenuModel();
@@ -444,6 +444,14 @@ function main() {
     if (toggleModel.values[field] !== expected || VOYAGER_MENU_TRANSITIONS[stateId].enter !== stateId) {
       throw new Error(`${stateId} does not toggle ${field} directly in Unit Settings`);
     }
+  }
+
+  const backlightColorModel = new VoyagerMenuModel();
+  backlightColorModel.prepareInput(VOYAGER_MENU_STATE_INDEX["m-set3-2-backlight-color"], "down");
+  backlightColorModel.prepareInput(VOYAGER_MENU_STATE_INDEX["m-set3-2-backlight-color"], "enter");
+  if (backlightColorModel.values.backlightColor !== "BLUE"
+    || VOYAGER_MENU_TRANSITIONS["m-set3-2-8"].enter !== "m-set3-2-backlight-color") {
+    throw new Error("Backlight Color is not an independent, selectable Unit Setting");
   }
 
   const vehicleDirectToggleCases = [

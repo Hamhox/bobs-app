@@ -8,23 +8,27 @@ const screenPaletteCache = new Map();
 const warningProfileCache = new Map();
 const mapProfileCache = new Map();
 const gpsProfileCache = new Map();
-const BACKLIGHT_BRIGHTNESS_VALUES = Object.freeze({ OFF: 18, LOW: 30, MEDIUM: 40, HIGH: 50 });
+const BACKLIGHT_OPACITY_VALUES = Object.freeze({ OFF: 0, LOW: 0.38, MEDIUM: 0.68, HIGH: 1 });
 const MAP_POINTER_SCALES = Object.freeze({ SMALL: 0.78, MEDIUM: 1, LARGE: 1.28 });
 const MAP_LABEL_SCALES = Object.freeze({ OFF: 0, SMALL: 0.82, LARGE: 1 });
 const MILES_TO_METERS = 1609.344;
-const SCREEN_PALETTE_BASES = Object.freeze({
-  NEUTRAL: Object.freeze({ lit: [245, 244, 239], passive: [136, 139, 132] }),
-  AMBER: Object.freeze({ lit: [255, 229, 168], passive: [142, 128, 99] }),
-  GREEN: Object.freeze({ lit: [215, 241, 188], passive: [116, 139, 108] }),
+const SCREEN_DISPLAY_MODES = Object.freeze({
+  NORMAL: Object.freeze({ dark: false, overlay: "standard" }),
+  INVERTED: Object.freeze({ dark: true, overlay: "inverted" }),
 });
-const SCREEN_COLOR_THEMES = Object.freeze({
-  LIGHT: Object.freeze({ base: "NEUTRAL", dark: false, overlay: "standard" }),
-  DARK: Object.freeze({ base: "NEUTRAL", dark: true, overlay: "inverted" }),
-  AMBER: Object.freeze({ base: "AMBER", dark: false, overlay: "standard" }),
-  GREEN: Object.freeze({ base: "GREEN", dark: true, overlay: "color-dark" }),
-});
-const SCREEN_INK_LIT = Object.freeze([36, 32, 33]);
-const SCREEN_INK_PASSIVE = Object.freeze([50, 48, 48]);
+const SCREEN_SURFACE = Object.freeze([245, 244, 239]);
+const SCREEN_INK = Object.freeze([36, 32, 33]);
+export const VOYAGER_BACKLIGHT_COLORS = Object.freeze([
+  "AUTHENTIC",
+  "BLUE",
+  "AMBER",
+  "WHITE",
+  "PURPLE",
+  "VIOLET",
+  "RED",
+  "YELLOW",
+  "GREEN",
+]);
 
 function clampUnit(value) {
   return Math.min(1, Math.max(0, Number(value) || 0));
@@ -39,53 +43,50 @@ function rgbCss(channels) {
   return `rgb(${channels.join(" ")})`;
 }
 
-export function normalizeVoyagerColorTheme(value) {
-  const normalized = String(value ?? "LIGHT").toUpperCase();
-  if (normalized === "NORMAL" || normalized === "NEUTRAL") return "LIGHT";
-  if (normalized === "INVERTED") return "DARK";
-  return SCREEN_COLOR_THEMES[normalized] ? normalized : "LIGHT";
+export function normalizeVoyagerDisplayMode(value) {
+  const normalized = String(value ?? "NORMAL").toUpperCase();
+  if (normalized === "LIGHT" || normalized === "NEUTRAL") return "NORMAL";
+  if (normalized === "DARK") return "INVERTED";
+  return SCREEN_DISPLAY_MODES[normalized] ? normalized : "NORMAL";
+}
+
+export function normalizeVoyagerBacklightColor(value) {
+  const normalized = String(value ?? "AUTHENTIC").toUpperCase();
+  return VOYAGER_BACKLIGHT_COLORS.includes(normalized) ? normalized : "AUTHENTIC";
 }
 
 export function createVoyagerScreenPalette({
-  brightness = 50,
+  displayMode,
   colorTheme,
   theme,
   inverted = false,
-  backlightColor = "NEUTRAL",
 } = {}) {
-  const requestedTheme = colorTheme ?? theme ?? (inverted ? "DARK" : backlightColor);
-  const themeName = normalizeVoyagerColorTheme(requestedTheme);
-  const themeProfile = SCREEN_COLOR_THEMES[themeName];
-  const normalizedBrightness = Math.min(100, Math.max(0, Number(brightness) || 0));
-  const signature = `${themeName}:${normalizedBrightness}`;
+  const requestedMode = displayMode ?? colorTheme ?? theme ?? (inverted ? "INVERTED" : "NORMAL");
+  const mode = normalizeVoyagerDisplayMode(requestedMode);
+  const modeProfile = SCREEN_DISPLAY_MODES[mode];
+  const signature = mode;
   const cached = screenPaletteCache.get(signature);
   if (cached) return cached;
 
-  // Fifty is the device's High setting. Values above it retain the calibrated
-  // reflective-LCD white instead of crushing contrast through a filter.
-  const illumination = clampUnit((normalizedBrightness - 10) / 40);
-  const base = SCREEN_PALETTE_BASES[themeProfile.base];
-  const passiveSurface = themeName === "LIGHT" || themeName === "DARK"
-    ? base.passive
-    : SCREEN_PALETTE_BASES.NEUTRAL.passive;
-  const surface = mixRgb(passiveSurface, base.lit, illumination);
-  const ink = mixRgb(SCREEN_INK_PASSIVE, SCREEN_INK_LIT, illumination);
-  const background = themeProfile.dark ? ink : surface;
-  const foreground = themeProfile.dark ? surface : ink;
+  // Display polarity and illumination are independent on the physical LCD.
+  // These approved colors describe the reflective screen with its backlight off;
+  // the authored backlight image is composited separately by the live renderer.
+  const background = modeProfile.dark ? SCREEN_INK : SCREEN_SURFACE;
+  const foreground = modeProfile.dark ? SCREEN_SURFACE : SCREEN_INK;
   const mid = mixRgb(background, foreground, 0.42);
   const muted = mixRgb(background, foreground, 0.29);
   const shadow = mixRgb(background, foreground, 0.44);
   const routeMuted = mixRgb(background, foreground, 0.56);
-  const routeInk = themeProfile.dark
+  const routeInk = modeProfile.dark
     ? mixRgb(foreground, background, 0.06)
-    : mixRgb([38, 38, 38], [25, 25, 25], illumination);
+    : [25, 25, 25];
   const profile = Object.freeze({
     signature,
-    theme: themeName,
-    dark: themeProfile.dark,
-    overlay: themeProfile.overlay,
-    brightness: normalizedBrightness,
-    inverted: themeName === "DARK",
+    displayMode: mode,
+    theme: mode,
+    dark: modeProfile.dark,
+    overlay: modeProfile.overlay,
+    inverted: mode === "INVERTED",
     screen: rgbCss(background),
     ink: rgbCss(foreground),
     mid: rgbCss(mid),
@@ -147,7 +148,7 @@ function profileSignature(values = {}) {
     values.temperatureUnits === "CELSIUS" ? "celsius" : "fahrenheit",
     values.clockFormat === "24 HOUR" ? "24-hour" : "12-hour",
     values.timeOfDay ?? "12:42:04 PM",
-    normalizeVoyagerColorTheme(values.displayMode).toLowerCase(),
+    normalizeVoyagerDisplayMode(values.displayMode).toLowerCase(),
   ].join(":");
 }
 
@@ -182,11 +183,12 @@ export function createVoyagerDisplayProfile(values = {}) {
   const celsius = values.temperatureUnits === "CELSIUS";
   const use24Hour = values.clockFormat === "24 HOUR";
   const clockStartSeconds = parseClockSeconds(values.timeOfDay);
-  const colorTheme = normalizeVoyagerColorTheme(values.displayMode);
+  const displayMode = normalizeVoyagerDisplayMode(values.displayMode);
   const profile = Object.freeze({
     signature,
-    colorTheme,
-    inverted: colorTheme === "DARK",
+    displayMode,
+    colorTheme: displayMode,
+    inverted: displayMode === "INVERTED",
     speedUnit: metricDistance ? "KM/H" : "MPH",
     distanceUnit: metricDistance ? "KM" : "MI",
     altitudeUnit: metricAltitude ? "M" : "FT",
@@ -238,7 +240,8 @@ export function createVoyagerPowerProfile(values = {}, { externalPower = true } 
   const profile = Object.freeze({
     signature,
     externalPower,
-    backlightBrightnessValue: BACKLIGHT_BRIGHTNESS_VALUES[values.backlightLevel] ?? BACKLIGHT_BRIGHTNESS_VALUES.HIGH,
+    backlightLevel: ["OFF", "LOW", "MEDIUM", "HIGH"].includes(values.backlightLevel) ? values.backlightLevel : "HIGH",
+    backlightOpacity: BACKLIGHT_OPACITY_VALUES[values.backlightLevel] ?? BACKLIGHT_OPACITY_VALUES.HIGH,
     backlightTimeoutMs: durationMilliseconds(
       externalPower ? values.backlightExternal : values.backlightBattery,
       1000,

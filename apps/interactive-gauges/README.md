@@ -89,6 +89,13 @@ Asset intake record: the reviewed source was `voyager-ui-kit_v2.svg` with SHA-25
 `1258690247AD16F016A6682F3156894F0FC86C113E05265804B58CBE2E72EB4F`. The user confirmed publication approval for
 the supplied assets; the protected source file itself remains outside the repository.
 
+Display polarity and backlight illumination are modeled independently. Normal and Inverted retain the approved unlit
+reflective-LCD surfaces, while Power Settings controls whether a separately selected backlight layer is awake and how
+strongly it is applied. Unit Settings exposes nine publication-approved backlight choices—Authentic, Blue, Amber, White,
+Purple, Violet, Red, Yellow, and Green—and the battery backlight timeout removes the illumination without darkening the
+underlying LCD. The lossless runtime images in `assets/ui/voyager-backlight-*.png` were reviewed and copied from the
+publication-approved `aigen-backlight-colors` source folder; the protected source folder remains outside the repository.
+
 The map renderer is deliberately track-only. It draws the current recording and loaded local GPX track/route geometry,
 position, heading, waypoints, scale, and pan/zoom state. It contains no basemap, terrain tiles, road layer, route planning,
 or third-party map service. The fake memory card exposes the reviewed Baker West Desert and Jordan Creek riding areas

@@ -8,6 +8,8 @@ import {
   createVoyagerPowerProfile,
   createVoyagerScreenPalette,
   createVoyagerWarningProfile,
+  normalizeVoyagerBacklightColor,
+  VOYAGER_BACKLIGHT_COLORS,
 } from "../voyager-device-runtime.js";
 import {
   serializeVoyagerGpx,
@@ -33,7 +35,7 @@ const imperial = createVoyagerDisplayProfile({
   temperatureUnits: "FAHRENHEIT",
   clockFormat: "12 HOUR",
   timeOfDay: "12:42:04 PM",
-  displayMode: "LIGHT",
+  displayMode: "NORMAL",
 });
 const repeatedImperial = createVoyagerDisplayProfile({
   distanceUnits: "MILES",
@@ -41,7 +43,7 @@ const repeatedImperial = createVoyagerDisplayProfile({
   temperatureUnits: "FAHRENHEIT",
   clockFormat: "12 HOUR",
   timeOfDay: "12:42:04 PM",
-  displayMode: "LIGHT",
+  displayMode: "NORMAL",
 });
 assert(imperial === repeatedImperial, "display profiles are not cached by their stable settings signature");
 assert(imperial.speedFromMph(27) === 27, "default MPH path performs an unnecessary conversion");
@@ -55,27 +57,28 @@ const metric = createVoyagerDisplayProfile({
   temperatureUnits: "CELSIUS",
   clockFormat: "24 HOUR",
   timeOfDay: "7:42:04 PM",
-  displayMode: "DARK",
+  displayMode: "INVERTED",
 });
 assert(metric.speedUnit === "KM/H" && metric.speedFromMph(10) === 16, "metric speed profile is incorrect");
 assert(metric.distanceUnit === "KM" && metric.distanceFromKm(12.5) === 12.5, "native kilometer path is not a no-op");
 assert(metric.altitudeUnit === "M" && metric.altitudeFromFeet(1000) === 305, "metric altitude profile is incorrect");
 assert(metric.temperatureUnit === "°C" && metric.temperatureFromF(68) === 20, "Celsius profile is incorrect");
 assert(metric.clockAtElapsedSeconds(60) === "19:43", "24-hour device clock formatting is incorrect");
-assert(metric.colorTheme === "DARK" && metric.inverted, "dark color theme is missing from the profile");
+assert(metric.displayMode === "INVERTED" && metric.inverted, "inverted display mode is missing from the profile");
 
-const highPalette = createVoyagerScreenPalette({ brightness: 50, colorTheme: "LIGHT" });
-const lowPalette = createVoyagerScreenPalette({ brightness: 18, colorTheme: "LIGHT" });
-const darkPalette = createVoyagerScreenPalette({ brightness: 50, colorTheme: "DARK" });
-const amberPalette = createVoyagerScreenPalette({ brightness: 50, colorTheme: "AMBER" });
-const greenPalette = createVoyagerScreenPalette({ brightness: 50, colorTheme: "GREEN" });
-assert(highPalette.screen === "rgb(245 244 239)" && highPalette.ink === "rgb(36 32 33)", "High palette changed the approved LCD colors");
-assert(highPalette.routeInk === "rgb(25 25 25)", "High palette changed the approved map-route ink");
-assert(lowPalette.screen !== highPalette.screen && lowPalette.ink !== lowPalette.screen, "Low backlight no longer produces a readable palette");
-assert(darkPalette.screen === highPalette.ink && darkPalette.ink === highPalette.screen, "dark theme does not preserve the approved inverted colors");
-assert(amberPalette.screen === "rgb(255 229 168)" && !amberPalette.dark, "amber theme does not use the warm reflective LCD palette");
-assert(greenPalette.ink === "rgb(215 241 188)" && greenPalette.dark && greenPalette.overlay === "color-dark", "green theme does not use the dark color palette and authored texture");
-assert(createVoyagerScreenPalette({ brightness: 50, colorTheme: "LIGHT" }) === highPalette, "screen palettes are not cached by their stable signature");
+const normalPalette = createVoyagerScreenPalette({ displayMode: "NORMAL" });
+const normalPaletteAtLegacyLowBrightness = createVoyagerScreenPalette({ displayMode: "NORMAL", brightness: 18 });
+const invertedPalette = createVoyagerScreenPalette({ displayMode: "INVERTED" });
+assert(normalPalette.screen === "rgb(245 244 239)" && normalPalette.ink === "rgb(36 32 33)", "Normal polarity changed the approved unlit LCD colors");
+assert(normalPalette.routeInk === "rgb(25 25 25)", "Normal polarity changed the approved map-route ink");
+assert(normalPaletteAtLegacyLowBrightness === normalPalette, "backlight brightness still darkens the reflective LCD base palette");
+assert(invertedPalette.screen === normalPalette.ink && invertedPalette.ink === normalPalette.screen, "inverted display mode does not preserve approved polarity colors");
+assert(createVoyagerScreenPalette({ colorTheme: "LIGHT" }) === normalPalette, "legacy Light polarity is not migrated to Normal");
+assert(createVoyagerScreenPalette({ colorTheme: "DARK" }) === invertedPalette, "legacy Dark polarity is not migrated to Inverted");
+assert(VOYAGER_BACKLIGHT_COLORS.length === 9 && normalizeVoyagerBacklightColor("violet") === "VIOLET", "approved backlight colors are not normalized");
+assert(normalizeVoyagerBacklightColor("unknown") === "AUTHENTIC", "invalid backlight colors do not return to the authentic default");
+const migratedAmberTheme = createVoyagerEffectiveSettings({ displayMode: "AMBER" });
+assert(migratedAmberTheme.displayMode === "NORMAL" && migratedAmberTheme.backlightColor === "AMBER", "legacy Amber theme does not migrate into independent polarity and backlight settings");
 
 const warningProfile = createVoyagerWarningProfile({
   yellowLedOn: "120 °F",
@@ -107,7 +110,7 @@ const repeatedExternalPower = createVoyagerPowerProfile({
   chargeMode: "VEHICLE",
 });
 assert(externalPower === repeatedExternalPower, "power profiles are not cached by their stable settings signature");
-assert(externalPower.backlightBrightnessValue === 50, "default High backlight changed the approved screen brightness");
+assert(externalPower.backlightOpacity === 1, "default High backlight is not fully illuminated");
 assert(externalPower.backlightTimeoutMs === Number.POSITIVE_INFINITY, "external Always On backlight has a finite timeout");
 assert(externalPower.sleepAfterMs === 20 * 60 * 1000, "external sleep timeout does not use Power Settings");
 assert(externalPower.powerOffAfterMs === 60 * 60 * 1000, "power-off timeout does not use Power Settings");
@@ -120,7 +123,7 @@ const batteryPower = createVoyagerPowerProfile({
   turnOff: "00 MIN",
   chargeMode: "WALL PLUG",
 }, { externalPower: false });
-assert(batteryPower.backlightBrightnessValue === 18, "Off backlight does not retain a readable passive LCD");
+assert(batteryPower.backlightOpacity === 0, "Off backlight still applies an illumination layer");
 assert(batteryPower.backlightTimeoutMs === 20 * 1000, "battery backlight timeout is incorrect");
 assert(batteryPower.sleepAfterMs === 3 * 60 * 1000, "battery sleep timeout is incorrect");
 assert(batteryPower.powerOffAfterMs === Number.POSITIVE_INFINITY, "00-minute power-off does not disable the timeout");
@@ -366,7 +369,7 @@ assert(globalThis.__voyagerDelay === 15000, "state engine ignored the configured
 
 console.log(JSON.stringify({
   profiles: [imperial.signature, metric.signature],
-  palettes: [highPalette.signature, lowPalette.signature, darkPalette.signature, amberPalette.signature, greenPalette.signature],
+  palettes: [normalPalette.signature, invertedPalette.signature],
   gpsProfiles: [timeGps.signature, distanceGps.signature],
   mapProfile: mapProfile.signature,
   inventory: inventory.signature,
