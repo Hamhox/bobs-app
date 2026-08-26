@@ -1,0 +1,1461 @@
+{
+  "addon": {
+    "gpx": {
+      "bytes": 64591,
+      "file": "addons/usa-lower-48-state-context-voyager.gpx",
+      "sha256": "dc5afb7e02dd2c196e8b0b20ca592460f59a9e602d2cbe7786724bcd9fbc6d33"
+    },
+    "id": "usa-lower-48-state-context",
+    "kind": "optional-map-context",
+    "manifest": {
+      "bytes": 1457,
+      "file": "manifests/usa-lower-48-state-context.json",
+      "sha256": "b6e44d64b39ab4c0f697b9d1e92af9a0b27e06780853fbb63c729fef9b03af0a"
+    },
+    "name": "USA Lower 48 State Context",
+    "routeCount": 0,
+    "routePointCount": 0,
+    "trackCount": 70,
+    "trackPointCount": 1260
+  },
+  "catalog": {
+    "bytes": 39797,
+    "file": "catalog.json",
+    "sha256": "2209520e97c0cf0e561f69d63280523eec29140338e209e36620c0ea0139e0b0"
+  },
+  "generator": {
+    "contextModuleSha256": "165b43f839edb68e61ce2f8181b82ba9bce4069acc3849eaacf5653f50589fa1",
+    "driverSha256": "3afb15838d5667da7754c0962b3b1d5e9d3b0e6886ed15bc980e43f8fa7b5bc2",
+    "packagingModuleSha256": "9ccc674de5abb4b3fb2629a0035e1370a076cbf58c6e7f7f78301e5b03a6eae6"
+  },
+  "packs": [
+    {
+      "bounds": [
+        -116.965519,
+        40.068086,
+        -113.015581,
+        43.329064
+      ],
+      "deviceCode": "AUFBC59",
+      "gpx": {
+        "bytes": 1207653,
+        "file": "packs/auto-46db22b97e86d505-voyager.gpx",
+        "sha256": "fa61d51b420e530226654fc1b4f346fa3b6a4047405304f000d6e92085adef13"
+      },
+      "id": "auto-46db22b97e86d505",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 105638,
+        "file": "manifests/auto-46db22b97e86d505.json",
+        "sha256": "88872f42af611c03ffee3b3e3883f6f9de483ecc608bc508fb575939e2d17201"
+      },
+      "minimumWalkCount": 282,
+      "name": "Jackpot",
+      "retraceEdgeCount": 0,
+      "routeCount": 0,
+      "routePointCount": 0,
+      "sourcePointCount": 24457,
+      "sourceTrailCount": 400,
+      "trackCount": 282,
+      "trackPointCount": 24335
+    },
+    {
+      "bounds": [
+        -112.516766,
+        41.260111,
+        -108.757506,
+        44.549852
+      ],
+      "deviceCode": "AU57257",
+      "gpx": {
+        "bytes": 2752341,
+        "file": "packs/auto-5426585407aca402-voyager.gpx",
+        "sha256": "4ec59922512a356b6e82ca1674d4b0881abe2dee3b110837559576a72bada957"
+      },
+      "id": "auto-5426585407aca402",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 137632,
+        "file": "manifests/auto-5426585407aca402.json",
+        "sha256": "c40c5c90dc9839db8b3db3e8c8c29bedd2ae6af0534ab33878b59043b041bfac"
+      },
+      "minimumWalkCount": 480,
+      "name": "Jackson Hole",
+      "retraceEdgeCount": 0,
+      "routeCount": 190,
+      "routePointCount": 27015,
+      "sourcePointCount": 55801,
+      "sourceTrailCount": 516,
+      "trackCount": 290,
+      "trackPointCount": 28696
+    },
+    {
+      "bounds": [
+        -85.140708,
+        34.572394,
+        -81.735909,
+        36.442821
+      ],
+      "deviceCode": "AUE2662",
+      "gpx": {
+        "bytes": 514019,
+        "file": "packs/auto-5c4be285d90e7d38-voyager.gpx",
+        "sha256": "033bb497838f98ae406c5e01d3df8f03408d730890f0aac52b3979f32398691d"
+      },
+      "id": "auto-5c4be285d90e7d38",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 29417,
+        "file": "manifests/auto-5c4be285d90e7d38.json",
+        "sha256": "1a6460f3cfe042c534cd2d146dda70c00ccb618dfc7f0989bd44b1866eb59010"
+      },
+      "minimumWalkCount": 83,
+      "name": "The Southern Appalachian Dirt Route",
+      "retraceEdgeCount": 0,
+      "routeCount": 0,
+      "routePointCount": 0,
+      "sourcePointCount": 10635,
+      "sourceTrailCount": 102,
+      "trackCount": 83,
+      "trackPointCount": 10611
+    },
+    {
+      "bounds": [
+        -116.889255,
+        46.708946,
+        -115.93735,
+        47.124824
+      ],
+      "deviceCode": "AU243EC",
+      "gpx": {
+        "bytes": 1122274,
+        "file": "packs/auto-b4156d96a77ab2d1-voyager.gpx",
+        "sha256": "3057923ef84d1bb1b517e02cb2b81757c2691b44e5743dd2a5f86d69dafe5b91"
+      },
+      "id": "auto-b4156d96a77ab2d1",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 41697,
+        "file": "manifests/auto-b4156d96a77ab2d1.json",
+        "sha256": "da156c671d7b04018d41d341f3a09efc0aac1dce1c6215e8e2096e1887115cf2"
+      },
+      "minimumWalkCount": 142,
+      "name": "The Palouse",
+      "retraceEdgeCount": 0,
+      "routeCount": 0,
+      "routePointCount": 0,
+      "sourcePointCount": 22751,
+      "sourceTrailCount": 149,
+      "trackCount": 142,
+      "trackPointCount": 22744
+    },
+    {
+      "bounds": [
+        -112.610711,
+        39.97531,
+        -110.333609,
+        41.04774
+      ],
+      "deviceCode": "AU6D793",
+      "gpx": {
+        "bytes": 877089,
+        "file": "packs/auto-f88b4be4cb1e077d-voyager.gpx",
+        "sha256": "bc173204d15401ddfaaa601eff2a34ec8853f7aa2c2c63022ba8ca28e9a00343"
+      },
+      "id": "auto-f88b4be4cb1e077d",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 31766,
+        "file": "manifests/auto-f88b4be4cb1e077d.json",
+        "sha256": "db9cb793b9edf3fda8bdaca6edf87d4cc8e9a9e72793c49153d250c2e79092e1"
+      },
+      "minimumWalkCount": 108,
+      "name": "Salt Lake",
+      "retraceEdgeCount": 0,
+      "routeCount": 0,
+      "routePointCount": 0,
+      "sourcePointCount": 17785,
+      "sourceTrailCount": 111,
+      "trackCount": 108,
+      "trackPointCount": 17777
+    },
+    {
+      "bounds": [
+        -116.604805,
+        23.463804,
+        -109.514056,
+        31.895381
+      ],
+      "deviceCode": "BAC44CF",
+      "gpx": {
+        "bytes": 347210,
+        "file": "packs/baja-1000-voyager.gpx",
+        "sha256": "2b6543d4a027f8d4f610d97db0dfa3b50161b1282375ad6c706bf3342b07c449"
+      },
+      "id": "baja-1000",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 8796,
+        "file": "manifests/baja-1000.json",
+        "sha256": "9a5f5e94e4b5a5042992fd336fa3b7aa3b650a6d0ff79fdb1a3b098fbadf26c2"
+      },
+      "minimumWalkCount": 24,
+      "name": "Baja 1000",
+      "retraceEdgeCount": 0,
+      "routeCount": 0,
+      "routePointCount": 0,
+      "sourcePointCount": 7054,
+      "sourceTrailCount": 24,
+      "trackCount": 24,
+      "trackPointCount": 7054
+    },
+    {
+      "bounds": [
+        -116.24052,
+        43.346558,
+        -114.069949,
+        44.646576
+      ],
+      "deviceCode": "BAA66DE",
+      "gpx": {
+        "bytes": 4752881,
+        "file": "packs/baumgartner-voyager.gpx",
+        "sha256": "ad9811cf7fdd26bdd499233208ce585e3209a9a8d3ed3d47b59e6242e22125bf"
+      },
+      "id": "baumgartner",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 157365,
+        "file": "manifests/baumgartner.json",
+        "sha256": "8027773978f336831d07c1e8f55ba47c2dfa285599f3a657d1936825d39257a6"
+      },
+      "minimumWalkCount": 539,
+      "name": "Baumgartner",
+      "retraceEdgeCount": 0,
+      "routeCount": 249,
+      "routePointCount": 48138,
+      "sourcePointCount": 96564,
+      "sourceTrailCount": 596,
+      "trackCount": 290,
+      "trackPointCount": 48357
+    },
+    {
+      "bounds": [
+        -120.346377,
+        32.693237,
+        -116.403459,
+        36.188458
+      ],
+      "deviceCode": "BI37EDC",
+      "gpx": {
+        "bytes": 1328320,
+        "file": "packs/big-bear-johnson-valley-voyager.gpx",
+        "sha256": "2e85c4121f0a5cf239b18eec6fe7162821190213dd5e999a9e04e0fbb7054876"
+      },
+      "id": "big-bear-johnson-valley",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 47787,
+        "file": "manifests/big-bear-johnson-valley.json",
+        "sha256": "7c27f51d675cbf26f49fdeda8016e3b27d4bde8505f2a5f2995e1e29ecd71f5d"
+      },
+      "minimumWalkCount": 179,
+      "name": "Big Bear",
+      "retraceEdgeCount": 0,
+      "routeCount": 0,
+      "routePointCount": 0,
+      "sourcePointCount": 26925,
+      "sourceTrailCount": 173,
+      "trackCount": 179,
+      "trackPointCount": 26909
+    },
+    {
+      "bounds": [
+        -94.94872,
+        34.451779,
+        -90.945268,
+        37.536836
+      ],
+      "deviceCode": "BR5F828",
+      "gpx": {
+        "bytes": 897113,
+        "file": "packs/brock-creek-voyager.gpx",
+        "sha256": "0fca6a21fb9a610709d133a35ace47f23819b7b30ebab0e569731c15b2dc489d"
+      },
+      "id": "brock-creek",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 48177,
+        "file": "manifests/brock-creek.json",
+        "sha256": "b8b618eafd063f28d05fc0e25e8a98b8e41afd7572a7889e98d4c3dacbea2ecd"
+      },
+      "minimumWalkCount": 161,
+      "name": "The Ouachita-Ozark Dirt Connector",
+      "retraceEdgeCount": 0,
+      "routeCount": 0,
+      "routePointCount": 0,
+      "sourcePointCount": 18530,
+      "sourceTrailCount": 169,
+      "trackCount": 161,
+      "trackPointCount": 18506
+    },
+    {
+      "bounds": [
+        -116.329014,
+        44.655995,
+        -115.324506,
+        45.381725
+      ],
+      "deviceCode": "BUE2AA8",
+      "gpx": {
+        "bytes": 5206508,
+        "file": "packs/burgdorf-voyager.gpx",
+        "sha256": "9137042c12d1593d13402450d3c36343ce1e2dedc7c812907f13ecff8a28d954"
+      },
+      "id": "burgdorf",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 81362,
+        "file": "manifests/burgdorf.json",
+        "sha256": "dd803eb1c377fac07315da07596ddf0b26c91b3835a549dcf7c573fc421d0262"
+      },
+      "minimumWalkCount": 245,
+      "name": "Burgdorf",
+      "retraceEdgeCount": 0,
+      "routeCount": 2,
+      "routePointCount": 41393,
+      "sourcePointCount": 106040,
+      "sourceTrailCount": 300,
+      "trackCount": 243,
+      "trackPointCount": 64592
+    },
+    {
+      "bounds": [
+        -121.48602,
+        43.463243,
+        -120.162737,
+        44.448129
+      ],
+      "deviceCode": "CEE36F9",
+      "gpx": {
+        "bytes": 3461999,
+        "file": "packs/central-oregon-voyager.gpx",
+        "sha256": "e87f3b7c81aaa8c7aad5f23fc969477c6f55a642bb6c7248ce2f1690310f33b4"
+      },
+      "id": "central-oregon",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 499972,
+        "file": "manifests/central-oregon.json",
+        "sha256": "4620a4d8affb5ccadacdd6031f768de38e658d02b97b0e9ea8705df9021539bf"
+      },
+      "minimumWalkCount": 1193,
+      "name": "Chinahat",
+      "retraceEdgeCount": 1697,
+      "routeCount": 300,
+      "routePointCount": 35086,
+      "sourcePointCount": 69319,
+      "sourceTrailCount": 1493,
+      "trackCount": 290,
+      "trackPointCount": 35027
+    },
+    {
+      "bounds": [
+        -115.76831,
+        46.128359,
+        -114.440441,
+        46.996997
+      ],
+      "deviceCode": "CL79B08",
+      "gpx": {
+        "bytes": 2072931,
+        "file": "packs/clearwater-mountains-voyager.gpx",
+        "sha256": "e2c10dc5ae627bce800e5a188229772fbd016850757c71a73139c4044aa78136"
+      },
+      "id": "clearwater-mountains",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 141044,
+        "file": "manifests/clearwater-mountains.json",
+        "sha256": "45735d0cb0a096be6e1fff51e98977b67533676b8414173503f8d1da7f84e2c4"
+      },
+      "minimumWalkCount": 497,
+      "name": "The Clearwater",
+      "retraceEdgeCount": 0,
+      "routeCount": 207,
+      "routePointCount": 20548,
+      "sourcePointCount": 41876,
+      "sourceTrailCount": 534,
+      "trackCount": 290,
+      "trackPointCount": 21285
+    },
+    {
+      "bounds": [
+        -108.465765,
+        37.030873,
+        -106.259617,
+        38.249103
+      ],
+      "deviceCode": "DUEC80B",
+      "gpx": {
+        "bytes": 821881,
+        "file": "packs/durango-voyager.gpx",
+        "sha256": "199ec57d8c94ebb1b6a774c9919760f2dfb2e9beab0c4ce6e8ed4a495a6616cb"
+      },
+      "id": "durango",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 26957,
+        "file": "manifests/durango.json",
+        "sha256": "4fee91c7f57136b1bbd854d356fbd031ac16703411b0544de57fa0bb985c78e6"
+      },
+      "minimumWalkCount": 124,
+      "name": "Durango",
+      "retraceEdgeCount": 0,
+      "routeCount": 0,
+      "routePointCount": 0,
+      "sourcePointCount": 16671,
+      "sourceTrailCount": 92,
+      "trackCount": 124,
+      "trackPointCount": 16633
+    },
+    {
+      "bounds": [
+        -116.152119,
+        34.721218,
+        -114.948121,
+        35.591061
+      ],
+      "deviceCode": "EAED1C8",
+      "gpx": {
+        "bytes": 3048684,
+        "file": "packs/east-mojave-voyager.gpx",
+        "sha256": "827714882f513b4deb5aeacc59a7cf21311241ea44eeea484e6007ff0c31d452"
+      },
+      "id": "east-mojave",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 638131,
+        "file": "manifests/east-mojave.json",
+        "sha256": "554f11eea1fc57a4a86c95b5999b6b1b780de7f82bd6cb96f53c74410cff889e"
+      },
+      "minimumWalkCount": 969,
+      "name": "Mojave",
+      "retraceEdgeCount": 5134,
+      "routeCount": 300,
+      "routePointCount": 30855,
+      "sourcePointCount": 57983,
+      "sourceTrailCount": 2029,
+      "trackCount": 290,
+      "trackPointCount": 30823
+    },
+    {
+      "bounds": [
+        -122.521629,
+        44.904485,
+        -121.489608,
+        45.302417
+      ],
+      "deviceCode": "ES94154",
+      "gpx": {
+        "bytes": 2490035,
+        "file": "packs/estacada-voyager.gpx",
+        "sha256": "a562d809d7fcb1f4e079488876c2c0424cb919ee49151abf48b16af7e50cec9f"
+      },
+      "id": "estacada",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 353946,
+        "file": "manifests/estacada.json",
+        "sha256": "c7b09e7053320bcb0ec81c4c47452d6865b24931a3291ba3cd6768b15f3f52fb"
+      },
+      "minimumWalkCount": 864,
+      "name": "Estacada",
+      "retraceEdgeCount": 783,
+      "routeCount": 300,
+      "routePointCount": 25172,
+      "sourcePointCount": 50061,
+      "sourceTrailCount": 1157,
+      "trackCount": 290,
+      "trackPointCount": 25105
+    },
+    {
+      "bounds": [
+        -122.104899,
+        45.255618,
+        -121.58267,
+        45.580511
+      ],
+      "deviceCode": "ESA39B0",
+      "gpx": {
+        "bytes": 1181283,
+        "file": "packs/estacada-northeast-voyager.gpx",
+        "sha256": "73b3daef257f899880e1c853011553cc1bcc3c42e694de8fc8c9b889f0065f36"
+      },
+      "id": "estacada-northeast",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 189086,
+        "file": "manifests/estacada-northeast.json",
+        "sha256": "fe8da3aeb5537a0b72f8a15d74d11861ab646fbf3e58c821025539e3db887b2e"
+      },
+      "minimumWalkCount": 523,
+      "name": "Estacada Northeast",
+      "retraceEdgeCount": 0,
+      "routeCount": 233,
+      "routePointCount": 11738,
+      "sourcePointCount": 23805,
+      "sourceTrailCount": 711,
+      "trackCount": 290,
+      "trackPointCount": 11879
+    },
+    {
+      "bounds": [
+        -122.310333,
+        46.070403,
+        -121.502775,
+        46.448503
+      ],
+      "deviceCode": "GI3486F",
+      "gpx": {
+        "bytes": 1601637,
+        "file": "packs/gifford-pinchot-voyager.gpx",
+        "sha256": "b25b393d3c6b5b5807691bf4a6f31f19fbaa6ba649d4fe3c7623cc1fe7450846"
+      },
+      "id": "gifford-pinchot",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 112897,
+        "file": "manifests/gifford-pinchot.json",
+        "sha256": "ded30868bc27c703533087e405c147f101072962e7b344ea1ff668f1b3bdea3b"
+      },
+      "minimumWalkCount": 317,
+      "name": "Gifford Pinchot",
+      "retraceEdgeCount": 0,
+      "routeCount": 27,
+      "routePointCount": 12937,
+      "sourcePointCount": 32441,
+      "sourceTrailCount": 411,
+      "trackCount": 290,
+      "trackPointCount": 19410
+    },
+    {
+      "bounds": [
+        -121.970086,
+        46.488884,
+        -121.029765,
+        46.736949
+      ],
+      "deviceCode": "GIADEBE",
+      "gpx": {
+        "bytes": 68743,
+        "file": "packs/gifford-pinchot2-voyager.gpx",
+        "sha256": "2d2c0aa430b85ee17848385129a734b8a215e86d0fcf528635775f2bd8a64312"
+      },
+      "id": "gifford-pinchot2",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 10355,
+        "file": "manifests/gifford-pinchot2.json",
+        "sha256": "c65198206e3c5b63fdbf90191ff199447b7870f34955bddb446c2ee2a14f0687"
+      },
+      "minimumWalkCount": 24,
+      "name": "Central Cascades",
+      "retraceEdgeCount": 0,
+      "routeCount": 0,
+      "routePointCount": 0,
+      "sourcePointCount": 1376,
+      "sourceTrailCount": 29,
+      "trackCount": 24,
+      "trackPointCount": 1371
+    },
+    {
+      "bounds": [
+        -123.730534,
+        39.153379,
+        -122.549496,
+        41.091618
+      ],
+      "deviceCode": "HA8EE37",
+      "gpx": {
+        "bytes": 1003846,
+        "file": "packs/hayfork-south-voyager.gpx",
+        "sha256": "9c543f2e7ed70cb334cf99fcabe8229279fbaf0cfb13d5190bfd8e397c197739"
+      },
+      "id": "hayfork-south",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 77457,
+        "file": "manifests/hayfork-south.json",
+        "sha256": "44efa57bc300f3e49bddaf87d2174f1f87b9e05c196e1489bef3a5847048e806"
+      },
+      "minimumWalkCount": 305,
+      "name": "Hayfork South",
+      "retraceEdgeCount": 0,
+      "routeCount": 15,
+      "routePointCount": 4698,
+      "sourcePointCount": 20181,
+      "sourceTrailCount": 290,
+      "trackCount": 290,
+      "trackPointCount": 15458
+    },
+    {
+      "bounds": [
+        -121.085556,
+        37.80688,
+        -119.792791,
+        39.745434
+      ],
+      "deviceCode": "LAF15F9",
+      "gpx": {
+        "bytes": 2347345,
+        "file": "packs/lake-tahoe-voyager.gpx",
+        "sha256": "7b4204b8d8c2148a049e30d89b125f1f015b1bb205b4d7e1dce8201244c52f3d"
+      },
+      "id": "lake-tahoe",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 130554,
+        "file": "manifests/lake-tahoe.json",
+        "sha256": "e90de73fc02235c872cf6ceae1dac9443638306d60eca6395a87edf6888ff603"
+      },
+      "minimumWalkCount": 462,
+      "name": "Lake Tahoe",
+      "retraceEdgeCount": 0,
+      "routeCount": 172,
+      "routePointCount": 23093,
+      "sourcePointCount": 47499,
+      "sourceTrailCount": 488,
+      "trackCount": 290,
+      "trackPointCount": 24366
+    },
+    {
+      "bounds": [
+        -108.111324,
+        37.311739,
+        -104.877398,
+        40.758387
+      ],
+      "deviceCode": "LO795ED",
+      "gpx": {
+        "bytes": 1243014,
+        "file": "packs/loose-n39-w108-voyager.gpx",
+        "sha256": "6e36fc2121f81274b9ae22753c05ab9b12fd5dd91f364a4239effcdf6a446f0d"
+      },
+      "id": "loose-n39-w108",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 77412,
+        "file": "manifests/loose-n39-w108.json",
+        "sha256": "3dd2c2f3dcd3cc7215e3d1208f9f568a44d5735158b13227437dc3dba11ba4e6"
+      },
+      "minimumWalkCount": 290,
+      "name": "Breckenridge Aspen",
+      "retraceEdgeCount": 0,
+      "routeCount": 0,
+      "routePointCount": 0,
+      "sourcePointCount": 25060,
+      "sourceTrailCount": 283,
+      "trackCount": 290,
+      "trackPointCount": 25048
+    },
+    {
+      "bounds": [
+        -79.370791,
+        41.40057,
+        -78.694081,
+        41.999108
+      ],
+      "deviceCode": "LOC1647",
+      "gpx": {
+        "bytes": 263903,
+        "file": "packs/loose-n41-w079-voyager.gpx",
+        "sha256": "ad25ed5a288dbe8672c99b50a435c86610e7d136c32d7303581ddac40d636496"
+      },
+      "id": "loose-n41-w079",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 12100,
+        "file": "manifests/loose-n41-w079.json",
+        "sha256": "4e891f02a43c1f6eb0e457e43748911ad2d283bcc9945c7f3b09cef3d4b55c31"
+      },
+      "minimumWalkCount": 47,
+      "name": "The Allegheny Wilderness Loops",
+      "retraceEdgeCount": 0,
+      "routeCount": 0,
+      "routePointCount": 0,
+      "sourcePointCount": 5462,
+      "sourceTrailCount": 35,
+      "trackCount": 47,
+      "trackPointCount": 5440
+    },
+    {
+      "bounds": [
+        -124.125859,
+        41.856361,
+        -121.400242,
+        44.432978
+      ],
+      "deviceCode": "LOD6FD3",
+      "gpx": {
+        "bytes": 1872447,
+        "file": "packs/loose-n43-w123-voyager.gpx",
+        "sha256": "3234d0cef466f6dc5f49753b761840cd6aa63e1a1eeffc9d00c8d5e176ad7327"
+      },
+      "id": "loose-n43-w123",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 57080,
+        "file": "manifests/loose-n43-w123.json",
+        "sha256": "30720c72bbf7672b7bfaee6cf528004d7ff019c7e51035891dd3162a5f0c6e7e"
+      },
+      "minimumWalkCount": 199,
+      "name": "Cascade Mountains",
+      "retraceEdgeCount": 0,
+      "routeCount": 0,
+      "routePointCount": 0,
+      "sourcePointCount": 38023,
+      "sourceTrailCount": 209,
+      "trackCount": 199,
+      "trackPointCount": 37992
+    },
+    {
+      "bounds": [
+        -124.276269,
+        43.442606,
+        -124.121251,
+        43.957346
+      ],
+      "deviceCode": "LO3F3F3",
+      "gpx": {
+        "bytes": 60226,
+        "file": "packs/loose-n43-w125-voyager.gpx",
+        "sha256": "cb3f7ac3ed5d3e9908004ad5524bcde62ae71b80280a2c3e50516f7467473b76"
+      },
+      "id": "loose-n43-w125",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 7149,
+        "file": "manifests/loose-n43-w125.json",
+        "sha256": "ab2238456546feaa131992c14e4053e9d27109ccee6d64a1803fc9b0ec0b2723"
+      },
+      "minimumWalkCount": 14,
+      "name": "Oregon Coastal Dunes",
+      "retraceEdgeCount": 0,
+      "routeCount": 0,
+      "routePointCount": 0,
+      "sourcePointCount": 1211,
+      "sourceTrailCount": 17,
+      "trackCount": 14,
+      "trackPointCount": 1208
+    },
+    {
+      "bounds": [
+        -115.313517,
+        43.500998,
+        -112.001422,
+        45.775796
+      ],
+      "deviceCode": "LO7816A",
+      "gpx": {
+        "bytes": 2674189,
+        "file": "packs/loose-n44-w114-voyager.gpx",
+        "sha256": "c295e7d02b64defa9c6d69d9668635c7278a2572d61cee4d677f49297ed2c118"
+      },
+      "id": "loose-n44-w114",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 94382,
+        "file": "manifests/loose-n44-w114.json",
+        "sha256": "e7062d9ce1af50afe2794d10f70244e9d76cf1828f364259fcb351b183fcf9d6"
+      },
+      "minimumWalkCount": 329,
+      "name": "The Lost River Range",
+      "retraceEdgeCount": 0,
+      "routeCount": 39,
+      "routePointCount": 19928,
+      "sourcePointCount": 54256,
+      "sourceTrailCount": 351,
+      "trackCount": 290,
+      "trackPointCount": 34299
+    },
+    {
+      "bounds": [
+        -120.709223,
+        44.337231,
+        -120.144161,
+        44.49495
+      ],
+      "deviceCode": "LOC74F3",
+      "gpx": {
+        "bytes": 79422,
+        "file": "packs/loose-n44-w121-voyager.gpx",
+        "sha256": "2cbef4c9865c5175366e09cb5bb221869b2e7267a7ae9628c10185898679e106"
+      },
+      "id": "loose-n44-w121",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 5515,
+        "file": "manifests/loose-n44-w121.json",
+        "sha256": "3576436956c38eb83725d584f8795106c69d13626f212e9224de872ad7b9a237"
+      },
+      "minimumWalkCount": 11,
+      "name": "Oregon Badlands",
+      "retraceEdgeCount": 0,
+      "routeCount": 0,
+      "routePointCount": 0,
+      "sourcePointCount": 1604,
+      "sourceTrailCount": 11,
+      "trackCount": 11,
+      "trackPointCount": 1603
+    },
+    {
+      "bounds": [
+        -88.675298,
+        45.386246,
+        -88.19998,
+        45.634665
+      ],
+      "deviceCode": "LO3D276",
+      "gpx": {
+        "bytes": 66643,
+        "file": "packs/loose-n45-w089-voyager.gpx",
+        "sha256": "10000e24c2ad6aa6d9dbb30cf484082d9fffa25934b117aa70c2b2fcf18a3b68"
+      },
+      "id": "loose-n45-w089",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 3924,
+        "file": "manifests/loose-n45-w089.json",
+        "sha256": "970eeeed23da1d47aea74ab9007859a798b42744dc83dd6e16f91a4928d445c3"
+      },
+      "minimumWalkCount": 3,
+      "name": "Wabeno Riding Area",
+      "retraceEdgeCount": 0,
+      "routeCount": 0,
+      "routePointCount": 0,
+      "sourcePointCount": 1381,
+      "sourceTrailCount": 5,
+      "trackCount": 3,
+      "trackPointCount": 1379
+    },
+    {
+      "bounds": [
+        -91.163462,
+        45.161657,
+        -89.037545,
+        46.271435
+      ],
+      "deviceCode": "LO570AE",
+      "gpx": {
+        "bytes": 68625,
+        "file": "packs/loose-n45-w091-voyager.gpx",
+        "sha256": "03298474e37a86e5385df358db0015fdb4226cf3a023ff5adafac49f2ea3b4c8"
+      },
+      "id": "loose-n45-w091",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 6988,
+        "file": "manifests/loose-n45-w091.json",
+        "sha256": "a544ef643cc5873d490c7c8295dc468b7513276257970a6d478865267ca006e0"
+      },
+      "minimumWalkCount": 25,
+      "name": "Wisconsin",
+      "retraceEdgeCount": 0,
+      "routeCount": 0,
+      "routePointCount": 0,
+      "sourcePointCount": 1424,
+      "sourceTrailCount": 16,
+      "trackCount": 25,
+      "trackPointCount": 1396
+    },
+    {
+      "bounds": [
+        -116.382651,
+        45.397183,
+        -114.890853,
+        46.10469
+      ],
+      "deviceCode": "LO7D79F",
+      "gpx": {
+        "bytes": 805715,
+        "file": "packs/loose-n45-w116-voyager.gpx",
+        "sha256": "fe17c122de6bbc550d0b59f813f9ceca6ffe2d73cfed83fcd7065f0c9687da01"
+      },
+      "id": "loose-n45-w116",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 50243,
+        "file": "manifests/loose-n45-w116.json",
+        "sha256": "424d76224ed7e8bac454fa819a196112ae3aca8f6452571aacaf04b1e006a985"
+      },
+      "minimumWalkCount": 125,
+      "name": "The Salmon River Canyon",
+      "retraceEdgeCount": 0,
+      "routeCount": 0,
+      "routePointCount": 0,
+      "sourcePointCount": 16379,
+      "sourceTrailCount": 183,
+      "trackCount": 125,
+      "trackPointCount": 16302
+    },
+    {
+      "bounds": [
+        -119.989563,
+        43.657281,
+        -116.100085,
+        46.293197
+      ],
+      "deviceCode": "LOEFA9C",
+      "gpx": {
+        "bytes": 4115142,
+        "file": "packs/loose-n45-w118-voyager.gpx",
+        "sha256": "f8a980b114088aa501870d6bd60b11e61d5465a11556f5ee4086713e228ac0b8"
+      },
+      "id": "loose-n45-w118",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 99607,
+        "file": "manifests/loose-n45-w118.json",
+        "sha256": "663866b6d533e0384d01bb5549357a0ca26e726cc06826cd457b0e15c83cf971"
+      },
+      "minimumWalkCount": 332,
+      "name": "Blue Mountains",
+      "retraceEdgeCount": 0,
+      "routeCount": 42,
+      "routePointCount": 26181,
+      "sourcePointCount": 83696,
+      "sourceTrailCount": 382,
+      "trackCount": 290,
+      "trackPointCount": 57451
+    },
+    {
+      "bounds": [
+        -114.30248,
+        45.68003,
+        -110.056312,
+        48.06468
+      ],
+      "deviceCode": "LOC70F1",
+      "gpx": {
+        "bytes": 267168,
+        "file": "packs/loose-n46-w113-voyager.gpx",
+        "sha256": "bc9fc3c9fc4b552507ac04c575875f5cf865fc0e37655c103778b0e52040cd49"
+      },
+      "id": "loose-n46-w113",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 11114,
+        "file": "manifests/loose-n46-w113.json",
+        "sha256": "5122fc4b1c8a3d3d41cb06a776c7465245eb95aaa1b67a003fe667a11439a68d"
+      },
+      "minimumWalkCount": 30,
+      "name": "Southwest Montana",
+      "retraceEdgeCount": 0,
+      "routeCount": 0,
+      "routePointCount": 0,
+      "sourcePointCount": 5417,
+      "sourceTrailCount": 31,
+      "trackCount": 30,
+      "trackPointCount": 5414
+    },
+    {
+      "bounds": [
+        -93.102926,
+        47.123047,
+        -90.295301,
+        48.517596
+      ],
+      "deviceCode": "LO39A5D",
+      "gpx": {
+        "bytes": 995402,
+        "file": "packs/loose-n47-w093-voyager.gpx",
+        "sha256": "ba72284316b9502cb58146f3c775a32128457ea58e720916ed5b69583eb61d05"
+      },
+      "id": "loose-n47-w093",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 15476,
+        "file": "manifests/loose-n47-w093.json",
+        "sha256": "25ffd439756361bafd99b2a4b59476aded127ac6ba867bac20e0a509e2402900"
+      },
+      "minimumWalkCount": 62,
+      "name": "Minnesota Backcountry Discovery Route",
+      "retraceEdgeCount": 0,
+      "routeCount": 0,
+      "routePointCount": 0,
+      "sourcePointCount": 20683,
+      "sourceTrailCount": 48,
+      "trackCount": 62,
+      "trackPointCount": 20663
+    },
+    {
+      "bounds": [
+        -116.736773,
+        47.019362,
+        -115.120508,
+        48.137456
+      ],
+      "deviceCode": "LO4E444",
+      "gpx": {
+        "bytes": 2904885,
+        "file": "packs/loose-n47-w117-voyager.gpx",
+        "sha256": "672660ebb178b476171ed88bae308afe506313d2d781f053a41028bf435714f0"
+      },
+      "id": "loose-n47-w117",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 43556,
+        "file": "manifests/loose-n47-w117.json",
+        "sha256": "7efd0354076736baf72e8fab8931b8babfc49e968860b469451946ed1e583caf"
+      },
+      "minimumWalkCount": 152,
+      "name": "The Silver Valley",
+      "retraceEdgeCount": 0,
+      "routeCount": 0,
+      "routePointCount": 0,
+      "sourcePointCount": 59135,
+      "sourceTrailCount": 158,
+      "trackCount": 152,
+      "trackPointCount": 59113
+    },
+    {
+      "bounds": [
+        -121.475062,
+        46.987025,
+        -120.121897,
+        48.201879
+      ],
+      "deviceCode": "LOB31B0",
+      "gpx": {
+        "bytes": 942665,
+        "file": "packs/loose-n47-w121-voyager.gpx",
+        "sha256": "70c51cb831e9c1f31bf9c1d30d82ff4209b358718b1d4a17ef7023823531e6bb"
+      },
+      "id": "loose-n47-w121",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 42394,
+        "file": "manifests/loose-n47-w121.json",
+        "sha256": "f2bc767a6f46e1bab63f4d3509514ec3f6b726d4e8e5f342dfd25a0e5e718a0a"
+      },
+      "minimumWalkCount": 87,
+      "name": "Leavenworth",
+      "retraceEdgeCount": 0,
+      "routeCount": 0,
+      "routePointCount": 0,
+      "sourcePointCount": 19201,
+      "sourceTrailCount": 150,
+      "trackCount": 87,
+      "trackPointCount": 19138
+    },
+    {
+      "bounds": [
+        -120.018388,
+        48.190741,
+        -114.72199,
+        48.999593
+      ],
+      "deviceCode": "LO1DDAA",
+      "gpx": {
+        "bytes": 1145855,
+        "file": "packs/loose-n48-w116-voyager.gpx",
+        "sha256": "fd008fe24b3fb975556c83fdc7c3672a4b1b4564fdce6ddb79d0ba3abfbb9bf7"
+      },
+      "id": "loose-n48-w116",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 29728,
+        "file": "manifests/loose-n48-w116.json",
+        "sha256": "482e5a1e666168e2e65e82018c36ed761e99ddad746a791799044df0587bc366"
+      },
+      "minimumWalkCount": 96,
+      "name": "Border Patrol",
+      "retraceEdgeCount": 0,
+      "routeCount": 0,
+      "routePointCount": 0,
+      "sourcePointCount": 23287,
+      "sourceTrailCount": 102,
+      "trackCount": 96,
+      "trackPointCount": 23275
+    },
+    {
+      "bounds": [
+        -110.192657,
+        37.635634,
+        -107.976839,
+        38.991804
+      ],
+      "deviceCode": "MOBEE5D",
+      "gpx": {
+        "bytes": 1166562,
+        "file": "packs/moab-voyager.gpx",
+        "sha256": "02dca44ffce65dab749cb01887baf3120be371937b4eca1dd25d110f55da5cbc"
+      },
+      "id": "moab",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 64336,
+        "file": "manifests/moab.json",
+        "sha256": "b53541da223d0bbaf8e25b8d77b7687b9f6bbd0d7ea04f5e201b8eb58ef5f267"
+      },
+      "minimumWalkCount": 238,
+      "name": "Moab",
+      "retraceEdgeCount": 0,
+      "routeCount": 0,
+      "routePointCount": 0,
+      "sourcePointCount": 23554,
+      "sourceTrailCount": 236,
+      "trackCount": 238,
+      "trackPointCount": 23544
+    },
+    {
+      "bounds": [
+        -122.670914,
+        39.92408,
+        -120.608654,
+        41.575183
+      ],
+      "deviceCode": "MO03625",
+      "gpx": {
+        "bytes": 541208,
+        "file": "packs/mount-shasta-voyager.gpx",
+        "sha256": "d8947ec2abea1b0ca05d451fbc31fd15a7ab4a6ae60c757509d2324f9ee47089"
+      },
+      "id": "mount-shasta",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 38710,
+        "file": "manifests/mount-shasta.json",
+        "sha256": "eb4bcd7df5def9c95c81484e781d3ca84c76c4456692435cdc1a7ffdd0357ccc"
+      },
+      "minimumWalkCount": 136,
+      "name": "Mount Shasta",
+      "retraceEdgeCount": 0,
+      "routeCount": 0,
+      "routePointCount": 0,
+      "sourcePointCount": 10900,
+      "sourceTrailCount": 142,
+      "trackCount": 136,
+      "trackPointCount": 10892
+    },
+    {
+      "bounds": [
+        -119.651821,
+        36.866491,
+        -119.007919,
+        37.44823
+      ],
+      "deviceCode": "OA9D5FE",
+      "gpx": {
+        "bytes": 1462331,
+        "file": "packs/oakhurst-voyager.gpx",
+        "sha256": "d9a706018486840cc1d089c99be6a5e2beb0f8ab40ab68b342b8a101117c1f57"
+      },
+      "id": "oakhurst",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 10657,
+        "file": "manifests/oakhurst.json",
+        "sha256": "46823dcdbfbf386e70ce6df3341df4468e1bbc754330611d2b865ca0c7d8f4a5"
+      },
+      "minimumWalkCount": 31,
+      "name": "Oakhurst",
+      "retraceEdgeCount": 0,
+      "routeCount": 0,
+      "routePointCount": 0,
+      "sourcePointCount": 29804,
+      "sourceTrailCount": 31,
+      "trackCount": 31,
+      "trackPointCount": 29804
+    },
+    {
+      "bounds": [
+        -124.068285,
+        41.972687,
+        -117.93412,
+        46.13644
+      ],
+      "deviceCode": "OR46F9B",
+      "gpx": {
+        "bytes": 5063193,
+        "file": "packs/oregon-backcountry-discovery-route-voyager.gpx",
+        "sha256": "070208c57ccd3975534b9f57d891cdefc4266802de87728831a592b470e71e5f"
+      },
+      "id": "oregon-backcountry-discovery-route",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 36993,
+        "file": "manifests/oregon-backcountry-discovery-route.json",
+        "sha256": "52582bff37844a656186739808889fe9e3fa611d5213e2b59dd13ea6aa4e82e6"
+      },
+      "minimumWalkCount": 125,
+      "name": "Oregon Backcountry Discovery Route",
+      "retraceEdgeCount": 0,
+      "routeCount": 2,
+      "routePointCount": 38210,
+      "sourcePointCount": 103198,
+      "sourceTrailCount": 132,
+      "trackCount": 123,
+      "trackPointCount": 64980
+    },
+    {
+      "bounds": [
+        -123.923826,
+        46.877482,
+        -122.844352,
+        48.077223
+      ],
+      "deviceCode": "PN935B6",
+      "gpx": {
+        "bytes": 997302,
+        "file": "packs/pnwds-summer-opener-2018-voyager.gpx",
+        "sha256": "04e7d5066e9fbc17774606d72da257cf684d49b0677322d205507c570a213034"
+      },
+      "id": "pnwds-summer-opener-2018",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 7401,
+        "file": "manifests/pnwds-summer-opener-2018.json",
+        "sha256": "cdb542b673798fd1f4b83378edf2560a9377606384ae98b1079b0e45a5df5250"
+      },
+      "minimumWalkCount": 14,
+      "name": "Olympic Mountains",
+      "retraceEdgeCount": 0,
+      "routeCount": 0,
+      "routePointCount": 0,
+      "sourcePointCount": 20336,
+      "sourceTrailCount": 18,
+      "trackCount": 14,
+      "trackPointCount": 20332
+    },
+    {
+      "bounds": [
+        -113.84933,
+        36.928021,
+        -110.350885,
+        39.973528
+      ],
+      "deviceCode": "PR683B5",
+      "gpx": {
+        "bytes": 853205,
+        "file": "packs/price-voyager.gpx",
+        "sha256": "da5fb803e0570384b3366d1bf2a2dacfde80dd4c905aef16d6712daf45258c66"
+      },
+      "id": "price",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 41805,
+        "file": "manifests/price.json",
+        "sha256": "d939ff22ad76d9a232ee2851f7719ce9b1201ddf3ca3f4b4fe247d93e2324964"
+      },
+      "minimumWalkCount": 164,
+      "name": "Price",
+      "retraceEdgeCount": 0,
+      "routeCount": 0,
+      "routePointCount": 0,
+      "sourcePointCount": 17245,
+      "sourceTrailCount": 150,
+      "trackCount": 164,
+      "trackPointCount": 17229
+    },
+    {
+      "bounds": [
+        -117.124584,
+        44.324965,
+        -116.144779,
+        45.437173
+      ],
+      "deviceCode": "TH64875",
+      "gpx": {
+        "bytes": 530377,
+        "file": "packs/the-deepest-valley-voyager.gpx",
+        "sha256": "c59341cb20563b57ef49cb8d3394307f737c58e23bbbe8368c9c371586537f7b"
+      },
+      "id": "the-deepest-valley",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 22055,
+        "file": "manifests/the-deepest-valley.json",
+        "sha256": "683f1a8e46fed9354297f10f070ddb7e5411aa24784a660f61b194f36da71702"
+      },
+      "minimumWalkCount": 62,
+      "name": "The Deepest Valley",
+      "retraceEdgeCount": 0,
+      "routeCount": 0,
+      "routePointCount": 0,
+      "sourcePointCount": 10764,
+      "sourceTrailCount": 75,
+      "trackCount": 62,
+      "trackPointCount": 10751
+    },
+    {
+      "bounds": [
+        -123.868351,
+        45.221674,
+        -123.316508,
+        45.813101
+      ],
+      "deviceCode": "TI57093",
+      "gpx": {
+        "bytes": 3730078,
+        "file": "packs/tillamook-state-forest-voyager.gpx",
+        "sha256": "16b767014ba55f2f3995f9d27c3e96ed48c44093dd031af77f2f1892a2596085"
+      },
+      "id": "tillamook-state-forest",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 360648,
+        "file": "manifests/tillamook-state-forest.json",
+        "sha256": "9328572e610c51d3813a9a16be4ce9cdd5e12617124718b7e65a92e80d518ea5"
+      },
+      "minimumWalkCount": 782,
+      "name": "Tillamook",
+      "retraceEdgeCount": 4145,
+      "routeCount": 300,
+      "routePointCount": 37824,
+      "sourcePointCount": 71899,
+      "sourceTrailCount": 1050,
+      "trackCount": 290,
+      "trackPointCount": 37760
+    },
+    {
+      "bounds": [
+        -122.331433,
+        45.648451,
+        -118.283773,
+        49.00012
+      ],
+      "deviceCode": "WA5F683",
+      "gpx": {
+        "bytes": 1534235,
+        "file": "packs/washington-backcountry-discovery-route-voyager.gpx",
+        "sha256": "f8119f58772b2d4ed21eba2d37605bc3db762795bfa28dc3eebf9e03a3a7e0dc"
+      },
+      "id": "washington-backcountry-discovery-route",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 12239,
+        "file": "manifests/washington-backcountry-discovery-route.json",
+        "sha256": "18704ec7612c89ca9073ffe34a5ae89e15d0c4995fbeb5a983069988372c786f"
+      },
+      "minimumWalkCount": 24,
+      "name": "Washington Backcountry Discovery Route",
+      "retraceEdgeCount": 0,
+      "routeCount": 0,
+      "routePointCount": 0,
+      "sourcePointCount": 31291,
+      "sourceTrailCount": 36,
+      "trackCount": 24,
+      "trackPointCount": 31279
+    },
+    {
+      "bounds": [
+        -113.041017,
+        33.78166,
+        -109.259814,
+        35.08877
+      ],
+      "deviceCode": "WI6D4F7",
+      "gpx": {
+        "bytes": 4353245,
+        "file": "packs/wickenburg-voyager.gpx",
+        "sha256": "d2a357264bf463b37e9165fba5a19a54c2d84efcfe36aacdc83fa4eeda16e50b"
+      },
+      "id": "wickenburg",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 67941,
+        "file": "manifests/wickenburg.json",
+        "sha256": "dbc0940e4abfb100dd63812df6946454a1d5e9969d9e38585cd8d2eea6fc2347"
+      },
+      "minimumWalkCount": 222,
+      "name": "Wickenburg",
+      "retraceEdgeCount": 0,
+      "routeCount": 1,
+      "routePointCount": 29601,
+      "sourcePointCount": 88634,
+      "sourceTrailCount": 251,
+      "trackCount": 221,
+      "trackPointCount": 58995
+    },
+    {
+      "bounds": [
+        -122.631454,
+        45.608088,
+        -121.688803,
+        46.057296
+      ],
+      "deviceCode": "YA5A9BB",
+      "gpx": {
+        "bytes": 3213912,
+        "file": "packs/yacolt-burn-voyager.gpx",
+        "sha256": "7794c9b905e732f3d629c7f9f55823e833649d1bcf94ca906c5c1251105b9bc9"
+      },
+      "id": "yacolt-burn",
+      "kind": "riding-area",
+      "manifest": {
+        "bytes": 404986,
+        "file": "manifests/yacolt-burn.json",
+        "sha256": "49020f8d712415117b7c13addbc5dfc30ea3e39936607c4079dde746d8719a8a"
+      },
+      "minimumWalkCount": 945,
+      "name": "Yacolt Burn",
+      "retraceEdgeCount": 1004,
+      "routeCount": 300,
+      "routePointCount": 32583,
+      "sourcePointCount": 64750,
+      "sourceTrailCount": 1294,
+      "trackCount": 290,
+      "trackPointCount": 32467
+    }
+  ],
+  "purpose": "voyager-production-semantic-riding-area-release",
+  "readme": {
+    "bytes": 1356,
+    "file": "README.txt",
+    "sha256": "6a0f76519cf009652d7e0246295940b92f43698c6dbf04466cbcd5f3954c8641"
+  },
+  "releasePolicy": {
+    "areaPacksAreStandalone": true,
+    "areaRouteLimit": 300,
+    "areaTrackLimit": 290,
+    "contextBakedIntoAreaPacks": false,
+    "inventedConnectors": 0,
+    "joins": "exact coordinate only",
+    "mutuallyExclusiveTargetTrailCatalogs": true,
+    "optionalContextRequiresAvailableTrackCapacity": true,
+    "reservedTrackSlotHeadroom": 10,
+    "semanticTargetCount": 46,
+    "telemetry": "elevation, time, and extensions omitted",
+    "waypoints": 0
+  },
+  "schemaVersion": 1,
+  "source": {
+    "databaseTrailCount": 15170,
+    "namedAssignedTrailCount": 15170,
+    "ridingAreasSha256": null,
+    "sourceCatalogSha256": "049bab83a2c3de829309481cdaa375e7f71a7fdce578eb64881c227c26738af0",
+    "sourceFileSnapshotCount": 15170,
+    "unassignedTrailCount": 0,
+    "webMapBuildKey": "1a68575119927442",
+    "webMapManifestSha256": "e235377e5bb59722c59f403a5f4c7704e566503c42186ed249e47ba990d16d73"
+  },
+  "validation": {
+    "allCanonicalSourceFilesRehashedAfterBuild": true,
+    "allPackOutputsReparsed": true,
+    "allPacksWithinDeviceLimits": true,
+    "allRetracedEdgesReferenceExistingSourceEdges": true,
+    "allSourceGeometryCoveredPerTarget": true,
+    "globalDevicePathNameCount": 10333,
+    "globalNamesUniqueAfter12Characters": true,
+    "stateContextRehashedAfterBuild": true
+  },
+  "voyagerLimits": {
+    "independentTrackAndRoutePointPools": true,
+    "routePoints": 72500,
+    "routes": 300,
+    "trackPoints": 72500,
+    "tracks": 300
+  }
+}

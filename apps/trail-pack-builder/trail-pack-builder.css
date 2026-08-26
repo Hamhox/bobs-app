@@ -1,0 +1,1255 @@
+:root {
+  --trail-masthead-height: 4.25rem;
+  --trail-ink: #2d2118;
+  --trail-paper: #cdb178;
+  --trail-paper-light: #f4e4b6;
+  --trail-rust: #c8462b;
+  --trail-rust-dark: #962f20;
+  --trail-violet: #713896;
+  --trail-panel: rgb(10 17 28 / 0.96);
+  --trail-panel-border: rgb(151 170 190 / 0.24);
+}
+
+.trail-pack-body {
+  background: #060b14;
+}
+
+.trail-pack-body::before {
+  background:
+    radial-gradient(circle at 70% 0%, rgb(147 51 234 / 0.08), transparent 30rem),
+    linear-gradient(180deg, rgb(4 10 19 / 0.2), rgb(2 5 10 / 0.7));
+}
+
+.trail-pack-main {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+
+.trail-pack-masthead {
+  position: relative;
+  grid-template-columns: minmax(9rem, 0.55fr) minmax(30rem, 1.45fr) minmax(9rem, 0.55fr);
+  min-height: var(--trail-masthead-height);
+  padding-inline: clamp(1.1rem, 2.2vw, 2rem);
+  background: rgb(6 13 22 / 0.98);
+  backdrop-filter: none;
+}
+
+.trail-pack-masthead .wordmark {
+  width: clamp(8.5rem, 10vw, 10.5rem);
+}
+
+.trail-masthead-copy {
+  min-width: 0;
+  justify-self: center;
+  width: min(100%, 46rem);
+}
+
+.trail-masthead-copy h1 {
+  max-width: none;
+  margin: 0;
+  color: var(--brand-text);
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: clamp(1rem, 1.6vw, 1.35rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.trail-masthead-copy p {
+  margin: 0.18rem 0 0;
+  color: #c0cad4;
+  font-size: 0.68rem;
+  line-height: 1.25;
+}
+
+.trail-pack-masthead nav a {
+  color: #bd78ee;
+  white-space: nowrap;
+}
+
+.trail-tool,
+.trail-button,
+.trail-link-button {
+  border: 1px solid #344355;
+  background: #0b1420;
+  color: #dbe5ed;
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.trail-tool {
+  width: 100%;
+  min-height: 3.5rem;
+  padding: 0.45rem 0.25rem;
+  border: 0;
+  border-bottom: 1px solid #344355;
+  border-radius: 0;
+  background: transparent;
+}
+
+.trail-auto-fit-control {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.28rem;
+  width: 100%;
+  min-height: 3.5rem;
+  padding: 0.45rem 0.2rem;
+  border-bottom: 1px solid #344355;
+  color: #bfcbd6;
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 0.54rem;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+  line-height: 1;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.trail-auto-fit-control:hover {
+  color: #fff;
+}
+
+.trail-auto-fit-control input {
+  width: 0.9rem;
+  height: 0.9rem;
+  margin: 0;
+  accent-color: var(--trail-violet);
+  cursor: pointer;
+}
+
+.trail-auto-fit-control:focus-within {
+  position: relative;
+  z-index: 1;
+  outline: 2px solid #b96bf1;
+  outline-offset: -3px;
+}
+
+.trail-pack-body.is-curation-mode .trail-auto-fit-control {
+  display: none;
+}
+
+.trail-tool--curation-only {
+  display: none;
+}
+
+.trail-pack-body.is-curation-mode .trail-tool--curation-only {
+  display: block;
+}
+
+.trail-tool:last-child {
+  border-bottom: 0;
+}
+
+.trail-tool--square {
+  width: 100%;
+  padding-inline: 0;
+  font-size: 1rem;
+}
+
+.trail-tool:hover,
+.trail-button:hover,
+.trail-link-button:hover {
+  border-color: #77899a;
+  color: #fff;
+}
+
+.trail-tool.is-active {
+  background: rgb(111 52 151 / 0.52);
+  color: #f4e7ff;
+}
+
+.trail-tool:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline: 2px solid #b96bf1;
+  outline-offset: -3px;
+}
+
+.trail-tool:disabled,
+.trail-button:disabled,
+.trail-link-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.trail-workspace {
+  position: relative;
+  min-height: 38rem;
+  background: #11100d;
+}
+
+.trail-map-panel,
+.trail-map-frame,
+#trailMap {
+  width: 100%;
+  height: 100%;
+}
+
+.trail-map-panel {
+  min-width: 0;
+  min-height: 38rem;
+}
+
+.trail-map-frame {
+  position: relative;
+  min-height: 38rem;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 30% 18%, rgb(252 237 188 / 0.18), transparent 18rem),
+    var(--trail-paper);
+  isolation: isolate;
+}
+
+.trail-map-toolbar {
+  position: absolute;
+  z-index: 6;
+  top: 7.25rem;
+  left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  width: 4rem;
+  overflow: hidden;
+  border: 1px solid var(--trail-panel-border);
+  border-radius: 2px;
+  background: rgb(7 16 27 / 0.94);
+  box-shadow: 0 0.75rem 1.5rem rgb(0 0 0 / 0.24);
+}
+
+.trail-map-frame::after {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(12deg, transparent 0 7px, rgb(70 45 25 / 0.022) 8px 9px),
+    repeating-linear-gradient(103deg, transparent 0 11px, rgb(255 248 214 / 0.025) 12px 13px);
+  content: "";
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+
+#trailMap {
+  position: relative;
+  z-index: 1;
+  display: block;
+  min-height: 38rem;
+  touch-action: none;
+  cursor: grab;
+}
+
+#trailMap.is-dragging {
+  cursor: grabbing;
+}
+
+#trailMap.is-box-mode {
+  cursor: crosshair;
+}
+
+#trailMap:focus-visible {
+  outline: 3px solid #b96bf1;
+  outline-offset: -3px;
+}
+
+#trailMap.is-zoom-mode {
+  cursor: zoom-in;
+}
+
+#trailMap.is-zoom-mode.is-zoom-out {
+  cursor: zoom-out;
+}
+
+#trailMap.is-space-pan {
+  cursor: grab;
+}
+
+#trailMap.is-space-pan.is-dragging {
+  cursor: grabbing;
+}
+
+.trail-area-labels {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.trail-area-label {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+  min-height: 2.2rem;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  background: transparent;
+  color: #3e2531;
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: clamp(0.58rem, 0.72vw, 0.72rem);
+  font-weight: 800;
+  justify-content: center;
+  letter-spacing: 0.045em;
+  line-height: 1;
+  pointer-events: auto;
+  text-shadow:
+    -2px -2px 1px rgb(235 211 151 / 0.92),
+    2px -2px 1px rgb(235 211 151 / 0.92),
+    -2px 2px 1px rgb(235 211 151 / 0.92),
+    2px 2px 1px rgb(235 211 151 / 0.92);
+  text-transform: uppercase;
+  transition:
+    color 140ms ease,
+    background-color 140ms ease,
+    border-color 140ms ease,
+    opacity 140ms ease;
+  white-space: nowrap;
+}
+
+.trail-area-label::before {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 auto;
+  width: 0.46rem;
+  height: 0.46rem;
+  border: 2px solid #603c6c;
+  background: #d7b967;
+  box-shadow: 0 0 0 2px rgb(235 211 151 / 0.76);
+  content: "";
+  transform: rotate(45deg);
+}
+
+.trail-area-label:hover,
+.trail-area-label:focus-visible,
+.trail-area-label.is-selected {
+  border-color: rgb(92 51 111 / 0.52);
+  background: rgb(235 211 151 / 0.88);
+  color: #29182f;
+  outline: 0;
+  text-shadow: none;
+}
+
+.trail-area-label:focus-visible {
+  box-shadow: 0 0 0 3px rgb(170 64 255 / 0.48);
+}
+
+.trail-area-label.is-active::before,
+.trail-area-label.is-selected::before {
+  border-color: #f4d36e;
+  background: #6f328e;
+}
+
+.trail-track-tooltip {
+  position: absolute;
+  z-index: 6;
+  max-width: min(20rem, calc(100% - 1rem));
+  padding: 0.34rem 0.48rem;
+  border: 1px solid rgb(236 221 176 / 0.36);
+  border-radius: 2px;
+  background: rgb(25 18 12 / 0.94);
+  box-shadow: 0 0.4rem 1rem rgb(0 0 0 / 0.28);
+  color: #f5e7bf;
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 0.7rem;
+  line-height: 1.25;
+  pointer-events: none;
+}
+
+.trail-status {
+  position: absolute;
+  z-index: 5;
+  margin: 0;
+  border: 1px solid rgb(236 221 176 / 0.28);
+  border-radius: 2px;
+  background: rgb(25 18 12 / 0.9);
+  color: #f5e7bf;
+  box-shadow: 0 0.5rem 1.5rem rgb(28 18 9 / 0.22);
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 0.6rem;
+  line-height: 1.45;
+  letter-spacing: 0.04em;
+  pointer-events: none;
+  bottom: 0.8rem;
+  left: 50%;
+  max-width: min(34rem, calc(100% - 2rem));
+  padding: 0.55rem 0.7rem;
+  transform: translateX(-50%);
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease,
+    visibility 180ms ease;
+}
+
+.trail-status.is-error {
+  border-color: rgb(200 70 43 / 0.72);
+  color: #ffd2c6;
+}
+
+.trail-status.is-hidden {
+  visibility: hidden;
+  opacity: 0;
+  transform: translate(-50%, 0.35rem);
+}
+
+.trail-map-compass {
+  position: absolute;
+  z-index: 4;
+  top: 1rem;
+  left: 1rem;
+  width: 4.75rem;
+  height: 4.75rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.trail-map-compass:focus-visible {
+  outline: 2px solid var(--trail-violet);
+  outline-offset: 3px;
+  border-radius: 50%;
+}
+
+.trail-compass-piece {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.trail-compass-arrow {
+  transform: rotate(0deg);
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  transition: transform 480ms cubic-bezier(0.22, 0.8, 0.28, 1);
+}
+
+.trail-compass-south,
+.trail-compass-question {
+  transition: opacity 160ms ease;
+}
+
+.trail-compass-question {
+  opacity: 0;
+}
+
+.trail-map-compass.is-open .trail-compass-arrow {
+  transform: rotate(180deg);
+}
+
+.trail-map-compass.is-open .trail-compass-south {
+  opacity: 0;
+}
+
+.trail-map-compass.is-open .trail-compass-question {
+  opacity: 1;
+}
+
+.trail-selection {
+  position: absolute;
+  z-index: 7;
+  top: 1rem;
+  right: 1rem;
+  display: grid;
+  gap: 0.65rem;
+  width: min(21rem, calc(100% - 2rem));
+  max-height: calc(100% - 2rem);
+  padding: 1rem;
+  overflow: auto;
+  border: 1px solid var(--trail-panel-border);
+  border-radius: 3px;
+  background: rgb(7 16 27 / 0.96);
+  box-shadow: 0 1rem 2.25rem rgb(0 0 0 / 0.28);
+  backdrop-filter: blur(8px);
+}
+
+.trail-selection header {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.trail-selection h2 {
+  margin: 0;
+  overflow: hidden;
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 1.15rem;
+  letter-spacing: 0.015em;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.selection-kind {
+  margin: 0;
+  color: #9aacbc;
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.selection-primary,
+.selection-details {
+  margin: 0;
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+}
+
+.selection-primary {
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.pack-rule {
+  margin: 0;
+  color: #b4c1cf;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.selection-actions {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.collection-pack-list {
+  display: grid;
+  border-top: 1px solid #273646;
+}
+
+.collection-pack-list[hidden] {
+  display: none;
+}
+
+.collection-pack-link {
+  display: flex;
+  gap: 0.75rem;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid #273646;
+  color: #e0c78f;
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 0.68rem;
+  line-height: 1.35;
+  text-decoration: none;
+}
+
+.collection-pack-link:hover {
+  color: #fff;
+}
+
+.collection-pack-count {
+  flex: none;
+  color: #91a1b0;
+  font-size: 0.58rem;
+}
+
+.trail-button {
+  min-height: 2.6rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 2px;
+}
+
+.trail-button--primary {
+  border-color: #ff6b45;
+  background: var(--trail-rust);
+  color: #fff;
+}
+
+.trail-button--primary:hover {
+  border-color: #ffab91;
+  background: #dc4a2c;
+}
+
+.selection-details {
+  color: #91a1b0;
+  font-size: 0.64rem;
+  line-height: 1.4;
+}
+
+.trail-link-button {
+  justify-self: start;
+  min-height: 2rem;
+  padding: 0.35rem 0;
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  background: transparent;
+  color: #bd78ee;
+}
+
+.trail-data-note {
+  margin-top: 0.1rem;
+  color: #8fa0ae;
+  font-size: 0.62rem;
+  line-height: 1.45;
+}
+
+.trail-data-note summary {
+  display: inline-flex;
+  min-height: 1.5rem;
+  align-items: center;
+  width: max-content;
+  color: #91a1b0;
+  cursor: pointer;
+}
+
+.trail-data-note[open] summary {
+  margin-bottom: 0.55rem;
+}
+
+.trail-data-note p {
+  margin: 0 0 0.55rem;
+}
+
+.trail-data-download {
+  display: inline-block;
+  margin-bottom: 0.65rem;
+  color: #bd78ee;
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+.trail-data-download[hidden] {
+  display: none;
+}
+
+.trail-help-downloads {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1rem;
+  align-items: center;
+}
+
+.trail-help-downloads .trail-link-button,
+.trail-help-downloads .trail-data-download {
+  margin: 0;
+  font-size: 0.66rem;
+}
+
+.trail-context-warning {
+  flex-basis: 100%;
+  color: #8fa0ae;
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+
+.trail-context-warning[hidden] {
+  display: none;
+}
+
+.map-credits {
+  margin-bottom: 0 !important;
+  color: #718395;
+  font-size: 0.55rem;
+  line-height: 1.4;
+}
+
+.map-credits a {
+  color: #879bad;
+}
+
+.trail-dialog {
+  width: min(27rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  margin: auto;
+  padding: 0;
+  overflow: auto;
+  border: 1px solid var(--trail-panel-border);
+  border-radius: 3px;
+  background: #07101b;
+  color: #dbe5ed;
+  box-shadow: 0 1.25rem 3rem rgb(0 0 0 / 0.52);
+}
+
+.trail-dialog::backdrop {
+  background: rgb(3 7 12 / 0.68);
+}
+
+.trail-dialog form {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1.1rem;
+}
+
+.trail-dialog h2,
+.trail-dialog p {
+  margin: 0;
+}
+
+.trail-dialog h2 {
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 1.05rem;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.trail-dialog p {
+  color: #b4c1cf;
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+.trail-help-dialog {
+  width: min(31rem, calc(100vw - 2rem));
+}
+
+.trail-help-dialog p {
+  font-size: 0.85rem;
+}
+
+.trail-help-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.trail-dialog-close {
+  display: grid;
+  flex: 0 0 auto;
+  width: 2.1rem;
+  min-height: 2.1rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #9aacbc;
+  font: 1.35rem/1 "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  cursor: pointer;
+  place-items: center;
+}
+
+.trail-dialog-close:hover {
+  color: #fff;
+}
+
+.trail-dialog-close:focus-visible {
+  outline: 2px solid var(--trail-violet);
+  outline-offset: 1px;
+}
+
+.trail-help-shortcuts {
+  padding-block: 0.75rem;
+  border-block: 1px solid var(--trail-panel-border);
+  color: #8fa0ae !important;
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 0.66rem !important;
+}
+
+.trail-help-shortcuts strong {
+  color: #dbe5ed;
+}
+
+.trail-help-note {
+  color: #d4b985 !important;
+  font-size: 0.7rem !important;
+}
+
+.trail-help-dialog .trail-button--primary {
+  width: 100%;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+@media (min-width: 64rem) and (min-height: 36rem) {
+  .trail-pack-body {
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .trail-pack-main {
+    height: calc(100dvh - var(--trail-masthead-height));
+    min-height: 0;
+  }
+
+  .trail-workspace,
+  .trail-map-panel,
+  .trail-map-frame,
+  #trailMap {
+    height: 100%;
+    min-height: 0;
+  }
+
+  .trail-pack-body > footer {
+    display: none;
+  }
+}
+
+@media (max-width: 63.99rem), (max-height: 35.99rem) {
+  .trail-pack-masthead {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 1rem;
+    padding-inline: 1rem;
+  }
+
+  .trail-pack-masthead .wordmark {
+    width: 8rem;
+  }
+
+  .trail-masthead-copy h1 {
+    overflow: hidden;
+    font-size: 0.9rem;
+    text-overflow: ellipsis;
+  }
+
+  .trail-masthead-copy p {
+    font-size: 0.62rem;
+  }
+
+  .trail-workspace {
+    min-height: 0;
+  }
+
+  .trail-map-panel,
+  .trail-map-frame,
+  #trailMap {
+    height: 55svh;
+    min-height: 55svh;
+  }
+
+  .trail-workspace:not(.has-selection) .trail-map-panel,
+  .trail-workspace:not(.has-selection) .trail-map-frame,
+  .trail-workspace:not(.has-selection) #trailMap {
+    height: calc(100svh - var(--trail-masthead-height));
+    min-height: calc(100svh - var(--trail-masthead-height));
+  }
+
+  .trail-selection {
+    position: static;
+    width: min(100% - 2rem, 42rem);
+    max-height: none;
+    margin: 1rem auto;
+  }
+
+  .trail-map-toolbar {
+    top: 5.5rem;
+    left: 0.8rem;
+    width: 3.25rem;
+  }
+
+  .trail-tool {
+    min-height: 3.05rem;
+  }
+
+  .trail-auto-fit-control {
+    min-height: 3.05rem;
+  }
+
+  .trail-map-compass {
+    top: 0.75rem;
+    left: 0.65rem;
+    width: 3.75rem;
+    height: 3.75rem;
+  }
+}
+
+@media (max-width: 48rem) {
+  :root {
+    --trail-masthead-height: 3.75rem;
+  }
+
+  .trail-pack-masthead {
+    gap: 0.65rem;
+    min-height: var(--trail-masthead-height);
+    padding-inline: 0.75rem;
+  }
+
+  .trail-pack-masthead .wordmark {
+    width: 7rem;
+  }
+
+  .trail-masthead-copy h1 {
+    font-size: 0.74rem;
+  }
+
+  .trail-masthead-copy p {
+    display: none;
+  }
+
+  .trail-pack-masthead nav {
+    gap: 0;
+  }
+
+  .trail-pack-masthead nav a {
+    display: inline !important;
+    font-size: 0.58rem;
+    letter-spacing: 0.06em;
+  }
+
+  .trail-back-full {
+    display: none;
+  }
+
+  .trail-status {
+    bottom: 0.75rem;
+    max-width: calc(100% - 1.5rem);
+  }
+
+  .trail-map-compass {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+
+  .trail-area-label {
+    font-size: 0.58rem;
+    min-height: 2.75rem;
+  }
+
+  .trail-selection {
+    padding: 1rem;
+  }
+
+  .trail-link-button {
+    min-height: 2.75rem;
+  }
+
+  .trail-help-shortcuts {
+    display: none;
+  }
+
+  .trail-dialog {
+    width: calc(100vw - 1rem);
+  }
+
+}
+
+@media (max-height: 35.99rem) and (orientation: landscape) {
+  .trail-map-toolbar {
+    top: 0.75rem;
+    left: 5rem;
+    flex-direction: row;
+    width: auto;
+    max-width: calc(100% - 5.75rem);
+    overflow-x: auto;
+  }
+
+  .trail-tool,
+  .trail-tool--square {
+    width: auto;
+    min-width: 3.05rem;
+    min-height: 3.05rem;
+    padding-inline: 0.7rem;
+    border-right: 1px solid #344355;
+    border-bottom: 0;
+  }
+
+  .trail-auto-fit-control {
+    flex-direction: row;
+    width: auto;
+    min-width: 4.8rem;
+    min-height: 3.05rem;
+    padding-inline: 0.7rem;
+    border-right: 1px solid #344355;
+    border-bottom: 0;
+  }
+
+  .trail-tool:last-child {
+    border-right: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trail-tool,
+  .trail-button,
+  .trail-link-button,
+  .trail-area-label,
+  .trail-status,
+  .trail-compass-arrow,
+  .trail-compass-south,
+  .trail-compass-question {
+    transition: none;
+  }
+}
+
+/* Temporary local grouping board. It is only enabled by ?curate=1. */
+.trail-curation {
+  min-width: 0;
+  min-height: 0;
+  padding: 0.85rem;
+  overflow: hidden;
+  border-left: 1px solid #344355;
+  background: #08111d;
+  color: #dbe5ed;
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+}
+
+.trail-curation-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid #344355;
+}
+
+.trail-curation-heading h2,
+.trail-curation-heading p,
+.trail-curation p {
+  margin: 0;
+}
+
+.trail-curation-heading h2 {
+  font-size: 1rem;
+  text-transform: uppercase;
+}
+
+.trail-curation-heading p,
+.trail-curation-help,
+.trail-curation-loose {
+  margin-top: 0.2rem !important;
+  color: #8fa0ae;
+  font-size: 0.62rem;
+  line-height: 1.4;
+}
+
+.trail-curation-dirty {
+  flex: 0 0 auto;
+  color: #9dabb7;
+  font-size: 0.58rem;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.trail-curation-dirty.is-dirty {
+  color: #f0be77;
+}
+
+.trail-curation-summary,
+.trail-curation-selection {
+  padding-top: 0.65rem;
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
+.trail-curation-selection {
+  color: #f0d693;
+}
+
+.trail-curation-name-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 0.65rem;
+}
+
+.trail-curation-name-row label,
+.trail-curation-filter-row label {
+  color: #9dabb7;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+}
+
+.trail-curation input[type="text"],
+.trail-curation input[type="search"] {
+  min-width: 0;
+  min-height: 2rem;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid #344355;
+  border-radius: 0;
+  background: #050b13;
+  color: #eef3f7;
+  font: 0.68rem/1.2 "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+}
+
+.trail-curation button {
+  min-height: 2rem;
+  padding: 0.35rem 0.45rem;
+  border: 1px solid #344355;
+  border-radius: 0;
+  background: #0b1420;
+  color: #dbe5ed;
+  font: 700 0.58rem/1.15 "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.trail-curation button:hover,
+.trail-curation button:focus-visible {
+  border-color: #b96bf1;
+  color: #fff;
+}
+
+.trail-curation button:disabled {
+  cursor: not-allowed;
+  opacity: 0.38;
+}
+
+.trail-curation-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.35rem;
+  margin-top: 0.55rem;
+}
+
+.trail-curation-actions--primary button:first-child {
+  border-color: #8f4fbc;
+}
+
+.trail-curation-filter-row,
+.trail-curation-layer-tools,
+.trail-curation-file-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.65rem;
+}
+
+.trail-curation-filter-row input[type="search"] {
+  flex: 1 1 auto;
+}
+
+.trail-curation-filter-row label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  white-space: nowrap;
+}
+
+.trail-curation input[type="checkbox"] {
+  accent-color: var(--trail-violet);
+}
+
+.trail-curation-layer-tools span {
+  margin-left: auto;
+  color: #8fa0ae;
+  font-size: 0.58rem;
+}
+
+.trail-curation-layers {
+  min-height: 8rem;
+  margin-top: 0.45rem;
+  overflow: auto;
+  border-block: 1px solid #344355;
+  scrollbar-color: #604078 #09121f;
+}
+
+.trail-curation-layer {
+  display: grid;
+  grid-template-columns: 1.65rem 1.65rem minmax(0, 1fr) auto;
+  align-items: center;
+  min-height: 2.45rem;
+  border-bottom: 1px solid rgb(52 67 85 / 0.65);
+}
+
+.trail-curation-layer:last-child {
+  border-bottom: 0;
+}
+
+.trail-curation-layer.is-checked {
+  background: rgb(109 129 148 / 0.14);
+}
+
+.trail-curation-layer.is-active {
+  background: rgb(113 56 150 / 0.32);
+  box-shadow: inset 3px 0 #b96bf1;
+}
+
+.trail-curation-layer.is-hidden {
+  opacity: 0.5;
+}
+
+.trail-curation-layer-eye,
+.trail-curation-layer-check {
+  display: grid;
+  min-height: 2.4rem !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  place-items: center;
+}
+
+.trail-curation-layer-check input {
+  margin: 0;
+}
+
+.trail-curation-layer-name {
+  min-width: 0;
+  min-height: 2.4rem !important;
+  overflow: hidden;
+  border: 0 !important;
+  background: transparent !important;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trail-curation-layer-meta {
+  padding-right: 0.45rem;
+  color: #8fa0ae;
+  font-size: 0.55rem;
+  white-space: nowrap;
+}
+
+.trail-curation-layer.is-heavy .trail-curation-layer-meta {
+  color: #efb16b;
+}
+
+.trail-curation-loose {
+  padding-top: 0.55rem;
+}
+
+.trail-curation-file-actions {
+  flex-wrap: wrap;
+}
+
+.trail-curation-file-actions button:first-child {
+  border-color: #c8462b;
+}
+
+.trail-curation-help {
+  padding-top: 0.6rem;
+  border-top: 1px solid #344355;
+}
+
+@media (min-width: 64rem) and (min-height: 36rem) {
+  .trail-pack-body.is-curation-mode .trail-workspace {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 24rem;
+  }
+
+  .trail-pack-body.is-curation-mode .trail-curation {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .trail-pack-body.is-curation-mode .trail-curation-layers {
+    flex: 1 1 auto;
+  }
+
+  .trail-pack-body.is-curation-mode .trail-selection {
+    display: none;
+  }
+}
+
+@media (max-width: 63.99rem), (max-height: 35.99rem) {
+  .trail-pack-body.is-curation-mode .trail-curation {
+    display: block;
+    width: 100%;
+    max-height: 42rem;
+    border-top: 1px solid #344355;
+    border-left: 0;
+  }
+
+  .trail-pack-body.is-curation-mode .trail-selection {
+    display: none;
+  }
+}

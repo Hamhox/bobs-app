@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#090b13" />
+    <meta
+      name="description"
+      content="Download motorcycle trails in GPX format for Trail Tech Voyager and other offline GPS devices."
+    />
+    <title>Motorcycle Trail GPX Downloads for Trail Tech Voyager | Bob’s App</title>
+    <link rel="icon" href="/bobs-app-symbol-logo.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/apps/trail-pack-builder/trail-pack-builder.css" />
+  </head>
+  <body class="trail-pack-body">
+    <a class="skip-link" href="#content">Skip to Trail Pack Builder</a>
+    <header class="masthead trail-pack-masthead">
+      <a class="wordmark" href="/" aria-label="Bob's App, home">
+        <img src="/bobs-app-logo.svg" alt="" width="572" height="100" />
+      </a>
+      <div class="trail-masthead-copy">
+        <h1 id="page-title">Bob’s Motorcycle Trails</h1>
+        <p>Download motorcycle trails in GPX format for Trail Tech Voyager and other offline GPS devices.</p>
+      </div>
+      <nav aria-label="Trail navigation">
+        <a href="/artifacts"><span aria-hidden="true">←</span> <span class="trail-back-full">Bob’s </span>Artifacts</a>
+      </nav>
+    </header>
+
+    <main class="trail-pack-main" id="content">
+      <section class="trail-workspace" id="trailWorkspace" aria-labelledby="page-title">
+        <section class="trail-map-panel" aria-label="Trail selection map">
+          <div class="trail-map-frame">
+            <canvas
+              id="trailMap"
+              tabindex="0"
+              aria-label="Interactive trail map. Pan with the pointer or arrow keys. Choose a riding-area name to prepare its GPX download. At overview zoom, tap a riding-area circle twice. Desktop shortcuts while the map is focused: hold Space to pan; press Z for the zoom tool and hold Alt to zoom out; Control plus 0 fits all trails; Control plus 1 fits the selected area; Control with plus or minus zooms immediately."
+              aria-keyshortcuts="Space Z Alt+Z Control+0 Control+1 Control++ Control+-"
+              aria-describedby="trailStatus"
+            ></canvas>
+            <div class="trail-area-labels" id="trailAreaLabels" aria-label="Riding areas"></div>
+            <div class="trail-track-tooltip" id="trailTrackTooltip" role="tooltip" hidden></div>
+            <button
+              class="trail-map-compass"
+              id="trailHelpButton"
+              type="button"
+              aria-label="Open quick start"
+              aria-haspopup="dialog"
+              aria-controls="trailHelpDialog"
+              aria-expanded="false"
+            >
+              <svg class="trail-compass-piece trail-compass-dial" viewBox="0 0 138 138" aria-hidden="true">
+                <use href="/apps/trail-pack-builder/assets/voyager-compass.svg#compass-dial"></use>
+              </svg>
+              <svg class="trail-compass-piece trail-compass-south" viewBox="0 0 138 138" aria-hidden="true">
+                <use href="/apps/trail-pack-builder/assets/voyager-compass.svg#compass-south"></use>
+              </svg>
+              <svg class="trail-compass-piece trail-compass-arrow" viewBox="0 0 138 138" aria-hidden="true">
+                <use href="/apps/trail-pack-builder/assets/voyager-compass.svg#compass-arrow"></use>
+              </svg>
+              <svg class="trail-compass-piece trail-compass-question" viewBox="0 0 138 138" aria-hidden="true">
+                <use href="/apps/trail-pack-builder/assets/voyager-compass.svg#compass-question"></use>
+              </svg>
+            </button>
+            <div class="trail-map-toolbar" role="group" aria-label="Map controls">
+              <button class="trail-tool is-active" id="panTool" type="button" aria-keyshortcuts="Space" aria-pressed="true">Pan</button>
+              <button
+                class="trail-tool trail-tool--curation-only"
+                id="boxTool"
+                type="button"
+                aria-label="Select individual trails or draw a curation box"
+                aria-keyshortcuts="V A"
+                aria-pressed="false"
+              >
+                Select
+              </button>
+              <label class="trail-auto-fit-control">
+                <input
+                  id="autoFitAreas"
+                  type="checkbox"
+                  aria-label="Automatically fit selected riding areas to the map"
+                  checked
+                />
+                <span>Auto-fit</span>
+              </label>
+              <button class="trail-tool" id="fitTrails" type="button" aria-label="Fit the selected riding area, or all trails when none is selected" aria-keyshortcuts="Control+0 Control+1">Fit</button>
+              <button class="trail-tool trail-tool--square" id="zoomIn" type="button" aria-label="Zoom in immediately" aria-keyshortcuts="Control++">+</button>
+              <button class="trail-tool trail-tool--square" id="zoomOut" type="button" aria-label="Zoom out immediately" aria-keyshortcuts="Control+-">−</button>
+            </div>
+            <p
+              class="trail-status"
+              id="trailStatus"
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+            >
+              Loading the local trail library&hellip;
+            </p>
+          </div>
+        </section>
+
+        <aside class="trail-selection" id="trailSelection" aria-labelledby="selection-title" hidden>
+          <header>
+            <h2 id="selection-title">Riding area</h2>
+            <p class="selection-kind" id="selectionKindLabel">Riding area</p>
+          </header>
+
+          <p class="selection-primary" id="selectionPrimary"></p>
+          <p class="pack-rule" id="packRule"></p>
+
+          <div class="selection-actions">
+            <button class="trail-button trail-button--primary" id="downloadPack" type="button" disabled>
+              Download GPX
+            </button>
+            <p class="selection-details" id="selectionDetails"></p>
+            <div
+              class="collection-pack-list"
+              id="collectionPackList"
+              role="group"
+              aria-label="GPX files in this riding-area collection"
+              hidden
+            ></div>
+            <button class="trail-link-button" id="clearSelection" type="button" disabled>Start over</button>
+          </div>
+
+          <details class="trail-data-note">
+            <summary>About this data</summary>
+            <p>
+              Source geometry is cleaned. Prebuilt packs omit elevation and device
+              telemetry. At one point, all trails were probably on public land, but it is up to
+              you to make sure you are riding responsibly at this late date. Do not follow a GPS
+              device's advice into the middle of a lake.
+            </p>
+            <p class="map-credits">
+              Map: <a href="https://openfreemap.org/" target="_blank" rel="noopener">OpenFreeMap</a>
+              / OpenMapTiles · data
+              <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap contributors</a>
+              <br />
+              Place names: <a href="https://www.geonames.org/" target="_blank" rel="noopener">GeoNames</a>
+              · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>
+            </p>
+          </details>
+        </aside>
+
+        <aside class="trail-curation" id="trailCuration" aria-labelledby="trailCurationTitle" hidden>
+          <header class="trail-curation-heading">
+            <div>
+              <h2 id="trailCurationTitle">Grouping board</h2>
+              <p>Local draft · nothing here changes the public packs</p>
+            </div>
+            <span class="trail-curation-dirty" id="trailCurationDirty">Saved locally</span>
+          </header>
+
+          <p class="trail-curation-summary" id="trailCurationSummary"></p>
+          <p class="trail-curation-selection" id="trailCurationSelection">No trails selected.</p>
+
+          <div class="trail-curation-name-row">
+            <label for="trailCurationPackName">Pack name</label>
+            <input id="trailCurationPackName" type="text" maxlength="80" autocomplete="off" />
+          </div>
+
+          <div class="trail-curation-actions trail-curation-actions--primary">
+            <button id="trailCurationNew" type="button">New from selection</button>
+            <button id="trailCurationRename" type="button">Rename active</button>
+            <button id="trailCurationAdd" type="button">Add to active</button>
+            <button id="trailCurationReplace" type="button">Replace active</button>
+            <button id="trailCurationUnassign" type="button">Unassign selection</button>
+            <button id="trailCurationClearSelection" type="button">Clear selection</button>
+          </div>
+
+          <div class="trail-curation-filter-row">
+            <input
+              id="trailCurationSearch"
+              type="search"
+              placeholder="Filter packs"
+              aria-label="Filter riding packs"
+            />
+            <label>
+              <input id="trailCurationInView" type="checkbox" checked />
+              In view
+            </label>
+            <label>
+              <input id="trailCurationAutoFit" type="checkbox" checked />
+              Auto-fit selection
+            </label>
+          </div>
+
+          <div class="trail-curation-layer-tools">
+            <button id="trailCurationMerge" type="button">Combine selected</button>
+            <button id="trailCurationCheckVisible" type="button">Check visible</button>
+            <button id="trailCurationShowAll" type="button">Show all</button>
+            <span id="trailCurationChecked">0 checked</span>
+          </div>
+
+          <div
+            class="trail-curation-layers"
+            id="trailCurationLayers"
+            aria-label="Riding pack layers"
+          ></div>
+
+          <p class="trail-curation-loose" id="trailCurationLoose"></p>
+
+          <div class="trail-curation-file-actions">
+            <button id="trailCurationUndo" type="button">Undo</button>
+            <button id="trailCurationRedo" type="button">Redo</button>
+            <button id="trailCurationExport" type="button">Export grouping JSON</button>
+            <button id="trailCurationImport" type="button">Import grouping JSON</button>
+            <button id="trailCurationReset" type="button">Reset loaded catalog</button>
+            <input id="trailCurationImportFile" type="file" accept="application/json,.json" hidden />
+          </div>
+
+          <p class="trail-curation-help">
+            Click an area or layer name; Shift-click another, then Combine selected.
+            Turn off Auto-fit selection to keep the map still.
+            Hover a trail to see its source name.
+            On the map, Select toggles trails or a drawn box; Space temporarily pans.
+          </p>
+        </aside>
+      </section>
+    </main>
+
+    <dialog
+      class="trail-dialog trail-help-dialog"
+      id="trailHelpDialog"
+      aria-labelledby="trailHelpTitle"
+      aria-describedby="trailHelpIntro trailHelpSafety"
+    >
+      <form method="dialog">
+        <div class="trail-help-heading">
+          <h2 id="trailHelpTitle">Quick start</h2>
+          <button
+            class="trail-dialog-close"
+            id="trailHelpClose"
+            type="submit"
+            value="close"
+            aria-label="Close quick start"
+          >
+            &times;
+          </button>
+        </div>
+        <p id="trailHelpIntro">
+          Tap a named riding area, then choose Download GPX.
+        </p>
+        <p>
+          Each riding-area file is prebuilt and checked against the supported GPS capacity limits.
+        </p>
+        <div class="trail-help-downloads">
+          <button class="trail-link-button" id="openCollectionPacks" type="button" hidden>
+            Browse collection packs
+          </button>
+          <a class="trail-data-download" id="downloadMapContext" href="" download hidden>
+            Download optional USA map context
+          </a>
+          <span class="trail-context-warning" id="mapContextWarning" hidden>
+            Load it separately: nationwide geometry changes Voyager&rsquo;s useful local Fit Map view.
+          </span>
+        </div>
+        <p class="trail-help-shortcuts">
+          <strong>Desktop shortcuts:</strong> Space &mdash; pan &middot; Z &mdash; zoom
+          (hold Alt to zoom out) &middot; Ctrl+0 &mdash; fit all trails &middot;
+          Ctrl+1 &mdash; fit the selected area &middot; Ctrl++ / Ctrl+&minus; &mdash; zoom now
+        </p>
+        <p class="trail-help-note" id="trailHelpSafety">
+          Trail access changes, and old tracks can be wrong. Check current closures and land
+          rules before you ride. If a line heads into a lake, trust the lake.
+        </p>
+        <button class="trail-button trail-button--primary" type="submit" value="close">Got it</button>
+      </form>
+    </dialog>
+
+    <footer>
+      <span>Bob's App</span>
+      <span>Bob's Motorcycle Trails</span>
+      <a href="/artifacts">Return to artifacts &uarr;</a>
+    </footer>
+
+    <script src="/apps/trail-pack-builder/vendor/pmtiles-4.4.1.js"></script>
+    <script type="module" src="/apps/trail-pack-builder/trail-pack-builder.js"></script>
+  </body>
+</html>

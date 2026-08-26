@@ -27,5 +27,10 @@
 !/atmospheres/
 !/atmospheres/**
 
+# Keep the rights-cleared trail corpus local until the artifact is ready for packaging.
+/apps/trail-pack-builder/local-data/
+/apps/trail-pack-builder/local-voyager-release/
+/apps/trail-pack-builder/tools/__pycache__/
+
 .vercel
 .env*
