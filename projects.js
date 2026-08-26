@@ -31,7 +31,7 @@ export const projects = [
     },
     secondaryAction: {
       label: "View interactive prototype",
-      href: "/apps/voyager",
+      href: "/apps/interactive-gauges",
     },
     visual: "voyager",
     visualStatus: "Prototype ready",

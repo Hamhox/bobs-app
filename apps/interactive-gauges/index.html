@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#090b13" />
+    <meta
+      name="description"
+      content="Operate a faithful browser recreation of the Trail Tech Voyager interface and inspect the historical system behind it."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Interactive Gauge Archive | Bob's App" />
+    <meta
+      property="og:description"
+      content="The live interaction is the case study. Explore 146 connected Voyager interface states and the architecture behind them."
+    />
+    <meta property="og:url" content="https://bobs-app.vercel.app/apps/interactive-gauges" />
+    <meta property="og:image" content="https://bobs-app.vercel.app/og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>Interactive Gauge Archive | Bob's App</title>
+    <link rel="icon" href="/bobs-app-symbol-logo.svg" type="image/svg+xml" />
+    <link rel="preload" href="/apps/interactive-gauges/assets/fonts/bobs-font-6px/woff/BobsFont6Pixel-Regular.woff?v=1.003" as="font" type="font/woff" crossorigin />
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/apps/interactive-gauges/interactive-gauges.css" />
+    <script type="module" src="/apps/interactive-gauges/interactive-gauges.js"></script>
+  </head>
+  <body class="gauges-body">
+    <a class="skip-link" href="#content">Skip to the interactive gauge</a>
+
+    <header class="masthead gauges-masthead">
+      <a class="wordmark" href="/" aria-label="Bob's App, home">
+        <img src="/bobs-app-logo.svg" alt="" width="572" height="100" />
+      </a>
+      <p class="index-position"><span>Interactive</span> / Gauge Archive</p>
+      <nav aria-label="Primary navigation">
+        <a href="#system-map">Interface map</a>
+        <a href="#field-manual">Field manual</a>
+        <a href="#font-lab">Font lab</a>
+        <a href="/projects/gauge-evolution">Gauge story</a>
+      </nav>
+    </header>
+
+    <main id="content">
+      <section class="gauges-hero" aria-labelledby="page-title">
+        <div class="gauges-hero__inner">
+          <div class="gauges-hero__copy" id="voyager-hero-copy">
+            <p class="gauges-eyebrow">Bob's Interactive Gauge</p>
+            <h1 id="page-title">
+              <span>The offline</span>
+              <span>trail gauge,</span>
+              <span>virtualized.</span>
+            </h1>
+
+            <div class="gauges-hero__swap">
+            <div class="gauges-hero__marketing" id="voyager-marketing-copy" aria-hidden="false">
+              <p class="gauges-deck">
+                This is a living, functional replica of an embedded GPS device for motorcycles,
+                built for the web. Step inside to explore its internal screens, live routing logic,
+                and tactile interface.
+              </p>
+              <div class="gauges-actions">
+                <button
+                  class="gauges-button gauges-button--primary"
+                  id="voyager-demo-toggle"
+                  type="button"
+                  aria-controls="voyager-stage voyager-demo-narrator"
+                  disabled
+                >
+                  Start demo
+                </button>
+                <button class="gauges-button gauges-button--text" id="explore-freely" type="button" disabled>
+                  Explore freely <span aria-hidden="true">&#8594;</span>
+                </button>
+              </div>
+            </div>
+
+            <section
+              class="gauges-demo-narrator"
+              id="voyager-demo-narrator"
+              aria-label="Voyager demo narration and controls"
+              aria-hidden="true"
+            >
+              <div class="gauges-demo-narrator__status">
+                <p class="gauges-demo-narrator__counter" id="voyager-demo-counter">Demo</p>
+                <span
+                  class="gauges-demo-narrator__rail"
+                  id="voyager-demo-progress"
+                  role="progressbar"
+                  aria-label="Demo progress"
+                  aria-valuemin="1"
+                  aria-valuemax="19"
+                  aria-valuenow="1"
+                >
+                  <span id="voyager-demo-progress-fill"></span>
+                </span>
+                <button
+                  class="gauges-demo-narrator__close"
+                  id="voyager-demo-take-control"
+                  type="button"
+                  aria-label="Close demo"
+                >
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <h2 class="gauges-demo-narrator__title" id="voyager-demo-title">Live ride data</h2>
+              <p class="gauges-demo-narrator__description" id="voyager-demo-description">
+                The device is ready for a guided run through its working interface.
+              </p>
+              <div class="gauges-demo-transport" aria-label="Demo transport controls">
+                <button
+                  class="gauges-demo-transport__pause"
+                  id="voyager-demo-pause"
+                  data-transport-state="pause"
+                  type="button"
+                >
+                  Pause
+                </button>
+              </div>
+              <p class="gauges-demo-shortcuts">Space: pause / continue &middot; Esc: close demo</p>
+            </section>
+            </div>
+          </div>
+
+          <div class="voyager-experience">
+            <figure class="voyager-figure">
+              <div
+                class="voyager-stage"
+                id="voyager-stage"
+                tabindex="0"
+                role="application"
+                aria-label="Interactive Trail Tech Voyager gauge. Use the physical controls, M for Menu, arrow keys, Enter, Escape, or C for the center control."
+              >
+                <div class="voyager-screen-opening">
+                  <div
+                    class="voyager-live-screen"
+                    id="voyager-live-screen"
+                    hidden
+                  ></div>
+                </div>
+                <img
+                  class="voyager-shell"
+                  src="/apps/interactive-gauges/assets/device/voyager-straight-photo.webp"
+                  alt=""
+                  width="3750"
+                  height="2063"
+                  draggable="false"
+                />
+                <svg class="voyager-physical-overlay" viewBox="0 0 3750 2063" aria-hidden="true" focusable="false">
+                  <path
+                    class="voyager-warning-led voyager-warning-led--yellow"
+                    data-voyager-warning-led="yellow"
+                    data-led-state="off"
+                    d="M906 285Q918 253 965 249H1075Q1115 253 1120 286L1114 331Q1107 361 1068 365L952 361Q910 358 901 329Z"
+                  />
+                  <path
+                    class="voyager-warning-led voyager-warning-led--red"
+                    data-voyager-warning-led="red"
+                    data-led-state="off"
+                    d="M2638 285Q2650 253 2697 249H2807Q2847 253 2852 286L2846 331Q2839 361 2800 365L2684 361Q2642 358 2633 329Z"
+                  />
+                  <g class="voyager-control-outlines">
+                    <ellipse class="voyager-control-outline" data-control-outline="menu" cx="450" cy="592" rx="145" ry="145" />
+                    <ellipse class="voyager-control-outline" data-control-outline="back" cx="451" cy="1297" rx="137" ry="136" />
+                    <path class="voyager-control-outline" data-control-outline="up" d="M3260 503V362Q3260 326 3295 326H3365Q3400 326 3400 362V503Q3330 474 3260 503Z" />
+                    <path class="voyager-control-outline" data-control-outline="left" d="M3249 504Q3220 584 3249 668L3100 684Q3064 684 3064 648V520Q3064 484 3100 484Z" />
+                    <circle class="voyager-control-outline" data-control-outline="center" cx="3330" cy="584" r="103" />
+                    <path class="voyager-control-outline" data-control-outline="right" d="M3411 504L3560 484Q3596 484 3596 520V648Q3596 684 3560 684L3411 668Q3440 584 3411 504Z" />
+                    <path class="voyager-control-outline" data-control-outline="down" d="M3260 665Q3330 694 3400 665V806Q3400 842 3365 842H3295Q3260 842 3260 806Z" />
+                    <ellipse class="voyager-control-outline" data-control-outline="enter" cx="3285" cy="1294" rx="147" ry="144" />
+                  </g>
+                </svg>
+
+                <div class="voyager-demo-cursor" id="voyager-demo-cursor" aria-hidden="true">
+                  <span class="voyager-demo-cursor__halo"></span>
+                  <img
+                    class="voyager-demo-cursor__pointer"
+                    src="/apps/interactive-gauges/assets/ui/pixel-pointer.svg"
+                    alt=""
+                    width="53"
+                    height="80"
+                    draggable="false"
+                  />
+                  <span class="voyager-demo-cursor__spark"></span>
+                </div>
+
+                <button class="voyager-control voyager-control--menu" data-action="menu" type="button" aria-label="Menu" disabled></button>
+                <button class="voyager-control voyager-control--back" data-action="back" type="button" aria-label="Back" disabled></button>
+                <button class="voyager-control voyager-control--up" data-action="up" type="button" aria-label="Direction up" disabled></button>
+                <button class="voyager-control voyager-control--left" data-action="left" type="button" aria-label="Direction left" disabled></button>
+                <button class="voyager-control voyager-control--center" data-action="center" type="button" aria-label="Directional center" disabled></button>
+                <button class="voyager-control voyager-control--right" data-action="right" type="button" aria-label="Direction right" disabled></button>
+                <button class="voyager-control voyager-control--down" data-action="down" type="button" aria-label="Direction down" disabled></button>
+                <button class="voyager-control voyager-control--enter" data-action="enter" type="button" aria-label="Enter" disabled></button>
+              </div>
+            </figure>
+
+            <div class="sr-only" aria-label="Voyager archive status">
+              <span id="voyager-load-status">Loading</span>
+              <span id="voyager-state-code">index</span>
+              <span id="voyager-timer-status">None</span>
+            </div>
+            <p class="sr-only" id="guide-live" aria-live="polite"></p>
+            <p class="sr-only" id="interaction-live" aria-live="polite"></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="system-map-section" id="system-map" aria-labelledby="system-map-title">
+        <div class="system-map-section__copy">
+          <p class="gauges-eyebrow">Voyager interface map</p>
+          <h2 id="system-map-title">
+            <span>184 screens.</span>
+            <span>One working prototype.</span>
+          </h2>
+          <p>
+            Bob designed the Voyager interface screen by screen, exported 156 screen images, and
+            connected 146 states into a working browser prototype. The team could operate the gauge
+            and test its navigation before firmware was locked.
+          </p>
+          <div class="system-map-actions">
+            <button class="gauges-button gauges-button--primary" id="open-system-map" type="button">
+              Open full interface map <span aria-hidden="true">&#8599;</span>
+            </button>
+            <a
+              class="gauges-button gauges-button--text"
+              href="/apps/interactive-gauges/assets/system/voyager-screens-b1.pdf"
+              download
+            >Download original PDF</a>
+          </div>
+        </div>
+        <button
+          class="system-map-section__visual"
+          id="open-system-map-preview"
+          type="button"
+          aria-label="Explore Interface Map"
+        >
+          <img
+            src="/apps/interactive-gauges/assets/system/voyager-screens-b3.svg"
+            alt="Zoomed-out preview of the Voyager screen architecture board"
+            loading="lazy"
+            decoding="async"
+            width="4195"
+            height="6484"
+          />
+          <span class="system-map-section__visual-label" aria-hidden="true">
+            Explore Interface Map <span>&#8599;</span>
+          </span>
+        </button>
+      </section>
+
+      <section class="manual-section" id="field-manual" aria-labelledby="manual-section-title">
+        <header class="manual-section__header">
+          <div>
+            <p class="gauges-eyebrow">03 / Field manual</p>
+            <h2 id="manual-section-title">Eight pages that open the device.</h2>
+          </div>
+          <p>
+            The original 41-page Voyager manual documented the same controls, screens and menus.
+            This compact deck keeps the eight vector pages that connect directly to the live prototype.
+          </p>
+        </header>
+
+        <div class="manual-deck" id="voyager-manual" data-manual-page="controls">
+          <div class="manual-deck__tabs" role="tablist" aria-label="Voyager field manual pages">
+            <button id="manual-tab-controls" data-manual-page="controls" type="button" role="tab" aria-controls="manual-page-panel" aria-selected="true">
+              <span>01</span> Controls
+            </button>
+            <button id="manual-tab-main" data-manual-page="main" type="button" role="tab" aria-controls="manual-page-panel" aria-selected="false" tabindex="-1">
+              <span>02</span> Main
+            </button>
+            <button id="manual-tab-map" data-manual-page="map" type="button" role="tab" aria-controls="manual-page-panel" aria-selected="false" tabindex="-1">
+              <span>03</span> Map
+            </button>
+            <button id="manual-tab-graphs" data-manual-page="graphs" type="button" role="tab" aria-controls="manual-page-panel" aria-selected="false" tabindex="-1">
+              <span>04</span> Graphs
+            </button>
+            <button id="manual-tab-navigation" data-manual-page="navigation" type="button" role="tab" aria-controls="manual-page-panel" aria-selected="false" tabindex="-1">
+              <span>05</span> Navigation
+            </button>
+            <button id="manual-tab-quick-menu" data-manual-page="quick-menu" type="button" role="tab" aria-controls="manual-page-panel" aria-selected="false" tabindex="-1">
+              <span>06</span> Quick menu
+            </button>
+            <button id="manual-tab-waypoints" data-manual-page="waypoints" type="button" role="tab" aria-controls="manual-page-panel" aria-selected="false" tabindex="-1">
+              <span>07</span> Waypoints
+            </button>
+            <button id="manual-tab-settings" data-manual-page="settings" type="button" role="tab" aria-controls="manual-page-panel" aria-selected="false" tabindex="-1">
+              <span>08</span> Settings
+            </button>
+          </div>
+
+          <div class="manual-deck__body">
+            <div class="manual-deck__page-panel" id="manual-page-panel" role="tabpanel" aria-labelledby="manual-tab-controls" tabindex="0">
+              <div class="manual-deck__page-frame" data-manual-frame>
+                <img
+                  id="manual-page-image"
+                  src="/apps/interactive-gauges/assets/manual/manual-controls.svg"
+                  alt="Original Voyager user's manual, page 3: Controls"
+                  width="439"
+                  height="323"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+            </div>
+
+            <aside class="manual-deck__details">
+              <div>
+                <p class="manual-deck__page-number" id="manual-page-number">Page 3 / 41</p>
+                <h3 id="manual-page-title">Hardware, before software.</h3>
+                <p id="manual-page-summary">
+                  The quick-start diagram explains every physical input in one frame, including the five-position navigation switch.
+                </p>
+              </div>
+
+              <div class="manual-deck__handoff">
+                <span id="manual-sync-status">Open the matching live state</span>
+                <button
+                  class="gauges-button gauges-button--primary"
+                  id="manual-open-gauge"
+                  data-voyager-state="gauge.main.primary"
+                  type="button"
+                  disabled
+                ><span id="manual-open-gauge-label">Open Main Gauge</span> <span aria-hidden="true">&#8599;</span></button>
+              </div>
+
+              <footer class="manual-deck__footer">
+                <span id="manual-page-source">Original manual &middot; Controls</span>
+                <div class="manual-deck__paging" aria-label="Manual page navigation">
+                  <button data-manual-previous type="button" aria-label="Previous manual page">&#8592;</button>
+                  <button data-manual-next type="button" aria-label="Next manual page">&#8594;</button>
+                </div>
+              </footer>
+            </aside>
+          </div>
+          <p class="sr-only" id="manual-live" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section class="font-lab-section" id="font-lab" aria-labelledby="font-lab-title">
+        <div class="font-playground" id="font-playground">
+          <header class="font-playground__header">
+            <div>
+              <p class="font-playground__eyebrow">04 / Bob's Typography</p>
+              <h2 id="font-lab-title">Responsive pixel geometry is beautiful,</h2>
+              <p class="font-playground__instruction">...engineered for absolute clarity across modern displays and legacy grids alike.</p>
+            </div>
+          </header>
+
+          <div class="font-playground__body">
+            <div class="font-playground__preview">
+              <label class="sr-only" for="font-preview">Editable Bob's Font specimen</label>
+              <input
+                id="font-preview"
+                type="text"
+                value="TYPE YOUR TRAIL NAME HERE"
+                autocomplete="off"
+                autocapitalize="characters"
+                spellcheck="false"
+              />
+            </div>
+
+            <div class="font-playground__controls">
+              <label class="font-drawing-control" for="font-grid">
+                <span>Bob's Font: Reconstructed Demo</span>
+                <input
+                  id="font-grid"
+                  type="range"
+                  min="0"
+                  max="7"
+                  step="1"
+                  value="3"
+                  disabled
+                  aria-label="Bob's Font: Reconstructed Demo display scale"
+                  aria-valuetext="24 point display scale, 4 of 8"
+                />
+                <span class="font-drawing-control__range" aria-hidden="true">
+                  <span>8pt</span><span>&middot;</span><span>|</span><span>&middot;</span>
+                  <span>&middot;</span><span>&middot;</span><span>&middot;</span><span>96pt</span>
+                </span>
+              </label>
+
+              <a
+                class="gauges-button gauges-button--primary"
+                id="font-download"
+                href="/apps/interactive-gauges/assets/fonts/bobs-font-8px-v3.110/Bobs-Font-8px-v3.110.zip"
+                download="Bobs-Font-8px-v3.110.zip"
+              >Download font pack</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="gauges-footer">
+      <span>Bob's App / Interactive Gauge Archive</span>
+      <nav aria-label="Footer navigation">
+        <a href="/">Directory</a>
+        <a href="/projects/gauge-evolution">Gauge story</a>
+        <a href="#content">Back to top</a>
+      </nav>
+    </footer>
+
+    <dialog class="system-map-dialog" id="system-map-dialog" aria-labelledby="map-dialog-title">
+      <header class="system-map-dialog__header">
+        <div>
+          <p class="gauges-eyebrow">Voyager architecture board</p>
+          <h2 id="map-dialog-title">184 designed screens</h2>
+        </div>
+        <div class="system-map-dialog__status">
+          <span id="system-map-status" aria-live="polite">Fit to view</span>
+          <button data-map-close type="button" aria-label="Close system map">Close</button>
+        </div>
+      </header>
+      <div class="system-map-toolbar" aria-label="System map controls">
+        <button data-map-zoom-in type="button" aria-label="Zoom in">+</button>
+        <button data-map-zoom-out type="button" aria-label="Zoom out">&#8722;</button>
+        <button data-map-overview type="button">Overview</button>
+        <button data-map-screen-layout type="button">Screen layout</button>
+        <button data-map-menu-screens type="button">Menu screens</button>
+        <button data-map-menu-flow type="button">Menu flow</button>
+      </div>
+      <div
+        class="system-map-viewport"
+        id="system-map-viewport"
+        tabindex="0"
+        aria-label="Pan and zoom viewer for the Voyager architecture board. Drag to pan, scroll to zoom, or use the toolbar."
+      >
+        <div
+          id="system-map-image"
+          class="system-map-image"
+          role="group"
+          aria-label="Voyager interface architecture board showing screen layouts, menu screens and menu flow"
+        ></div>
+        <aside class="system-map-selection" id="system-map-selection" aria-live="polite">
+          <p class="system-map-selection__eyebrow">Gauge handoff</p>
+          <div class="system-map-selection__heading">
+            <span id="system-map-selection-id-label">Select a screen</span>
+            <strong id="system-map-selection-id">Open it in the gauge</strong>
+          </div>
+          <span class="system-map-selection__status" id="system-map-selection-status" data-kind="idle">Connected states only</span>
+          <p class="system-map-selection__group" id="system-map-selection-group">Choose a named screen on the map.</p>
+          <button
+            class="gauges-button gauges-button--primary"
+            id="open-selected-map-screen"
+            type="button"
+            disabled
+          >Open This Screen in the Gauge <span aria-hidden="true">&#8599;</span></button>
+        </aside>
+      </div>
+      <p class="system-map-dialog__hint">Click a screen to inspect it. Drag or use arrow keys to pan. Scroll, pinch, plus or minus to zoom. Home fits the map.</p>
+    </dialog>
+  </body>
+</html>

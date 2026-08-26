@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Bob's App Voyager Live UI" xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata><name>Mountain Run</name></metadata>
+  <trk>
+    <name>MOUNTAIN RUN</name>
+    <trkseg>
+      <trkpt lat="39.191620" lon="-120.249870"><ele>1948</ele><time>2026-08-18T14:10:00Z</time></trkpt>
+      <trkpt lat="39.192110" lon="-120.249210"><ele>1956</ele><time>2026-08-18T14:10:06Z</time></trkpt>
+      <trkpt lat="39.192740" lon="-120.248810"><ele>1968</ele><time>2026-08-18T14:10:12Z</time></trkpt>
+      <trkpt lat="39.193360" lon="-120.248120"><ele>1984</ele><time>2026-08-18T14:10:18Z</time></trkpt>
+      <trkpt lat="39.194020" lon="-120.247770"><ele>2002</ele><time>2026-08-18T14:10:24Z</time></trkpt>
+      <trkpt lat="39.194510" lon="-120.246980"><ele>2025</ele><time>2026-08-18T14:10:30Z</time></trkpt>
+      <trkpt lat="39.195190" lon="-120.246550"><ele>2048</ele><time>2026-08-18T14:10:36Z</time></trkpt>
+      <trkpt lat="39.195830" lon="-120.245920"><ele>2071</ele><time>2026-08-18T14:10:42Z</time></trkpt>
+      <trkpt lat="39.196260" lon="-120.245090"><ele>2090</ele><time>2026-08-18T14:10:48Z</time></trkpt>
+      <trkpt lat="39.196910" lon="-120.244620"><ele>2104</ele><time>2026-08-18T14:10:54Z</time></trkpt>
+      <trkpt lat="39.197450" lon="-120.243930"><ele>2116</ele><time>2026-08-18T14:11:00Z</time></trkpt>
+      <trkpt lat="39.197180" lon="-120.243120"><ele>2108</ele><time>2026-08-18T14:11:06Z</time></trkpt>
+      <trkpt lat="39.196620" lon="-120.242570"><ele>2095</ele><time>2026-08-18T14:11:12Z</time></trkpt>
+      <trkpt lat="39.196080" lon="-120.242960"><ele>2082</ele><time>2026-08-18T14:11:18Z</time></trkpt>
+      <trkpt lat="39.195520" lon="-120.243510"><ele>2064</ele><time>2026-08-18T14:11:24Z</time></trkpt>
+      <trkpt lat="39.194940" lon="-120.244020"><ele>2041</ele><time>2026-08-18T14:11:30Z</time></trkpt>
+      <trkpt lat="39.194260" lon="-120.244480"><ele>2019</ele><time>2026-08-18T14:11:36Z</time></trkpt>
+      <trkpt lat="39.193690" lon="-120.245170"><ele>1998</ele><time>2026-08-18T14:11:42Z</time></trkpt>
+      <trkpt lat="39.193010" lon="-120.245850"><ele>1981</ele><time>2026-08-18T14:11:48Z</time></trkpt>
+      <trkpt lat="39.192460" lon="-120.246690"><ele>1967</ele><time>2026-08-18T14:11:54Z</time></trkpt>
+      <trkpt lat="39.191940" lon="-120.247580"><ele>1956</ele><time>2026-08-18T14:12:00Z</time></trkpt>
+      <trkpt lat="39.191620" lon="-120.249870"><ele>1948</ele><time>2026-08-18T14:12:06Z</time></trkpt>
+    </trkseg>
+  </trk>
+</gpx>
