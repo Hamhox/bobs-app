@@ -452,8 +452,7 @@
   --voyager-shadow: rgb(158 153 147);
   --voyager-route-ink: rgb(25 25 25);
   --voyager-route-muted: rgb(129 124 125);
-  --voyager-backlight-color: var(--voyager-screen);
-  --voyager-backlight-image: url("./assets/ui/voyager-backlight-authentic.png");
+  --voyager-backlight-color: rgb(169 217 252);
   --voyager-backlight-opacity: 1;
 
   position: absolute;
@@ -492,46 +491,46 @@
 
 .voyager-live-screen::after {
   z-index: 3;
-  background-image: var(--voyager-backlight-image);
-  mix-blend-mode: multiply;
+  background: var(--voyager-backlight-color);
+  mix-blend-mode: color;
   opacity: var(--voyager-backlight-opacity);
   transition: opacity 120ms steps(2, end);
 }
 
 .voyager-live-screen[data-backlight-color="authentic"] {
-  --voyager-backlight-image: url("./assets/ui/voyager-backlight-authentic.png");
+  --voyager-backlight-color: rgb(169 217 252);
 }
 
 .voyager-live-screen[data-backlight-color="blue"] {
-  --voyager-backlight-image: url("./assets/ui/voyager-backlight-blue.png");
+  --voyager-backlight-color: rgb(2 160 251);
 }
 
 .voyager-live-screen[data-backlight-color="amber"] {
-  --voyager-backlight-image: url("./assets/ui/voyager-backlight-amber.png");
+  --voyager-backlight-color: rgb(240 153 2);
 }
 
 .voyager-live-screen[data-backlight-color="white"] {
-  --voyager-backlight-image: url("./assets/ui/voyager-backlight-white.png");
+  --voyager-backlight-color: rgb(208 207 203);
 }
 
 .voyager-live-screen[data-backlight-color="purple"] {
-  --voyager-backlight-image: url("./assets/ui/voyager-backlight-purple.png");
+  --voyager-backlight-color: rgb(199 14 249);
 }
 
 .voyager-live-screen[data-backlight-color="violet"] {
-  --voyager-backlight-image: url("./assets/ui/voyager-backlight-violet.png");
+  --voyager-backlight-color: rgb(187 156 249);
 }
 
 .voyager-live-screen[data-backlight-color="red"] {
-  --voyager-backlight-image: url("./assets/ui/voyager-backlight-red.png");
+  --voyager-backlight-color: rgb(250 16 14);
 }
 
 .voyager-live-screen[data-backlight-color="yellow"] {
-  --voyager-backlight-image: url("./assets/ui/voyager-backlight-yellow.png");
+  --voyager-backlight-color: rgb(252 248 49);
 }
 
 .voyager-live-screen[data-backlight-color="green"] {
-  --voyager-backlight-image: url("./assets/ui/voyager-backlight-green.png");
+  --voyager-backlight-color: rgb(72 175 9);
 }
 
 .voyager-live-screen[hidden] {
@@ -1300,7 +1299,7 @@
 }
 
 .voyager-menu__underlay-wash {
-  fill: var(--voyager-backlight-color);
+  fill: var(--voyager-screen);
   opacity: 0.52;
   pointer-events: none;
   shape-rendering: crispEdges;

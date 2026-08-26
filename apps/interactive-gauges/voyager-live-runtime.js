@@ -1539,7 +1539,6 @@ export class VoyagerLiveRuntime {
     this.#mount.style.setProperty("--voyager-shadow", palette.shadow);
     this.#mount.style.setProperty("--voyager-route-ink", palette.routeInk);
     this.#mount.style.setProperty("--voyager-route-muted", palette.routeMuted);
-    this.#mount.style.setProperty("--voyager-backlight-color", palette.screen);
     this.#mount.style.setProperty("--voyager-backlight-opacity", awake ? String(power.backlightOpacity) : "0");
   }
 
