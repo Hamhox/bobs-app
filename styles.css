@@ -911,7 +911,7 @@ footer a {
   line-height: 1.48;
 }
 
-.destination-status {
+.destination-copy > .destination-status {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
@@ -920,6 +920,7 @@ footer a {
   border-top: 1px solid var(--brand-border);
   border-bottom: 1px solid var(--brand-border);
   color: var(--brand-muted);
+  font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
   font-size: 0.6rem;
   letter-spacing: 0.08em;
 }
